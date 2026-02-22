@@ -457,3 +457,119 @@ date: 2026-02-22
 
 **Confidence**: High
 **Reversible**: High (add flags later)
+
+---
+
+## 27. yaml.safe_load + Pydantic for Vault Frontmatter (Drop OmegaConf)
+
+**Decision**: Use `yaml.safe_load` (PyYAML) + Pydantic for parsing note frontmatter. Remove OmegaConf from runtime dependencies.
+
+**Alternatives Considered** (via "design it twice" with three parallel contrarian analyses):
+- OmegaConf + Pydantic (original system-design.md spec)
+- PyYAML only (no schema validation)
+- yaml.safe_load + Pydantic (chosen)
+
+**Rationale**: OmegaConf's key features (variable interpolation `${key}`, config merging, structured configs) are irrelevant for note frontmatter. Notes have simple flat YAML that needs schema validation, not config composition. PyYAML handles the parsing; Pydantic handles validation and typing. One fewer runtime dependency.
+
+**Confidence**: High
+**Reversible**: High (add OmegaConf back if interpolation/merge features are needed later)
+
+---
+
+## 28. Typed Generic[T] Vault API
+
+**Decision**: `vault.read_note(path, schema) -> Note[T]` uses `Generic[T]` where T is a Pydantic BaseModel. The type checker knows the frontmatter type at call sites.
+
+**Alternatives Considered** (via "design it twice"):
+- Design A: Minimal 2-function API, schema-ignorant (returns raw dict)
+- Design B: Typed generics with `Note[T]` (chosen, trimmed to 2 functions)
+- Design C: Two-layer split (frontmatter.py + Vault class)
+
+**Rationale**: Design B gives type-checker coverage on frontmatter fields while keeping the API to just 2 functions (`read_note`, `write_note`). Design A loses type safety. Design C was over-structured for v1. `Note[T]` is a frozen dataclass (not Pydantic) to avoid double-validation overhead. `parse_frontmatter` and `update_frontmatter` convenience functions deferred — callers use `read_note`/`write_note`.
+
+**Confidence**: High
+**Reversible**: High (internal implementation, public API is 2 functions)
+
+---
+
+## 29. Atomic State Operations
+
+**Decision**: Each state function (`transition`, `update_tracking`, `create_initial_state`) does its own load → validate → save cycle internally. No shared state, no "session" object.
+
+**Alternatives Considered** (via "design it twice"):
+- Pure/IO split: pure functions for logic, separate I/O boundary
+- Atomic operations: each function is self-contained (chosen)
+- Transition-centric: converged to atomic approach
+
+**Rationale**: All three contrarian designs converged on functions + frozen data (matching the manifest.py pattern). The key choice was between a pure/IO split (caller loads, pure function transforms, caller saves) vs atomic operations. Atomic was chosen because callers should never forget to persist — the state file IS the source of truth, not in-memory objects.
+
+**Confidence**: High
+**Reversible**: Medium (changing the I/O boundary affects all callers)
+
+---
+
+## 30. State Machine: Forward Progression + Known Backward Steps
+
+**Decision**: State transitions follow a linear progression with specific allowed backward steps. Revise commands (`/mantle:revise-product`, `/mantle:revise-system`) do NOT change state.
+
+**Allowed backward steps**:
+- implementing → planning (re-plan after implementation issues)
+- verifying → implementing (fix issues found during verification)
+- reviewing → implementing (fix issues found during review)
+
+**Alternatives Considered**:
+- Strict linear: no backward steps allowed
+- Free-form: any transition allowed
+- State groups: coarse-grained phases instead of fine-grained statuses
+
+**Rationale**: Real workflows aren't purely linear. Discovery during implementation often requires re-planning. But allowing arbitrary transitions defeats the purpose of tracking progress. The specific backward steps reflect known real-world patterns. Revise commands don't change state because revising a design doesn't reset planning/implementation progress.
+
+**Confidence**: High
+**Reversible**: High (add/remove transitions from the `_TRANSITIONS` dict)
+
+---
+
+## 31. No Config CLI in v1 (Config as Internal API)
+
+**Decision**: `mantle config set/get` is not a user-facing CLI command in v1. Config read/write exists as internal functions in `core/project.py` (`read_config`, `update_config`) for other commands to use programmatically.
+
+**Alternatives Considered**:
+- Full config subcommand group (`mantle config set key val` / `mantle config get key`)
+- Config set only, no get
+- Internal API only (chosen)
+
+**Rationale**: Only two config keys exist (`personal_vault`, `verification_strategy`). Both are set-once by other commands — `init-vault` sets the vault path, `verify` will set the strategy. Nobody will type `mantle config set` directly. The core API supports adding a CLI later (5 lines of Cyclopts wiring), so nothing is lost by deferring.
+
+**Confidence**: Medium (may add config CLI if users request it)
+**Reversible**: High (add CLI commands later, core API already exists)
+
+---
+
+## 32. Init Design: core/project.py Hybrid
+
+**Decision**: `core/project.py` contains both template constants (importable by any module) and an `init_project()` function. CLI handles idempotency check and Rich output.
+
+**Alternatives Considered** (via "design it twice"):
+- Everything in cli/init.py (templates trapped in CLI layer)
+- core/templates.py for content generators + CLI orchestrator
+- core/project.py with constants + init_project() (chosen)
+
+**Rationale**: The tag taxonomy, config schema, and directory structure are domain knowledge that other core modules will need (validation, compilation, querying). Trapping them in `cli/init.py` violates the architecture rule when any core module needs them. But the init function itself is simple scaffolding (mkdir + write files), not complex logic. The hybrid puts data where it's reusable and keeps the function minimal.
+
+**Confidence**: High
+**Reversible**: High (refactor between modules is trivial)
+
+---
+
+## 33. init-vault Auto-Sets Config (One Command, One Intent)
+
+**Decision**: `mantle init-vault ~/vault` creates the directory structure AND automatically records the vault path in `.mantle/config.md` frontmatter. No separate `mantle config set personal-vault` step.
+
+**Alternatives Considered**:
+- Two-step: `init-vault` creates dirs, user runs `config set` separately
+- Single command with optional `--no-config` flag
+
+**Rationale**: The user's intent is "I want to use a personal vault at this path." Making them type the path twice (once for dirs, once for config) is a UX failure. One command, one intent. The escape hatch (`read_config`/`update_config` in core) exists for programmatic access if ever needed.
+
+**Confidence**: High
+**Reversible**: High (split into two commands if users want more control)
