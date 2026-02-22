@@ -31,6 +31,8 @@ Follow the Google Python Style Guide (see `google-python-style` skill).
 ## Test Conventions
 
 - Framework: pytest
+- Test directory mirrors `src/mantle/` structure (e.g. `tests/core/test_manifest.py` for `src/mantle/core/manifest.py`)
+- Top-level `tests/test_package.py` and `tests/test_workflows.py` for project-wide and infrastructure tests
 - Use `tmp_path` for isolated file operations — never touch real `~/.claude/` or real vaults
 - No LLM calls in tests
 - Test external behaviour, not internal implementation details

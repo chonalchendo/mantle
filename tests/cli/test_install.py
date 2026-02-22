@@ -9,7 +9,11 @@ from mantle.cli.install import _copy_files, _print_summary, run_install
 from mantle.core.manifest import plan_install, record_install
 
 HELP_MD = (
-    Path(__file__).parent.parent / "claude" / "commands" / "mantle" / "help.md"
+    Path(__file__).parent.parent.parent
+    / "claude"
+    / "commands"
+    / "mantle"
+    / "help.md"
 )
 _MANIFEST = "mantle-file-manifest.json"
 
