@@ -10,11 +10,11 @@ install:
 
 # Run linter
 lint *args:
-    uv run ruff check src/ tests/ {{args}}
+    uv run ruff check src/ tests/ {{ args }}
 
 # Run formatter
 format *args:
-    uv run ruff format src/ tests/ {{args}}
+    uv run ruff format src/ tests/ {{ args }}
 
 # Run type checker
 type:
@@ -22,7 +22,7 @@ type:
 
 # Run tests
 test *args:
-    uv run pytest {{args}}
+    uv run pytest {{ args }}
 
 # Run all checks (lint, format check, type, test)
 check: lint type test
@@ -42,20 +42,16 @@ fix:
     uv run ruff format src/ tests/
 
 # Clean build artifacts
-[group('package')]
 clean-build:
     rm -rf dist/ build/ *.egg-info src/*.egg-info constraints.txt
 
 # Run package tasks
-[group('package')]
 package: package-build
 
 # Build package constraints
-[group('package')]
 package-constraints constraints="constraints.txt":
-    uv pip compile pyproject.toml --generate-hashes --output-file={{constraints}}
+    uv pip compile pyproject.toml --generate-hashes --output-file={{ constraints }}
 
 # Build python package
-[group('package')]
 package-build constraints="constraints.txt": clean-build package-constraints
-    uv build --build-constraint={{constraints}} --wheel
+    uv build --build-constraint={{ constraints }} --wheel

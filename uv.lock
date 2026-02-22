@@ -143,12 +143,14 @@ dependencies = [
 check = [
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
     { name = "ruff" },
     { name = "ty" },
 ]
 dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
 ]
 hooks = [
     { name = "prek" },
@@ -173,12 +175,14 @@ requires-dist = [
 check = [
     { name = "pytest", specifier = ">=8.0" },
     { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.11" },
     { name = "ty", specifier = ">=0.0" },
 ]
 dev = [
     { name = "pytest", specifier = ">=8.0" },
     { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "pyyaml", specifier = ">=6.0" },
 ]
 hooks = [{ name = "prek", specifier = ">=0.3" }]
 lint = [{ name = "ruff", specifier = ">=0.11" }]
