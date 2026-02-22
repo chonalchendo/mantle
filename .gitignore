@@ -6,6 +6,9 @@ build/
 dist/
 wheels/
 
+# Build
+constraints.txt
+
 # Virtual environments
 .venv/
 

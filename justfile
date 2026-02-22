@@ -40,3 +40,22 @@ ci:
 fix:
     uv run ruff check src/ tests/ --fix
     uv run ruff format src/ tests/
+
+# Clean build artifacts
+[group('package')]
+clean-build:
+    rm -rf dist/ build/ *.egg-info src/*.egg-info constraints.txt
+
+# Run package tasks
+[group('package')]
+package: package-build
+
+# Build package constraints
+[group('package')]
+package-constraints constraints="constraints.txt":
+    uv pip compile pyproject.toml --generate-hashes --output-file={{constraints}}
+
+# Build python package
+[group('package')]
+package-build constraints="constraints.txt": clean-build package-constraints
+    uv build --build-constraint={{constraints}} --wheel
