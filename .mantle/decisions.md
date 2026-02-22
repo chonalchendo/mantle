@@ -1,6 +1,6 @@
 # Mantle — Key Decisions
 
-Decisions made during the initial design session (2026-02-22).
+Decisions made during design and implementation.
 
 ## 1. Obsidian-Native, Not Multi-Backend
 
@@ -411,3 +411,49 @@ date: 2026-02-22
 
 **Confidence**: High
 **Reversible**: High (change prompting behaviour)
+
+---
+
+## 24. Manifest Interface: Two Functions, Not Many
+
+**Decision**: The manifest module (`core/manifest.py`) exposes two public functions: `plan_install(source_dir, target_dir) -> InstallPlan` and `record_install(source_dir, target_dir, installed)`. All comparison logic is internal.
+
+**Alternatives Considered** (via "design it twice" with three parallel contrarian analyses):
+- Design A (chosen): Two functions — plan then record. Caller decides what to do with the plan.
+- Design B: Eight composable functions (Unix philosophy) — `hash_file`, `hash_directory`, `read_manifest`, `write_manifest`, `compare_manifests`, etc.
+- Design C: Stateful `Installer` class that accumulates state across method calls.
+
+**Rationale**: Design A has the smallest API surface while keeping all policy decisions (what to prompt, what to skip) in the caller. Design B exposed too many internal details as public API. Design C coupled state management to the manifest module. The `InstallPlan` frozen Pydantic model with computed properties (`safe_to_write`, `needs_prompt`) gives the caller everything it needs in one object. `CONFLICT` status (from Design B) was added to handle files where both source and user have changed.
+
+**Confidence**: High
+**Reversible**: High (internal refactoring, public API is small)
+
+---
+
+## 25. Wheel-Only for Bundled Files, Not Editable Installs
+
+**Decision**: The `force-include` mechanism (bundling `claude/` and `vault-templates/` into the wheel) only works in built wheels, not in editable dev installs. This is by design — `mantle install` is tested via a wheel install script (`scripts/test_wheel_install.sh`), not from the dev environment.
+
+**Alternatives Considered**:
+- Fallback to repo-root `claude/` directory in editable installs
+- Use `uv tool install .` for local dev testing
+
+**Rationale**: Adding editable-install fallback paths introduces code that only exists for dev convenience and never runs in production. The wheel install test script provides full end-to-end verification: build wheel, install in isolated venv, run `mantle install` with fake HOME, verify files land correctly. This tests the real user experience.
+
+**Confidence**: High
+**Reversible**: High (could add fallback if needed)
+
+---
+
+## 26. `--install-global` Flag Dropped from Install Command
+
+**Decision**: `mantle install` copies to `~/.claude/` directly. The `--global` flag from the original PRD was dropped.
+
+**Alternatives Considered**:
+- `mantle install --global` (per original PRD)
+- `mantle install --target <path>` for flexibility
+
+**Rationale**: There's only one target (`~/.claude/`). A `--global` flag implies there's a non-global option, but there isn't one yet. Adding flags for nonexistent alternatives is premature. When project-level install is needed (issue #02+), a `--project` flag or separate command can be added.
+
+**Confidence**: High
+**Reversible**: High (add flags later)

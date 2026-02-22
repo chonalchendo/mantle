@@ -1,11 +1,11 @@
 ---
 issue: 1
 title: File hash manifest module (core/manifest.py)
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation

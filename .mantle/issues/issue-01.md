@@ -1,12 +1,12 @@
 ---
 title: Package skeleton, CLI entry point, and mantle install
-status: planned
+status: completed
 slice: [package, cli, core, claude-code, tests]
 story_count: 5
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
@@ -27,13 +27,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `uv tool install .` (local) installs the package and makes `mantle` available on PATH
-- [ ] `mantle install --global` copies all files from `claude/` into `~/.claude/` preserving directory structure
-- [ ] `mantle install --global` writes `mantle-file-manifest.json` tracking installed file hashes
-- [ ] `mantle install --global` on re-run detects user-modified files and warns before overwriting
-- [ ] `/mantle:help` is available in Claude Code and lists commands grouped by workflow phase
-- [ ] `mantle --help` shows available CLI commands with auto-generated help from Cyclopts
-- [ ] Tests cover install file copying, manifest creation, and user modification detection
+- [x] `uv tool install .` (local) installs the package and makes `mantle` available on PATH
+- [x] `mantle install` copies all files from `claude/` into `~/.claude/` preserving directory structure
+- [x] `mantle install` writes `mantle-file-manifest.json` tracking installed file hashes
+- [x] `mantle install` on re-run detects user-modified files and warns before overwriting
+- [x] `/mantle:help` is available in Claude Code and lists commands grouped by workflow phase
+- [x] `mantle --help` shows available CLI commands with auto-generated help from Cyclopts
+- [x] Tests cover install file copying, manifest creation, and user modification detection (44 tests)
 
 ## Blocked by
 

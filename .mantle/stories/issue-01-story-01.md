@@ -1,11 +1,11 @@
 ---
 issue: 1
 title: Package skeleton, project standards, and CLAUDE.md
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation

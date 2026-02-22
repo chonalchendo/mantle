@@ -1,11 +1,11 @@
 ---
 issue: 1
 title: Development tooling (justfile, ruff, ty, prek, pytest)
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation
