@@ -1,0 +1,54 @@
+# PyPI publishing via trusted publishers (OIDC).
+#
+# Setup required:
+# 1. Configure trusted publisher on PyPI:
+#    Project settings -> Publishing -> Add GitHub as trusted publisher
+#    Owner: <repo-owner>, Repo: <repo-name>, Workflow: publish.yml
+# 2. Create "pypi" environment in GitHub repo settings with protection rules
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        run: uv python install 3.14
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mantle-ai/
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
