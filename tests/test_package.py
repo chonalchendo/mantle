@@ -37,7 +37,9 @@ def test_install_help_outputs_text():
         cwd=REPO_ROOT,
     )
     assert result.returncode == 0
-    assert "mount" in result.stdout.lower() or "install" in result.stdout.lower()
+    assert (
+        "mount" in result.stdout.lower() or "install" in result.stdout.lower()
+    )
 
 
 def test_claude_md_exists():

@@ -15,6 +15,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 - Run tests: `uv run pytest`
 - Run all checks: `just check`
 - Auto-fix lint/format: `just fix`
+- Set up git hooks: `prek install`
 
 ## Coding Standards
 
