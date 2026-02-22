@@ -45,30 +45,16 @@ def run_install() -> None:
 
 
 def _locate_bundled_claude_dir() -> Path:
-    """Locate the bundled claude/ directory inside the package.
-
-    In a wheel install, Hatchling's force-include puts claude/ inside
-    the package. In an editable dev install, it stays at the repo root.
-    We check both locations.
-    """
-    # Wheel install: claude/ is inside the package
+    """Locate the bundled claude/ directory inside the package."""
     ref = resources.files("mantle").joinpath("claude")
     source_dir = Path(str(ref))
-    if source_dir.is_dir():
-        return source_dir
-
-    # Editable install: claude/ is at the repo root
-    # src/mantle/ -> repo root is two levels up from the package
-    repo_root = Path(str(resources.files("mantle"))).parent.parent
-    source_dir = repo_root / "claude"
-    if source_dir.is_dir():
-        return source_dir
-
-    console.print(
-        "[red]Error:[/red] Bundled claude/ directory not found. "
-        "The package may be installed incorrectly."
-    )
-    raise SystemExit(1)
+    if not source_dir.is_dir():
+        console.print(
+            "[red]Error:[/red] Bundled claude/ directory not found. "
+            "The package may be installed incorrectly."
+        )
+        raise SystemExit(1)
+    return source_dir
 
 
 def _copy_files(
