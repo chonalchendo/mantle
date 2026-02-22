@@ -3,7 +3,7 @@
 # copies bundled files into a target directory.
 #
 # Usage:
-#   ./examples/test_wheel_install.sh
+#   ./scripts/test_wheel_install.sh
 #
 # This script:
 #   1. Builds the wheel
