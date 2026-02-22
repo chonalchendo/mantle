@@ -1,11 +1,11 @@
 ---
 issue: 2
 title: Init command (mantle init)
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation

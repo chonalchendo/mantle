@@ -1,12 +1,12 @@
 ---
 title: Project initialization (mantle init + personal vault setup)
-status: planned
+status: completed
 slice: [cli, core, vault, tests]
 story_count: 4
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD

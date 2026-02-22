@@ -1,11 +1,11 @@
 ---
 issue: 2
 title: Vault read/write module (core/vault.py)
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation

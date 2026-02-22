@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from rich.console import Console
 
-from mantle.core.manifest import plan_install, record_install
+from mantle.core import manifest
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -22,7 +22,7 @@ def run_install() -> None:
     source_dir = _locate_bundled_claude_dir()
     target_dir = Path.home() / ".claude"
 
-    plan = plan_install(source_dir, target_dir)
+    plan = manifest.plan_install(source_dir, target_dir)
 
     # Copy safe files (new + source_changed)
     _copy_files(source_dir, target_dir, plan.safe_to_write)
@@ -37,7 +37,7 @@ def run_install() -> None:
 
     # Record what was installed
     tracked = plan.safe_to_write | approved | plan.unchanged
-    record_install(source_dir, target_dir, tracked)
+    manifest.record_install(source_dir, target_dir, tracked)
 
     # Summary
     installed_count = len(plan.safe_to_write) + len(approved)

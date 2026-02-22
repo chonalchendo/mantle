@@ -25,6 +25,7 @@ Follow the Google Python Style Guide (see `google-python-style` skill).
 - Google-style docstrings on all public modules, classes, and functions
 - 80 character line length
 - Absolute imports only
+- Import modules, not individual names: `from mantle.core import vault` then `vault.read_note(...)`, not `from mantle.core.vault import read_note`
 - Never bare `except:`
 - Never mutable default arguments
 

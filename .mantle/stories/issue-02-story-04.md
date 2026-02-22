@@ -1,11 +1,11 @@
 ---
 issue: 2
 title: Init-vault command with auto-config (mantle init-vault)
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## Implementation
