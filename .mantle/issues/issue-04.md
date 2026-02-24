@@ -1,12 +1,12 @@
 ---
 title: Challenge session (/mantle:challenge)
-status: planned
+status: completed
 slice: [core, claude-code, tests]
-story_count: 0
+story_count: 3
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
@@ -25,13 +25,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:challenge` is available in Claude Code and starts a multi-angle challenge session
-- [ ] The session weaves through devil's advocate, pre-mortem, and competitive analysis adaptively based on conversation flow
-- [ ] The session does not follow a rigid checklist — it adapts questioning to what the user says
-- [ ] Challenge transcript is saved to `.mantle/challenges/` with date-based naming and YAML frontmatter
-- [ ] The challenge phase is optional — other commands work without it being run
-- [ ] The challenger agent definition is installed to `~/.claude/agents/`
-- [ ] Tests verify prompt construction, session structure, and transcript format
+- [x] `/mantle:challenge` is available in Claude Code and starts a multi-angle challenge session
+- [x] The session weaves through devil's advocate, pre-mortem, and competitive analysis adaptively based on conversation flow
+- [x] The session does not follow a rigid checklist — it adapts questioning to what the user says
+- [x] Challenge transcript is saved to `.mantle/challenges/` with date-based naming and YAML frontmatter
+- [x] The challenge phase is optional — other commands work without it being run
+- [x] The challenger agent definition is installed to `~/.claude/agents/`
+- [x] Tests verify prompt construction, session structure, and transcript format
 
 ## Blocked by
 

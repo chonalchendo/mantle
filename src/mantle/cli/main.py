@@ -5,7 +5,7 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from mantle.cli import idea, init, init_vault, install
+from mantle.cli import challenge, idea, init, init_vault, install
 
 app = App(name="mantle", help="AI workflow engine with persistent context.")
 
@@ -82,6 +82,30 @@ def save_idea_command(
         target_user=target_user,
         success_criteria=success_criteria,
         overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-challenge")
+def save_challenge_command(
+    transcript: Annotated[
+        str,
+        Parameter(
+            name="--transcript",
+            help="Full challenge session transcript.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a challenge session transcript to .mantle/challenges/."""
+    challenge.run_save_challenge(
+        transcript=transcript,
         project_dir=path,
     )
 

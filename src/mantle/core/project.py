@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 MANTLE_DIR = ".mantle"
 
 SUBDIRS: tuple[str, ...] = (
+    "challenges",
     "decisions",
     "sessions",
     "issues",
