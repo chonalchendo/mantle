@@ -27,19 +27,19 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `mantle init` in a git repo creates `.mantle/` with state.md, config.md, tags.md, and .gitignore
-- [ ] state.md is created with valid YAML frontmatter including project name (derived from directory), status "idea", git identity, timestamps
-- [ ] .gitignore excludes compiled/temp files
-- [ ] Interactive onboarding message prints with next steps ("Run /mantle:idea to get started")
-- [ ] Onboarding message mentions personal vault setup (non-blocking)
-- [ ] `mantle init-vault ~/vault` creates skills/, knowledge/, inbox/ directories
-- [ ] `mantle init-vault ~/vault` automatically sets personal_vault in `.mantle/config.md` frontmatter
-- [ ] `core/vault.py` reads and writes markdown files with YAML frontmatter using yaml.safe_load + Pydantic
-- [ ] `core/vault.py` is filesystem only (Obsidian CLI integration deferred)
-- [ ] `core/state.py` validates state transitions (e.g., idea → challenge is valid, idea → implementing is not)
-- [ ] All created notes are stamped with `git config user.email`
-- [ ] Running `mantle init` in an already-initialized project warns and does not overwrite
-- [ ] Tests cover vault read/write, state transitions, init idempotency, and vault init with auto-config
+- [x] `mantle init` in a git repo creates `.mantle/` with state.md, config.md, tags.md, and .gitignore
+- [x] state.md is created with valid YAML frontmatter including project name (derived from directory), status "idea", git identity, timestamps
+- [x] .gitignore excludes compiled/temp files
+- [x] Interactive onboarding message prints with next steps ("Run /mantle:idea to get started")
+- [x] Onboarding message mentions personal vault setup (non-blocking)
+- [x] `mantle init-vault ~/vault` creates skills/, knowledge/, inbox/ directories
+- [x] `mantle init-vault ~/vault` automatically sets personal_vault in `.mantle/config.md` frontmatter
+- [x] `core/vault.py` reads and writes markdown files with YAML frontmatter using yaml.safe_load + Pydantic
+- [x] `core/vault.py` is filesystem only (Obsidian CLI integration deferred)
+- [x] `core/state.py` validates state transitions (e.g., idea → challenge is valid, idea → implementing is not)
+- [x] All created notes are stamped with `git config user.email`
+- [x] Running `mantle init` in an already-initialized project warns and does not overwrite
+- [x] Tests cover vault read/write, state transitions, init idempotency, and vault init with auto-config
 
 ## Blocked by
 
