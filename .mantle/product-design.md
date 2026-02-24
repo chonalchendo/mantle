@@ -29,7 +29,8 @@ Not: non-technical users, enterprise teams, or people who need a GUI (though the
 | Phase | Command | What Happens |
 |---|---|---|
 | **Idea** | `/mantle:idea` | User logs an idea to the project vault with structured metadata. Captured as a note, not lost in chat history. |
-| **Challenge** | `/mantle:challenge` | Optional single interactive session. AI weaves through devil's advocate, pre-mortem, and competitive analysis based on conversation flow — challenging the idea from multiple angles rather than rubber-stamping it. |
+| **Adopt** | `/mantle:adopt` | For existing projects. Parallel agents analyze the codebase and research the domain, then an interactive session reverse-engineers product and system design documents from what already exists. Bridges into the planning workflow. |
+| **Challenge** | `/mantle:challenge` | Optional single interactive session. AI weaves through five lenses (assumption surfacing, first-principles analysis, devil's advocate, pre-mortem, competitive analysis) based on conversation flow — challenging the idea from multiple angles rather than rubber-stamping it. Produces a structured verdict with confidence level and assumptions table. |
 | **Product Design** | `/mantle:design-product` | Interactive session defining the what and why: features, target users, success metrics, genuine edge. Creates `.mantle/product-design.md`. |
 | **System Design** | `/mantle:design-system` | Interactive session defining the how: architecture, tech choices, API contracts, data model. Every decision logged with rationale, alternatives, confidence, and reversal cost. Creates `.mantle/system-design.md`. |
 | **Revise Design** | `/mantle:revise-product` / `/mantle:revise-system` | Separate commands for updating existing designs. Each revision creates a decision log entry capturing what changed and why. Keeps create and update concerns focused for optimal AI output. |
@@ -80,6 +81,9 @@ The workflow is fluid — revise commands exist to update designs, add new issue
 4. As a developer, I want `mantle init` to prompt me about setting up a personal vault for cross-project skills, so that I'm aware of the feature without it being mandatory.
 5. As a developer joining an existing project, I want to clone the repo and immediately have access to all project context in `.mantle/`, so that I don't need a separate sync setup.
 6. As a developer joining an existing project, I want to run `mantle install --global` once, and then Claude Code auto-displays a project briefing on session start, so that I can understand the project state without asking anyone.
+49. As a developer with an existing project, I want to run `/mantle:adopt` and have AI agents analyze my codebase and research the domain, so that I can onboard into Mantle without manually writing design documents from scratch.
+50. As a developer with an existing project, I want the adoption to be interactive — presenting findings for me to correct and refine — so that generated artifacts reflect my intent, not just what the code implies.
+51. As a developer with an existing project, I want reverse-engineered design documents that follow the same schema as Mantle's design commands, so that `/mantle:plan-issues` and `/mantle:plan-stories` work immediately after adoption.
 
 ### Idea Capture
 
@@ -168,14 +172,14 @@ Each milestone represents a complete user workflow — something a user can inst
 
 **What the user can do**: Install mantle, initialise a project, set up a personal vault. The plumbing works but there's no workflow yet.
 
-### v0.2.0 — Idea & Validation (issues 3–4)
+### v0.2.0 — Idea & Validation (issues 3–4) ✅
 
 `/mantle:idea` → `/mantle:challenge` → idea captured and stress-tested.
 
-| Issue | Title | Depends on |
-|-------|-------|------------|
-| 03 | Idea capture (`/mantle:idea`) | 02 |
-| 04 | Challenge session (`/mantle:challenge`) | 02 |
+| Issue | Title | Status |
+|-------|-------|--------|
+| 03 | Idea capture (`/mantle:idea`) | completed |
+| 04 | Challenge session (`/mantle:challenge`) | completed |
 
 **What the user can do**: Capture a structured idea and have the AI challenge it from multiple angles before investing in design.
 
@@ -188,8 +192,9 @@ Each milestone represents a complete user workflow — something a user can inst
 | 05 | Product design (`/mantle:design-product`) | 02 |
 | 06 | System design + decision logging (`/mantle:design-system`) | 02 |
 | 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | 05, 06 |
+| 19 | Project adoption (`/mantle:adopt`) | 02, 05, 06 |
 
-**What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Revise designs as understanding evolves.
+**What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.
 
 ### v0.4.0 — Context & Continuity (issues 8–10, 17–18)
 

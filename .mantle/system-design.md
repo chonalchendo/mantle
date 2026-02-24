@@ -32,7 +32,8 @@ Thin modules (straightforward wiring):
 | `core/skills.py` | CRUD on skill nodes in personal vault, link detection, gap suggestion |
 | `core/verify.py` | Load verification strategy (project-level + per-issue), run checks, build report |
 | `core/review.py` | Build checklist from acceptance criteria + verification results |
-| `core/challenge.py` | Challenge prompts and session logic |
+| `core/adopt.py` | Adoption orchestration: parallel agent dispatch, artifact generation, state updates |
+| `core/challenge.py` | Save/load/list challenge transcripts with auto-increment filenames, state.md updates |
 | `core/manifest.py` | File hash tracking for staleness detection |
 | `core/templates.py` | Jinja2 template rendering |
 
@@ -80,7 +81,7 @@ Every module in `core/` gets tests:
 | `core/skills.py` | Unit tests: CRUD operations on skill node fixtures. Test link detection and gap suggestion logic. |
 | `core/verify.py` | Unit tests: verify strategy loading from config.md and per-issue overrides. Test report generation. |
 | `core/review.py` | Unit tests: verify checklist construction from acceptance criteria + verification results. |
-| `core/challenge.py` | Unit tests: verify prompt construction and session structure. |
+| `core/challenge.py` | Unit tests: save/load round-trip, auto-increment filenames, IdeaNotFoundError, state.md updates, list/exists queries. |
 | `core/manifest.py` | Unit tests: hash computation, staleness comparison, manifest read/write. |
 | `core/templates.py` | Unit tests: Jinja2 rendering with fixture contexts. |
 
@@ -115,7 +116,7 @@ Copies files into Claude Code's directory structure (GSD pattern):
 ```
 ~/.claude/
 ├── commands/mantle/       # Slash commands (/mantle:idea, /mantle:challenge, etc.)
-├── agents/                # Subagent definitions (challenger, researcher)
+├── agents/                # Subagent definitions (researcher, implementer)
 ├── hooks/                 # Session hooks (context compilation, auto-briefing)
 └── settings.json          # Hook registrations (merged, not overwritten)
 ```
@@ -137,7 +138,8 @@ After creation, prints an interactive onboarding message:
 Mantle initialized in .mantle/
 
   Your project is ready. Next steps:
-  - Run /mantle:idea to log your first idea
+  - New project? Run /mantle:idea to log your first idea
+  - Existing project? Run /mantle:adopt to generate design docs from your codebase
   - Run /mantle:help to see all commands
 
   Would you like to set up a personal vault for cross-project skills?
@@ -183,6 +185,7 @@ mantle/
 ├── src/
 │   └── mantle/
 │       ├── core/                          # Universal engine (library)
+│       │   ├── adopt.py                   # Adoption orchestration (codebase + domain → artifacts)
 │       │   ├── vault.py                   # Obsidian vault read/write (CLI + filesystem)
 │       │   ├── compiler.py                # Compile vault context into commands
 │       │   ├── orchestrator.py            # Implementation loop (stories, worktrees, retries)
@@ -209,6 +212,7 @@ mantle/
 ├── claude/                                # Files mounted into ~/.claude/
 │   ├── commands/
 │   │   └── mantle/
+│   │       ├── adopt.md                   # Static — onboard existing project
 │   │       ├── idea.md                    # Static — log an idea
 │   │       ├── challenge.md               # Static — interactive challenge session
 │   │       ├── design-product.md          # Static — create product design
@@ -225,7 +229,8 @@ mantle/
 │   │       ├── resume.md.j2               # Compiled — project briefing (auto-displayed)
 │   │       └── help.md                    # Static — list all commands by phase
 │   ├── agents/
-│   │   ├── challenger.md                  # Contrarian subagent for idea validation
+│   │   ├── codebase-analyst.md            # Codebase exploration for /mantle:adopt
+│   │   ├── domain-researcher.md           # Domain landscape research for /mantle:adopt
 │   │   ├── researcher.md                  # Research subagent
 │   │   └── implementer.md                # Implementation subagent
 │   └── hooks/
@@ -242,6 +247,7 @@ mantle/
 │   └── skill.md
 │
 └── tests/
+    ├── test_adopt.py
     ├── test_vault.py
     ├── test_compiler.py
     ├── test_orchestrator.py
@@ -264,9 +270,9 @@ mantle/
 # This works without Claude Code, without CLI, without any UI
 from mantle.core import vault, state, challenge
 
-project = state.load_project(vault_path, "my-project")
-session = challenge.run_devil_advocate(project)
-state.save_session_log(vault_path, project, session)
+current = state.load_state(project_dir)
+note, path = challenge.save_challenge(project_dir, transcript)
+challenges = challenge.list_challenges(project_dir)
 ```
 
 A future web UI calls the same `core/` functions. The CLI and UI are thin delivery layers.
@@ -291,7 +297,7 @@ my-project/
 │   ├── decisions/                         # Decision log entries (REQUIRED)
 │   │   └── <date>-<topic>.md
 │   ├── challenges/                        # Challenge session transcripts
-│   │   └── <date>-<type>.md
+│   │   └── <date>-challenge.md            # Auto-increments: -2, -3 on collision
 │   ├── issues/                            # Vertical slice issues
 │   │   └── issue-<nn>.md
 │   ├── stories/                           # Stories per issue (with test specs)
@@ -359,7 +365,7 @@ Every command reads this first to understand context.
 ---
 schema_version: 1
 project: my-project
-status: idea | challenge | product-design | system-design | planning | implementing | verifying | reviewing
+status: idea | adopted | challenge | product-design | system-design | planning | implementing | verifying | reviewing
 confidence: 7/10
 created: 2026-02-22
 created_by: conal@company.com
@@ -398,6 +404,7 @@ What's being worked on right now.
 date: 2026-02-22
 author: conal@company.com
 topic: framework-selection
+scope: product-design | system-design | architecture | implementation | tooling
 confidence: 8/10
 reversible: high | medium | low
 tags:
@@ -582,6 +589,7 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 #type/config
 
 #phase/idea
+#phase/adopted
 #phase/challenge
 #phase/design
 #phase/planning
@@ -605,8 +613,9 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 
 | Command | Type | Focus |
 |---|---|---|
+| `/mantle:adopt` | Static | Onboard existing project — codebase analysis, domain research, interactive artifact generation |
 | `/mantle:idea` | Static | Log an idea with structured metadata |
-| `/mantle:challenge` | Static | Interactive multi-angle challenge session |
+| `/mantle:challenge` | Static | Interactive five-lens challenge session (persona inlined, no subagent) |
 | `/mantle:design-product` | Static | Create product design |
 | `/mantle:design-system` | Static | Create system design with decision logging |
 | `/mantle:revise-product` | Static | Revise product design + create decision log entry |
@@ -804,6 +813,7 @@ Note: The prompt is a **positional argument**, not a flag. Invocation pattern: `
 8. `/mantle:design-product` — Interactive product design
 9. `/mantle:design-system` — Interactive system design with decision logging
 10. `/mantle:revise-product` and `/mantle:revise-system` — Revision commands + decision log entries
+10b. `/mantle:adopt` — Codebase analysis + domain research → reverse-engineered design docs (requires 8, 9 schemas)
 11. Context compilation — `mantle compile`, manifest, SessionStart hook
 12. `/mantle:status` and `/mantle:resume` — Compiled commands, auto-briefing on session start
 13. `/mantle:plan-issues` — One-at-a-time issue planning
