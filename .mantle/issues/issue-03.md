@@ -1,12 +1,12 @@
 ---
 title: Idea capture (/mantle:idea)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
-story_count: 0
+story_count: 3
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
@@ -25,13 +25,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:idea` is available in Claude Code and starts an interactive idea capture session
-- [ ] The session captures hypothesis, target user, and success criteria through guided conversation
-- [ ] Idea is saved as `.mantle/idea.md` with YAML frontmatter (hypothesis, target_user, success_criteria, author, date, tags)
-- [ ] Project state in state.md is updated to reflect idea capture
-- [ ] The idea note is stamped with `git config user.email`
-- [ ] Running `/mantle:idea` when an idea already exists warns the user and asks for confirmation before overwriting
-- [ ] Tests verify idea note format, frontmatter structure, and state update
+- [x] `/mantle:idea` is available in Claude Code and starts an interactive idea capture session
+- [x] The session captures hypothesis, target user, and success criteria through guided conversation
+- [x] Idea is saved as `.mantle/idea.md` with YAML frontmatter (hypothesis, target_user, success_criteria, author, date, tags)
+- [x] Project state in state.md is updated to reflect idea capture
+- [x] The idea note is stamped with `git config user.email`
+- [x] Running `/mantle:idea` when an idea already exists warns the user and asks for confirmation before overwriting
+- [x] Tests verify idea note format, frontmatter structure, and state update
 
 ## Blocked by
 
