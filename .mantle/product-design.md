@@ -153,6 +153,82 @@ The workflow is fluid — revise commands exist to update designs, add new issue
 
 48. As a new user, I want `/mantle:help` to list all available commands grouped by workflow phase, so that I can discover capabilities without reading documentation.
 
+## Release Milestones
+
+Each milestone represents a complete user workflow — something a user can install and actually use end-to-end. Push to master after each issue; tag a release when a milestone is complete.
+
+### v0.1.0 — Foundation (issues 1–2) ✅
+
+`mantle init` → `.mantle/` created, state machine active, personal vault optional.
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| 01 | Package skeleton, CLI entry point, mantle install | completed |
+| 02 | Project initialization (mantle init + personal vault) | completed |
+
+**What the user can do**: Install mantle, initialise a project, set up a personal vault. The plumbing works but there's no workflow yet.
+
+### v0.2.0 — Idea & Validation (issues 3–4)
+
+`/mantle:idea` → `/mantle:challenge` → idea captured and stress-tested.
+
+| Issue | Title | Depends on |
+|-------|-------|------------|
+| 03 | Idea capture (`/mantle:idea`) | 02 |
+| 04 | Challenge session (`/mantle:challenge`) | 02 |
+
+**What the user can do**: Capture a structured idea and have the AI challenge it from multiple angles before investing in design.
+
+### v0.3.0 — Design (issues 5–7)
+
+`/mantle:design-product` → `/mantle:design-system` → designs with decision logging.
+
+| Issue | Title | Depends on |
+|-------|-------|------------|
+| 05 | Product design (`/mantle:design-product`) | 02 |
+| 06 | System design + decision logging (`/mantle:design-system`) | 02 |
+| 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | 05, 06 |
+
+**What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Revise designs as understanding evolves.
+
+### v0.4.0 — Context & Continuity (issues 8–10, 17–18)
+
+Auto-briefing, session logs, skill graph, and research — the knowledge engine.
+
+| Issue | Title | Depends on |
+|-------|-------|------------|
+| 08 | Context compilation engine + `/mantle:status` | 02 |
+| 09 | Session logging | 02 |
+| 10 | Auto-briefing on session start (`/mantle:resume`) | 08, 09 |
+| 17 | Skill graph (`/mantle:add-skill`) | 02 |
+| 18 | Research command (`/mantle:research`) | 02 |
+
+**What the user can do**: Persistent context across sessions. Start a session and get an instant briefing. Build a cross-project skill graph. Never start from zero again.
+
+### v0.5.0 — Planning & Implementation (issues 11–14)
+
+`/mantle:plan-issues` → `/mantle:plan-stories` → `/mantle:implement` → automated build loop.
+
+| Issue | Title | Depends on |
+|-------|-------|------------|
+| 11 | Issue planning (`/mantle:plan-issues`) | 02 |
+| 12 | Story planning (`/mantle:plan-stories`) | 11 |
+| 13 | Implementation orchestration loop (`/mantle:implement`) | 12 |
+| 14 | Worktree parallel implementation | 13 |
+
+**What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits.
+
+### v0.6.0 — Verification & Review (issues 15–16)
+
+`/mantle:verify` → `/mantle:review` → verified and reviewed code.
+
+| Issue | Title | Depends on |
+|-------|-------|------------|
+| 15 | Verification (`/mantle:verify`) | 02 |
+| 16 | Review (`/mantle:review`) | 15 |
+
+**What the user can do**: Complete lifecycle from idea to reviewed code. Project-specific verification strategies with per-issue overrides. Human review with acceptance criteria checklist.
+
 ## Out of Scope
 
 - **Project management features**: No Gantt charts, team assignments, sprints, or resource allocation. Mantle is a context engine, not a PM tool.
