@@ -1,5 +1,11 @@
 # Mantle — Product Design
 
+## Vision
+
+A single-install tool that gives AI coding agents persistent memory, idea validation, and structured product development — from idea through to reviewed code. Install once, run `/mantle:idea`, and the workflow guides you. Existing projects run `/mantle:adopt` to reverse-engineer design docs from their codebase. All context lives in `.mantle/` (git-native) and an optional Obsidian vault (cross-project knowledge). Python orchestrates deterministically; AI implements creatively.
+
+---
+
 Mantle (PyPI: `mantle-ai`, CLI: `mantle`)
 
 Named after the geological mantle — the deep layer beneath the earth's surface. Your Obsidian vault is the mantle: the rich context layer that powers everything above it. Adjacent to obsidian (volcanic glass originates from the mantle).

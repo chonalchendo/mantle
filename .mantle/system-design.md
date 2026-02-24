@@ -1,5 +1,11 @@
 # Mantle — System Design
 
+## Vision
+
+Python library (`core/`) with thin CLI and future UI layers. Core never imports from delivery layers. Static markdown commands mounted into `~/.claude/`, compiled commands rendered from vault state via Jinja2. Obsidian CLI with filesystem fallback. `.mantle/` in-repo for collaboration via git; personal vault (`~/vault/`) optional for cross-project skills. Implementation loop: deterministic Python orchestrates story-by-story Claude Code invocations in worktrees with test retries and atomic commits.
+
+---
+
 ## Implementation Decisions
 
 ### Architecture
