@@ -39,20 +39,9 @@ mantle init
 mantle init-vault ~/vault
 ```
 
-Once initialized, `.mantle/` is created in your project with:
+Once initialized, `.mantle/` is created in your project. Start a Claude Code session and use `/mantle:help` to see available commands.
 
-```
-.mantle/
-  state.md        # Project state and metadata
-  config.md       # Project configuration
-  tags.md         # Tag taxonomy
-  decisions/      # Decision logs with rationale
-  sessions/       # Auto-generated session logs
-  issues/         # Vertical slice issue specs
-  stories/        # Implementable story specs
-```
-
-Start a Claude Code session in your project and use `/mantle:help` to see available commands.
+**Already have an existing project?** Run `mantle init` then `/mantle:adopt` — AI agents analyze your codebase and domain, then interactively generate product and system design documents from what already exists.
 
 ## How It Works
 
@@ -62,7 +51,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-Early development. `mantle init`, `mantle init-vault`, and `mantle install` are working. The workflow commands (`/mantle:idea`, `/mantle:challenge`, `/mantle:implement`, etc.) are in progress.
+**v0.2.0** — Idea & Validation. `mantle init`, `mantle install`, `/mantle:idea`, and `/mantle:challenge` are working. Design, planning, and implementation commands are in progress.
 
 ## License
 
