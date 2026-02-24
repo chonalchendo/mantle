@@ -3,8 +3,16 @@
 # Setup required:
 # 1. Configure trusted publisher on PyPI:
 #    Project settings -> Publishing -> Add GitHub as trusted publisher
-#    Owner: <repo-owner>, Repo: <repo-name>, Workflow: publish.yml
+#    Owner: chonalchendo, Repo: mantle, Workflow: publish.yml
+#    Environment: pypi
 # 2. Create "pypi" environment in GitHub repo settings with protection rules
+#
+# Release process:
+#   uv version --bump patch   # or minor / major
+#   git add pyproject.toml uv.lock src/mantle/__init__.py
+#   git commit -m "release: v$(uv version)"
+#   git tag "v$(uv version)"
+#   git push && git push --tags
 
 name: Publish
 
@@ -13,13 +21,16 @@ on:
     tags:
       - "v*"
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mantle-ai/
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,27 +39,27 @@ jobs:
       - name: Install Python
         run: uv python install 3.14
 
+      - name: Verify tag matches package version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          PKG="$(uv version)"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag v$TAG does not match package version $PKG"
+            exit 1
+          fi
+
       - name: Build distributions
-        run: uv build
+        run: uv build --no-sources
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
+      - name: Smoke test (wheel)
+        run: |
+          uv run --isolated --no-project --with dist/*.whl \
+            -- python -c "from mantle import __version__; print(__version__)"
 
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/mantle-ai/
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
+      - name: Smoke test (sdist)
+        run: |
+          uv run --isolated --no-project --with dist/*.tar.gz \
+            -- python -c "from mantle import __version__; print(__version__)"
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        run: uv publish
