@@ -36,6 +36,7 @@ class ProjectState(pydantic.BaseModel, frozen=True):
     """State.md frontmatter schema.
 
     Attributes:
+        schema_version: Schema version for forward-compatible migrations.
         project: Project name derived from directory.
         status: Current lifecycle status.
         confidence: Confidence rating as "N/10" string.
@@ -49,6 +50,7 @@ class ProjectState(pydantic.BaseModel, frozen=True):
         tags: Mantle tags for categorization.
     """
 
+    schema_version: int = 1
     project: str
     status: Status
     confidence: str = "0/10"

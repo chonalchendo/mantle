@@ -355,6 +355,49 @@ class TestProjectState:
         with pytest.raises(Exception):
             state.status = Status.CHALLENGE  # type: ignore[misc]
 
+    def test_schema_version_defaults_to_one(self) -> None:
+        state = ProjectState(
+            project="test",
+            status=Status.IDEA,
+            created=date.today(),
+            created_by="a@b.com",
+            updated=date.today(),
+            updated_by="a@b.com",
+        )
+
+        assert state.schema_version == 1
+
+    def test_schema_version_round_trips(
+        self, project: Path
+    ) -> None:
+        _write_state(project)
+        loaded = load_state(project)
+
+        assert loaded.schema_version == 1
+
+    def test_loads_without_schema_version_field(
+        self, project: Path
+    ) -> None:
+        """Old state.md files without schema_version still parse."""
+        path = project / ".mantle" / "state.md"
+        path.write_text(
+            "---\n"
+            "project: legacy\n"
+            "status: idea\n"
+            "confidence: '0/10'\n"
+            "created: 2025-01-01\n"
+            "created_by: a@b.com\n"
+            "updated: 2025-01-01\n"
+            "updated_by: a@b.com\n"
+            "---\n\n"
+            "## Summary\n\nLegacy project.\n",
+            encoding="utf-8",
+        )
+        loaded = load_state(project)
+
+        assert loaded.schema_version == 1
+        assert loaded.project == "legacy"
+
 
 # ── Status enum ──────────────────────────────────────────────────
 

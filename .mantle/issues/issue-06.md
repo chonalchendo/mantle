@@ -15,7 +15,7 @@ product-design.md, system-design.md
 
 ## What to build
 
-The `/mantle:design-system` Claude Code command that runs an interactive session defining the "how" — architecture, tech choices, API contracts, data model. Every decision made during the session is automatically logged to `.mantle/decisions/` with rationale, alternatives, confidence, and reversal triggers.
+The `/mantle:design-system` Claude Code command that runs an interactive session defining the "how" — architecture, tech choices, API contracts, data model. Every decision made during the session is automatically logged to `.mantle/decisions/` with rationale, alternatives, confidence, and reversal triggers. System design should be approached from first principles, asking the fundamental question: what are the core building blocks of this project that we need to nit together into a production system? The project folder structure should reflect the first principles design.
 
 This includes:
 - `claude/commands/mantle/design-system.md` — static command prompt guiding structured system design with decision logging instructions

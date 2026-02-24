@@ -43,6 +43,16 @@ Thin modules (straightforward wiring):
 - Claude Code commands (markdown files) invoke `mantle` CLI commands via Bash tool when they need runtime operations.
 - The SessionStart hook calls `mantle compile --if-stale` to refresh compiled commands, then the compiled `resume.md` auto-displays the project briefing.
 
+### Project Status vs Issue/Story Status
+
+The project has a single lifecycle status in `state.md` (idea → ... → completed). Issues and stories have their own independent statuses.
+
+**Relationship**: Project status represents the *current workflow phase*, not a rollup of issue statuses. During `implementing`, multiple issues may exist in different states — some `implemented`, some `planned`, one `implementing`. The project status advances manually (or via command) when the user moves to a new phase, not automatically when all issues reach a threshold.
+
+**Why not automatic**: A project in `implementing` may have Issue-3 verified while Issue-4 is mid-implementation. The user decides when to transition to `verifying` (perhaps after all planned issues are done, or after a subset). This keeps the state machine simple and avoids complex rollup logic that would need to handle partial completion, deferred issues, and priority changes.
+
+**Tracking fields**: `current_issue` and `current_story` in `state.md` track what's actively being worked on. These are updated by the orchestrator and cleared between implementation sessions.
+
 ### Error Handling
 
 - **Implementation failure**: On test failure, the orchestrator feeds error output back to Claude Code for one retry attempt. If the retry also fails, the story is marked "blocked" with failure details and the loop stops.
@@ -347,6 +357,7 @@ Every command reads this first to understand context.
 
 ```yaml
 ---
+schema_version: 1
 project: my-project
 status: idea | challenge | product-design | system-design | planning | implementing | verifying | reviewing
 confidence: 7/10
@@ -536,9 +547,9 @@ Primary interface: Official Obsidian CLI (v1.12+).
 | Run complex queries | `obsidian dev:eval` (JavaScript execution) |
 | Get all tags | `obsidian tags all` |
 
-Fallback: Direct filesystem read/write for operations where the CLI is unavailable or Obsidian isn't running. Since notes are plain markdown with YAML frontmatter, all operations can be done via file I/O + OmegaConf.
+Fallback: Direct filesystem read/write for operations where the CLI is unavailable or Obsidian isn't running. Since notes are plain markdown with YAML frontmatter, all operations can be done via file I/O + PyYAML + Pydantic.
 
-Requirement: Obsidian >= 1.12 installed, CLI added to PATH. `mantle install` verifies this and warns (not errors) if missing.
+Requirement: Obsidian >= 1.12 installed, CLI added to PATH. `mantle install` verifies this and warns (not errors) if missing. Note: The Obsidian CLI requires a **Catalyst license** ($25 USD one-time). This should be documented in installation/setup guides. The filesystem fallback ensures Mantle works fully without it.
 
 ## Obsidian Features Leveraged
 
@@ -664,7 +675,8 @@ for story in get_stories(issue=N):
     result = subprocess.run([
         "claude", "--print",
         "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-        "-p", context
+        "--no-session-persistence",
+        context
     ])
 
     # 3. Run tests
@@ -676,7 +688,8 @@ for story in get_stories(issue=N):
         retry_result = subprocess.run([
             "claude", "--print",
             "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-            "-p", retry_context
+            "--no-session-persistence",
+            retry_context
         ])
         retest = subprocess.run(["python", "-m", "pytest", ...])
 
@@ -694,6 +707,18 @@ for story in get_stories(issue=N):
     write_session_log(project, story)
 ```
 
+### Resumability Contract
+
+The orchestrator is designed to be safely re-run at any point:
+
+- **Completed stories are skipped**: The loop checks `story.status == "completed"` and advances past them. Re-running `mantle implement --issue N` after a partial run resumes from the first non-completed story.
+- **Blocked stories stop the loop**: A `blocked` story halts the loop. The user fixes the issue manually, sets the story status back to `planned` (via editing the frontmatter or a future `mantle unblock` command), and re-runs.
+- **Crash mid-story (Ctrl+C, power failure)**: The story remains `in-progress`. On re-run, the orchestrator treats `in-progress` the same as `planned` — it re-invokes Claude Code for that story from scratch. Since each story targets a small, focused change, re-doing work is cheap. The previous partial changes are in the working tree and Claude Code can see them.
+- **Claude Code non-zero exit (not test failure)**: Treated as a story failure. The story is marked `blocked` with the stderr output. The orchestrator does not retry Claude Code crashes — only test failures get the retry-with-feedback loop.
+- **Git commit failure**: If `git commit` fails after a successful story (e.g., pre-commit hook failure), the story is not marked `completed`. On re-run, Claude Code sees the already-written code and the orchestrator re-attempts the commit.
+
+The invariant: a story is only marked `completed` after both its tests pass AND its git commit succeeds. This makes the loop idempotent.
+
 ### Worktree Support
 
 When implementing an issue, Mantle leverages Claude Code's native worktree support (`--worktree` / `-w` flag). Claude Code creates worktrees at `.claude/worktrees/<name>/` with a `worktree-<name>` branch, handles cleanup automatically, and tracks sessions per worktree.
@@ -706,7 +731,8 @@ result = subprocess.run([
     "claude", "--worktree", f"mantle-issue-{issue_id}",
     "--print",
     "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-    "-p", context
+    "--no-session-persistence",
+    context
 ])
 
 # On successful verify + review:
@@ -729,14 +755,34 @@ This enables parallel implementation of multiple issues in separate terminal ses
 
 Each story gets a fresh Claude Code invocation with compiled context, preventing context window degradation across stories.
 
+### Claude Code Flags Reference
+
+Flags available for orchestrator subprocess invocations (verified against `claude --help`):
+
+| Flag | Purpose | Usage |
+|---|---|---|
+| `--print` | Non-interactive mode, print response and exit | Required for all orchestrator calls |
+| `--allowedTools` | Whitelist of tools (e.g. `"Read,Write,Edit,Bash,Glob,Grep"`) | Restrict per story type |
+| `--worktree <name>` | Create/reuse git worktree for isolation | Per-issue branch isolation |
+| `--system-prompt <prompt>` | Inject system-level context separately from story prompt | Project state, skills, conventions |
+| `--max-budget-usd <amount>` | Cost ceiling per invocation (only with `--print`) | Prevent runaway token usage |
+| `--output-format json` | Structured JSON output (only with `--print`) | Parse completion signals |
+| `--no-session-persistence` | Don't persist session to disk (only with `--print`) | Keep `~/.claude/` clean |
+| `--model <model>` | Override model (e.g. `sonnet`, `opus`) | Configurable per project via config.md |
+| `--permission-mode <mode>` | Permission level (`default`, `acceptEdits`, `bypassPermissions`) | Autonomous execution |
+| `--tools <tools>` | Specify available built-in tools | Alternative to `--allowedTools` |
+| `--tmux` | Create tmux session for worktree (requires `--worktree`) | Parallel issue visibility |
+
+Note: The prompt is a **positional argument**, not a flag. Invocation pattern: `claude --print [flags] <prompt>`.
+
 ## Technology Choices
 
 | Component | Choice | Rationale |
 |---|---|---|
-| Language | Python 3.11+ | Obsidian ecosystem, uv/pip distribution, Jinja2, YAML parsing |
+| Language | Python 3.14+ | Obsidian ecosystem, uv/pip distribution, Jinja2, YAML parsing |
 | CLI framework | Cyclopts | Type-hint driven, auto-generated help, Pydantic-style validation |
 | Template engine | Jinja2 | Compiled command rendering |
-| YAML parsing | OmegaConf | Structured config parsing, merge/interpolation, type-safe YAML |
+| YAML parsing | PyYAML | Lightweight YAML parsing for frontmatter (yaml.safe_load/dump) |
 | Validation | Pydantic | Schema validation for YAML configs, note frontmatter, and state files |
 | Terminal output | Rich | Formatted logging, progress bars, tables for CLI output |
 | Package build | Hatchling | Modern, supports artifacts for command files |

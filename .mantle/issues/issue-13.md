@@ -38,6 +38,10 @@ This includes:
 - [ ] Project state (state.md) is updated with current_issue and current_story
 - [ ] Tests mock `subprocess.run` for Claude Code, pytest, and git; verify loop logic, retry behaviour, state transitions, and skip-completed
 
+## Implementation notes
+
+- Create a dataclass or enum in `core/` that codifies the Claude Code CLI flags (e.g. `--print`, `--allowedTools`, `--worktree`, `--system-prompt`, `--max-budget-usd`, `--no-session-persistence`, `--model`, `--permission-mode`, `--output-format`). The orchestrator should build subprocess invocations from this structured reference rather than hardcoding flag strings directly in `subprocess.run()` calls. This keeps the CLI contract in one place and makes it easy to update if Claude Code's flags change. See the "Claude Code Flags Reference" table in `system-design.md` for the full list.
+
 ## Blocked by
 
 - Blocked by issue-12 (needs stories to implement)
