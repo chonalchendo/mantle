@@ -5,7 +5,7 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from mantle.cli import init, init_vault, install
+from mantle.cli import idea, init, init_vault, install
 
 app = App(name="mantle", help="AI workflow engine with persistent context.")
 
@@ -36,6 +36,54 @@ def init_vault_command(
 ) -> None:
     """Create personal vault and link it to this project."""
     init_vault.run_init_vault(path)
+
+
+@app.command(name="save-idea")
+def save_idea_command(
+    hypothesis: Annotated[
+        str,
+        Parameter(
+            name="--hypothesis",
+            help="Core belief or value proposition.",
+        ),
+    ],
+    target_user: Annotated[
+        str,
+        Parameter(
+            name="--target-user",
+            help="Who this idea is for.",
+        ),
+    ],
+    success_criteria: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--success-criteria",
+            help="Measurable outcome (repeatable).",
+        ),
+    ],
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing idea.md.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Capture a structured idea in .mantle/idea.md."""
+    idea.run_save_idea(
+        hypothesis=hypothesis,
+        target_user=target_user,
+        success_criteria=success_criteria,
+        overwrite=overwrite,
+        project_dir=path,
+    )
 
 
 @app.command(name="install")
