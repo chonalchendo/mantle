@@ -40,7 +40,8 @@ Not: non-technical users, enterprise teams, or people who need a GUI (though the
 | **Product Design** | `/mantle:design-product` | Interactive session defining the what and why: features, target users, success metrics, genuine edge. Creates `.mantle/product-design.md`. |
 | **System Design** | `/mantle:design-system` | Interactive session defining the how: architecture, tech choices, API contracts, data model. Every decision logged with rationale, alternatives, confidence, and reversal cost. Creates `.mantle/system-design.md`. |
 | **Revise Design** | `/mantle:revise-product` / `/mantle:revise-system` | Separate commands for updating existing designs. Each revision creates a decision log entry capturing what changed and why. Keeps create and update concerns focused for optimal AI output. |
-| **Plan Issues** | `/mantle:plan-issues` | Work broken into vertical slices cutting across product layers. AI proposes one issue at a time — user approves or adjusts each before the next is proposed. Each slice delivers testable functionality. |
+| **Bug Capture** | `/mantle:bug` | Quick structured bug capture during any session. Saved to `.mantle/bugs/` with severity and reproduction steps. Open bugs are surfaced by `/mantle:plan-issues` as candidates for new issues. |
+| **Plan Issues** | `/mantle:plan-issues` | Work broken into vertical slices cutting across product layers. AI proposes one issue at a time — user approves or adjusts each before the next is proposed. Surfaces open bugs as issue candidates. Each slice delivers testable functionality. |
 | **Plan Stories** | `/mantle:plan-stories` | Each issue decomposed into implementable stories sized for AI implementation. Stories include both what to implement and what tests to write (TDD: tests are a natural extension of story functionality). |
 | **Implement** | `/mantle:implement` | Python orchestration loop: for each story, compile context, invoke Claude Code in a worktree, run tests, retry once with error feedback on failure, git commit, update vault state. Each story gets a fresh context window. |
 | **Verify** | `/mantle:verify` | Project-specific verification strategy. On first invoke, prompts user to define how this project should be verified (example project, localhost, integration tests, etc.). Per-issue overrides in acceptance criteria. |
@@ -110,6 +111,13 @@ The workflow is fluid — revise commands exist to update designs, add new issue
 15. As a developer, I want `/mantle:revise-product` to read the current product design and open an interactive revision session, so that designs can be updated as understanding evolves.
 16. As a developer, I want `/mantle:revise-system` to read the current system design and open an interactive revision session, so that technical decisions can be revisited without rewriting the entire document.
 17. As a developer, I want every design revision to automatically create a decision log entry capturing what changed and why, so that design evolution is traceable.
+
+### Bug Capture
+
+52. As a developer, I want to run `/mantle:bug` during a session to quickly capture a bug with structured metadata (severity, reproduction steps, related files), so that bugs are logged immediately rather than forgotten.
+53. As a developer, I want bugs saved as dated markdown files in `.mantle/bugs/` with YAML frontmatter, so that they accumulate as a trackable backlog versioned in git.
+54. As a developer, I want `/mantle:plan-issues` to surface open bugs when I start a planning session, so that I can decide whether to address them as part of the next batch of work.
+55. As a developer, I want bugs linked to the issue that fixes them via a `fixed_by` field, so that I can trace from bug discovery through to resolution.
 
 ### Planning
 
@@ -226,8 +234,9 @@ Auto-briefing, session logs, skill graph, and research — the knowledge engine.
 | 12 | Story planning (`/mantle:plan-stories`) | 11 |
 | 13 | Implementation orchestration loop (`/mantle:implement`) | 12 |
 | 14 | Worktree parallel implementation | 13 |
+| 20 | Bug capture (`/mantle:bug`) | 02 |
 
-**What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits.
+**What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning.
 
 ### v0.6.0 — Verification & Review (issues 15–16)
 
