@@ -12,6 +12,7 @@ from mantle.cli import (
     init,
     init_vault,
     install,
+    product_design,
     research,
     system_design,
 )
@@ -163,6 +164,70 @@ def save_research_command(
         focus=focus,
         confidence=confidence,
         content=content,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-product-design")
+def save_product_design_command(
+    vision: Annotated[
+        str,
+        Parameter(
+            name="--vision",
+            help="One-sentence product vision.",
+        ),
+    ],
+    features: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--features",
+            help="Key capability (repeatable).",
+        ),
+    ],
+    target_users: Annotated[
+        str,
+        Parameter(
+            name="--target-users",
+            help="Specific user profile and context.",
+        ),
+    ],
+    success_metrics: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--success-metrics",
+            help="Measurable outcome (repeatable).",
+        ),
+    ],
+    genuine_edge: Annotated[
+        str,
+        Parameter(
+            name="--genuine-edge",
+            help="What makes this different from alternatives.",
+        ),
+    ],
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing product-design.md.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a product design to .mantle/product-design.md."""
+    product_design.run_save_product_design(
+        vision=vision,
+        features=features,
+        target_users=target_users,
+        success_metrics=success_metrics,
+        genuine_edge=genuine_edge,
+        overwrite=overwrite,
         project_dir=path,
     )
 
