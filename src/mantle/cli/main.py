@@ -5,7 +5,15 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
-from mantle.cli import challenge, idea, init, init_vault, install
+from mantle.cli import (
+    challenge,
+    decisions,
+    idea,
+    init,
+    init_vault,
+    install,
+    system_design,
+)
 
 app = App(name="mantle", help="AI workflow engine with persistent context.")
 
@@ -114,6 +122,118 @@ def save_challenge_command(
     """Save a challenge session transcript to .mantle/challenges/."""
     challenge.run_save_challenge(
         transcript=transcript,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-system-design")
+def save_system_design_command(
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full system design document body.",
+        ),
+    ],
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing system-design.md.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a system design document to .mantle/system-design.md."""
+    system_design.run_save_system_design(
+        content=content,
+        overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-decision")
+def save_decision_command(
+    topic: Annotated[
+        str,
+        Parameter(
+            name="--topic",
+            help="Decision topic (used in filename).",
+        ),
+    ],
+    decision: Annotated[
+        str,
+        Parameter(
+            name="--decision",
+            help="The decision text.",
+        ),
+    ],
+    alternatives: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--alternatives",
+            help="Alternative considered (repeatable).",
+        ),
+    ],
+    rationale: Annotated[
+        str,
+        Parameter(
+            name="--rationale",
+            help="Why this option was chosen.",
+        ),
+    ],
+    reversal_trigger: Annotated[
+        str,
+        Parameter(
+            name="--reversal-trigger",
+            help="What would change this decision.",
+        ),
+    ],
+    confidence: Annotated[
+        str,
+        Parameter(
+            name="--confidence",
+            help='Confidence rating (e.g. "8/10").',
+        ),
+    ],
+    reversible: Annotated[
+        str,
+        Parameter(
+            name="--reversible",
+            help="Reversibility: high / medium / low.",
+        ),
+    ],
+    scope: Annotated[
+        str,
+        Parameter(
+            name="--scope",
+            help="Decision scope.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a decision record to .mantle/decisions/."""
+    decisions.run_save_decision(
+        topic=topic,
+        decision=decision,
+        alternatives=alternatives,
+        rationale=rationale,
+        reversal_trigger=reversal_trigger,
+        confidence=confidence,
+        reversible=reversible,
+        scope=scope,
         project_dir=path,
     )
 
