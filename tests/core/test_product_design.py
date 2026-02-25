@@ -78,19 +78,28 @@ def _create_design(project_dir: Path, **overrides: object) -> ProductDesignNote:
     """Create a product design with sensible defaults."""
     defaults: dict[str, object] = {
         "vision": "Persistent AI context that eliminates ramp-up",
-        "features": [
+        "principles": [
+            "Context must persist across sessions",
+            "Every stage decomposes into building blocks",
+        ],
+        "building_blocks": [
             "Structured idea capture",
             "Challenge sessions",
             "Product design workflow",
         ],
+        "prior_art": [
+            "Obsidian vault for persistent notes",
+            "Claude Code slash commands",
+        ],
+        "composition": (
+            "Slash commands drive a staged workflow whose"
+            " outputs accumulate in an Obsidian vault"
+        ),
         "target_users": "Solo developers using Claude Code",
         "success_metrics": [
             "Ship MVP in 2 weeks",
             "5 active users in first month",
         ],
-        "genuine_edge": (
-            "Deep Claude Code integration — no other tool has this"
-        ),
     }
     defaults.update(overrides)
     return create_product_design(project_dir, **defaults)
@@ -110,18 +119,27 @@ class TestCreateProductDesign:
         assert result.vision == (
             "Persistent AI context that eliminates ramp-up"
         )
-        assert result.features == (
+        assert result.principles == (
+            "Context must persist across sessions",
+            "Every stage decomposes into building blocks",
+        )
+        assert result.building_blocks == (
             "Structured idea capture",
             "Challenge sessions",
             "Product design workflow",
+        )
+        assert result.prior_art == (
+            "Obsidian vault for persistent notes",
+            "Claude Code slash commands",
+        )
+        assert result.composition == (
+            "Slash commands drive a staged workflow whose"
+            " outputs accumulate in an Obsidian vault"
         )
         assert result.target_users == ("Solo developers using Claude Code")
         assert result.success_metrics == (
             "Ship MVP in 2 weeks",
             "5 active users in first month",
-        )
-        assert result.genuine_edge == (
-            "Deep Claude Code integration — no other tool has this"
         )
 
     @patch(
@@ -142,10 +160,12 @@ class TestCreateProductDesign:
         loaded = load_product_design(project)
 
         assert loaded.vision == created.vision
-        assert loaded.features == created.features
+        assert loaded.principles == created.principles
+        assert loaded.building_blocks == created.building_blocks
+        assert loaded.prior_art == created.prior_art
+        assert loaded.composition == created.composition
         assert loaded.target_users == created.target_users
         assert loaded.success_metrics == created.success_metrics
-        assert loaded.genuine_edge == created.genuine_edge
 
     @patch(
         "mantle.core.product_design.state.resolve_git_identity",
@@ -160,17 +180,23 @@ class TestCreateProductDesign:
 
         assert "## Vision" in text
         assert "Persistent AI context" in text
-        assert "## Features" in text
+        assert "## Principles" in text
+        assert "- Context must persist across sessions" in text
+        assert "- Every stage decomposes into building blocks" in text
+        assert "## Building Blocks" in text
         assert "- Structured idea capture" in text
         assert "- Challenge sessions" in text
         assert "- Product design workflow" in text
+        assert "## Prior Art" in text
+        assert "- Obsidian vault for persistent notes" in text
+        assert "- Claude Code slash commands" in text
+        assert "## Composition" in text
+        assert "outputs accumulate in an Obsidian vault" in text
         assert "## Target Users" in text
         assert "Solo developers using Claude Code" in text
         assert "## Success Metrics" in text
         assert "- Ship MVP in 2 weeks" in text
         assert "- 5 active users in first month" in text
-        assert "## Genuine Edge" in text
-        assert "Deep Claude Code integration" in text
         assert "## Open Questions" in text
 
     @patch(
@@ -322,10 +348,12 @@ class TestProductDesignNote:
     def test_frozen(self) -> None:
         note = ProductDesignNote(
             vision="Test vision",
-            features=("a",),
+            principles=("p",),
+            building_blocks=("b",),
+            prior_art=("a",),
+            composition="compose",
             target_users="Devs",
             success_metrics=("metric",),
-            genuine_edge="edge",
             author="a@b.com",
             created=date.today(),
             updated=date.today(),

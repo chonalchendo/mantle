@@ -1,4 +1,4 @@
-"""Product design — structured product definition with features, users, and edge."""
+"""Product design — first-principles decomposition into building blocks."""
 
 from __future__ import annotations
 
@@ -23,10 +23,14 @@ class ProductDesignNote(pydantic.BaseModel, frozen=True):
 
     Attributes:
         vision: One-sentence product vision.
-        features: Key capabilities (3-7 items).
+        principles: Non-negotiable truths that constrain the
+            solution space.
+        building_blocks: Essential primitives that must be correct.
+        prior_art: Existing pieces to combine or adopt.
+        composition: How the building blocks assemble into a
+            coherent product.
         target_users: Specific user profile and context.
         success_metrics: Measurable outcomes (2-5 items).
-        genuine_edge: What makes this different from alternatives.
         author: Git email of the author.
         created: Date the design was captured.
         updated: Date of the last edit.
@@ -35,10 +39,12 @@ class ProductDesignNote(pydantic.BaseModel, frozen=True):
     """
 
     vision: str
-    features: tuple[str, ...]
+    principles: tuple[str, ...]
+    building_blocks: tuple[str, ...]
+    prior_art: tuple[str, ...]
+    composition: str
     target_users: str
     success_metrics: tuple[str, ...]
-    genuine_edge: str
     author: str
     created: date
     updated: date
@@ -73,14 +79,18 @@ def _build_product_design_body(note: ProductDesignNote) -> str:
     Returns:
         Formatted markdown body string.
     """
-    features = "\n".join(f"- {f}" for f in note.features)
+    principles = "\n".join(f"- {p}" for p in note.principles)
+    blocks = "\n".join(f"- {b}" for b in note.building_blocks)
+    prior = "\n".join(f"- {a}" for a in note.prior_art)
     metrics = "\n".join(f"- {m}" for m in note.success_metrics)
     return (
         f"## Vision\n\n{note.vision}\n\n"
-        f"## Features\n\n{features}\n\n"
+        f"## Principles\n\n{principles}\n\n"
+        f"## Building Blocks\n\n{blocks}\n\n"
+        f"## Prior Art\n\n{prior}\n\n"
+        f"## Composition\n\n{note.composition}\n\n"
         f"## Target Users\n\n{note.target_users}\n\n"
         f"## Success Metrics\n\n{metrics}\n\n"
-        f"## Genuine Edge\n\n{note.genuine_edge}\n\n"
         "## Open Questions\n\n"
         "_What do you still need to learn?_\n"
     )
@@ -93,10 +103,12 @@ def create_product_design(
     project_dir: Path,
     *,
     vision: str,
-    features: Sequence[str],
+    principles: Sequence[str],
+    building_blocks: Sequence[str],
+    prior_art: Sequence[str],
+    composition: str,
     target_users: str,
     success_metrics: Sequence[str],
-    genuine_edge: str,
     overwrite: bool = False,
 ) -> ProductDesignNote:
     """Write .mantle/product-design.md, update state body, and transition.
@@ -104,10 +116,14 @@ def create_product_design(
     Args:
         project_dir: Directory containing .mantle/.
         vision: One-sentence product vision.
-        features: Key capabilities (3-7 items).
+        principles: Non-negotiable truths that constrain the
+            solution space.
+        building_blocks: Essential primitives that must be correct.
+        prior_art: Existing pieces to combine or adopt.
+        composition: How the building blocks assemble into a
+            coherent product.
         target_users: Specific user profile and context.
         success_metrics: Measurable outcomes (2-5 items).
-        genuine_edge: What makes this different from alternatives.
         overwrite: Replace existing product-design.md if True.
 
     Returns:
@@ -127,10 +143,12 @@ def create_product_design(
 
     note = ProductDesignNote(
         vision=vision,
-        features=tuple(features),
+        principles=tuple(principles),
+        building_blocks=tuple(building_blocks),
+        prior_art=tuple(prior_art),
+        composition=composition,
         target_users=target_users,
         success_metrics=tuple(success_metrics),
-        genuine_edge=genuine_edge,
         author=identity,
         created=today,
         updated=today,
