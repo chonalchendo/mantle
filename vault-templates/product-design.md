@@ -1,9 +1,11 @@
 ---
 vision:
-features: []
+principles: []
+building_blocks: []
+prior_art: []
+composition:
 target_users:
 success_metrics: []
-genuine_edge:
 author:
 created:
 updated:
@@ -17,9 +19,21 @@ tags:
 
 _What does this product do and why does it matter?_
 
-## Features
+## Principles
 
-_What are the 3-7 key capabilities?_
+_What fundamental truths constrain the solution space?_
+
+## Building Blocks
+
+_What are the essential primitives that must be correct?_
+
+## Prior Art
+
+_What existing pieces should be combined or adopted?_
+
+## Composition
+
+_How do the building blocks assemble into a coherent product?_
 
 ## Target Users
 
@@ -28,10 +42,6 @@ _Who specifically is this for?_
 ## Success Metrics
 
 _How will you know this is working?_
-
-## Genuine Edge
-
-_What makes this genuinely different from alternatives?_
 
 ## Open Questions
 

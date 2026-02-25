@@ -55,17 +55,28 @@ def project(tmp_path: Path) -> Path:
 
 _DEFAULTS: dict[str, object] = {
     "vision": "Persistent AI context that eliminates ramp-up",
-    "features": (
+    "principles": (
+        "Context must persist across sessions",
+        "Every stage decomposes into building blocks",
+    ),
+    "building_blocks": (
         "Structured idea capture",
         "Challenge sessions",
         "Product design workflow",
+    ),
+    "prior_art": (
+        "Obsidian vault for persistent notes",
+        "Claude Code slash commands",
+    ),
+    "composition": (
+        "Slash commands drive a staged workflow whose"
+        " outputs accumulate in an Obsidian vault"
     ),
     "target_users": "Solo developers using Claude Code",
     "success_metrics": (
         "Ship MVP in 2 weeks",
         "5 active users in first month",
     ),
-    "genuine_edge": "Deep Claude Code integration",
 }
 
 
@@ -107,7 +118,7 @@ class TestRunSaveProductDesign:
 
         assert "Persistent AI context" in captured.out
 
-    def test_prints_feature_count(
+    def test_prints_building_block_count(
         self,
         project: Path,
         capsys: pytest.CaptureFixture[str],
@@ -122,7 +133,7 @@ class TestRunSaveProductDesign:
         )
         captured = capsys.readouterr()
 
-        assert "3" in captured.out
+        assert "Building blocks: 3" in captured.out
 
     def test_prints_next_step(
         self,
@@ -229,3 +240,5 @@ class TestCLIWiring:
         )
         assert result.returncode == 0
         assert "vision" in result.stdout.lower()
+        assert "principles" in result.stdout.lower()
+        assert "building-blocks" in result.stdout.lower()

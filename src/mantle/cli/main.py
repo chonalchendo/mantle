@@ -177,11 +177,32 @@ def save_product_design_command(
             help="One-sentence product vision.",
         ),
     ],
-    features: Annotated[
+    principles: Annotated[
         tuple[str, ...],
         Parameter(
-            name="--features",
-            help="Key capability (repeatable).",
+            name="--principles",
+            help="Non-negotiable truth / constraint (repeatable).",
+        ),
+    ],
+    building_blocks: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--building-blocks",
+            help="Essential primitive (repeatable).",
+        ),
+    ],
+    prior_art: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--prior-art",
+            help="Existing piece to combine or adopt (repeatable).",
+        ),
+    ],
+    composition: Annotated[
+        str,
+        Parameter(
+            name="--composition",
+            help="How the building blocks assemble into a product.",
         ),
     ],
     target_users: Annotated[
@@ -196,13 +217,6 @@ def save_product_design_command(
         Parameter(
             name="--success-metrics",
             help="Measurable outcome (repeatable).",
-        ),
-    ],
-    genuine_edge: Annotated[
-        str,
-        Parameter(
-            name="--genuine-edge",
-            help="What makes this different from alternatives.",
         ),
     ],
     overwrite: Annotated[
@@ -223,10 +237,12 @@ def save_product_design_command(
     """Save a product design to .mantle/product-design.md."""
     product_design.run_save_product_design(
         vision=vision,
-        features=features,
+        principles=principles,
+        building_blocks=building_blocks,
+        prior_art=prior_art,
+        composition=composition,
         target_users=target_users,
         success_metrics=success_metrics,
-        genuine_edge=genuine_edge,
         overwrite=overwrite,
         project_dir=path,
     )

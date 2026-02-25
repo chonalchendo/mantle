@@ -14,10 +14,12 @@ console = Console()
 def run_save_product_design(
     *,
     vision: str,
-    features: tuple[str, ...],
+    principles: tuple[str, ...],
+    building_blocks: tuple[str, ...],
+    prior_art: tuple[str, ...],
+    composition: str,
     target_users: str,
     success_metrics: tuple[str, ...],
-    genuine_edge: str,
     overwrite: bool = False,
     project_dir: Path | None = None,
 ) -> None:
@@ -25,10 +27,14 @@ def run_save_product_design(
 
     Args:
         vision: One-sentence product vision.
-        features: Key capabilities (3-7 items).
+        principles: Non-negotiable truths that constrain the
+            solution space.
+        building_blocks: Essential primitives that must be correct.
+        prior_art: Existing pieces to combine or adopt.
+        composition: How the building blocks assemble into a
+            coherent product.
         target_users: Specific user profile and context.
         success_metrics: Measurable outcomes (2-5 items).
-        genuine_edge: What makes this different from alternatives.
         overwrite: Replace existing product-design.md if True.
         project_dir: Project directory. Defaults to cwd.
 
@@ -43,10 +49,12 @@ def run_save_product_design(
         result = product_design.create_product_design(
             project_dir,
             vision=vision,
-            features=features,
+            principles=principles,
+            building_blocks=building_blocks,
+            prior_art=prior_art,
+            composition=composition,
             target_users=target_users,
             success_metrics=success_metrics,
-            genuine_edge=genuine_edge,
             overwrite=overwrite,
         )
     except product_design.ProductDesignExistsError:
@@ -61,8 +69,8 @@ def run_save_product_design(
         "[green]Product design saved to .mantle/product-design.md[/green]"
     )
     console.print()
-    console.print(f"  Vision:   {result.vision}")
-    console.print(f"  Features: {len(result.features)}")
+    console.print(f"  Vision:          {result.vision}")
+    console.print(f"  Building blocks: {len(result.building_blocks)}")
     console.print()
     console.print(
         "  Next: run [bold]/mantle:design-system[/bold] to define the how"
