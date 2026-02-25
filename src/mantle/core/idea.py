@@ -1,4 +1,4 @@
-"""Idea capture — structured hypothesis with success criteria."""
+"""Idea capture — structured problem/insight pair with success criteria."""
 
 from __future__ import annotations
 
@@ -21,7 +21,8 @@ class IdeaNote(pydantic.BaseModel, frozen=True):
     """Idea.md frontmatter schema.
 
     Attributes:
-        hypothesis: Core belief or value proposition.
+        problem: The specific pain or friction that exists.
+        insight: The non-obvious truth that makes a new solution possible.
         target_user: Who this idea is for.
         success_criteria: Measurable outcomes that prove success.
         author: Git email of the idea author.
@@ -31,7 +32,8 @@ class IdeaNote(pydantic.BaseModel, frozen=True):
         tags: Mantle tags for categorization.
     """
 
-    hypothesis: str
+    problem: str
+    insight: str
     target_user: str
     success_criteria: tuple[str, ...]
     author: str
@@ -56,26 +58,27 @@ class IdeaExistsError(Exception):
         super().__init__(f"Idea already exists: {path}")
 
 
-# ── Body template ────────────────────────────────────────────────
+# ── Body builder ─────────────────────────────────────────────────
 
 
-_IDEA_BODY = """\
-## Hypothesis
+def _build_idea_body(note: IdeaNote) -> str:
+    """Build the markdown body from idea content.
 
-_What do you believe to be true?_
+    Args:
+        note: The idea note with content to render.
 
-## Target User
-
-_Who is this for?_
-
-## Success Criteria
-
-_How will you know this worked?_
-
-## Open Questions
-
-_What do you still need to learn?_
-"""
+    Returns:
+        Formatted markdown body string.
+    """
+    criteria = "\n".join(f"- {c}" for c in note.success_criteria)
+    return (
+        f"## Problem\n\n{note.problem}\n\n"
+        f"## Insight\n\n{note.insight}\n\n"
+        f"## Target User\n\n{note.target_user}\n\n"
+        f"## Success Criteria\n\n{criteria}\n\n"
+        "## Open Questions\n\n"
+        "_What do you still need to learn?_\n"
+    )
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -84,7 +87,8 @@ _What do you still need to learn?_
 def create_idea(
     project_dir: Path,
     *,
-    hypothesis: str,
+    problem: str,
+    insight: str,
     target_user: str,
     success_criteria: Sequence[str],
     overwrite: bool = False,
@@ -93,7 +97,8 @@ def create_idea(
 
     Args:
         project_dir: Directory containing .mantle/.
-        hypothesis: Core belief or value proposition.
+        problem: The specific pain or friction that exists.
+        insight: The non-obvious truth that makes a new solution possible.
         target_user: Who this idea is for.
         success_criteria: Measurable outcomes that prove success.
         overwrite: Replace existing idea.md if True.
@@ -113,7 +118,8 @@ def create_idea(
     today = date.today()
 
     note = IdeaNote(
-        hypothesis=hypothesis,
+        problem=problem,
+        insight=insight,
         target_user=target_user,
         success_criteria=tuple(success_criteria),
         author=identity,
@@ -122,8 +128,8 @@ def create_idea(
         updated_by=identity,
     )
 
-    vault.write_note(idea_path, note, _IDEA_BODY)
-    _update_state_body(project_dir, hypothesis, identity)
+    vault.write_note(idea_path, note, _build_idea_body(note))
+    _update_state_body(project_dir, problem, insight, identity)
 
     return note
 
@@ -148,7 +154,8 @@ def load_idea(project_dir: Path) -> IdeaNote:
 def update_idea(
     project_dir: Path,
     *,
-    hypothesis: str | None = None,
+    problem: str | None = None,
+    insight: str | None = None,
     target_user: str | None = None,
     success_criteria: Sequence[str] | None = None,
 ) -> IdeaNote:
@@ -156,7 +163,8 @@ def update_idea(
 
     Args:
         project_dir: Directory containing .mantle/.
-        hypothesis: New hypothesis, or None to keep current.
+        problem: New problem, or None to keep current.
+        insight: New insight, or None to keep current.
         target_user: New target user, or None to keep current.
         success_criteria: New criteria, or None to keep current.
 
@@ -175,8 +183,10 @@ def update_idea(
         "updated": date.today(),
         "updated_by": identity,
     }
-    if hypothesis is not None:
-        updates["hypothesis"] = hypothesis
+    if problem is not None:
+        updates["problem"] = problem
+    if insight is not None:
+        updates["insight"] = insight
     if target_user is not None:
         updates["target_user"] = target_user
     if success_criteria is not None:
@@ -204,7 +214,8 @@ def idea_exists(project_dir: Path) -> bool:
 
 def _update_state_body(
     project_dir: Path,
-    hypothesis: str,
+    problem: str,
+    insight: str,
     identity: str,
 ) -> None:
     """Update state.md body with idea summary and refresh timestamps.
@@ -214,7 +225,8 @@ def _update_state_body(
 
     Args:
         project_dir: Directory containing .mantle/.
-        hypothesis: Idea hypothesis to insert into Summary.
+        problem: The specific pain or friction that exists.
+        insight: The non-obvious truth that makes a new solution possible.
         identity: Git email for the updated_by field.
     """
     state_path = project_dir / ".mantle" / "state.md"
@@ -223,7 +235,7 @@ def _update_state_body(
     body = note.body
     body = body.replace(
         "_Describe the project in one or two sentences._",
-        hypothesis,
+        f"{problem} — {insight}",
     )
     body = body.replace(
         "_What are you working on right now?_",

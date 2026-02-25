@@ -67,7 +67,8 @@ def _write_state(
 def _create_idea(project_dir: Path, **overrides: object) -> IdeaNote:
     """Create an idea with sensible defaults."""
     defaults = {
-        "hypothesis": "Users want faster feedback loops",
+        "problem": "Feedback loops are too slow",
+        "insight": "Persistent context eliminates ramp-up time",
         "target_user": "Solo developers using Claude Code",
         "success_criteria": ["Ship in 2 weeks", "5 users onboarded"],
     }
@@ -83,12 +84,11 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_correct_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
         result = _create_idea(project)
 
-        assert result.hypothesis == "Users want faster feedback loops"
+        assert result.problem == "Feedback loops are too slow"
+        assert result.insight == ("Persistent context eliminates ramp-up time")
         assert result.target_user == "Solo developers using Claude Code"
         assert result.success_criteria == (
             "Ship in 2 weeks",
@@ -99,9 +99,7 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_file_created(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_file_created(self, _mock: object, project: Path) -> None:
         _create_idea(project)
 
         assert (project / ".mantle" / "idea.md").exists()
@@ -110,13 +108,12 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip(self, _mock: object, project: Path) -> None:
         created = _create_idea(project)
         loaded = load_idea(project)
 
-        assert loaded.hypothesis == created.hypothesis
+        assert loaded.problem == created.problem
+        assert loaded.insight == created.insight
         assert loaded.target_user == created.target_user
         assert loaded.success_criteria == created.success_criteria
 
@@ -124,25 +121,29 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_body_has_template_sections(
+    def test_body_has_populated_sections(
         self, _mock: object, project: Path
     ) -> None:
         _create_idea(project)
         path = project / ".mantle" / "idea.md"
         text = path.read_text()
 
-        assert "## Hypothesis" in text
+        assert "## Problem" in text
+        assert "Feedback loops are too slow" in text
+        assert "## Insight" in text
+        assert "Persistent context eliminates ramp-up time" in text
         assert "## Target User" in text
+        assert "Solo developers using Claude Code" in text
         assert "## Success Criteria" in text
+        assert "- Ship in 2 weeks" in text
+        assert "- 5 users onboarded" in text
         assert "## Open Questions" in text
 
     @patch(
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_raises_on_existing(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_raises_on_existing(self, _mock: object, project: Path) -> None:
         _create_idea(project)
 
         with pytest.raises(IdeaExistsError):
@@ -152,25 +153,21 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_overwrite_works(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_overwrite_works(self, _mock: object, project: Path) -> None:
         _create_idea(project)
         result = _create_idea(
             project,
-            hypothesis="New hypothesis",
+            problem="New problem",
             overwrite=True,
         )
 
-        assert result.hypothesis == "New hypothesis"
+        assert result.problem == "New problem"
 
     @patch(
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_git_identity_stamp(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_git_identity_stamp(self, _mock: object, project: Path) -> None:
         result = _create_idea(project)
 
         assert result.author == MOCK_EMAIL
@@ -180,9 +177,7 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_default_tags(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_default_tags(self, _mock: object, project: Path) -> None:
         result = _create_idea(project)
 
         assert result.tags == ("type/idea", "phase/idea")
@@ -191,14 +186,13 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_state_summary_updated(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_state_summary_updated(self, _mock: object, project: Path) -> None:
         _create_idea(project)
         path = project / ".mantle" / "state.md"
         text = path.read_text()
 
-        assert "Users want faster feedback loops" in text
+        assert "Feedback loops are too slow" in text
+        assert "Persistent context eliminates ramp-up time" in text
         assert "_Describe the project in one or two sentences._" not in text
 
     @patch(
@@ -219,13 +213,9 @@ class TestCreateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_state_stays_idea(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_state_stays_idea(self, _mock: object, project: Path) -> None:
         _create_idea(project)
-        note = read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.IDEA
 
@@ -237,9 +227,7 @@ class TestCreateIdea:
         self, _mock: object, project: Path
     ) -> None:
         _create_idea(project)
-        note = read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
@@ -253,13 +241,11 @@ class TestLoadIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_reads_saved(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_reads_saved(self, _mock: object, project: Path) -> None:
         _create_idea(project)
         loaded = load_idea(project)
 
-        assert loaded.hypothesis == "Users want faster feedback loops"
+        assert loaded.problem == "Feedback loops are too slow"
 
     def test_file_not_found(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
@@ -278,11 +264,9 @@ class TestUpdateIdea:
         self, _mock: object, project: Path
     ) -> None:
         _create_idea(project)
-        result = update_idea(
-            project, hypothesis="Updated hypothesis"
-        )
+        result = update_idea(project, problem="Updated problem")
 
-        assert result.hypothesis == "Updated hypothesis"
+        assert result.problem == "Updated problem"
 
     @patch(
         "mantle.core.idea.state.resolve_git_identity",
@@ -292,10 +276,9 @@ class TestUpdateIdea:
         self, _mock: object, project: Path
     ) -> None:
         _create_idea(project)
-        result = update_idea(
-            project, hypothesis="Updated hypothesis"
-        )
+        result = update_idea(project, problem="Updated problem")
 
+        assert result.insight == ("Persistent context eliminates ramp-up time")
         assert result.target_user == "Solo developers using Claude Code"
         assert result.success_criteria == (
             "Ship in 2 weeks",
@@ -306,20 +289,16 @@ class TestUpdateIdea:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_refreshes_timestamps(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_refreshes_timestamps(self, _mock: object, project: Path) -> None:
         _create_idea(project)
-        result = update_idea(
-            project, hypothesis="Updated hypothesis"
-        )
+        result = update_idea(project, problem="Updated problem")
 
         assert result.updated == date.today()
         assert result.updated_by == MOCK_EMAIL
 
     def test_raises_when_missing(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
-            update_idea(tmp_path, hypothesis="Nope")
+            update_idea(tmp_path, problem="Nope")
 
 
 # ── idea_exists ──────────────────────────────────────────────────
@@ -333,9 +312,7 @@ class TestIdeaExists:
         "mantle.core.idea.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_true_after(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_true_after(self, _mock: object, project: Path) -> None:
         _create_idea(project)
 
         assert idea_exists(project) is True
@@ -347,7 +324,8 @@ class TestIdeaExists:
 class TestIdeaNote:
     def test_frozen(self) -> None:
         note = IdeaNote(
-            hypothesis="Test",
+            problem="Test problem",
+            insight="Test insight",
             target_user="Devs",
             success_criteria=("a",),
             author="a@b.com",
@@ -357,4 +335,4 @@ class TestIdeaNote:
         )
 
         with pytest.raises(pydantic.ValidationError):
-            note.hypothesis = "Changed"  # type: ignore[misc]
+            note.problem = "Changed"  # type: ignore[misc]

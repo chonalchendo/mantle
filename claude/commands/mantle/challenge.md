@@ -18,7 +18,8 @@ Check whether `.mantle/` and `.mantle/idea.md` exist by reading them.
 ## Step 2 — Load idea context
 
 Read `.mantle/idea.md` and extract:
-- **Hypothesis** — the core belief
+- **Problem** — the specific pain or friction
+- **Insight** — the non-obvious truth that enables a new solution
 - **Target user** — who it's for
 - **Success criteria** — how they'll know it worked
 
@@ -40,8 +41,9 @@ through them as a rigid checklist.
    problem are they actually solving? What are the true constraints, not
    inherited conventions? What would a solution look like starting from scratch?
 
-3. **Devil's advocate** — Attack the core hypothesis. Why might it be wrong?
-   What evidence contradicts it? What are they not seeing?
+3. **Devil's advocate** — Attack the problem framing AND the insight. Is the
+   problem real, or a symptom of something deeper? Is the insight actually
+   non-obvious, or is it already well-known and just hard to execute?
 
 4. **Pre-mortem** — It's one year later and this failed. What went wrong?
    Think about execution risk, market timing, team gaps, and technical debt.

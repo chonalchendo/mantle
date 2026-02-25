@@ -40,11 +40,18 @@ def init_vault_command(
 
 @app.command(name="save-idea")
 def save_idea_command(
-    hypothesis: Annotated[
+    problem: Annotated[
         str,
         Parameter(
-            name="--hypothesis",
-            help="Core belief or value proposition.",
+            name="--problem",
+            help="The specific pain or friction that exists.",
+        ),
+    ],
+    insight: Annotated[
+        str,
+        Parameter(
+            name="--insight",
+            help="What makes a new solution possible.",
         ),
     ],
     target_user: Annotated[
@@ -78,7 +85,8 @@ def save_idea_command(
 ) -> None:
     """Capture a structured idea in .mantle/idea.md."""
     idea.run_save_idea(
-        hypothesis=hypothesis,
+        problem=problem,
+        insight=insight,
         target_user=target_user,
         success_criteria=success_criteria,
         overwrite=overwrite,

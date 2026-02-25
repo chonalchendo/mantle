@@ -62,7 +62,8 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="Users want faster feedback",
+            problem="Feedback loops are too slow",
+            insight="Persistent context eliminates ramp-up",
             target_user="Developers",
             success_criteria=("Ship in 2 weeks",),
             project_dir=project,
@@ -71,7 +72,7 @@ class TestRunSaveIdea:
 
         assert "Idea captured" in captured.out
 
-    def test_prints_hypothesis(
+    def test_prints_problem_and_insight(
         self,
         project: Path,
         capsys: pytest.CaptureFixture[str],
@@ -79,14 +80,16 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="Users want faster feedback",
+            problem="Feedback loops are too slow",
+            insight="Persistent context eliminates ramp-up",
             target_user="Developers",
             success_criteria=("Ship in 2 weeks",),
             project_dir=project,
         )
         captured = capsys.readouterr()
 
-        assert "Users want faster feedback" in captured.out
+        assert "Feedback loops are too slow" in captured.out
+        assert "Persistent context eliminates ramp-up" in captured.out
 
     def test_prints_criteria_count(
         self,
@@ -96,7 +99,8 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="Test",
+            problem="Test",
+            insight="Test insight",
             target_user="Devs",
             success_criteria=("a", "b", "c"),
             project_dir=project,
@@ -113,7 +117,8 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="Test",
+            problem="Test",
+            insight="Test insight",
             target_user="Devs",
             success_criteria=("a",),
             project_dir=project,
@@ -130,7 +135,8 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="First",
+            problem="First",
+            insight="First insight",
             target_user="Devs",
             success_criteria=("a",),
             project_dir=project,
@@ -138,7 +144,8 @@ class TestRunSaveIdea:
 
         with pytest.raises(SystemExit, match="1"):
             run_save_idea(
-                hypothesis="Second",
+                problem="Second",
+                insight="Second insight",
                 target_user="Devs",
                 success_criteria=("a",),
                 project_dir=project,
@@ -155,13 +162,15 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="First",
+            problem="First",
+            insight="First insight",
             target_user="Devs",
             success_criteria=("a",),
             project_dir=project,
         )
         run_save_idea(
-            hypothesis="Second",
+            problem="Second",
+            insight="Second insight",
             target_user="Devs",
             success_criteria=("a",),
             overwrite=True,
@@ -171,7 +180,7 @@ class TestRunSaveIdea:
         from mantle.core.idea import load_idea
 
         loaded = load_idea(project)
-        assert loaded.hypothesis == "Second"
+        assert loaded.problem == "Second"
 
     def test_defaults_to_cwd(
         self,
@@ -184,7 +193,8 @@ class TestRunSaveIdea:
         from mantle.cli.idea import run_save_idea
 
         run_save_idea(
-            hypothesis="Test",
+            problem="Test",
+            insight="Test insight",
             target_user="Devs",
             success_criteria=("a",),
         )
@@ -211,4 +221,5 @@ class TestCLIWiring:
             check=False,
         )
         assert result.returncode == 0
-        assert "hypothesis" in result.stdout.lower()
+        assert "problem" in result.stdout.lower()
+        assert "insight" in result.stdout.lower()

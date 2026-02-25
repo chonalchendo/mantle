@@ -51,7 +51,8 @@ def _write_state(project_dir: Path) -> None:
     )
     body = (
         "## Summary\n\n"
-        "Users want faster feedback loops\n\n"
+        "Feedback loops are too slow"
+        " — Persistent context eliminates ramp-up time\n\n"
         "## Current Focus\n\n"
         "Idea captured — run /mantle:challenge next.\n\n"
         "## Blockers\n\n"
@@ -63,7 +64,8 @@ def _write_state(project_dir: Path) -> None:
 def _write_idea(project_dir: Path) -> None:
     """Write an idea.md for testing."""
     note = idea.IdeaNote(
-        hypothesis="Users want faster feedback loops",
+        problem="Feedback loops are too slow",
+        insight="Persistent context eliminates ramp-up time",
         target_user="Solo developers using Claude Code",
         success_criteria=("Ship in 2 weeks", "5 users onboarded"),
         author=MOCK_EMAIL,
@@ -71,7 +73,14 @@ def _write_idea(project_dir: Path) -> None:
         updated=date(2025, 1, 1),
         updated_by=MOCK_EMAIL,
     )
-    body = "## Hypothesis\n\n_What do you believe to be true?_\n"
+    body = (
+        "## Problem\n\nFeedback loops are too slow\n\n"
+        "## Insight\n\nPersistent context eliminates ramp-up time\n\n"
+        "## Target User\n\nSolo developers using Claude Code\n\n"
+        "## Success Criteria\n\n"
+        "- Ship in 2 weeks\n- 5 users onboarded\n\n"
+        "## Open Questions\n\n_What do you still need to learn?_\n"
+    )
     write_note(project_dir / ".mantle" / "idea.md", note, body)
 
 

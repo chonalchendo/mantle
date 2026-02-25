@@ -23,13 +23,15 @@ class ChallengeNote(pydantic.BaseModel, frozen=True):
     Attributes:
         date: Date the challenge session was saved.
         author: Git email of the challenger.
-        hypothesis_ref: Snapshot of the hypothesis being challenged.
+        problem_ref: Snapshot of the problem being challenged.
+        insight_ref: Snapshot of the insight being challenged.
         tags: Mantle tags for categorization.
     """
 
     date: date
     author: str
-    hypothesis_ref: str
+    problem_ref: str
+    insight_ref: str
     tags: tuple[str, ...] = ("type/challenge", "phase/challenge")
 
 
@@ -58,7 +60,7 @@ def save_challenge(
     """Save transcript to .mantle/challenges/<date>-challenge.md.
 
     Auto-increments filename on same-day collision (-2, -3, ...).
-    Reads idea.md to snapshot hypothesis_ref.
+    Reads idea.md to snapshot problem_ref and insight_ref.
     Updates state.md Current Focus after saving.
 
     Args:
@@ -84,7 +86,8 @@ def save_challenge(
     note = ChallengeNote(
         date=today,
         author=identity,
-        hypothesis_ref=idea_note.hypothesis,
+        problem_ref=idea_note.problem,
+        insight_ref=idea_note.insight,
     )
 
     challenge_path = _resolve_challenge_path(project_dir)

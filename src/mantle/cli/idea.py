@@ -13,7 +13,8 @@ console = Console()
 
 def run_save_idea(
     *,
-    hypothesis: str,
+    problem: str,
+    insight: str,
     target_user: str,
     success_criteria: tuple[str, ...],
     overwrite: bool = False,
@@ -22,7 +23,8 @@ def run_save_idea(
     """Capture a structured idea and write it to .mantle/idea.md.
 
     Args:
-        hypothesis: Core belief or value proposition.
+        problem: The specific pain or friction that exists.
+        insight: The non-obvious truth that makes a new solution possible.
         target_user: Who this idea is for.
         success_criteria: Measurable outcomes that prove success.
         overwrite: Replace existing idea.md if True.
@@ -37,7 +39,8 @@ def run_save_idea(
     try:
         result = idea.create_idea(
             project_dir,
-            hypothesis=hypothesis,
+            problem=problem,
+            insight=insight,
             target_user=target_user,
             success_criteria=success_criteria,
             overwrite=overwrite,
@@ -52,12 +55,10 @@ def run_save_idea(
     console.print()
     console.print("[green]Idea captured in .mantle/idea.md[/green]")
     console.print()
-    console.print(f"  Hypothesis: {result.hypothesis}")
-    console.print(
-        f"  Criteria:   {len(result.success_criteria)}"
-    )
+    console.print(f"  Problem: {result.problem}")
+    console.print(f"  Insight: {result.insight}")
+    console.print(f"  Criteria: {len(result.success_criteria)}")
     console.print()
     console.print(
-        "  Next: run [bold]/mantle:challenge[/bold] "
-        "to stress-test your idea"
+        "  Next: run [bold]/mantle:challenge[/bold] to stress-test your idea"
     )

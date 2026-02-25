@@ -1,5 +1,6 @@
 ---
-hypothesis:
+problem:
+insight:
 target_user:
 success_criteria: []
 author:
@@ -11,9 +12,13 @@ tags:
   - phase/idea
 ---
 
-## Hypothesis
+## Problem
 
-_What do you believe to be true?_
+_What specific pain or friction exists?_
+
+## Insight
+
+_What makes a new solution possible?_
 
 ## Target User
 

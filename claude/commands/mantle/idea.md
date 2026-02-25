@@ -12,12 +12,15 @@ whether `.mantle/idea.md` already exists by reading the file.
 
 ## Step 2 — Gather the idea
 
-Have a short conversation to capture three things:
+Have a short conversation to capture four things:
 
-1. **Hypothesis** — What do you believe to be true? What problem are you
-   solving, and why does your approach work? *(one or two sentences)*
-2. **Target user** — Who is this for? Be specific — role, context, skill level.
-3. **Success criteria** — How will you know this worked? List 2–5 measurable
+1. **Problem** — What specific pain or friction exists? Be concrete — name the
+   situation, who feels it, and why current solutions fall short. *(one or two
+   sentences)*
+2. **Insight** — What non-obvious truth makes a new solution possible? This is
+   the lever — the thing most people miss. *(one or two sentences)*
+3. **Target user** — Who is this for? Be specific — role, context, skill level.
+4. **Success criteria** — How will you know this worked? List 2–5 measurable
    outcomes.
 
 Ask for each one in turn. Reflect back what you heard and confirm before
@@ -26,10 +29,11 @@ gently.
 
 ## Step 3 — Confirm and save
 
-Once all three are collected, show a summary:
+Once all four are collected, show a summary:
 
 ```
-Hypothesis:       <hypothesis>
+Problem:          <problem>
+Insight:          <insight>
 Target user:      <target_user>
 Success criteria:
   - <criterion 1>
@@ -41,7 +45,8 @@ Ask the user to confirm. Then run the CLI command:
 
 ```bash
 mantle save-idea \
-  --hypothesis "<hypothesis>" \
+  --problem "<problem>" \
+  --insight "<insight>" \
   --target-user "<target_user>" \
   --success-criteria "<criterion 1>" \
   --success-criteria "<criterion 2>"

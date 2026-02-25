@@ -59,7 +59,8 @@ def _write_state(
     if body is None:
         body = (
             "## Summary\n\n"
-            "Users want faster feedback loops\n\n"
+            "Feedback loops are too slow"
+            " — Persistent context eliminates ramp-up time\n\n"
             "## Current Focus\n\n"
             "Idea captured — run /mantle:challenge next.\n\n"
             "## Blockers\n\n"
@@ -72,7 +73,8 @@ def _write_state(
 def _write_idea(project_dir: Path) -> None:
     """Write an idea.md for testing."""
     note = idea.IdeaNote(
-        hypothesis="Users want faster feedback loops",
+        problem="Feedback loops are too slow",
+        insight="Persistent context eliminates ramp-up time",
         target_user="Solo developers using Claude Code",
         success_criteria=("Ship in 2 weeks", "5 users onboarded"),
         author=MOCK_EMAIL,
@@ -80,12 +82,21 @@ def _write_idea(project_dir: Path) -> None:
         updated=date(2025, 1, 1),
         updated_by=MOCK_EMAIL,
     )
-    body = "## Hypothesis\n\n_What do you believe to be true?_\n"
+    body = (
+        "## Problem\n\nFeedback loops are too slow\n\n"
+        "## Insight\n\nPersistent context eliminates ramp-up time\n\n"
+        "## Target User\n\nSolo developers using Claude Code\n\n"
+        "## Success Criteria\n\n"
+        "- Ship in 2 weeks\n- 5 users onboarded\n\n"
+        "## Open Questions\n\n_What do you still need to learn?_\n"
+    )
     path = project_dir / ".mantle" / "idea.md"
     vault.write_note(path, note, body)
 
 
-def _save(project_dir: Path, transcript: str = TRANSCRIPT) -> tuple[ChallengeNote, Path]:
+def _save(
+    project_dir: Path, transcript: str = TRANSCRIPT
+) -> tuple[ChallengeNote, Path]:
     """Save a challenge with sensible defaults."""
     return save_challenge(project_dir, transcript)
 
@@ -98,28 +109,25 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_correct_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.date == date.today()
         assert note.author == MOCK_EMAIL
-        assert note.hypothesis_ref == "Users want faster feedback loops"
+        assert note.problem_ref == "Feedback loops are too slow"
+        assert note.insight_ref == (
+            "Persistent context eliminates ramp-up time"
+        )
 
     @patch(
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_file_at_expected_path(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
         today = date.today().isoformat()
-        expected = (
-            project / ".mantle" / "challenges" / f"{today}-challenge.md"
-        )
+        expected = project / ".mantle" / "challenges" / f"{today}-challenge.md"
         assert path == expected
         assert path.exists()
 
@@ -127,24 +135,21 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_challenge(path)
 
         assert loaded_note.date == saved_note.date
         assert loaded_note.author == saved_note.author
-        assert loaded_note.hypothesis_ref == saved_note.hypothesis_ref
+        assert loaded_note.problem_ref == saved_note.problem_ref
+        assert loaded_note.insight_ref == saved_note.insight_ref
         assert loaded_note.tags == saved_note.tags
 
     @patch(
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_transcript_in_body(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_transcript_in_body(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         _, body = load_challenge(path)
 
@@ -154,9 +159,7 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_raises_idea_not_found(
-        self, _mock: object, tmp_path: Path
-    ) -> None:
+    def test_raises_idea_not_found(self, _mock: object, tmp_path: Path) -> None:
         (tmp_path / ".mantle").mkdir()
         (tmp_path / ".mantle" / "challenges").mkdir()
         _write_state(tmp_path)
@@ -168,9 +171,7 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_stamps_author(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_stamps_author(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.author == MOCK_EMAIL
@@ -179,9 +180,7 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_default_tags(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_default_tags(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.tags == ("type/challenge", "phase/challenge")
@@ -207,9 +206,7 @@ class TestSaveChallenge:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
@@ -218,13 +215,9 @@ class TestSaveChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_state_status_unchanged(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_state_status_unchanged(self, _mock: object, project: Path) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.IDEA
 
@@ -252,13 +245,14 @@ class TestLoadChallenge:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_reads_saved(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_reads_saved(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_challenge(path)
 
-        assert note.hypothesis_ref == "Users want faster feedback loops"
+        assert note.problem_ref == "Feedback loops are too slow"
+        assert note.insight_ref == (
+            "Persistent context eliminates ramp-up time"
+        )
         assert TRANSCRIPT in body
 
     def test_file_not_found(self, tmp_path: Path) -> None:
@@ -277,9 +271,7 @@ class TestListChallenges:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_sorted_paths(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project)
         _save(project)
         paths = list_challenges(project)
@@ -299,9 +291,7 @@ class TestChallengeExists:
         "mantle.core.challenge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_true_after(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_true_after(self, _mock: object, project: Path) -> None:
         _save(project)
 
         assert challenge_exists(project) is True
@@ -315,7 +305,8 @@ class TestChallengeNote:
         note = ChallengeNote(
             date=date.today(),
             author="a@b.com",
-            hypothesis_ref="Test hypothesis",
+            problem_ref="Test problem",
+            insight_ref="Test insight",
         )
 
         with pytest.raises(pydantic.ValidationError):
