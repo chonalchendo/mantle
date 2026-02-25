@@ -12,6 +12,7 @@ from mantle.cli import (
     init,
     init_vault,
     install,
+    research,
     system_design,
 )
 
@@ -122,6 +123,46 @@ def save_challenge_command(
     """Save a challenge session transcript to .mantle/challenges/."""
     challenge.run_save_challenge(
         transcript=transcript,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-research")
+def save_research_command(
+    focus: Annotated[
+        str,
+        Parameter(
+            name="--focus",
+            help="Research focus angle.",
+        ),
+    ],
+    confidence: Annotated[
+        str,
+        Parameter(
+            name="--confidence",
+            help="Confidence rating (e.g. '7/10').",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Research note content.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a research note to .mantle/research/."""
+    research.run_save_research(
+        focus=focus,
+        confidence=confidence,
+        content=content,
         project_dir=path,
     )
 

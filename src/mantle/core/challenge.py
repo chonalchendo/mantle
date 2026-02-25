@@ -184,7 +184,7 @@ def _update_state_body(project_dir: Path, identity: str) -> None:
 
     body = re.sub(
         r"(## Current Focus\n\n).*?(?=\n##|\Z)",
-        r"\1Challenge completed — run /mantle:design-product next.\n",
+        r"\1Challenge completed — run /mantle:research or /mantle:design-product next.\n",
         note.body,
         count=1,
         flags=re.DOTALL,

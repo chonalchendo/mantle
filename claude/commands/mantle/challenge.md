@@ -101,5 +101,9 @@ mantle save-challenge --transcript "<formatted transcript>"
 
 After a successful save, tell the user:
 
-> Challenge complete! Next, run `/mantle:design-product` to define the product
-> based on what survived the challenge.
+> Challenge complete! The assumptions, uncertainties, and weaknesses surfaced
+> here are the input for research. You can:
+> - Run `/mantle:research` to investigate the building blocks your idea depends
+>   on — starting with the highest-risk assumptions from this session
+> - Run `/mantle:design-product` to go straight to design if you're confident
+>   enough to skip research

@@ -19,8 +19,9 @@ MANTLE_DIR = ".mantle"
 SUBDIRS: tuple[str, ...] = (
     "challenges",
     "decisions",
-    "sessions",
     "issues",
+    "research",
+    "sessions",
     "stories",
 )
 

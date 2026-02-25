@@ -46,6 +46,10 @@ def run_save_challenge(
     console.print(f"  Author: {note.author}")
     console.print()
     console.print(
-        "  Next: run [bold]/mantle:design-product[/bold] "
-        "to define the product"
+        "  Next: run [bold]/mantle:research[/bold] "
+        "to investigate building blocks"
+    )
+    console.print(
+        "        or [bold]/mantle:design-product[/bold] "
+        "to go straight to design"
     )

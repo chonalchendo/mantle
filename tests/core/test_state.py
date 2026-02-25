@@ -78,9 +78,7 @@ class TestCreateInitialState:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip_with_load(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip_with_load(self, _mock: object, project: Path) -> None:
         create_initial_state(project, "my-project")
         loaded = load_state(project)
 
@@ -129,9 +127,7 @@ class TestTransition:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_idea_to_challenge(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_idea_to_challenge(self, _mock: object, project: Path) -> None:
         _write_state(project, status=Status.IDEA)
         result = transition(project, Status.CHALLENGE)
 
@@ -141,17 +137,51 @@ class TestTransition:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_idea_to_product_design(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_idea_to_product_design(self, _mock: object, project: Path) -> None:
         _write_state(project, status=Status.IDEA)
         result = transition(project, Status.PRODUCT_DESIGN)
 
         assert result.status == Status.PRODUCT_DESIGN
 
-    def test_idea_to_implementing_invalid(
-        self, project: Path
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_idea_to_research(self, _mock: object, project: Path) -> None:
+        _write_state(project, status=Status.IDEA)
+        result = transition(project, Status.RESEARCH)
+
+        assert result.status == Status.RESEARCH
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_challenge_to_research(self, _mock: object, project: Path) -> None:
+        _write_state(project, status=Status.CHALLENGE)
+        result = transition(project, Status.RESEARCH)
+
+        assert result.status == Status.RESEARCH
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_research_to_product_design(
+        self, _mock: object, project: Path
     ) -> None:
+        _write_state(project, status=Status.RESEARCH)
+        result = transition(project, Status.PRODUCT_DESIGN)
+
+        assert result.status == Status.PRODUCT_DESIGN
+
+    def test_research_to_implementing_invalid(self, project: Path) -> None:
+        _write_state(project, status=Status.RESEARCH)
+
+        with pytest.raises(InvalidTransitionError):
+            transition(project, Status.IMPLEMENTING)
+
+    def test_idea_to_implementing_invalid(self, project: Path) -> None:
         _write_state(project, status=Status.IDEA)
 
         with pytest.raises(InvalidTransitionError):
@@ -221,9 +251,7 @@ class TestTransition:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_preserves_body(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_preserves_body(self, _mock: object, project: Path) -> None:
         body = "## Summary\n\nCustom body content.\n"
         _write_state(project, status=Status.IDEA, body=body)
 
@@ -244,13 +272,9 @@ class TestUpdateTracking:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_sets_tracking_fields(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_sets_tracking_fields(self, _mock: object, project: Path) -> None:
         _write_state(project)
-        result = update_tracking(
-            project, current_issue=2, current_story=3
-        )
+        result = update_tracking(project, current_issue=2, current_story=3)
 
         assert result.current_issue == 2
         assert result.current_story == 3
@@ -259,9 +283,7 @@ class TestUpdateTracking:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_preserves_status(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_preserves_status(self, _mock: object, project: Path) -> None:
         _write_state(project, status=Status.PLANNING)
         result = update_tracking(project, current_issue=1)
 
@@ -275,7 +297,7 @@ class TestValidTransitions:
     def test_idea_targets(self) -> None:
         result = valid_transitions(Status.IDEA)
         assert result == frozenset(
-            {Status.CHALLENGE, Status.PRODUCT_DESIGN}
+            {Status.CHALLENGE, Status.RESEARCH, Status.PRODUCT_DESIGN}
         )
 
     def test_completed_is_empty(self) -> None:
@@ -330,9 +352,7 @@ class TestInvalidTransitionError:
         assert "challenge" in msg
 
     def test_terminal_state_message(self) -> None:
-        exc = InvalidTransitionError(
-            Status.COMPLETED, Status.IDEA, frozenset()
-        )
+        exc = InvalidTransitionError(Status.COMPLETED, Status.IDEA, frozenset())
         msg = str(exc)
 
         assert "terminal state" in msg
@@ -367,17 +387,13 @@ class TestProjectState:
 
         assert state.schema_version == 1
 
-    def test_schema_version_round_trips(
-        self, project: Path
-    ) -> None:
+    def test_schema_version_round_trips(self, project: Path) -> None:
         _write_state(project)
         loaded = load_state(project)
 
         assert loaded.schema_version == 1
 
-    def test_loads_without_schema_version_field(
-        self, project: Path
-    ) -> None:
+    def test_loads_without_schema_version_field(self, project: Path) -> None:
         """Old state.md files without schema_version still parse."""
         path = project / ".mantle" / "state.md"
         path.write_text(
@@ -403,14 +419,15 @@ class TestProjectState:
 
 
 class TestStatusEnum:
-    def test_has_nine_values(self) -> None:
-        assert len(Status) == 9
+    def test_has_ten_values(self) -> None:
+        assert len(Status) == 10
 
     def test_values(self) -> None:
         values = {s.value for s in Status}
         expected = {
             "idea",
             "challenge",
+            "research",
             "product-design",
             "system-design",
             "planning",

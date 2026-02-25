@@ -23,6 +23,7 @@ class Status(enum.Enum):
 
     IDEA = "idea"
     CHALLENGE = "challenge"
+    RESEARCH = "research"
     PRODUCT_DESIGN = "product-design"
     SYSTEM_DESIGN = "system-design"
     PLANNING = "planning"
@@ -68,8 +69,11 @@ class ProjectState(pydantic.BaseModel, frozen=True):
 
 
 _TRANSITIONS: dict[Status, frozenset[Status]] = {
-    Status.IDEA: frozenset({Status.CHALLENGE, Status.PRODUCT_DESIGN}),
-    Status.CHALLENGE: frozenset({Status.PRODUCT_DESIGN}),
+    Status.IDEA: frozenset(
+        {Status.CHALLENGE, Status.RESEARCH, Status.PRODUCT_DESIGN}
+    ),
+    Status.CHALLENGE: frozenset({Status.RESEARCH, Status.PRODUCT_DESIGN}),
+    Status.RESEARCH: frozenset({Status.PRODUCT_DESIGN}),
     Status.PRODUCT_DESIGN: frozenset({Status.SYSTEM_DESIGN}),
     Status.SYSTEM_DESIGN: frozenset({Status.PLANNING}),
     Status.PLANNING: frozenset({Status.IMPLEMENTING}),
@@ -104,9 +108,7 @@ class InvalidTransitionError(Exception):
         super().__init__(str(self))
 
     def __str__(self) -> str:
-        targets = ", ".join(
-            sorted(s.value for s in self.valid_targets)
-        )
+        targets = ", ".join(sorted(s.value for s in self.valid_targets))
         if targets:
             return (
                 f"Cannot transition from '{self.current.value}' "

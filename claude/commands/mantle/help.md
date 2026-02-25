@@ -3,6 +3,7 @@
 ## Idea & Validation
 - `/mantle:idea` — Log an idea with structured metadata
 - `/mantle:challenge` — Challenge your idea from multiple angles
+- `/mantle:research` — Research and validate an idea with web evidence
 
 ## Design
 - `/mantle:design-product` — Create product design (the what and why)
