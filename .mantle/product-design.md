@@ -197,22 +197,23 @@ Each milestone represents a complete user workflow — something a user can inst
 
 **What the user can do**: Capture a structured idea and have the AI challenge it from multiple angles before investing in design.
 
-### v0.3.0 — Design (issues 5–7)
+### v0.3.0 — Design & Research (issues 5–7, 18)
 
-`/mantle:design-product` → `/mantle:design-system` → designs with decision logging.
+`/mantle:design-product` → `/mantle:design-system` → `/mantle:research` → designs with decision logging and first-principles research.
 
-| Issue | Title | Depends on |
-|-------|-------|------------|
-| 05 | Product design (`/mantle:design-product`) | 02 |
-| 06 | System design + decision logging (`/mantle:design-system`) | 02 |
-| 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | 05, 06 |
-| 19 | Project adoption (`/mantle:adopt`) | 02, 05, 06 |
+| Issue | Title | Status |
+|-------|-------|--------|
+| 05 | Product design (`/mantle:design-product`) | completed |
+| 06 | System design + decision logging (`/mantle:design-system`) | completed |
+| 18 | Research command (`/mantle:research`) | completed |
+| 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | |
+| 19 | Project adoption (`/mantle:adopt`) | |
 
-**What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.
+**What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Research building blocks through first-principles decomposition. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.
 
-### v0.4.0 — Context & Continuity (issues 8–10, 17–18)
+### v0.4.0 — Context & Continuity (issues 8–10, 17)
 
-Auto-briefing, session logs, skill graph, and research — the knowledge engine.
+Auto-briefing, session logs, and skill graph — the knowledge engine.
 
 | Issue | Title | Depends on |
 |-------|-------|------------|
@@ -220,7 +221,6 @@ Auto-briefing, session logs, skill graph, and research — the knowledge engine.
 | 09 | Session logging | 02 |
 | 10 | Auto-briefing on session start (`/mantle:resume`) | 08, 09 |
 | 17 | Skill graph (`/mantle:add-skill`) | 02 |
-| 18 | Research command (`/mantle:research`) | 02 |
 
 **What the user can do**: Persistent context across sessions. Start a session and get an instant briefing. Build a cross-project skill graph. Never start from zero again.
 

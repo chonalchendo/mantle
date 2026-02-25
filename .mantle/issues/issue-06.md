@@ -1,12 +1,12 @@
 ---
 title: System design + decision logging (/mantle:design-system)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
 story_count: 0
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD

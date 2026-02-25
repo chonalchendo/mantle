@@ -1,11 +1,11 @@
 ---
 issue: 5
 title: CLI save-product-design command
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

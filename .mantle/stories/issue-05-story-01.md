@@ -1,11 +1,11 @@
 ---
 issue: 5
 title: Core product design module (core/product_design.py)
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

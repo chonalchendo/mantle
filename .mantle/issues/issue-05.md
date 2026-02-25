@@ -1,12 +1,12 @@
 ---
 title: Product design (/mantle:design-product)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
-story_count: 0
+story_count: 3
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD

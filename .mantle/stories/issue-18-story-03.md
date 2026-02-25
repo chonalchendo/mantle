@@ -1,11 +1,11 @@
 ---
 issue: 18
 title: Claude Code research command + researcher agent + vault template + help
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

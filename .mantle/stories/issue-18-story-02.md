@@ -1,11 +1,11 @@
 ---
 issue: 18
 title: CLI save-research command
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

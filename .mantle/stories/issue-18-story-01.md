@@ -1,11 +1,11 @@
 ---
 issue: 18
 title: Core research module + state machine + project init
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation
