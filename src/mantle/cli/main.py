@@ -6,6 +6,7 @@ from typing import Annotated
 from cyclopts import App, Parameter
 
 from mantle.cli import (
+    adopt,
     challenge,
     decisions,
     idea,
@@ -500,6 +501,94 @@ def save_decision_command(
         confidence=confidence,
         reversible=reversible,
         scope=scope,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-adoption")
+def save_adoption_command(
+    vision: Annotated[
+        str,
+        Parameter(
+            name="--vision",
+            help="One-sentence product vision.",
+        ),
+    ],
+    principles: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--principles",
+            help="Non-negotiable truth (repeatable).",
+        ),
+    ],
+    building_blocks: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--building-blocks",
+            help="Essential primitive (repeatable).",
+        ),
+    ],
+    prior_art: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--prior-art",
+            help="Existing piece to adopt (repeatable).",
+        ),
+    ],
+    composition: Annotated[
+        str,
+        Parameter(
+            name="--composition",
+            help="How the building blocks assemble.",
+        ),
+    ],
+    target_users: Annotated[
+        str,
+        Parameter(
+            name="--target-users",
+            help="Inferred user profile.",
+        ),
+    ],
+    success_metrics: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--success-metrics",
+            help="Measurable outcome (repeatable).",
+        ),
+    ],
+    system_design_content: Annotated[
+        str,
+        Parameter(
+            name="--system-design-content",
+            help="Full system design document body.",
+        ),
+    ],
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing design documents.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save adopted design artifacts to .mantle/."""
+    adopt.run_save_adoption(
+        vision=vision,
+        principles=principles,
+        building_blocks=building_blocks,
+        prior_art=prior_art,
+        composition=composition,
+        target_users=target_users,
+        success_metrics=success_metrics,
+        system_design_content=system_design_content,
+        overwrite=overwrite,
         project_dir=path,
     )
 

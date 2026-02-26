@@ -26,6 +26,7 @@ class Status(enum.Enum):
     RESEARCH = "research"
     PRODUCT_DESIGN = "product-design"
     SYSTEM_DESIGN = "system-design"
+    ADOPTED = "adopted"
     PLANNING = "planning"
     IMPLEMENTING = "implementing"
     VERIFYING = "verifying"
@@ -70,12 +71,18 @@ class ProjectState(pydantic.BaseModel, frozen=True):
 
 _TRANSITIONS: dict[Status, frozenset[Status]] = {
     Status.IDEA: frozenset(
-        {Status.CHALLENGE, Status.RESEARCH, Status.PRODUCT_DESIGN}
+        {
+            Status.CHALLENGE,
+            Status.RESEARCH,
+            Status.PRODUCT_DESIGN,
+            Status.ADOPTED,
+        }
     ),
     Status.CHALLENGE: frozenset({Status.RESEARCH, Status.PRODUCT_DESIGN}),
     Status.RESEARCH: frozenset({Status.PRODUCT_DESIGN}),
     Status.PRODUCT_DESIGN: frozenset({Status.SYSTEM_DESIGN}),
     Status.SYSTEM_DESIGN: frozenset({Status.PLANNING}),
+    Status.ADOPTED: frozenset({Status.PLANNING}),
     Status.PLANNING: frozenset({Status.IMPLEMENTING}),
     Status.IMPLEMENTING: frozenset({Status.VERIFYING, Status.PLANNING}),
     Status.VERIFYING: frozenset({Status.REVIEWING, Status.IMPLEMENTING}),
