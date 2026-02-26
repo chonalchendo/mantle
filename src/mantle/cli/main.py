@@ -248,6 +248,102 @@ def save_product_design_command(
     )
 
 
+@app.command(name="save-revised-product-design")
+def save_revised_product_design_command(
+    vision: Annotated[
+        str,
+        Parameter(
+            name="--vision",
+            help="Updated product vision.",
+        ),
+    ],
+    principles: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--principles",
+            help="Updated non-negotiable truth (repeatable).",
+        ),
+    ],
+    building_blocks: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--building-blocks",
+            help="Updated essential primitive (repeatable).",
+        ),
+    ],
+    prior_art: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--prior-art",
+            help="Updated prior art (repeatable).",
+        ),
+    ],
+    composition: Annotated[
+        str,
+        Parameter(
+            name="--composition",
+            help="Updated assembly description.",
+        ),
+    ],
+    target_users: Annotated[
+        str,
+        Parameter(
+            name="--target-users",
+            help="Updated user profile.",
+        ),
+    ],
+    success_metrics: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--success-metrics",
+            help="Updated measurable outcome (repeatable).",
+        ),
+    ],
+    change_topic: Annotated[
+        str,
+        Parameter(
+            name="--change-topic",
+            help="Short slug for the decision log.",
+        ),
+    ],
+    change_summary: Annotated[
+        str,
+        Parameter(
+            name="--change-summary",
+            help="What changed (1-2 sentences).",
+        ),
+    ],
+    change_rationale: Annotated[
+        str,
+        Parameter(
+            name="--change-rationale",
+            help="Why it changed (1-2 sentences).",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Revise product design and log the change."""
+    product_design.run_revise_product_design(
+        vision=vision,
+        principles=principles,
+        building_blocks=building_blocks,
+        prior_art=prior_art,
+        composition=composition,
+        target_users=target_users,
+        success_metrics=success_metrics,
+        change_topic=change_topic,
+        change_summary=change_summary,
+        change_rationale=change_rationale,
+        project_dir=path,
+    )
+
+
 @app.command(name="save-system-design")
 def save_system_design_command(
     content: Annotated[
@@ -276,6 +372,54 @@ def save_system_design_command(
     system_design.run_save_system_design(
         content=content,
         overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-revised-system-design")
+def save_revised_system_design_command(
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full revised system design document body.",
+        ),
+    ],
+    change_topic: Annotated[
+        str,
+        Parameter(
+            name="--change-topic",
+            help="Short slug for the decision log.",
+        ),
+    ],
+    change_summary: Annotated[
+        str,
+        Parameter(
+            name="--change-summary",
+            help="What changed (1-2 sentences).",
+        ),
+    ],
+    change_rationale: Annotated[
+        str,
+        Parameter(
+            name="--change-rationale",
+            help="Why it changed (1-2 sentences).",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Revise system design and log the change."""
+    system_design.run_revise_system_design(
+        content=content,
+        change_topic=change_topic,
+        change_summary=change_summary,
+        change_rationale=change_rationale,
         project_dir=path,
     )
 

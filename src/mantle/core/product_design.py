@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import decisions, state, vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -192,6 +192,88 @@ def product_design_exists(project_dir: Path) -> bool:
         True if product-design.md exists, False otherwise.
     """
     return (project_dir / ".mantle" / "product-design.md").exists()
+
+
+def update_product_design(
+    project_dir: Path,
+    *,
+    vision: str,
+    principles: Sequence[str],
+    building_blocks: Sequence[str],
+    prior_art: Sequence[str],
+    composition: str,
+    target_users: str,
+    success_metrics: Sequence[str],
+    change_topic: str,
+    change_summary: str,
+    change_rationale: str,
+) -> tuple[ProductDesignNote, Path]:
+    """Update .mantle/product-design.md and log the revision.
+
+    Overwrites the existing product design with revised content,
+    preserving the original author and creation date. Creates a
+    decision log entry capturing what changed and why.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        vision: Updated product vision.
+        principles: Updated non-negotiable truths.
+        building_blocks: Updated essential primitives.
+        prior_art: Updated existing pieces to adopt.
+        composition: Updated assembly description.
+        target_users: Updated user profile.
+        success_metrics: Updated measurable outcomes.
+        change_topic: Short slug for the decision log filename
+            (e.g. "reframe-product-vision").
+        change_summary: What changed (1-2 sentences).
+        change_rationale: Why it changed (1-2 sentences).
+
+    Returns:
+        Tuple of (updated ProductDesignNote, path to decision
+        log entry).
+
+    Raises:
+        FileNotFoundError: If product-design.md does not exist.
+    """
+    current = load_product_design(project_dir)
+
+    identity = state.resolve_git_identity()
+    today = date.today()
+
+    note = ProductDesignNote(
+        vision=vision,
+        principles=tuple(principles),
+        building_blocks=tuple(building_blocks),
+        prior_art=tuple(prior_art),
+        composition=composition,
+        target_users=target_users,
+        success_metrics=tuple(success_metrics),
+        author=current.author,
+        created=current.created,
+        updated=today,
+        updated_by=identity,
+    )
+
+    design_path = project_dir / ".mantle" / "product-design.md"
+    vault.write_note(
+        design_path, note, _build_product_design_body(note)
+    )
+
+    _, decision_path = decisions.save_decision(
+        project_dir,
+        topic=change_topic,
+        decision=change_summary,
+        alternatives=["Keep current design"],
+        rationale=change_rationale,
+        reversal_trigger=(
+            "Revert if change no longer serves product goals."
+        ),
+        confidence="7/10",
+        reversible="high",
+        scope="product-design",
+    )
+
+    return note, decision_path
 
 
 # -- Internal helpers ---------------------------------------------

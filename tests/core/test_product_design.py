@@ -13,12 +13,14 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from mantle.core import vault
+from mantle.core import decisions
 from mantle.core.product_design import (
     ProductDesignExistsError,
     ProductDesignNote,
     create_product_design,
     load_product_design,
     product_design_exists,
+    update_product_design,
 )
 from mantle.core.state import ProjectState, Status
 
@@ -362,3 +364,219 @@ class TestProductDesignNote:
 
         with pytest.raises(pydantic.ValidationError):
             note.vision = "Changed"  # type: ignore[misc]
+
+
+# -- update_product_design ----------------------------------------
+
+ORIGINAL_AUTHOR = "original@example.com"
+
+
+@pytest.fixture
+def project_with_design(tmp_path: Path) -> Path:
+    """Create .mantle/ at SYSTEM_DESIGN with existing product design."""
+    mantle = tmp_path / ".mantle"
+    mantle.mkdir()
+    (mantle / "decisions").mkdir()
+    _write_state(tmp_path, status=Status.SYSTEM_DESIGN)
+
+    note = ProductDesignNote(
+        vision="Original vision",
+        principles=("Original principle",),
+        building_blocks=("Original block",),
+        prior_art=("Original art",),
+        composition="Original composition",
+        target_users="Original users",
+        success_metrics=("Original metric",),
+        author=ORIGINAL_AUTHOR,
+        created=date(2025, 6, 1),
+        updated=date(2025, 6, 1),
+        updated_by=ORIGINAL_AUTHOR,
+    )
+    from mantle.core.product_design import _build_product_design_body
+
+    vault.write_note(
+        mantle / "product-design.md",
+        note,
+        _build_product_design_body(note),
+    )
+    return tmp_path
+
+
+def _update_design(
+    project_dir: Path,
+    **overrides: object,
+) -> tuple[ProductDesignNote, Path]:
+    """Update a product design with sensible defaults."""
+    defaults: dict[str, object] = {
+        "vision": "Revised vision",
+        "principles": ["Revised principle"],
+        "building_blocks": ["Revised block"],
+        "prior_art": ["Revised art"],
+        "composition": "Revised composition",
+        "target_users": "Revised users",
+        "success_metrics": ["Revised metric"],
+        "change_topic": "revise-product-vision",
+        "change_summary": "Reframed the product vision",
+        "change_rationale": "Better alignment with user needs",
+    }
+    defaults.update(overrides)
+    return update_product_design(project_dir, **defaults)
+
+
+class TestUpdateProductDesign:
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_revised_vision(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.vision == "Revised vision"
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_revised_principles(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.principles == ("Revised principle",)
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_revised_building_blocks(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.building_blocks == ("Revised block",)
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_preserves_original_author_and_created(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.author == ORIGINAL_AUTHOR
+        assert note.created == date(2025, 6, 1)
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_stamps_updated_with_git_identity(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.updated == date.today()
+        assert note.updated_by == MOCK_EMAIL
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_round_trip(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        loaded = load_product_design(project_with_design)
+
+        assert loaded.vision == "Revised vision"
+        assert loaded.principles == ("Revised principle",)
+        assert loaded.building_blocks == ("Revised block",)
+        assert loaded.prior_art == ("Revised art",)
+        assert loaded.composition == "Revised composition"
+        assert loaded.target_users == "Revised users"
+        assert loaded.success_metrics == ("Revised metric",)
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_creates_decision_log_entry(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+
+        assert decision_path.exists()
+        assert decision_path.parent.name == "decisions"
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_decision_entry_topic_and_scope(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+        entry, _ = decisions.load_decision(decision_path)
+
+        assert entry.topic == "revise-product-vision"
+        assert entry.scope == "product-design"
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_decision_entry_body(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+        _, body = decisions.load_decision(decision_path)
+
+        assert "Reframed the product vision" in body
+        assert "Better alignment with user needs" in body
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_raises_when_missing(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        with pytest.raises(FileNotFoundError):
+            _update_design(tmp_path)
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_does_not_change_state_status(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        note = vault.read_note(
+            project_with_design / ".mantle" / "state.md",
+            ProjectState,
+        )
+
+        assert note.frontmatter.status == Status.SYSTEM_DESIGN
+
+    @patch(
+        "mantle.core.product_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_second_revision_creates_second_decision(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        _update_design(
+            project_with_design,
+            vision="Third vision",
+            change_topic="revise-product-vision",
+            change_summary="Another revision",
+            change_rationale="Further refinement",
+        )
+
+        paths = decisions.list_decisions(project_with_design)
+        assert len(paths) == 2

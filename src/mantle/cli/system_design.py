@@ -62,3 +62,57 @@ def run_save_system_design(
     console.print(
         "  Next: run [bold]/mantle:plan-issues[/bold] to break down the work"
     )
+
+
+def run_revise_system_design(
+    *,
+    content: str,
+    change_topic: str,
+    change_summary: str,
+    change_rationale: str,
+    project_dir: Path | None = None,
+) -> None:
+    """Revise system design and print confirmation.
+
+    Args:
+        content: Full revised system design document body.
+        change_topic: Short slug for the decision log.
+        change_summary: What changed.
+        change_rationale: Why it changed.
+        project_dir: Project directory. Defaults to cwd.
+
+    Raises:
+        SystemExit: If system-design.md does not exist.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    try:
+        _, decision_path = system_design.update_system_design(
+            project_dir,
+            content,
+            change_topic=change_topic,
+            change_summary=change_summary,
+            change_rationale=change_rationale,
+        )
+    except FileNotFoundError:
+        console.print(
+            "[yellow]Warning:[/yellow]"
+            " system-design.md does not exist."
+            " Run /mantle:design-system first."
+        )
+        raise SystemExit(1) from None
+
+    console.print()
+    console.print(
+        "[green]System design revised"
+        " in .mantle/system-design.md[/green]"
+    )
+    console.print()
+    console.print(f"  Change:   {change_topic}")
+    console.print(f"  Decision: {decision_path.name}")
+    console.print()
+    console.print(
+        "  Next: review the revision"
+        " in .mantle/system-design.md"
+    )

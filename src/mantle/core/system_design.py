@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import decisions, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -133,6 +133,67 @@ def system_design_exists(project_dir: Path) -> bool:
         True if system-design.md exists, False otherwise.
     """
     return (project_dir / ".mantle" / "system-design.md").exists()
+
+
+def update_system_design(
+    project_dir: Path,
+    content: str,
+    *,
+    change_topic: str,
+    change_summary: str,
+    change_rationale: str,
+) -> tuple[SystemDesignNote, Path]:
+    """Update .mantle/system-design.md and log the revision.
+
+    Overwrites the existing system design with revised content,
+    preserving the original author and creation date. Creates a
+    decision log entry capturing what changed and why.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        content: Full revised system design document body.
+        change_topic: Short slug for the decision log filename
+            (e.g. "revise-architecture-layers").
+        change_summary: What changed (1-2 sentences).
+        change_rationale: Why it changed (1-2 sentences).
+
+    Returns:
+        Tuple of (updated SystemDesignNote, path to decision
+        log entry).
+
+    Raises:
+        FileNotFoundError: If system-design.md does not exist.
+    """
+    current, _ = load_system_design(project_dir)
+
+    identity = state.resolve_git_identity()
+    today = date.today()
+
+    note = SystemDesignNote(
+        author=current.author,
+        created=current.created,
+        updated=today,
+        updated_by=identity,
+    )
+
+    design_path = project_dir / ".mantle" / "system-design.md"
+    vault.write_note(design_path, note, content)
+
+    _, decision_path = decisions.save_decision(
+        project_dir,
+        topic=change_topic,
+        decision=change_summary,
+        alternatives=["Keep current design"],
+        rationale=change_rationale,
+        reversal_trigger=(
+            "Revert if change no longer serves system goals."
+        ),
+        confidence="7/10",
+        reversible="high",
+        scope="system-design",
+    )
+
+    return note, decision_path
 
 
 # ── Internal helpers ─────────────────────────────────────────────

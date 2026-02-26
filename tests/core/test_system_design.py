@@ -17,11 +17,14 @@ from mantle.core.state import (
     ProjectState,
     Status,
 )
+from mantle.core import decisions
 from mantle.core.system_design import (
     SystemDesignExistsError,
+    SystemDesignNote,
     load_system_design,
     save_system_design,
     system_design_exists,
+    update_system_design,
 )
 
 MOCK_EMAIL = "test@example.com"
@@ -285,3 +288,184 @@ class TestSystemDesignExists:
         save_system_design(project, CONTENT)
 
         assert system_design_exists(project) is True
+
+
+# ── update_system_design ─────────────────────────────────────────
+
+ORIGINAL_AUTHOR = "original@example.com"
+REVISED_CONTENT = (
+    "## Architecture\n\n"
+    "Revised layered architecture with improved caching.\n\n"
+    "## Technology Choices\n\n"
+    "Python 3.14, Pydantic v2, cyclopts, Redis\n"
+)
+
+
+@pytest.fixture
+def project_with_design(tmp_path: Path) -> Path:
+    """Create .mantle/ at SYSTEM_DESIGN with existing system design."""
+    mantle = tmp_path / ".mantle"
+    mantle.mkdir()
+    (mantle / "decisions").mkdir()
+    _write_state(tmp_path, status=Status.SYSTEM_DESIGN)
+
+    note = SystemDesignNote(
+        author=ORIGINAL_AUTHOR,
+        created=date(2025, 6, 1),
+        updated=date(2025, 6, 1),
+        updated_by=ORIGINAL_AUTHOR,
+    )
+    vault.write_note(mantle / "system-design.md", note, CONTENT)
+    return tmp_path
+
+
+def _update_design(
+    project_dir: Path,
+    **overrides: object,
+) -> tuple[SystemDesignNote, Path]:
+    """Update a system design with sensible defaults."""
+    defaults: dict[str, object] = {
+        "content": REVISED_CONTENT,
+        "change_topic": "add-caching-layer",
+        "change_summary": "Added Redis caching to the architecture",
+        "change_rationale": "Reduce latency for repeated queries",
+    }
+    defaults.update(overrides)
+    content = defaults.pop("content")
+    return update_system_design(
+        project_dir, content, **defaults  # type: ignore[arg-type]
+    )
+
+
+class TestUpdateSystemDesign:
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_revised_content(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        _, body = load_system_design(project_with_design)
+
+        assert "Revised layered architecture" in body
+        assert "Redis" in body
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_preserves_original_author_and_created(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.author == ORIGINAL_AUTHOR
+        assert note.created == date(2025, 6, 1)
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_stamps_updated_with_git_identity(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        note, _ = _update_design(project_with_design)
+
+        assert note.updated == date.today()
+        assert note.updated_by == MOCK_EMAIL
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_round_trip(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        note, body = load_system_design(project_with_design)
+
+        assert note.author == ORIGINAL_AUTHOR
+        assert "Revised layered architecture" in body
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_creates_decision_log_entry(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+
+        assert decision_path.exists()
+        assert decision_path.parent.name == "decisions"
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_decision_entry_topic_and_scope(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+        entry, _ = decisions.load_decision(decision_path)
+
+        assert entry.topic == "add-caching-layer"
+        assert entry.scope == "system-design"
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_decision_entry_body(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _, decision_path = _update_design(project_with_design)
+        _, body = decisions.load_decision(decision_path)
+
+        assert "Added Redis caching" in body
+        assert "Reduce latency" in body
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_raises_when_missing(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        with pytest.raises(FileNotFoundError):
+            _update_design(tmp_path)
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_does_not_change_state_status(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        note = vault.read_note(
+            project_with_design / ".mantle" / "state.md",
+            ProjectState,
+        )
+
+        assert note.frontmatter.status == Status.SYSTEM_DESIGN
+
+    @patch(
+        "mantle.core.system_design.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_second_revision_creates_second_decision(
+        self, _mock: object, project_with_design: Path
+    ) -> None:
+        _update_design(project_with_design)
+        _update_design(
+            project_with_design,
+            content="## Third revision\n\nMore changes.\n",
+            change_topic="add-caching-layer",
+            change_summary="Another revision",
+            change_rationale="Further refinement",
+        )
+
+        paths = decisions.list_decisions(project_with_design)
+        assert len(paths) == 2
