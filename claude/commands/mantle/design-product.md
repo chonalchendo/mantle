@@ -28,11 +28,17 @@ recent one and extract key findings (assumptions surfaced, verdict, weaknesses).
 Use these as fuel for the design session — especially when discussing principles
 and building blocks.
 
+Check for research files in `.mantle/research/`. If any exist, read them all and
+extract key findings — technical feasibility, existing solutions, competitive
+landscape, technology options, and risks. Research findings should directly inform
+the prior art, building blocks, and principles discussions. Reference specific
+research conclusions rather than making the user repeat what was already explored.
+
 ## Step 3 — Interactive design session
 
 Guide through seven areas one at a time. Ask each, reflect back, confirm before
-moving on. Challenge vague or generic answers. Reference idea and challenge
-context to keep things concrete.
+moving on. Challenge vague or generic answers. Reference idea, challenge, and
+research context to keep things concrete and grounded in evidence.
 
 1. **Vision** — One sentence: what this product does and why it matters. Not a
    tagline — a clear statement of purpose. Should connect directly to the
