@@ -1,11 +1,11 @@
 ---
 issue: 7
 title: Core product design update function with decision logging
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

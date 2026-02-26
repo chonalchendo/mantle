@@ -1,11 +1,11 @@
 ---
 issue: 7
 title: Claude Code commands (revise-product.md + revise-system.md)
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

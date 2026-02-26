@@ -1,11 +1,11 @@
 ---
 issue: 7
 title: CLI revision commands and main.py wiring
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

@@ -206,7 +206,7 @@ Each milestone represents a complete user workflow — something a user can inst
 | 05 | Product design (`/mantle:design-product`) | completed |
 | 06 | System design + decision logging (`/mantle:design-system`) | completed |
 | 18 | Research command (`/mantle:research`) | completed |
-| 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | |
+| 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | completed |
 | 19 | Project adoption (`/mantle:adopt`) | |
 
 **What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Research building blocks through first-principles decomposition. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.

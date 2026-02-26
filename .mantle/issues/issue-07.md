@@ -1,12 +1,12 @@
 ---
 title: Design revision (/mantle:revise-product + /mantle:revise-system)
-status: planned
+status: completed
 slice: [core, claude-code, tests]
 story_count: 4
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
