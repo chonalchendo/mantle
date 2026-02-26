@@ -13,8 +13,10 @@ from mantle.cli import (
     init,
     init_vault,
     install,
+    learning,
     product_design,
     research,
+    shaping,
     system_design,
 )
 
@@ -588,6 +590,142 @@ def save_adoption_command(
         target_users=target_users,
         success_metrics=success_metrics,
         system_design_content=system_design_content,
+        overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-shaped-issue")
+def save_shaped_issue_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number being shaped.",
+        ),
+    ],
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="Short title for the shaped issue.",
+        ),
+    ],
+    approaches: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--approaches",
+            help="Approach evaluated (repeatable).",
+        ),
+    ],
+    chosen_approach: Annotated[
+        str,
+        Parameter(
+            name="--chosen-approach",
+            help="The selected approach name.",
+        ),
+    ],
+    appetite: Annotated[
+        str,
+        Parameter(
+            name="--appetite",
+            help="Time/effort budget for this work.",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full shaping write-up body.",
+        ),
+    ],
+    open_questions: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--open-questions",
+            help="Unresolved question (repeatable).",
+        ),
+    ] = (),
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing shaped issue.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a shaped issue to .mantle/shaped/."""
+    shaping.run_save_shaped_issue(
+        issue=issue,
+        title=title,
+        approaches=approaches,
+        chosen_approach=chosen_approach,
+        appetite=appetite,
+        content=content,
+        open_questions=open_questions,
+        overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-learning")
+def save_learning_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number this learning relates to.",
+        ),
+    ],
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="Short title for the learning.",
+        ),
+    ],
+    confidence_delta: Annotated[
+        str,
+        Parameter(
+            name="--confidence-delta",
+            help="Confidence change (e.g. '+2', '-1').",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Structured reflection body.",
+        ),
+    ],
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing learning.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a learning note to .mantle/learnings/."""
+    learning.run_save_learning(
+        issue=issue,
+        title=title,
+        confidence_delta=confidence_delta,
+        content=content,
         overwrite=overwrite,
         project_dir=path,
     )

@@ -42,12 +42,49 @@ Not: non-technical users, enterprise teams, or people who need a GUI (though the
 | **Revise Design** | `/mantle:revise-product` / `/mantle:revise-system` | Separate commands for updating existing designs. Each revision creates a decision log entry capturing what changed and why. Keeps create and update concerns focused for optimal AI output. |
 | **Bug Capture** | `/mantle:bug` | Quick structured bug capture during any session. Saved to `.mantle/bugs/` with severity and reproduction steps. Open bugs are surfaced by `/mantle:plan-issues` as candidates for new issues. |
 | **Plan Issues** | `/mantle:plan-issues` | Work broken into vertical slices cutting across product layers. AI proposes one issue at a time — user approves or adjusts each before the next is proposed. Surfaces open bugs as issue candidates. Each slice delivers testable functionality. |
+| **Shape Issue** | `/mantle:shape-issue` | Before decomposing an issue into stories, evaluate 2-3 approaches with tradeoffs, rabbit holes, and no-gos. Commit to a direction with a fixed appetite. Shaped artifacts saved to `.mantle/shaped/`. |
 | **Plan Stories** | `/mantle:plan-stories` | Each issue decomposed into implementable stories sized for AI implementation. Stories include both what to implement and what tests to write (TDD: tests are a natural extension of story functionality). |
 | **Implement** | `/mantle:implement` | Python orchestration loop: for each story, compile context, invoke Claude Code in a worktree, run tests, retry once with error feedback on failure, git commit, update vault state. Each story gets a fresh context window. |
 | **Verify** | `/mantle:verify` | Project-specific verification strategy. On first invoke, prompts user to define how this project should be verified (example project, localhost, integration tests, etc.). Per-issue overrides in acceptance criteria. |
 | **Review** | `/mantle:review` | Human reviews completed work via checklist. AI presents acceptance criteria with pass/fail status from verification. Human marks each as approved/needs-changes with comments. |
+| **Retrospective** | `/mantle:retrospective` | After implementation, capture structured learnings (what went well, harder than expected, wrong assumptions, recommendations) with a confidence delta. Saved to `.mantle/learnings/`. Learnings auto-surface in future shaping sessions. |
 
 The workflow is fluid — revise commands exist to update designs, add new issues, and log new decisions at any point. It's a set of tools that maintain structure while allowing iteration, not a rigid pipeline.
+
+### Workflow Diagram
+
+The primary flow runs top-to-bottom from idea to reviewed code. Per-issue cycles repeat until all planned work is complete. Learnings from each retrospective automatically surface in future shaping sessions, creating a compounding feedback loop.
+
+```mermaid
+flowchart TD
+    subgraph setup ["Project Setup (once)"]
+        direction TB
+        idea["/mantle:idea"] --> challenge["/mantle:challenge<br/>(optional)"]
+        adopt["/mantle:adopt<br/>(existing projects)"]
+        challenge --> dprod["/mantle:design-product"]
+        adopt --> dprod
+        dprod --> dsys["/mantle:design-system"]
+    end
+
+    dsys --> plan
+
+    subgraph cycle ["Per-Issue Cycle"]
+        plan["/mantle:plan-issues"] --> shape["/mantle:shape-issue"]
+        shape --> stories["/mantle:plan-stories"]
+        stories --> impl["/mantle:implement"]
+        impl --> verify["/mantle:verify"]
+        verify --> review["/mantle:review"]
+        review --> retro["/mantle:retrospective"]
+    end
+
+    retro -->|"next issue"| plan
+    retro -.->|"learnings<br/>auto-surface"| shape
+
+    bug["/mantle:bug<br/>(any time)"] -.->|"candidates"| plan
+    revise["/mantle:revise-*<br/>(any time)"] -.-> dprod & dsys
+```
+
+Solid lines show the primary flow. Dotted lines show feedback loops and side-channel inputs. The learning loop from retrospective to shaping is the key mechanism — each completed issue makes future planning smarter.
 
 ### The Knowledge Engine
 
@@ -125,6 +162,9 @@ The workflow is fluid — revise commands exist to update designs, add new issue
 19. As a developer, I want each issue to include acceptance criteria that define "done" in testable terms, so that verification is objective.
 20. As a developer, I want `/mantle:plan-stories` to break each issue into stories that include both implementation tasks and test expectations (TDD approach), so that tests are a natural extension of story functionality.
 21. As a developer, I want stories sized for a single Claude Code session (one context window), so that implementation is predictable and doesn't degrade with context length.
+56. As a developer, I want `/mantle:shape-issue` to guide me through evaluating 2-3 approaches before decomposing into stories, so that I commit to a direction with understood tradeoffs.
+57. As a developer, I want shaped issues saved with YAML frontmatter capturing approaches, chosen approach, appetite, and open questions, so that planning rationale is preserved.
+58. As a developer, I want past learnings loaded during shaping sessions, so that I don't repeat mistakes from previous issues.
 
 ### Implementation
 
@@ -143,6 +183,12 @@ The workflow is fluid — revise commands exist to update designs, add new issue
 31. As a developer, I want per-issue verification overrides in the issue's acceptance criteria, so that special issues can have custom verification steps.
 32. As a developer, I want `/mantle:review` to present a checklist of acceptance criteria with pass/fail status from verification, so that I can make an informed approve/needs-changes decision per criterion.
 33. As a developer, I want to add comments to individual review items, so that feedback is specific and actionable.
+
+### Learning
+
+59. As a developer, I want `/mantle:retrospective` to guide me through a structured reflection after completing an issue, so that implementation learnings are captured.
+60. As a developer, I want learnings to include a confidence delta, so that I can track how each issue affected project confidence.
+61. As a developer, I want learnings automatically surfaced in future `/mantle:shape-issue` sessions, so that past experience informs future planning.
 
 ### Context & Session Continuity
 
@@ -235,6 +281,8 @@ Auto-briefing, session logs, and skill graph — the knowledge engine.
 | 13 | Implementation orchestration loop (`/mantle:implement`) | 12 |
 | 14 | Worktree parallel implementation | 13 |
 | 20 | Bug capture (`/mantle:bug`) | 02 |
+| 21 | Shape issue (`/mantle:shape-issue`) | 11 |
+| 22 | Retrospective (`/mantle:retrospective`) | 21 |
 
 **What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning.
 
@@ -271,5 +319,5 @@ Auto-briefing, session logs, and skill graph — the knowledge engine.
 ### Open Questions
 
 - How should the personal vault skill graph interact with `.mantle/` project context when multiple team members have different personal vaults? (The current answer: personal vault is private, project vault is shared. They link via `skills_required` in state.md but don't merge.)
-- Should there be a `/mantle:retrospective` command for end-of-project reflection? (Deferred: not essential for v1.)
+- Should there be a `/mantle:retrospective` command for end-of-project reflection? (Resolved: Implemented in issue 22. Captures structured learnings with confidence delta after each issue. Learnings auto-surface in future `/mantle:shape-issue` sessions.)
 - What's the right behaviour when Obsidian CLI is unavailable (not installed, wrong version)? (Current answer: filesystem fallback for all operations. Log a warning.)

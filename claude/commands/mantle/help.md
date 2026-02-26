@@ -16,6 +16,7 @@
 
 ## Planning
 - `/mantle:plan-issues` — Break work into vertical slice issues
+- `/mantle:shape-issue` — Shape an issue: evaluate approaches before decomposing
 - `/mantle:plan-stories` — Decompose issues into implementable stories
 
 ## Implementation
@@ -24,6 +25,9 @@
 ## Verification & Review
 - `/mantle:verify` — Run project-specific verification
 - `/mantle:review` — Checklist-based human review
+
+## Learning
+- `/mantle:retrospective` — Capture implementation learnings after an issue
 
 ## Context & Knowledge
 - `/mantle:status` — Show current project state
