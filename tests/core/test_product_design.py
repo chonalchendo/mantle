@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import date
 from typing import TYPE_CHECKING
-from unittest.mock import patch
 
 import pydantic
 import pytest
@@ -12,8 +11,7 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
-from mantle.core import vault
-from mantle.core import decisions
+from mantle.core import decisions, vault
 from mantle.core.product_design import (
     ProductDesignExistsError,
     ProductDesignNote,
@@ -25,6 +23,15 @@ from mantle.core.product_design import (
 from mantle.core.state import ProjectState, Status
 
 MOCK_EMAIL = "test@example.com"
+
+
+@pytest.fixture(autouse=True)
+def _mock_git(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Mock git identity for all tests in this module."""
+    monkeypatch.setattr(
+        "mantle.core.state.resolve_git_identity",
+        lambda: MOCK_EMAIL,
+    )
 
 
 @pytest.fixture
@@ -41,10 +48,6 @@ def project_from_idea(tmp_path: Path) -> Path:
     (tmp_path / ".mantle").mkdir()
     _write_state(tmp_path, status=Status.IDEA)
     return tmp_path
-
-
-def _mock_git_identity() -> str:
-    return MOCK_EMAIL
 
 
 def _write_state(
@@ -111,11 +114,7 @@ def _create_design(project_dir: Path, **overrides: object) -> ProductDesignNote:
 
 
 class TestCreateProductDesign:
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
+    def test_correct_frontmatter(self, project: Path) -> None:
         result = _create_design(project)
 
         assert result.vision == (
@@ -144,20 +143,12 @@ class TestCreateProductDesign:
             "5 active users in first month",
         )
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_file_created(self, _mock: object, project: Path) -> None:
+    def test_file_created(self, project: Path) -> None:
         _create_design(project)
 
         assert (project / ".mantle" / "product-design.md").exists()
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_round_trip(self, _mock: object, project: Path) -> None:
+    def test_round_trip(self, project: Path) -> None:
         created = _create_design(project)
         loaded = load_product_design(project)
 
@@ -169,13 +160,7 @@ class TestCreateProductDesign:
         assert loaded.target_users == created.target_users
         assert loaded.success_metrics == created.success_metrics
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_body_has_populated_sections(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_body_has_populated_sections(self, project: Path) -> None:
         _create_design(project)
         path = project / ".mantle" / "product-design.md"
         text = path.read_text()
@@ -201,21 +186,13 @@ class TestCreateProductDesign:
         assert "- 5 active users in first month" in text
         assert "## Open Questions" in text
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_raises_on_existing(self, _mock: object, project: Path) -> None:
+    def test_raises_on_existing(self, project: Path) -> None:
         _create_design(project)
 
         with pytest.raises(ProductDesignExistsError):
             _create_design(project)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_overwrite_works(self, _mock: object, project: Path) -> None:
+    def test_overwrite_works(self, project: Path) -> None:
         _create_design(project)
         result = _create_design(
             project,
@@ -225,21 +202,13 @@ class TestCreateProductDesign:
 
         assert result.vision == "New vision"
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_git_identity_stamp(self, _mock: object, project: Path) -> None:
+    def test_git_identity_stamp(self, project: Path) -> None:
         result = _create_design(project)
 
         assert result.author == MOCK_EMAIL
         assert result.updated_by == MOCK_EMAIL
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_default_tags(self, _mock: object, project: Path) -> None:
+    def test_default_tags(self, project: Path) -> None:
         result = _create_design(project)
 
         assert result.tags == (
@@ -247,24 +216,16 @@ class TestCreateProductDesign:
             "phase/design",
         )
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_state_transitions_to_product_design(
-        self, _mock: object, project: Path
+        self, project: Path
     ) -> None:
         _create_design(project)
         note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PRODUCT_DESIGN
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_state_current_focus_updated(
-        self, _mock: object, project: Path
+        self, project: Path
     ) -> None:
         _create_design(project)
         path = project / ".mantle" / "state.md"
@@ -273,12 +234,8 @@ class TestCreateProductDesign:
         assert "Product design complete" in text
         assert "/mantle:design-system" in text
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_state_timestamps_refreshed(
-        self, _mock: object, project: Path
+        self, project: Path
     ) -> None:
         _create_design(project)
         note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
@@ -286,12 +243,8 @@ class TestCreateProductDesign:
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_works_from_idea_status(
-        self, _mock: object, project_from_idea: Path
+        self, project_from_idea: Path
     ) -> None:
         result = _create_design(project_from_idea)
 
@@ -309,11 +262,7 @@ class TestCreateProductDesign:
 
 
 class TestLoadProductDesign:
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_reads_saved(self, _mock: object, project: Path) -> None:
+    def test_reads_saved(self, project: Path) -> None:
         _create_design(project)
         loaded = load_product_design(project)
 
@@ -333,11 +282,7 @@ class TestProductDesignExists:
     def test_false_before(self, project: Path) -> None:
         assert product_design_exists(project) is False
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_true_after(self, _mock: object, project: Path) -> None:
+    def test_true_after(self, project: Path) -> None:
         _create_design(project)
 
         assert product_design_exists(project) is True
@@ -424,69 +369,45 @@ def _update_design(
 
 
 class TestUpdateProductDesign:
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_revised_vision(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.vision == "Revised vision"
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_revised_principles(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.principles == ("Revised principle",)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_revised_building_blocks(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.building_blocks == ("Revised block",)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_preserves_original_author_and_created(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.author == ORIGINAL_AUTHOR
         assert note.created == date(2025, 6, 1)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_stamps_updated_with_git_identity(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.updated == date.today()
         assert note.updated_by == MOCK_EMAIL
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_round_trip(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _update_design(project_with_design)
         loaded = load_product_design(project_with_design)
@@ -499,24 +420,16 @@ class TestUpdateProductDesign:
         assert loaded.target_users == "Revised users"
         assert loaded.success_metrics == ("Revised metric",)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_creates_decision_log_entry(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _, decision_path = _update_design(project_with_design)
 
         assert decision_path.exists()
         assert decision_path.parent.name == "decisions"
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_decision_entry_topic_and_scope(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _, decision_path = _update_design(project_with_design)
         entry, _ = decisions.load_decision(decision_path)
@@ -524,12 +437,8 @@ class TestUpdateProductDesign:
         assert entry.topic == "revise-product-vision"
         assert entry.scope == "product-design"
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_decision_entry_body(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _, decision_path = _update_design(project_with_design)
         _, body = decisions.load_decision(decision_path)
@@ -537,22 +446,12 @@ class TestUpdateProductDesign:
         assert "Reframed the product vision" in body
         assert "Better alignment with user needs" in body
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_raises_when_missing(
-        self, _mock: object, tmp_path: Path
-    ) -> None:
+    def test_raises_when_missing(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
             _update_design(tmp_path)
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_does_not_change_state_status(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _update_design(project_with_design)
         note = vault.read_note(
@@ -562,12 +461,8 @@ class TestUpdateProductDesign:
 
         assert note.frontmatter.status == Status.SYSTEM_DESIGN
 
-    @patch(
-        "mantle.core.product_design.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_second_revision_creates_second_decision(
-        self, _mock: object, project_with_design: Path
+        self, project_with_design: Path
     ) -> None:
         _update_design(project_with_design)
         _update_design(
