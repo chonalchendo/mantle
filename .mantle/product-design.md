@@ -37,6 +37,7 @@ Not: non-technical users, enterprise teams, or people who need a GUI (though the
 | **Idea** | `/mantle:idea` | User logs an idea to the project vault with structured metadata. Captured as a note, not lost in chat history. |
 | **Adopt** | `/mantle:adopt` | For existing projects. Parallel agents analyze the codebase and research the domain, then an interactive session reverse-engineers product and system design documents from what already exists. Bridges into the planning workflow. |
 | **Challenge** | `/mantle:challenge` | Optional single interactive session. AI weaves through five lenses (assumption surfacing, first-principles analysis, devil's advocate, pre-mortem, competitive analysis) based on conversation flow — challenging the idea from multiple angles rather than rubber-stamping it. Produces a structured verdict with confidence level and assumptions table. |
+| **Research** | `/mantle:research` | Optional research session using web search and web fetch to validate technical feasibility, investigate existing solutions, and explore technology options. Produces a structured research report in `.mantle/research/`. Multiple rounds supported for iterative investigation. |
 | **Product Design** | `/mantle:design-product` | Interactive session defining the what and why: features, target users, success metrics, genuine edge. Creates `.mantle/product-design.md`. |
 | **System Design** | `/mantle:design-system` | Interactive session defining the how: architecture, tech choices, API contracts, data model. Every decision logged with rationale, alternatives, confidence, and reversal cost. Creates `.mantle/system-design.md`. |
 | **Revise Design** | `/mantle:revise-product` / `/mantle:revise-system` | Separate commands for updating existing designs. Each revision creates a decision log entry capturing what changed and why. Keeps create and update concerns focused for optimal AI output. |
@@ -61,8 +62,9 @@ flowchart TD
         direction TB
         idea["/mantle:idea"] --> challenge["/mantle:challenge<br/>(optional)"]
         adopt["/mantle:adopt<br/>(existing projects)"]
-        challenge --> dprod["/mantle:design-product"]
-        adopt --> dprod
+        challenge --> research["/mantle:research<br/>(optional)"]
+        adopt --> research
+        research --> dprod["/mantle:design-product"]
         dprod --> dsys["/mantle:design-system"]
     end
 
@@ -245,7 +247,7 @@ Each milestone represents a complete user workflow — something a user can inst
 
 ### v0.3.0 — Design & Research (issues 5–7, 18) ✅
 
-`/mantle:design-product` → `/mantle:design-system` → `/mantle:research` → designs with decision logging and first-principles research.
+`/mantle:research` → `/mantle:design-product` → `/mantle:design-system` → research-informed designs with decision logging.
 
 | Issue | Title | Status |
 |-------|-------|--------|
