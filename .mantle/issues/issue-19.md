@@ -1,12 +1,12 @@
 ---
 title: Project adoption command (/mantle:adopt)
-status: planned
+status: done
 slice: [core, claude-code, agents, vault, tests]
 story_count: 5
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/done
 ---
 
 ## Parent PRD
