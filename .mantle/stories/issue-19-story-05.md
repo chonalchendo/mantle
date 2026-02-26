@@ -18,7 +18,7 @@ The adopt command guides the user through three phases: concurrent agent analysi
 
 #### Persona
 
-Adopt the persona of a senior architect conducting a codebase onboarding review. Tone: respectful of existing choices, curious about intent, honest about confidence levels. You're here to understand and codify, not to redesign.
+Adopt the persona of a senior architect who thinks from first principles — decomposing systems into their irreducible building blocks before reaching for labels or patterns. Tone: respectful of existing choices, curious about intent, honest about confidence levels. You're here to understand and codify, not to redesign. Start from what must be true, not what's conventional.
 
 #### Step 1 — Check prerequisites
 
@@ -52,23 +52,23 @@ Present findings to the user and work through four sections one at a time. Do NO
 
 **Section A: Architecture summary**
 
-Present the codebase analyst's findings as a structured summary:
+Present the codebase analyst's findings as a first-principles decomposition:
 
-> "Here's what I found about your project's architecture. Please correct anything that's wrong or fill in intent that isn't visible in the code."
+> "I've decomposed your project into its fundamental building blocks — the irreducible pieces it depends on. Here's what I found. Please correct anything that's wrong or fill in intent that isn't visible in the code."
 
-Cover: architecture pattern, module boundaries, tech stack, dependency graph, test patterns, deployment approach. Mark each observation with confidence (high/medium/low).
+Start with the building blocks (what are the smallest correct pieces?), then show how they compose into the architecture. Cover: fundamental constraints, building blocks, composition, tech stack, dependency graph, test patterns, deployment approach. For each observation, distinguish hard constraints (the code breaks without this) from soft conventions (this is how it happens to be done). Mark each with confidence (high/medium/low).
 
 Let the user correct misconceptions and add context about intent.
 
 **Section B: Product design draft**
 
-Synthesise a product design from both agents' findings:
+Synthesise a product design from both agents' findings, working from first principles:
 
-- **Vision**: Infer from README, docs, and domain research. One sentence.
-- **Principles**: Extract from architectural choices visible in the code.
-- **Building blocks**: Identify from module boundaries and key abstractions.
-- **Prior art**: Note dependencies and ecosystem tools being used.
-- **Composition**: Describe how the pieces fit together.
+- **Vision**: Infer from README, docs, and domain research. One sentence connecting the fundamental problem to the insight that makes this project's approach possible.
+- **Principles**: Extract the non-negotiable truths from the codebase — structural realities that constrain the solution space, not aspirational goals. What must be true for this code to work?
+- **Building blocks**: The irreducible primitives the project depends on. Identify from module boundaries and key abstractions. These are the atoms — if these are right, everything else follows.
+- **Prior art**: Note dependencies and ecosystem tools being used. What didn't need to be built from scratch?
+- **Composition**: Describe how the building blocks assemble into the product. Features are an output of composition, not an input.
 - **Target users**: Infer from docs, API design, and domain context.
 - **Success metrics**: Propose based on what the project measures (tests, CI checks, etc.).
 
@@ -76,16 +76,16 @@ Present each field with confidence level. Ask the user to refine.
 
 **Section C: System design draft**
 
-Compile a system design document from the codebase analysis:
+Compile a system design document from the codebase analysis, structured around building blocks rather than generic architecture headings:
 
-- Architecture overview
-- Module boundaries and responsibilities
-- Key technical decisions (with inferred rationale)
-- Data flow
+- True constraints — what must be true for this system to function
+- Building blocks — the irreducible capabilities, with correctness invariants
+- How blocks compose — boundaries, data flow, error propagation
+- Key technical decisions (with inferred rationale and alternatives)
 - API contracts (if applicable)
 - Deployment and configuration
 
-Present for user refinement.
+Challenge inherited conventions. "That's how it's usually done" is not a rationale — ask what problem the pattern solves and whether this system has that problem. Present for user refinement.
 
 **Section D: Considerations**
 
@@ -148,6 +148,8 @@ After a successful save, tell the user:
 
 Embed these as guidance in the command prompt:
 
+- **First principles, not pattern matching.** Decompose the codebase into irreducible building blocks before reaching for architectural labels. Start from what must be true, then work upward.
+- **Constraints before conventions.** Distinguish hard constraints (the code breaks without this) from inherited conventions (this is how it happens to be done). Name each explicitly.
 - **Extract, don't prescribe.** Codify what exists. The Considerations section is clearly separated from factual analysis.
 - **Interactive, not dump-and-run.** Present findings incrementally. Let the user correct and refine.
 - **Honest about confidence.** Mark inferred sections with confidence levels. "I'm 90% sure this is a REST API" vs "I'm guessing this module handles auth based on the name."
