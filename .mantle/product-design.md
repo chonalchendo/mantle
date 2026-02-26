@@ -243,7 +243,7 @@ Each milestone represents a complete user workflow — something a user can inst
 
 **What the user can do**: Capture a structured idea and have the AI challenge it from multiple angles before investing in design.
 
-### v0.3.0 — Design & Research (issues 5–7, 18)
+### v0.3.0 — Design & Research (issues 5–7, 18) ✅
 
 `/mantle:design-product` → `/mantle:design-system` → `/mantle:research` → designs with decision logging and first-principles research.
 
@@ -253,7 +253,7 @@ Each milestone represents a complete user workflow — something a user can inst
 | 06 | System design + decision logging (`/mantle:design-system`) | completed |
 | 18 | Research command (`/mantle:research`) | completed |
 | 07 | Design revision (`/mantle:revise-product` + `/mantle:revise-system`) | completed |
-| 19 | Project adoption (`/mantle:adopt`) | |
+| 19 | Project adoption (`/mantle:adopt`) | completed |
 
 **What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Research building blocks through first-principles decomposition. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.
 
