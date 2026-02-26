@@ -78,6 +78,7 @@ TAGS_BODY = """\
 - `phase/idea`
 - `phase/challenge`
 - `phase/design`
+- `phase/adopted`
 - `phase/shaping`
 - `phase/planning`
 - `phase/implementing`

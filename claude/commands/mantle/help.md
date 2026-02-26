@@ -1,5 +1,8 @@
 # Mantle Commands
 
+## Setup & Onboarding
+- `/mantle:adopt` — Onboard an existing project into Mantle (reverse-engineer design docs)
+
 ## Idea & Validation
 - `/mantle:idea` — Log an idea with structured metadata
 - `/mantle:challenge` — Challenge your idea from multiple angles
