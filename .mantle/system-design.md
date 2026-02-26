@@ -40,6 +40,8 @@ Thin modules (straightforward wiring):
 | `core/review.py` | Build checklist from acceptance criteria + verification results |
 | `core/adopt.py` | Adoption orchestration: parallel agent dispatch, artifact generation, state updates |
 | `core/challenge.py` | Save/load/list challenge transcripts with auto-increment filenames, state.md updates |
+| `core/shaping.py` | Save/load/list shaped issues with per-issue overwrite, state.md updates |
+| `core/learning.py` | Save/load/list learnings with confidence_delta validation, state.md updates |
 | `core/manifest.py` | File hash tracking for staleness detection |
 | `core/templates.py` | Jinja2 template rendering |
 
@@ -49,6 +51,41 @@ Thin modules (straightforward wiring):
 - `core/` never imports from `cli/` or `api/`.
 - Claude Code commands (markdown files) invoke `mantle` CLI commands via Bash tool when they need runtime operations.
 - The SessionStart hook calls `mantle compile --if-stale` to refresh compiled commands, then the compiled `resume.md` auto-displays the project briefing.
+
+```mermaid
+flowchart TD
+    cc["Claude Code<br/>(user session)"]
+
+    cc -->|"/mantle:* slash commands"| cmds
+
+    subgraph cmds ["Command Layer (~/.claude/commands/mantle/)"]
+        static["Static Commands (.md)<br/>idea, challenge, design-*,<br/>shape-issue, plan-*, implement,<br/>verify, review, retrospective"]
+        compiled["Compiled Commands (.md.j2)<br/>status, resume"]
+    end
+
+    cmds -->|"invoke via Bash tool"| cli
+
+    subgraph pkg ["mantle package (pip)"]
+        cli["CLI — thin routing layer"]
+        core["Core — all business logic<br/>(state, vault, compiler, orchestrator,<br/>shaping, learning, challenge, decisions,<br/>session, skills, verify, review)"]
+        cli --> core
+    end
+
+    core <-->|"read / write"| dotmantle
+
+    subgraph dotmantle [".mantle/ (git-committed, shared)"]
+        state["state.md"]
+        artifacts["issues/ · stories/ · shaped/<br/>learnings/ · decisions/ · sessions/"]
+    end
+
+    core <-->|"cross-project skills"| vault["~/vault/ (personal, iCloud-synced)"]
+
+    hook["SessionStart Hook"] -.->|"mantle compile --if-stale"| cli
+    core -.->|"Jinja2 renders"| compiled
+    core -.->|"orchestrator: subprocess<br/>per story (fresh context window)"| cc
+```
+
+Solid lines show the normal request flow (top-down). Dotted lines show the three special patterns: the SessionStart hook triggers compilation, compiled commands are rendered from vault state via Jinja2, and the orchestrator invokes Claude Code as a subprocess per story (creating the implementation loop).
 
 ### Project Status vs Issue/Story Status
 
@@ -88,6 +125,8 @@ Every module in `core/` gets tests:
 | `core/verify.py` | Unit tests: verify strategy loading from config.md and per-issue overrides. Test report generation. |
 | `core/review.py` | Unit tests: verify checklist construction from acceptance criteria + verification results. |
 | `core/challenge.py` | Unit tests: save/load round-trip, auto-increment filenames, IdeaNotFoundError, state.md updates, list/exists queries. |
+| `core/shaping.py` | Unit tests: save/load round-trip, per-issue overwrite, frontmatter validation, state.md updates, list queries. |
+| `core/learning.py` | Unit tests: save/load round-trip, confidence_delta validation, state.md updates, list queries. |
 | `core/manifest.py` | Unit tests: hash computation, staleness comparison, manifest read/write. |
 | `core/templates.py` | Unit tests: Jinja2 rendering with fixture contexts. |
 
@@ -198,6 +237,8 @@ mantle/
 │       │   ├── state.py                   # Project state management
 │       │   ├── session.py                 # Session logging & briefing compilation
 │       │   ├── challenge.py               # Challenge session prompts & logic
+│       │   ├── shaping.py                # Shaped issue save/load/list
+│       │   ├── learning.py               # Learning save/load/list with confidence delta
 │       │   ├── decisions.py               # Decision logging
 │       │   ├── skills.py                  # Skill graph CRUD & gap detection
 │       │   ├── verify.py                  # Verification strategy & execution
@@ -210,6 +251,8 @@ mantle/
 │       │   ├── install.py                 # Mount files into ~/.claude/
 │       │   ├── init.py                    # Initialize .mantle/ in project repo
 │       │   ├── compile.py                 # Compile vault state into commands
+│       │   ├── shaping.py                 # CLI wiring for shape-issue
+│       │   ├── learning.py                # CLI wiring for retrospective
 │       │   └── status.py                  # Show project states
 │       │
 │       └── api/                           # Future: UI delivery (thin layer)
@@ -226,10 +269,12 @@ mantle/
 │   │       ├── revise-product.md          # Static — revise product design + decision log
 │   │       ├── revise-system.md           # Static — revise system design + decision log
 │   │       ├── plan-issues.md             # Static — plan issues one at a time
+│   │       ├── shape-issue.md            # Static — evaluate approaches before story decomposition
 │   │       ├── plan-stories.md            # Static — plan stories with test specs
 │   │       ├── implement.md               # Static — triggers Python orchestration loop
 │   │       ├── verify.md                  # Static — run project-specific verification
 │   │       ├── review.md                  # Static — checklist-based human review
+│   │       ├── retrospective.md          # Static — capture post-implementation learnings
 │   │       ├── add-skill.md               # Static — create skill node in personal vault
 │   │       ├── status.md.j2               # Compiled — renders vault state
 │   │       ├── resume.md.j2               # Compiled — project briefing (auto-displayed)
@@ -308,6 +353,10 @@ my-project/
 │   │   └── issue-<nn>.md
 │   ├── stories/                           # Stories per issue (with test specs)
 │   │   └── issue-<nn>-story-<nn>.md
+│   ├── shaped/                            # Shaped issue artifacts (approach evaluation)
+│   │   └── issue-<nn>-shaped.md
+│   ├── learnings/                         # Post-implementation learnings
+│   │   └── issue-<nn>.md
 │   ├── sessions/                          # Session logs (auto-written, author-tagged)
 │   │   └── <date>-<HHMM>.md
 │   └── .gitignore                         # Ignores compiled/temp files
@@ -524,6 +573,73 @@ into child tasks. Single file: `src/structlog_context/taskgroup.py`.
 - Test that multiple child tasks get independent copies
 ```
 
+### Shaped Issue
+
+```yaml
+---
+issue: 11
+title: Issue planning
+approaches:
+  - name: Approach A
+    summary: Description of approach A
+    tradeoffs: [tradeoff 1, tradeoff 2]
+    rabbit_holes: [risk 1]
+    no_gos: []
+  - name: Approach B
+    summary: Description of approach B
+    tradeoffs: [tradeoff 1]
+    rabbit_holes: []
+    no_gos: [constraint 1]
+chosen_approach: Approach A
+appetite: 2 sessions
+open_questions:
+  - Unresolved question 1
+author: conal@company.com
+created: 2026-02-26
+updated: 2026-02-26
+updated_by: conal@company.com
+tags:
+  - type/shaped
+  - phase/shaping
+---
+
+## Chosen Approach
+Why this approach was selected and key considerations.
+
+## Rabbit Holes
+Known risks to watch for during implementation.
+
+## No-Gos
+Explicitly out of scope for this issue.
+```
+
+### Learning Note
+
+```yaml
+---
+issue: 11
+title: Issue planning
+author: conal@company.com
+date: 2026-02-26
+confidence_delta: +1
+tags:
+  - type/learning
+  - phase/reviewing
+---
+
+## What Went Well
+- Things that worked as expected or better
+
+## Harder Than Expected
+- Things that took more effort than anticipated
+
+## Wrong Assumptions
+- Assumptions that turned out to be incorrect
+
+## Recommendations
+- Advice for future similar work
+```
+
 ### Config File
 
 ```yaml
@@ -591,6 +707,8 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 #type/issue
 #type/story
 #type/session-log
+#type/shaped
+#type/learning
 #type/skill
 #type/config
 
@@ -598,6 +716,7 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 #phase/adopted
 #phase/challenge
 #phase/design
+#phase/shaping
 #phase/planning
 #phase/implementing
 #phase/verifying
@@ -627,10 +746,12 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 | `/mantle:revise-product` | Static | Revise product design + create decision log entry |
 | `/mantle:revise-system` | Static | Revise system design + create decision log entry |
 | `/mantle:plan-issues` | Static | Plan vertical slice issues one at a time |
+| `/mantle:shape-issue` | Static | Evaluate approaches before story decomposition |
 | `/mantle:plan-stories` | Static | Plan stories with test specs (TDD) |
 | `/mantle:implement` | Static | Trigger Python orchestration loop |
 | `/mantle:verify` | Static | Run project-specific verification |
 | `/mantle:review` | Static | Checklist-based human review |
+| `/mantle:retrospective` | Static | Capture post-implementation learnings |
 | `/mantle:add-skill` | Static | Create/update skill node in personal vault |
 | `/mantle:status` | **Compiled** | Bakes current vault state into the prompt |
 | `/mantle:resume` | **Compiled** | Project briefing: state + last session + blockers + next actions |
@@ -656,6 +777,8 @@ Triggered automatically via SessionStart hook. The hook also triggers auto-displ
 | `system-design.md` | When implementing | ~5K |
 | Current issue + stories | When implementing (loaded per story) | ~3K |
 | Relevant skill nodes | Matched by `skills_required` in state.md | ~2K each |
+| Shaped issue for current issue | When shaping/planning | ~2K |
+| Past learnings | When shaping (loaded for patterns) | ~1K each |
 | Decision log entries | On demand ("what did we decide about X?") | ~1K each |
 | Compiled briefing | Auto-displayed on session start | ~3K |
 
@@ -824,10 +947,12 @@ Note: The prompt is a **positional argument**, not a flag. Invocation pattern: `
 12. `/mantle:status` and `/mantle:resume` — Compiled commands, auto-briefing on session start
 13. `/mantle:plan-issues` — One-at-a-time issue planning
 14. `/mantle:plan-stories` — Story planning with test specs (TDD)
+14b. `/mantle:shape-issue` — Shape issue approaches before story decomposition
 15. `/mantle:implement` — Python orchestration loop with retry-with-feedback
 16. Worktree support — Auto-create worktree/branch per issue, merge on completion
 17. `/mantle:verify` — Project-specific verification strategy (config on first use)
 18. `/mantle:review` — Checklist-based human review
+18b. `/mantle:retrospective` — Post-implementation learning capture
 19. `/mantle:add-skill` — Skill node creation + AI gap suggestion
 20. Session log auto-writing — Standing rules + command closing instructions
 21. `/mantle:help` — Command listing by workflow phase

@@ -20,8 +20,10 @@ SUBDIRS: tuple[str, ...] = (
     "challenges",
     "decisions",
     "issues",
+    "learnings",
     "research",
     "sessions",
+    "shaped",
     "stories",
 )
 
@@ -66,6 +68,8 @@ TAGS_BODY = """\
 - `type/issue`
 - `type/story`
 - `type/session-log`
+- `type/shaped`
+- `type/learning`
 - `type/skill`
 - `type/config`
 
@@ -74,6 +78,7 @@ TAGS_BODY = """\
 - `phase/idea`
 - `phase/challenge`
 - `phase/design`
+- `phase/shaping`
 - `phase/planning`
 - `phase/implementing`
 - `phase/verifying`
