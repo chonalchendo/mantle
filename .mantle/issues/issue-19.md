@@ -2,7 +2,7 @@
 title: Project adoption command (/mantle:adopt)
 status: planned
 slice: [core, claude-code, agents, vault, tests]
-story_count: 0
+story_count: 5
 verification: null
 tags:
   - type/issue
