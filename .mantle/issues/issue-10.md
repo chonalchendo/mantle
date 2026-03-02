@@ -2,7 +2,7 @@
 title: Auto-briefing on session start (/mantle:resume)
 status: planned
 slice: [core, claude-code, tests]
-story_count: 0
+story_count: 3
 verification: null
 tags:
   - type/issue

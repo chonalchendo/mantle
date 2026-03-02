@@ -1,0 +1,24 @@
+You are resuming work on **{{ project }}** ({{ status }}, confidence {{ confidence }}).
+{% if current_issue %}
+**Currently working on**: Issue {{ current_issue }}{% if current_story %}, Story {{ current_story }}{% endif %}
+{% endif %}
+## Current Focus
+
+{{ current_focus }}
+
+## Blockers
+
+{{ blockers }}
+{% if has_session %}
+## Last Session ({{ latest_session_date }})
+
+{{ latest_session_body }}
+{% endif %}
+## Next Steps
+
+{{ next_steps }}
+{% if skills_required %}
+## Skills Required
+
+{% for skill in skills_required %}- {{ skill }}
+{% endfor %}{% endif %}

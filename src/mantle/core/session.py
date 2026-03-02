@@ -157,6 +157,27 @@ def session_exists(project_dir: Path) -> bool:
     return len(list_sessions(project_dir)) > 0
 
 
+def latest_session(
+    project_dir: Path,
+    *,
+    author: str | None = None,
+) -> tuple[SessionNote, str] | None:
+    """Return the most recent session log.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        author: If provided, filter to sessions by this author.
+
+    Returns:
+        Tuple of (SessionNote frontmatter, body text) for the
+        latest session, or ``None`` if no matching sessions exist.
+    """
+    paths = list_sessions(project_dir, author=author)
+    if not paths:
+        return None
+    return load_session(paths[-1])
+
+
 def count_words(text: str) -> int:
     """Count words in text.
 

@@ -7,7 +7,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from mantle.core import manifest, state, templates, vault
+from mantle.core import manifest, session, state, templates, vault
 
 # ── Public API ───────────────────────────────────────────────────
 
@@ -43,6 +43,10 @@ def collect_context(project_dir: Path) -> dict[str, Any]:
     sections = _parse_body_sections(note.body)
     context.update(sections)
 
+    context.update(
+        _collect_session_context(project_dir)
+    )
+
     return context
 
 
@@ -65,6 +69,12 @@ def source_paths(project_dir: Path) -> list[Path]:
         candidate = mantle_dir / name
         if candidate.is_file():
             paths.append(candidate)
+
+    sessions_dir = mantle_dir / "sessions"
+    if sessions_dir.is_dir():
+        session_files = sorted(sessions_dir.glob("*.md"))
+        if session_files:
+            paths.append(session_files[-1])
 
     tpl_dir = template_dir()
     if tpl_dir.is_dir():
@@ -174,6 +184,49 @@ def compile_if_stale(
 
 
 # ── Internal helpers ─────────────────────────────────────────────
+
+
+def _collect_session_context(
+    project_dir: Path,
+) -> dict[str, Any]:
+    """Retrieve latest session fields for template context.
+
+    Resolves git identity to filter sessions to the current user.
+    Falls back to unfiltered latest session when git identity is
+    unavailable.
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+
+    Returns:
+        Dict with ``has_session``, ``latest_session_body``,
+        ``latest_session_date``, and ``latest_session_commands``.
+    """
+    try:
+        identity = state.resolve_git_identity()
+        result = session.latest_session(
+            project_dir, author=identity
+        )
+    except RuntimeError:
+        result = session.latest_session(project_dir)
+
+    if result is None:
+        return {
+            "has_session": False,
+            "latest_session_body": "",
+            "latest_session_date": "",
+            "latest_session_commands": [],
+        }
+
+    note, body = result
+    return {
+        "has_session": True,
+        "latest_session_body": body,
+        "latest_session_date": note.date.strftime(
+            "%Y-%m-%d %H:%M"
+        ),
+        "latest_session_commands": list(note.commands_used),
+    }
 
 
 def _parse_body_sections(body: str) -> dict[str, str]:

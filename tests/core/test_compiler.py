@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from mantle.core import compiler
+from mantle.core import compiler, templates, vault
+from mantle.core.session import SessionNote
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+MOCK_EMAIL = "test@example.com"
+OTHER_EMAIL = "other@example.com"
 
 
 def _write_state_md(mantle_dir: Path, body: str | None = None) -> None:
@@ -53,6 +58,31 @@ def _make_template_dir(tmp_path: Path) -> Path:
         "{{ summary }}\n"
     )
     return tpl_dir
+
+
+def _write_session(
+    project_dir: Path,
+    filename: str,
+    *,
+    author: str = MOCK_EMAIL,
+    body: str = "Session body content.",
+    commands_used: tuple[str, ...] = (),
+) -> None:
+    """Write a session file directly for testing."""
+    note = SessionNote(
+        project="test-project",
+        author=author,
+        date=datetime(2026, 3, 1, 14, 30),
+        commands_used=commands_used,
+    )
+    path = (
+        project_dir / ".mantle" / "sessions" / filename
+    )
+    vault.write_note(path, note, body)
+
+
+def _mock_git_identity() -> str:
+    return MOCK_EMAIL
 
 
 # ── collect_context ─────────────────────────────────────────────
@@ -329,3 +359,242 @@ class TestParseBodySections:
     def test_handles_empty_body(self):
         sections = compiler._parse_body_sections("")
         assert sections == {}
+
+
+# ── collect_context (session fields) ────────────────────────────
+
+
+class TestCollectContextSessions:
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_has_session_false_when_no_sessions(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        ctx = compiler.collect_context(tmp_path)
+
+        assert ctx["has_session"] is False
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_has_session_true_when_sessions_exist(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(tmp_path, "2026-03-01-1400.md")
+        ctx = compiler.collect_context(tmp_path)
+
+        assert ctx["has_session"] is True
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_latest_session_body(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            body="Did important work.",
+        )
+        ctx = compiler.collect_context(tmp_path)
+
+        assert "Did important work." in ctx["latest_session_body"]
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_latest_session_date_format(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(tmp_path, "2026-03-01-1400.md")
+        ctx = compiler.collect_context(tmp_path)
+
+        assert ctx["latest_session_date"] == "2026-03-01 14:30"
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_latest_session_commands(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            commands_used=("idea", "challenge"),
+        )
+        ctx = compiler.collect_context(tmp_path)
+
+        assert ctx["latest_session_commands"] == [
+            "idea",
+            "challenge",
+        ]
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_filters_sessions_to_current_user(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1000.md",
+            author=OTHER_EMAIL,
+            body="Other author session.",
+        )
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            author=MOCK_EMAIL,
+            body="My session.",
+        )
+        ctx = compiler.collect_context(tmp_path)
+
+        assert "My session." in ctx["latest_session_body"]
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=RuntimeError("no git"),
+    )
+    def test_falls_back_when_git_identity_unavailable(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            body="Fallback session.",
+        )
+        ctx = compiler.collect_context(tmp_path)
+
+        assert ctx["has_session"] is True
+        assert "Fallback session." in ctx["latest_session_body"]
+
+
+# ── source_paths (sessions) ────────────────────────────────────
+
+
+class TestSourcePathsSessions:
+    def test_includes_latest_session(self, tmp_path: Path):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(tmp_path, "2026-03-01-1000.md")
+        _write_session(tmp_path, "2026-03-01-1400.md")
+
+        with patch.object(
+            compiler,
+            "template_dir",
+            return_value=tmp_path / "empty",
+        ):
+            paths = compiler.source_paths(tmp_path)
+
+        session_path = (
+            tmp_path
+            / ".mantle"
+            / "sessions"
+            / "2026-03-01-1400.md"
+        )
+        assert session_path in paths
+
+    def test_excludes_sessions_when_dir_empty(
+        self, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        sessions_dir = tmp_path / ".mantle" / "sessions"
+        sessions_dir.mkdir()
+
+        with patch.object(
+            compiler,
+            "template_dir",
+            return_value=tmp_path / "empty",
+        ):
+            paths = compiler.source_paths(tmp_path)
+
+        session_paths = [
+            p for p in paths if sessions_dir in p.parents
+        ]
+        assert session_paths == []
+
+
+# ── resume template ────────────────────────────────────────────
+
+
+class TestResumeTemplate:
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_renders_with_session(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            body="Did work on feature X.",
+        )
+        ctx = compiler.collect_context(tmp_path)
+        tpl_dir = compiler.template_dir()
+
+        rendered = templates.render_template(
+            tpl_dir, "resume.md.j2", ctx
+        )
+
+        assert "test-project" in rendered
+        assert "implementing" in rendered
+        assert "Did work on feature X." in rendered
+        assert "Last Session" in rendered
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_renders_without_session(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        ctx = compiler.collect_context(tmp_path)
+        tpl_dir = compiler.template_dir()
+
+        rendered = templates.render_template(
+            tpl_dir, "resume.md.j2", ctx
+        )
+
+        assert "test-project" in rendered
+        assert "Last Session" not in rendered
+
+    @patch(
+        "mantle.core.compiler.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_output_within_token_budget(
+        self, _mock: object, tmp_path: Path
+    ):
+        _write_state_md(tmp_path / ".mantle")
+        _write_session(
+            tmp_path,
+            "2026-03-01-1400.md",
+            body="Session notes here.",
+        )
+        ctx = compiler.collect_context(tmp_path)
+        tpl_dir = compiler.template_dir()
+
+        rendered = templates.render_template(
+            tpl_dir, "resume.md.j2", ctx
+        )
+
+        # ~3K tokens ≈ ~750 words; with short test data
+        # this should be well under budget.
+        word_count = len(rendered.split())
+        assert word_count < 750

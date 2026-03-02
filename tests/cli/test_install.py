@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
-from mantle.cli.install import _copy_files, _print_summary, run_install
+from mantle.cli.install import (
+    _copy_files,
+    _print_summary,
+    _register_hooks,
+    run_install,
+)
 from mantle.core.manifest import plan_install, record_install
 
 HELP_MD = (
@@ -298,3 +304,89 @@ class TestRunInstallE2E:
         assert (
             claude_target / "commands/mantle/help.md"
         ).read_text() == "# Help"
+
+
+# ── _register_hooks ─────────────────────────────────────────────
+
+
+class TestRegisterHooks:
+    def test_creates_settings_when_missing(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+
+        assert (tmp_path / "settings.json").is_file()
+
+    def test_preserves_existing_settings(self, tmp_path: Path):
+        settings = {"permissions": {"allow": ["Read"]}}
+        (tmp_path / "settings.json").write_text(
+            json.dumps(settings)
+        )
+
+        _register_hooks(tmp_path)
+
+        result = json.loads(
+            (tmp_path / "settings.json").read_text()
+        )
+        assert result["permissions"] == {"allow": ["Read"]}
+
+    def test_adds_session_start_hook(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+
+        result = json.loads(
+            (tmp_path / "settings.json").read_text()
+        )
+        entries = result["hooks"]["SessionStart"]
+        assert len(entries) == 1
+        assert entries[0]["matcher"] == ""
+        hook = entries[0]["hooks"][0]
+        assert hook["type"] == "command"
+        assert "session-start.sh" in hook["command"]
+
+    def test_idempotent(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+        _register_hooks(tmp_path)
+
+        result = json.loads(
+            (tmp_path / "settings.json").read_text()
+        )
+        entries = result["hooks"]["SessionStart"]
+        assert len(entries) == 1
+
+    def test_preserves_other_hook_types(self, tmp_path: Path):
+        settings = {
+            "hooks": {
+                "PreToolUse": [
+                    {
+                        "matcher": "",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": "echo pre",
+                            }
+                        ],
+                    }
+                ]
+            }
+        }
+        (tmp_path / "settings.json").write_text(
+            json.dumps(settings)
+        )
+
+        _register_hooks(tmp_path)
+
+        result = json.loads(
+            (tmp_path / "settings.json").read_text()
+        )
+        assert len(result["hooks"]["PreToolUse"]) == 1
+        assert len(result["hooks"]["SessionStart"]) == 1
+
+    def test_returns_true_when_newly_registered(
+        self, tmp_path: Path
+    ):
+        assert _register_hooks(tmp_path) is True
+
+    def test_returns_false_when_already_exists(
+        self, tmp_path: Path
+    ):
+        _register_hooks(tmp_path)
+
+        assert _register_hooks(tmp_path) is False

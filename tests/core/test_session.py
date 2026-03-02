@@ -19,6 +19,7 @@ from mantle.core.session import (
     SessionNote,
     SessionTooLongWarning,
     count_words,
+    latest_session,
     list_sessions,
     load_session,
     save_session,
@@ -27,6 +28,7 @@ from mantle.core.session import (
 from mantle.core.state import ProjectState, Status
 
 MOCK_EMAIL = "test@example.com"
+OTHER_EMAIL = "other@example.com"
 BODY = (
     "## Summary\n\n"
     "Implemented session logging.\n\n"
@@ -397,3 +399,123 @@ class TestSessionNote:
 
         with pytest.raises(pydantic.ValidationError):
             note.author = "changed@b.com"  # type: ignore[misc]
+
+
+# ── latest_session ──────────────────────────────────────────────
+
+
+def _write_session(
+    project_dir: Path,
+    filename: str,
+    *,
+    author: str = MOCK_EMAIL,
+    body: str = BODY,
+    commands_used: tuple[str, ...] = (),
+) -> None:
+    """Write a session file directly (bypasses save_session)."""
+    note = SessionNote(
+        project="test-project",
+        author=author,
+        date=datetime(2026, 3, 1, 14, 30),
+        commands_used=commands_used,
+    )
+    path = project_dir / ".mantle" / "sessions" / filename
+    vault.write_note(path, note, body)
+
+
+class TestLatestSession:
+    def test_none_when_no_sessions(self, project: Path) -> None:
+        assert latest_session(project) is None
+
+    def test_returns_most_recent(self, project: Path) -> None:
+        _write_session(
+            project,
+            "2026-03-01-1000.md",
+            body="First session.",
+        )
+        _write_session(
+            project,
+            "2026-03-01-1400.md",
+            body="Second session.",
+        )
+
+        result = latest_session(project)
+
+        assert result is not None
+        _, body = result
+        assert "Second session." in body
+
+    @patch(
+        "mantle.core.session.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_returns_tuple(
+        self, _mock: object, project: Path
+    ) -> None:
+        _save(project)
+
+        result = latest_session(project)
+
+        assert result is not None
+        note, body = result
+        assert isinstance(note, SessionNote)
+        assert note.project == "test-project"
+        assert note.author == MOCK_EMAIL
+        assert isinstance(body, str)
+        assert len(body) > 0
+
+    def test_filters_by_author(self, project: Path) -> None:
+        _write_session(
+            project, "2026-03-01-1400.md", author=MOCK_EMAIL
+        )
+        _write_session(
+            project,
+            "2026-03-01-1500.md",
+            author=OTHER_EMAIL,
+            body="Other author session.",
+        )
+
+        result = latest_session(project, author=MOCK_EMAIL)
+
+        assert result is not None
+        note, _ = result
+        assert note.author == MOCK_EMAIL
+
+    def test_none_when_author_has_no_sessions(
+        self, project: Path
+    ) -> None:
+        _write_session(
+            project, "2026-03-01-1400.md", author=OTHER_EMAIL
+        )
+
+        result = latest_session(project, author=MOCK_EMAIL)
+
+        assert result is None
+
+    def test_latest_for_author_with_multiple_authors(
+        self, project: Path
+    ) -> None:
+        _write_session(
+            project,
+            "2026-03-01-1000.md",
+            author=MOCK_EMAIL,
+            body="First by mock.",
+        )
+        _write_session(
+            project,
+            "2026-03-01-1200.md",
+            author=OTHER_EMAIL,
+            body="By other.",
+        )
+        _write_session(
+            project,
+            "2026-03-01-1400.md",
+            author=MOCK_EMAIL,
+            body="Second by mock.",
+        )
+
+        result = latest_session(project, author=MOCK_EMAIL)
+
+        assert result is not None
+        _, body = result
+        assert "Second by mock." in body
