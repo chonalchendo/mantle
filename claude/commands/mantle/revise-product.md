@@ -90,3 +90,11 @@ After a successful save, tell the user:
 
 > Product design revised! A decision log entry has been created to track this
 > change. Review the updated design in `.mantle/product-design.md`.
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "revise-product"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).

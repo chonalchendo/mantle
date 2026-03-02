@@ -195,6 +195,51 @@ class TestReinstall:
         ).read_text() == "# Mantle Commands"
 
 
+# ── Rules install ────────────────────────────────────────────────
+
+
+class TestRulesInstall:
+    def _do_install(self, source: Path, target: Path) -> None:
+        """Helper: full install cycle."""
+        plan = plan_install(source, target)
+        _copy_files(source, target, plan.safe_to_write)
+        record_install(source, target, plan.safe_to_write | plan.unchanged)
+
+    def test_copies_rules_to_target(self, tmp_path: Path):
+        source = tmp_path / "source"
+        target = tmp_path / "target"
+        _write(source / "rules/session-logging.md", "# Session Logging")
+        target.mkdir()
+
+        self._do_install(source, target)
+
+        assert (
+            target / "rules/session-logging.md"
+        ).read_text() == "# Session Logging"
+
+    def test_creates_rules_directory(self, tmp_path: Path):
+        source = tmp_path / "source"
+        target = tmp_path / "target"
+        _write(source / "rules/session-logging.md", "# Session Logging")
+        target.mkdir()
+
+        self._do_install(source, target)
+
+        assert (target / "rules").is_dir()
+
+    def test_rules_tracked_in_manifest(self, tmp_path: Path):
+        source = tmp_path / "source"
+        target = tmp_path / "target"
+        _write(source / "rules/session-logging.md", "# Session Logging")
+        target.mkdir()
+
+        self._do_install(source, target)
+
+        # Second install should see file as unchanged (tracked)
+        plan = plan_install(source, target)
+        assert "rules/session-logging.md" in plan.unchanged
+
+
 # ── Edge cases ───────────────────────────────────────────────────
 
 

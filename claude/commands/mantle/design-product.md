@@ -121,3 +121,11 @@ After a successful save, tell the user:
 
 > Product design captured! Next, run `/mantle:design-system` to define the how —
 > architecture, tech stack, and system boundaries.
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "design-product"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).
