@@ -103,6 +103,9 @@ GITIGNORE_CONTENT = """\
 # Compiled command files
 *.compiled.md
 
+# Compilation manifest
+.compile-manifest.json
+
 # Temporary files
 *.tmp
 *.bak

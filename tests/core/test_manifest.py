@@ -7,8 +7,12 @@ from typing import TYPE_CHECKING
 
 from mantle.core.manifest import (
     hash_file,
+    hash_paths,
+    is_compilation_stale,
+    load_compilation_manifest,
     plan_install,
     record_install,
+    save_compilation_manifest,
 )
 
 if TYPE_CHECKING:
@@ -250,3 +254,92 @@ class TestRecordInstall:
         assert "a.txt" in plan.user_modified
         # b.txt was never recorded → new
         assert "b.txt" in plan.new
+
+
+# ── hash_paths ──────────────────────────────────────────────────
+
+
+class TestHashPaths:
+    def test_hashes_multiple_files(self, tmp_path: Path):
+        a = tmp_path / "a.txt"
+        b = tmp_path / "b.txt"
+        a.write_text("aaa")
+        b.write_text("bbb")
+
+        result = hash_paths([a, b])
+
+        assert str(a) in result
+        assert str(b) in result
+        assert result[str(a)] == _sha256("aaa")
+        assert result[str(b)] == _sha256("bbb")
+
+    def test_skips_nonexistent_files(self, tmp_path: Path):
+        real = tmp_path / "real.txt"
+        real.write_text("content")
+        missing = tmp_path / "missing.txt"
+
+        result = hash_paths([real, missing])
+
+        assert str(real) in result
+        assert str(missing) not in result
+
+    def test_returns_empty_for_empty_input(self):
+        assert hash_paths([]) == {}
+
+
+# ── compilation manifest ────────────────────────────────────────
+
+
+class TestCompilationManifest:
+    def test_save_creates_manifest_file(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        save_compilation_manifest(path, {"a": "hash_a"})
+        assert path.exists()
+
+    def test_round_trip(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        hashes = {"file1": "abc123", "file2": "def456"}
+        save_compilation_manifest(path, hashes)
+        loaded = load_compilation_manifest(path)
+        assert loaded == hashes
+
+    def test_load_returns_empty_when_missing(self, tmp_path: Path):
+        path = tmp_path / "nonexistent.json"
+        assert load_compilation_manifest(path) == {}
+
+
+# ── is_compilation_stale ────────────────────────────────────────
+
+
+class TestIsCompilationStale:
+    def test_stale_when_no_manifest(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        assert is_compilation_stale(path, {"a": "hash_a"}) is True
+
+    def test_not_stale_when_hashes_match(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        hashes = {"a": "hash_a", "b": "hash_b"}
+        save_compilation_manifest(path, hashes)
+        assert is_compilation_stale(path, hashes) is False
+
+    def test_stale_when_hash_changes(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        save_compilation_manifest(path, {"a": "hash_a"})
+        assert is_compilation_stale(path, {"a": "hash_b"}) is True
+
+    def test_stale_when_file_added(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        save_compilation_manifest(path, {"a": "hash_a"})
+        assert (
+            is_compilation_stale(
+                path, {"a": "hash_a", "b": "hash_b"}
+            )
+            is True
+        )
+
+    def test_stale_when_file_removed(self, tmp_path: Path):
+        path = tmp_path / ".compile-manifest.json"
+        save_compilation_manifest(
+            path, {"a": "hash_a", "b": "hash_b"}
+        )
+        assert is_compilation_stale(path, {"a": "hash_a"}) is True

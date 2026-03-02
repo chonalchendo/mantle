@@ -19,6 +19,9 @@ from mantle.cli import (
     shaping,
     system_design,
 )
+from mantle.cli import (
+    compile as compile_cmd,
+)
 
 app = App(name="mantle", help="AI workflow engine with persistent context.")
 
@@ -728,6 +731,38 @@ def save_learning_command(
         content=content,
         overwrite=overwrite,
         project_dir=path,
+    )
+
+
+@app.command(name="compile")
+def compile_command(
+    if_stale: Annotated[
+        bool,
+        Parameter(
+            name="--if-stale",
+            help="Only recompile when source files have changed.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+    target: Annotated[
+        Path | None,
+        Parameter(
+            name="--target",
+            help="Output directory. Defaults to ~/.claude/commands/mantle/.",
+        ),
+    ] = None,
+) -> None:
+    """Compile vault context into Claude Code commands."""
+    compile_cmd.run_compile(
+        if_stale=if_stale,
+        project_dir=path,
+        target_dir=target,
     )
 
 

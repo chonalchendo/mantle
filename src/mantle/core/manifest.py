@@ -206,6 +206,75 @@ def record_install(
     _write_manifest(manifest, target_dir / _MANIFEST_FILENAME)
 
 
+# ── Compilation manifest ─────────────────────────────────────────
+
+
+def hash_paths(paths: Iterable[Path]) -> dict[str, str]:
+    """Hash multiple files, skipping any that do not exist.
+
+    Args:
+        paths: File paths to hash.
+
+    Returns:
+        Mapping of ``str(path)`` to SHA-256 hex digest for each
+        file that exists.
+    """
+    result: dict[str, str] = {}
+    for p in paths:
+        if p.is_file():
+            result[str(p)] = hash_file(p)
+    return result
+
+
+def save_compilation_manifest(
+    manifest_path: Path,
+    hashes: dict[str, str],
+) -> None:
+    """Persist source file hashes after a successful compilation.
+
+    Args:
+        manifest_path: Where to write the manifest JSON.
+        hashes: Mapping of source path strings to SHA-256 digests.
+    """
+    m = _FileManifest(files=hashes)
+    _write_manifest(m, manifest_path)
+
+
+def load_compilation_manifest(manifest_path: Path) -> dict[str, str]:
+    """Read stored compilation hashes.
+
+    Args:
+        manifest_path: Path to the manifest JSON file.
+
+    Returns:
+        Mapping of source path strings to SHA-256 digests.
+        Empty dict if the manifest does not exist.
+    """
+    m = _read_manifest(manifest_path)
+    return dict(m.files)
+
+
+def is_compilation_stale(
+    manifest_path: Path,
+    current_hashes: dict[str, str],
+) -> bool:
+    """Compare current source hashes against stored manifest.
+
+    Returns ``True`` if the manifest does not exist, if any hash
+    differs, or if the set of tracked files changed. Returns
+    ``False`` only when all hashes match exactly.
+
+    Args:
+        manifest_path: Path to the stored compilation manifest.
+        current_hashes: Current source file hashes to compare.
+
+    Returns:
+        Whether recompilation is needed.
+    """
+    stored = load_compilation_manifest(manifest_path)
+    return stored != current_hashes
+
+
 # ── Internal helpers ─────────────────────────────────────────────
 
 

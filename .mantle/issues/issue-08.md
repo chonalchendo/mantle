@@ -2,7 +2,7 @@
 title: Context compilation engine + /mantle:status
 status: planned
 slice: [cli, core, claude-code, tests]
-story_count: 0
+story_count: 4
 verification: null
 tags:
   - type/issue

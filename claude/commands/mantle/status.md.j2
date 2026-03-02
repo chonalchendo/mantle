@@ -1,0 +1,32 @@
+# Project Status
+
+**Project**: {{ project }}
+**Status**: {{ status }}
+**Confidence**: {{ confidence }}
+{% if current_issue %}**Current Issue**: {{ current_issue }}
+{% endif %}{% if current_story %}**Current Story**: {{ current_story }}
+{% endif %}
+## Summary
+
+{{ summary }}
+
+## Current Focus
+
+{{ current_focus }}
+
+## Blockers
+
+{{ blockers }}
+
+## Recent Decisions
+
+{{ recent_decisions }}
+
+## Next Steps
+
+{{ next_steps }}
+{% if skills_required %}
+## Skills Required
+
+{% for skill in skills_required %}- {{ skill }}
+{% endfor %}{% endif %}

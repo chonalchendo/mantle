@@ -1,0 +1,65 @@
+"""Compile command — render vault context into Claude Code commands."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from rich.console import Console
+
+from mantle.core import compiler
+
+console = Console()
+
+
+def run_compile(
+    *,
+    if_stale: bool = False,
+    project_dir: Path | None = None,
+    target_dir: Path | None = None,
+) -> None:
+    """Compile vault context into Claude Code commands.
+
+    Args:
+        if_stale: Only recompile when source files have changed.
+        project_dir: Project directory. Defaults to cwd.
+        target_dir: Output directory. Defaults to
+            ``~/.claude/commands/mantle/``.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    try:
+        if if_stale:
+            result = compiler.compile_if_stale(
+                project_dir, target_dir=target_dir
+            )
+            if result is None:
+                console.print(
+                    "Already up to date "
+                    "— no recompilation needed."
+                )
+                return
+            compiled = result
+        else:
+            compiled = compiler.compile(
+                project_dir, target_dir=target_dir
+            )
+    except FileNotFoundError:
+        console.print(
+            "[red]Error:[/red] no .mantle/ directory found. "
+            "Run [bold]mantle init[/bold] first."
+        )
+        raise SystemExit(1) from None
+
+    display_target = target_dir or Path.home() / ".claude" / "commands" / "mantle"
+    console.print(
+        f"Compiled {len(compiled)} template(s) "
+        f"to {display_target}/\n"
+    )
+    for name in compiled:
+        console.print(f"  - {name}")
+
+    console.print(
+        "\n  Commands are ready. "
+        "Run [bold]/mantle:status[/bold] in Claude Code."
+    )
