@@ -6,7 +6,7 @@ story_count: 3
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/done
 ---
 
 ## Parent PRD
@@ -26,13 +26,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] Session logs are written to `.mantle/sessions/<date>-<HHMM>.md` with YAML frontmatter
-- [ ] Frontmatter includes project, author (git identity), date, commands_used, and tags
-- [ ] Log body follows structured format: summary, what was done, decisions made, what's next, open questions
-- [ ] Logs are capped at ~200 words
-- [ ] A standing rule in `.claude/rules/` instructs session logging for non-command sessions
-- [ ] `core/session.py` provides read/write interface for session logs
-- [ ] Tests verify session log format, frontmatter structure, word cap, and read/write operations
+- [x] Session logs are written to `.mantle/sessions/<date>-<HHMM>.md` with YAML frontmatter
+- [x] Frontmatter includes project, author (git identity), date, commands_used, and tags
+- [x] Log body follows structured format: summary, what was done, decisions made, what's next, open questions
+- [x] Logs are capped at ~200 words
+- [x] A standing rule in `.claude/rules/` instructs session logging for non-command sessions
+- [x] `core/session.py` provides read/write interface for session logs
+- [x] Tests verify session log format, frontmatter structure, word cap, and read/write operations
 
 ## Blocked by
 

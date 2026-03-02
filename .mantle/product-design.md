@@ -266,7 +266,7 @@ Auto-briefing, session logs, and skill graph — the knowledge engine.
 | Issue | Title | Status | Depends on |
 |-------|-------|--------|------------|
 | 08 | Context compilation engine + `/mantle:status` | completed | 02 |
-| 09 | Session logging | planned | 02 |
+| 09 | Session logging | completed | 02 |
 | 10 | Auto-briefing on session start (`/mantle:resume`) | planned | 08, 09 |
 | 17 | Skill graph (`/mantle:add-skill`) | planned | 02 |
 
