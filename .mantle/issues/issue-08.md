@@ -1,12 +1,12 @@
 ---
 title: Context compilation engine + /mantle:status
-status: planned
+status: done
 slice: [cli, core, claude-code, tests]
 story_count: 4
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/done
 ---
 
 ## Parent PRD
