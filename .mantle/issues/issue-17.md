@@ -1,12 +1,12 @@
 ---
 title: Skill graph (/mantle:add-skill)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
 story_count: 4
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
@@ -26,13 +26,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:add-skill` is available in Claude Code and creates a skill node in the personal vault
-- [ ] Skill nodes include YAML frontmatter: type, proficiency, related skills (wikilinks), projects (wikilinks), last_used, tags
-- [ ] Skill nodes are saved to `~/vault/skills/<skill-name>.md` (personal vault path from config)
-- [ ] `core/skills.py` detects gaps: compares `skills_required` in state.md against existing skill nodes
-- [ ] Gap detection suggests creating missing skill nodes
-- [ ] Relevant skill nodes are loadable for inclusion in implementation context (matched by `skills_required`)
-- [ ] Tests verify skill CRUD, link detection, gap suggestion logic, and skill loading
+- [x] `/mantle:add-skill` is available in Claude Code and creates a skill node in the personal vault
+- [x] Skill nodes include YAML frontmatter: type, proficiency, related skills (wikilinks), projects (wikilinks), last_used, tags
+- [x] Skill nodes are saved to `~/vault/skills/<skill-name>.md` (personal vault path from config)
+- [x] `core/skills.py` detects gaps: compares `skills_required` in state.md against existing skill nodes
+- [x] Gap detection suggests creating missing skill nodes
+- [x] Relevant skill nodes are loadable for inclusion in implementation context (matched by `skills_required`)
+- [x] Tests verify skill CRUD, link detection, gap suggestion logic, and skill loading
 
 ## Blocked by
 

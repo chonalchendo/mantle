@@ -1,11 +1,11 @@
 ---
 issue: 17
 title: Core skills module — create, load, list, update, exists
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

@@ -1,11 +1,11 @@
 ---
 issue: 17
 title: Claude Code command + vault template
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation

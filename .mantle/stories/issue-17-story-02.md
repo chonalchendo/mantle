@@ -1,11 +1,11 @@
 ---
 issue: 17
 title: Skill gap detection and skill loading for context
-status: pending
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/completed
 ---
 
 ## Implementation
