@@ -35,7 +35,7 @@ Thin modules (straightforward wiring):
 |---|---|
 | `core/session.py` | Read/write session logs, latest session retrieval with author filtering |
 | `core/decisions.py` | Create decision log entries with structured metadata |
-| `core/skills.py` | CRUD on skill nodes in personal vault, link detection, gap suggestion |
+| `core/skills.py` | CRUD on skill nodes in personal vault, gap detection against `skills_required`, skill loading for context |
 | `core/verify.py` | Load verification strategy (project-level + per-issue), run checks, build report |
 | `core/review.py` | Build checklist from acceptance criteria + verification results |
 | `core/adopt.py` | Adoption orchestration: parallel agent dispatch, artifact generation, state updates |
@@ -121,7 +121,7 @@ Every module in `core/` gets tests:
 | `core/state.py` | Unit tests: load/save state from fixture files. Test state machine transitions (e.g., `idea` → `challenge` is valid, `idea` → `implementing` is not). |
 | `core/session.py` | Unit tests: verify session log format, briefing compilation, author filtering. |
 | `core/decisions.py` | Unit tests: verify decision log entry format, frontmatter structure, file naming. |
-| `core/skills.py` | Unit tests: CRUD operations on skill node fixtures. Test link detection and gap suggestion logic. |
+| `core/skills.py` | Unit tests: CRUD operations with content round-trips, wikilink rendering, slug normalization, gap detection against `skills_required`, skill loading for context. |
 | `core/verify.py` | Unit tests: verify strategy loading from config.md and per-issue overrides. Test report generation. |
 | `core/review.py` | Unit tests: verify checklist construction from acceptance criteria + verification results. |
 | `core/challenge.py` | Unit tests: save/load round-trip, auto-increment filenames, IdeaNotFoundError, state.md updates, list/exists queries. |
@@ -253,6 +253,7 @@ mantle/
 │       │   ├── compile.py                 # Compile vault state into commands
 │       │   ├── shaping.py                 # CLI wiring for shape-issue
 │       │   ├── learning.py                # CLI wiring for retrospective
+│       │   ├── skills.py                  # CLI wiring for save-skill
 │       │   └── status.py                  # Show project states
 │       │
 │       └── api/                           # Future: UI delivery (thin layer)
@@ -485,18 +486,53 @@ If performance testing shows <100 req/sec throughput.
 
 ```yaml
 ---
+name: "Python asyncio"
+description: "Async Python patterns using asyncio. Use when building concurrent I/O-bound services."
 type: skill
-proficiency: 8/10
-related: [[fastapi]], [[pytest]], [[async-programming]]
-projects: [[my-project]], [[other-project]]
-last_used: 2026-02-22
+proficiency: "7/10"
+related_skills: [Python, FastAPI]
+projects: [mantle]
+last_used: 2026-03-02
+author: conal@company.com
+created: 2026-03-02
+updated: 2026-03-02
+updated_by: conal@company.com
 tags:
   - type/skill
 ---
 
-# Python
-Key patterns, gotchas, and lessons learned specific to this skill.
+## Related Skills
+
+- [[Python]]
+- [[FastAPI]]
+
+## Projects
+
+- [[mantle]]
+
+<!-- mantle:content -->
+## Context
+
+Async Python patterns using asyncio for concurrent I/O-bound services.
+
+## Core Knowledge
+
+Use `asyncio.TaskGroup` for structured concurrency instead of `gather()`.
+
+## Decision Criteria
+
+Use asyncio for I/O-bound concurrency. Use multiprocessing for CPU-bound work.
+
+## Anti-patterns
+
+- Use `TaskGroup` instead of `gather()` for structured concurrency.
 ```
+
+The `description` field is the most important metadata — it determines whether a skill gets activated and loaded into context. Written in third person, includes both what the skill covers and when it's relevant.
+
+`related_skills` and `projects` store plain names in frontmatter; the body renders them as `[[wikilinks]]` in header sections. A `<!-- mantle:content -->` marker separates generated wikilink sections from authored content, enabling safe content extraction during updates.
+
+Skill content is dense, imperative knowledge written for Claude's consumption (not a human tutorial). The `/mantle:add-skill` command coaches the user through authoring and includes a research phase using the researcher agent to complement personal knowledge with current best practices.
 
 ### Session Log (Auto-Written)
 

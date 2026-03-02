@@ -2,7 +2,7 @@
 title: Skill graph (/mantle:add-skill)
 status: planned
 slice: [core, claude-code, vault, tests]
-story_count: 0
+story_count: 4
 verification: null
 tags:
   - type/issue

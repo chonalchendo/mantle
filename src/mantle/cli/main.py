@@ -18,6 +18,7 @@ from mantle.cli import (
     research,
     session,
     shaping,
+    skills,
     system_design,
 )
 from mantle.cli import (
@@ -764,6 +765,78 @@ def save_session_command(
         content=content,
         commands_used=commands_used,
         project_dir=project_dir,
+    )
+
+
+@app.command(name="save-skill")
+def save_skill_command(
+    name: Annotated[
+        str,
+        Parameter(
+            name="--name",
+            help="Skill name (e.g. 'Python asyncio').",
+        ),
+    ],
+    description: Annotated[
+        str,
+        Parameter(
+            name="--description",
+            help="What this skill covers and when it's relevant.",
+        ),
+    ],
+    proficiency: Annotated[
+        str,
+        Parameter(
+            name="--proficiency",
+            help="Self-assessment (e.g. '7/10').",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Authored skill knowledge (markdown).",
+        ),
+    ],
+    related_skills: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--related-skills",
+            help="Related skill name (repeatable).",
+        ),
+    ] = (),
+    projects: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--projects",
+            help="Project using this skill (repeatable).",
+        ),
+    ] = (),
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing skill node.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a skill node to the personal vault."""
+    skills.run_save_skill(
+        name=name,
+        description=description,
+        proficiency=proficiency,
+        content=content,
+        related_skills=related_skills,
+        projects=projects,
+        overwrite=overwrite,
+        project_dir=path,
     )
 
 
