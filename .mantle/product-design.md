@@ -263,12 +263,12 @@ Each milestone represents a complete user workflow — something a user can inst
 
 Auto-briefing, session logs, and skill graph — the knowledge engine.
 
-| Issue | Title | Depends on |
-|-------|-------|------------|
-| 08 | Context compilation engine + `/mantle:status` | 02 |
-| 09 | Session logging | 02 |
-| 10 | Auto-briefing on session start (`/mantle:resume`) | 08, 09 |
-| 17 | Skill graph (`/mantle:add-skill`) | 02 |
+| Issue | Title | Status | Depends on |
+|-------|-------|--------|------------|
+| 08 | Context compilation engine + `/mantle:status` | completed | 02 |
+| 09 | Session logging | planned | 02 |
+| 10 | Auto-briefing on session start (`/mantle:resume`) | planned | 08, 09 |
+| 17 | Skill graph (`/mantle:add-skill`) | planned | 02 |
 
 **What the user can do**: Persistent context across sessions. Start a session and get an instant briefing. Build a cross-project skill graph. Never start from zero again.
 

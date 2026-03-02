@@ -1,11 +1,11 @@
 ---
 issue: 8
 title: Compiler engine (core/compiler.py) and status template
-status: pending
+status: done
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/done
 ---
 
 ## Implementation

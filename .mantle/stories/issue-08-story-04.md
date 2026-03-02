@@ -1,11 +1,11 @@
 ---
 issue: 8
 title: CLI compile commands (cli/compile.py + main.py)
-status: pending
+status: done
 failure_log: null
 tags:
   - type/story
-  - status/pending
+  - status/done
 ---
 
 ## Implementation
