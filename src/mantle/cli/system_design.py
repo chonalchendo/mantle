@@ -105,14 +105,10 @@ def run_revise_system_design(
 
     console.print()
     console.print(
-        "[green]System design revised"
-        " in .mantle/system-design.md[/green]"
+        "[green]System design revised in .mantle/system-design.md[/green]"
     )
     console.print()
     console.print(f"  Change:   {change_topic}")
     console.print(f"  Decision: {decision_path.name}")
     console.print()
-    console.print(
-        "  Next: review the revision"
-        " in .mantle/system-design.md"
-    )
+    console.print("  Next: review the revision in .mantle/system-design.md")

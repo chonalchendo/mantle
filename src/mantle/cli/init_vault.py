@@ -37,15 +37,12 @@ def run_init_vault(vault_path: Path) -> None:
 
     resolved = vault_path.expanduser().resolve()
     console.print()
-    console.print(
-        f"[green]Created personal vault at {resolved}[/green]"
-    )
+    console.print(f"[green]Created personal vault at {resolved}[/green]")
     console.print("  - skills/")
     console.print("  - knowledge/")
     console.print("  - inbox/")
     console.print()
     console.print("Vault path saved to .mantle/config.md")
     console.print(
-        "  Tip: Place in iCloud Drive for automatic sync "
-        "across machines."
+        "  Tip: Place in iCloud Drive for automatic sync across machines."
     )

@@ -1,10 +1,16 @@
 """Tests for mantle.core.state."""
 
+from __future__ import annotations
+
 from datetime import date
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
+import pydantic
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from mantle.core.state import (
     InvalidTransitionError,
@@ -237,17 +243,13 @@ class TestTransition:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_adopted_to_planning(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_adopted_to_planning(self, _mock: object, project: Path) -> None:
         _write_state(project, status=Status.ADOPTED)
         result = transition(project, Status.PLANNING)
 
         assert result.status == Status.PLANNING
 
-    def test_adopted_to_implementing_invalid(
-        self, project: Path
-    ) -> None:
+    def test_adopted_to_implementing_invalid(self, project: Path) -> None:
         _write_state(project, status=Status.ADOPTED)
 
         with pytest.raises(InvalidTransitionError):
@@ -259,17 +261,13 @@ class TestTransition:
         with pytest.raises(InvalidTransitionError):
             transition(project, Status.ADOPTED)
 
-    def test_product_design_to_adopted_invalid(
-        self, project: Path
-    ) -> None:
+    def test_product_design_to_adopted_invalid(self, project: Path) -> None:
         _write_state(project, status=Status.PRODUCT_DESIGN)
 
         with pytest.raises(InvalidTransitionError):
             transition(project, Status.ADOPTED)
 
-    def test_adopted_to_completed_invalid(
-        self, project: Path
-    ) -> None:
+    def test_adopted_to_completed_invalid(self, project: Path) -> None:
         _write_state(project, status=Status.ADOPTED)
 
         with pytest.raises(InvalidTransitionError):
@@ -429,7 +427,7 @@ class TestProjectState:
             updated_by="a@b.com",
         )
 
-        with pytest.raises(Exception):
+        with pytest.raises(pydantic.ValidationError):
             state.status = Status.CHALLENGE  # type: ignore[misc]
 
     def test_schema_version_defaults_to_one(self) -> None:

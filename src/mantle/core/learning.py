@@ -49,9 +49,7 @@ class LearningExistsError(Exception):
 
     def __init__(self, path: Path) -> None:
         self.path = path
-        super().__init__(
-            f"Learning already exists at {path}"
-        )
+        super().__init__(f"Learning already exists at {path}")
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -143,9 +141,7 @@ def list_learnings(project_dir: Path) -> list[Path]:
     return sorted(learnings_dir.glob("issue-*.md"))
 
 
-def learning_exists(
-    project_dir: Path, issue: int
-) -> bool:
+def learning_exists(project_dir: Path, issue: int) -> bool:
     """True if a learning file exists for the given issue number.
 
     Args:
@@ -188,12 +184,7 @@ def _learning_path(project_dir: Path, issue: int) -> Path:
     Returns:
         Path for the learning file.
     """
-    return (
-        project_dir
-        / ".mantle"
-        / "learnings"
-        / f"issue-{issue:02d}.md"
-    )
+    return project_dir / ".mantle" / "learnings" / f"issue-{issue:02d}.md"
 
 
 def _update_state_body(

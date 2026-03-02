@@ -78,18 +78,15 @@ def run_save_adoption(
 
     console.print()
     console.print(
-        "[green]Adoption complete"
-        " — design artifacts saved to .mantle/[/green]"
+        "[green]Adoption complete — design artifacts saved to .mantle/[/green]"
     )
     console.print()
     console.print(f"  Vision:          {pd_note.vision}")
     console.print(
-        f"  Features:        "
-        f"{len(pd_note.building_blocks)} building blocks"
+        f"  Features:        {len(pd_note.building_blocks)} building blocks"
     )
     console.print("  System design:   saved")
     console.print()
     console.print(
-        "  Next: run [bold]/mantle:plan-issues[/bold]"
-        " to break down the work"
+        "  Next: run [bold]/mantle:plan-issues[/bold] to break down the work"
     )

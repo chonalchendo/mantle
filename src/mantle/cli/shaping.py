@@ -62,9 +62,7 @@ def run_save_shaped_issue(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Shaped issue saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Shaped issue saved to {path.name}[/green]")
     console.print()
     console.print(f"  Issue:    {note.issue}")
     console.print(f"  Title:    {note.title}")

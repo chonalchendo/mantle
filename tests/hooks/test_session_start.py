@@ -32,42 +32,30 @@ def _run_hook(
 
 
 class TestSessionStartHook:
-    def test_exits_zero_without_mantle_dir(
-        self, tmp_path: Path
-    ) -> None:
+    def test_exits_zero_without_mantle_dir(self, tmp_path: Path) -> None:
         result = _run_hook(tmp_path)
 
         assert result.returncode == 0
 
-    def test_no_output_without_mantle_dir(
-        self, tmp_path: Path
-    ) -> None:
+    def test_no_output_without_mantle_dir(self, tmp_path: Path) -> None:
         result = _run_hook(tmp_path)
 
         assert result.stdout == ""
 
-    def test_exits_zero_with_mantle_dir(
-        self, tmp_path: Path
-    ) -> None:
+    def test_exits_zero_with_mantle_dir(self, tmp_path: Path) -> None:
         (tmp_path / ".mantle").mkdir()
         result = _run_hook(tmp_path)
 
         assert result.returncode == 0
 
-    def test_outputs_resume_when_exists(
-        self, tmp_path: Path
-    ) -> None:
+    def test_outputs_resume_when_exists(self, tmp_path: Path) -> None:
         (tmp_path / ".mantle").mkdir()
 
         # Set up a fake $HOME with resume.md
         fake_home = tmp_path / "fakehome"
-        resume_path = (
-            fake_home / ".claude" / "commands" / "mantle"
-        )
+        resume_path = fake_home / ".claude" / "commands" / "mantle"
         resume_path.mkdir(parents=True)
-        (resume_path / "resume.md").write_text(
-            "Briefing content here."
-        )
+        (resume_path / "resume.md").write_text("Briefing content here.")
 
         env = os.environ.copy()
         env["HOME"] = str(fake_home)
@@ -78,9 +66,7 @@ class TestSessionStartHook:
 
         assert "Briefing content here." in result.stdout
 
-    def test_no_output_when_resume_missing(
-        self, tmp_path: Path
-    ) -> None:
+    def test_no_output_when_resume_missing(self, tmp_path: Path) -> None:
         (tmp_path / ".mantle").mkdir()
 
         env = os.environ.copy()

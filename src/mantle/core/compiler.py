@@ -43,9 +43,7 @@ def collect_context(project_dir: Path) -> dict[str, Any]:
     sections = _parse_body_sections(note.body)
     context.update(sections)
 
-    context.update(
-        _collect_session_context(project_dir)
-    )
+    context.update(_collect_session_context(project_dir))
 
     return context
 
@@ -78,9 +76,7 @@ def source_paths(project_dir: Path) -> list[Path]:
 
     tpl_dir = template_dir()
     if tpl_dir.is_dir():
-        paths.extend(
-            sorted(p for p in tpl_dir.iterdir() if p.suffix == ".j2")
-        )
+        paths.extend(sorted(p for p in tpl_dir.iterdir() if p.suffix == ".j2"))
 
     return paths
 
@@ -97,9 +93,7 @@ def template_dir() -> Path:
         ``.j2`` template files.
     """
     # Installed package path
-    ref = resources.files("mantle").joinpath(
-        "claude", "commands", "mantle"
-    )
+    ref = resources.files("mantle").joinpath("claude", "commands", "mantle")
     pkg_path = Path(str(ref))
     if pkg_path.is_dir():
         return pkg_path
@@ -152,9 +146,7 @@ def compile(
 
     paths = source_paths(project_dir)
     hashes = manifest.hash_paths(paths)
-    manifest.save_compilation_manifest(
-        _manifest_path(project_dir), hashes
-    )
+    manifest.save_compilation_manifest(_manifest_path(project_dir), hashes)
 
     return compiled
 
@@ -204,9 +196,7 @@ def _collect_session_context(
     """
     try:
         identity = state.resolve_git_identity()
-        result = session.latest_session(
-            project_dir, author=identity
-        )
+        result = session.latest_session(project_dir, author=identity)
     except RuntimeError:
         result = session.latest_session(project_dir)
 
@@ -222,9 +212,7 @@ def _collect_session_context(
     return {
         "has_session": True,
         "latest_session_body": body,
-        "latest_session_date": note.date.strftime(
-            "%Y-%m-%d %H:%M"
-        ),
+        "latest_session_date": note.date.strftime("%Y-%m-%d %H:%M"),
         "latest_session_commands": list(note.commands_used),
     }
 

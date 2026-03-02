@@ -216,17 +216,13 @@ class TestCreateProductDesign:
             "phase/design",
         )
 
-    def test_state_transitions_to_product_design(
-        self, project: Path
-    ) -> None:
+    def test_state_transitions_to_product_design(self, project: Path) -> None:
         _create_design(project)
         note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PRODUCT_DESIGN
 
-    def test_state_current_focus_updated(
-        self, project: Path
-    ) -> None:
+    def test_state_current_focus_updated(self, project: Path) -> None:
         _create_design(project)
         path = project / ".mantle" / "state.md"
         text = path.read_text()
@@ -234,18 +230,14 @@ class TestCreateProductDesign:
         assert "Product design complete" in text
         assert "/mantle:design-system" in text
 
-    def test_state_timestamps_refreshed(
-        self, project: Path
-    ) -> None:
+    def test_state_timestamps_refreshed(self, project: Path) -> None:
         _create_design(project)
         note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
 
-    def test_works_from_idea_status(
-        self, project_from_idea: Path
-    ) -> None:
+    def test_works_from_idea_status(self, project_from_idea: Path) -> None:
         result = _create_design(project_from_idea)
 
         assert result.vision == (
@@ -369,23 +361,17 @@ def _update_design(
 
 
 class TestUpdateProductDesign:
-    def test_revised_vision(
-        self, project_with_design: Path
-    ) -> None:
+    def test_revised_vision(self, project_with_design: Path) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.vision == "Revised vision"
 
-    def test_revised_principles(
-        self, project_with_design: Path
-    ) -> None:
+    def test_revised_principles(self, project_with_design: Path) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.principles == ("Revised principle",)
 
-    def test_revised_building_blocks(
-        self, project_with_design: Path
-    ) -> None:
+    def test_revised_building_blocks(self, project_with_design: Path) -> None:
         note, _ = _update_design(project_with_design)
 
         assert note.building_blocks == ("Revised block",)
@@ -406,9 +392,7 @@ class TestUpdateProductDesign:
         assert note.updated == date.today()
         assert note.updated_by == MOCK_EMAIL
 
-    def test_round_trip(
-        self, project_with_design: Path
-    ) -> None:
+    def test_round_trip(self, project_with_design: Path) -> None:
         _update_design(project_with_design)
         loaded = load_product_design(project_with_design)
 
@@ -437,9 +421,7 @@ class TestUpdateProductDesign:
         assert entry.topic == "revise-product-vision"
         assert entry.scope == "product-design"
 
-    def test_decision_entry_body(
-        self, project_with_design: Path
-    ) -> None:
+    def test_decision_entry_body(self, project_with_design: Path) -> None:
         _, decision_path = _update_design(project_with_design)
         _, body = decisions.load_decision(decision_path)
 

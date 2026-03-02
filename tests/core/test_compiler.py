@@ -54,8 +54,7 @@ def _make_template_dir(tmp_path: Path) -> Path:
     tpl_dir = tmp_path / "templates"
     tpl_dir.mkdir()
     (tpl_dir / "status.md.j2").write_text(
-        "# {{ project }}\nStatus: {{ status }}\n"
-        "{{ summary }}\n"
+        "# {{ project }}\nStatus: {{ status }}\n{{ summary }}\n"
     )
     return tpl_dir
 
@@ -75,9 +74,7 @@ def _write_session(
         date=datetime(2026, 3, 1, 14, 30),
         commands_used=commands_used,
     )
-    path = (
-        project_dir / ".mantle" / "sessions" / filename
-    )
+    path = project_dir / ".mantle" / "sessions" / filename
     vault.write_note(path, note, body)
 
 
@@ -107,9 +104,7 @@ class TestCollectContext:
         assert ctx["recent_decisions"] == "Chose Python."
         assert ctx["next_steps"] == "Write tests."
 
-    def test_body_section_keys_are_lowercased_underscored(
-        self, tmp_path: Path
-    ):
+    def test_body_section_keys_are_lowercased_underscored(self, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         ctx = compiler.collect_context(tmp_path)
 
@@ -179,9 +174,7 @@ class TestSourcePaths:
         _write_state_md(tmp_path / ".mantle")
         tpl_dir = _make_template_dir(tmp_path)
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             paths = compiler.source_paths(tmp_path)
 
         assert any(str(p).endswith(".j2") for p in paths)
@@ -210,9 +203,7 @@ class TestCompile:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             result = compiler.compile(tmp_path, target_dir=target)
 
         assert "status.md" in result
@@ -223,9 +214,7 @@ class TestCompile:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             compiler.compile(tmp_path, target_dir=target)
 
         assert not (target / "status.md.j2").exists()
@@ -236,23 +225,17 @@ class TestCompile:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             compiler.compile(tmp_path, target_dir=target)
 
-        assert (
-            tmp_path / ".mantle" / ".compile-manifest.json"
-        ).exists()
+        assert (tmp_path / ".mantle" / ".compile-manifest.json").exists()
 
     def test_returns_compiled_names(self, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             result = compiler.compile(tmp_path, target_dir=target)
 
         assert result == ["status.md"]
@@ -262,9 +245,7 @@ class TestCompile:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "does" / "not" / "exist"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             compiler.compile(tmp_path, target_dir=target)
 
         assert target.is_dir()
@@ -279,12 +260,8 @@ class TestCompileIfStale:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
-            result = compiler.compile_if_stale(
-                tmp_path, target_dir=target
-            )
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
+            result = compiler.compile_if_stale(tmp_path, target_dir=target)
 
         assert result is not None
         assert "status.md" in result
@@ -294,13 +271,9 @@ class TestCompileIfStale:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             compiler.compile(tmp_path, target_dir=target)
-            result = compiler.compile_if_stale(
-                tmp_path, target_dir=target
-            )
+            result = compiler.compile_if_stale(tmp_path, target_dir=target)
 
         assert result is None
 
@@ -309,9 +282,7 @@ class TestCompileIfStale:
         tpl_dir = _make_template_dir(tmp_path)
         target = tmp_path / "output"
 
-        with patch.object(
-            compiler, "template_dir", return_value=tpl_dir
-        ):
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
             compiler.compile(tmp_path, target_dir=target)
 
             # Modify state.md
@@ -326,9 +297,7 @@ class TestCompileIfStale:
                 ),
             )
 
-            result = compiler.compile_if_stale(
-                tmp_path, target_dir=target
-            )
+            result = compiler.compile_if_stale(tmp_path, target_dir=target)
 
         assert result is not None
 
@@ -394,9 +363,7 @@ class TestCollectContextSessions:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_latest_session_body(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_latest_session_body(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         _write_session(
             tmp_path,
@@ -411,9 +378,7 @@ class TestCollectContextSessions:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_latest_session_date_format(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_latest_session_date_format(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         _write_session(tmp_path, "2026-03-01-1400.md")
         ctx = compiler.collect_context(tmp_path)
@@ -424,9 +389,7 @@ class TestCollectContextSessions:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_latest_session_commands(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_latest_session_commands(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         _write_session(
             tmp_path,
@@ -499,17 +462,10 @@ class TestSourcePathsSessions:
         ):
             paths = compiler.source_paths(tmp_path)
 
-        session_path = (
-            tmp_path
-            / ".mantle"
-            / "sessions"
-            / "2026-03-01-1400.md"
-        )
+        session_path = tmp_path / ".mantle" / "sessions" / "2026-03-01-1400.md"
         assert session_path in paths
 
-    def test_excludes_sessions_when_dir_empty(
-        self, tmp_path: Path
-    ):
+    def test_excludes_sessions_when_dir_empty(self, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         sessions_dir = tmp_path / ".mantle" / "sessions"
         sessions_dir.mkdir()
@@ -521,9 +477,7 @@ class TestSourcePathsSessions:
         ):
             paths = compiler.source_paths(tmp_path)
 
-        session_paths = [
-            p for p in paths if sessions_dir in p.parents
-        ]
+        session_paths = [p for p in paths if sessions_dir in p.parents]
         assert session_paths == []
 
 
@@ -535,9 +489,7 @@ class TestResumeTemplate:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_renders_with_session(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_renders_with_session(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         _write_session(
             tmp_path,
@@ -547,9 +499,7 @@ class TestResumeTemplate:
         ctx = compiler.collect_context(tmp_path)
         tpl_dir = compiler.template_dir()
 
-        rendered = templates.render_template(
-            tpl_dir, "resume.md.j2", ctx
-        )
+        rendered = templates.render_template(tpl_dir, "resume.md.j2", ctx)
 
         assert "test-project" in rendered
         assert "implementing" in rendered
@@ -560,16 +510,12 @@ class TestResumeTemplate:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_renders_without_session(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_renders_without_session(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         ctx = compiler.collect_context(tmp_path)
         tpl_dir = compiler.template_dir()
 
-        rendered = templates.render_template(
-            tpl_dir, "resume.md.j2", ctx
-        )
+        rendered = templates.render_template(tpl_dir, "resume.md.j2", ctx)
 
         assert "test-project" in rendered
         assert "Last Session" not in rendered
@@ -578,9 +524,7 @@ class TestResumeTemplate:
         "mantle.core.compiler.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_output_within_token_budget(
-        self, _mock: object, tmp_path: Path
-    ):
+    def test_output_within_token_budget(self, _mock: object, tmp_path: Path):
         _write_state_md(tmp_path / ".mantle")
         _write_session(
             tmp_path,
@@ -590,9 +534,7 @@ class TestResumeTemplate:
         ctx = compiler.collect_context(tmp_path)
         tpl_dir = compiler.template_dir()
 
-        rendered = templates.render_template(
-            tpl_dir, "resume.md.j2", ctx
-        )
+        rendered = templates.render_template(tpl_dir, "resume.md.j2", ctx)
 
         # ~3K tokens ≈ ~750 words; with short test data
         # this should be well under budget.

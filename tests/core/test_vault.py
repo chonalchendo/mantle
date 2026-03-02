@@ -1,10 +1,15 @@
 """Tests for mantle.core.vault."""
 
+from __future__ import annotations
+
 from dataclasses import FrozenInstanceError
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pydantic
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from mantle.core.vault import (
     Note,
@@ -14,7 +19,6 @@ from mantle.core.vault import (
     read_note,
     write_note,
 )
-
 
 # ── Test schemas ─────────────────────────────────────────────────
 
@@ -59,9 +63,7 @@ class TestReadNote:
         assert note.frontmatter.title == "Hello"
         assert note.body == ""
 
-    def test_malformed_yaml_raises_parse_error(
-        self, tmp_path: Path
-    ) -> None:
+    def test_malformed_yaml_raises_parse_error(self, tmp_path: Path) -> None:
         path = tmp_path / "note.md"
         path.write_text("---\ntitle: 'unclosed\n---\n\nBody.\n")
 
@@ -157,9 +159,7 @@ class TestWriteNote:
 
     def test_serializes_none_and_lists(self, tmp_path: Path) -> None:
         path = tmp_path / "note.md"
-        fm = SchemaWithOptional(
-            title="Test", description=None, tags=("a", "b")
-        )
+        fm = SchemaWithOptional(title="Test", description=None, tags=("a", "b"))
 
         write_note(path, fm, "Body.\n")
         note = read_note(path, SchemaWithOptional)

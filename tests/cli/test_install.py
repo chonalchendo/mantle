@@ -317,23 +317,17 @@ class TestRegisterHooks:
 
     def test_preserves_existing_settings(self, tmp_path: Path):
         settings = {"permissions": {"allow": ["Read"]}}
-        (tmp_path / "settings.json").write_text(
-            json.dumps(settings)
-        )
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
 
         _register_hooks(tmp_path)
 
-        result = json.loads(
-            (tmp_path / "settings.json").read_text()
-        )
+        result = json.loads((tmp_path / "settings.json").read_text())
         assert result["permissions"] == {"allow": ["Read"]}
 
     def test_adds_session_start_hook(self, tmp_path: Path):
         _register_hooks(tmp_path)
 
-        result = json.loads(
-            (tmp_path / "settings.json").read_text()
-        )
+        result = json.loads((tmp_path / "settings.json").read_text())
         entries = result["hooks"]["SessionStart"]
         assert len(entries) == 1
         assert entries[0]["matcher"] == ""
@@ -345,9 +339,7 @@ class TestRegisterHooks:
         _register_hooks(tmp_path)
         _register_hooks(tmp_path)
 
-        result = json.loads(
-            (tmp_path / "settings.json").read_text()
-        )
+        result = json.loads((tmp_path / "settings.json").read_text())
         entries = result["hooks"]["SessionStart"]
         assert len(entries) == 1
 
@@ -367,26 +359,18 @@ class TestRegisterHooks:
                 ]
             }
         }
-        (tmp_path / "settings.json").write_text(
-            json.dumps(settings)
-        )
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
 
         _register_hooks(tmp_path)
 
-        result = json.loads(
-            (tmp_path / "settings.json").read_text()
-        )
+        result = json.loads((tmp_path / "settings.json").read_text())
         assert len(result["hooks"]["PreToolUse"]) == 1
         assert len(result["hooks"]["SessionStart"]) == 1
 
-    def test_returns_true_when_newly_registered(
-        self, tmp_path: Path
-    ):
+    def test_returns_true_when_newly_registered(self, tmp_path: Path):
         assert _register_hooks(tmp_path) is True
 
-    def test_returns_false_when_already_exists(
-        self, tmp_path: Path
-    ):
+    def test_returns_false_when_already_exists(self, tmp_path: Path):
         _register_hooks(tmp_path)
 
         assert _register_hooks(tmp_path) is False

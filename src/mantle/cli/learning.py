@@ -56,9 +56,7 @@ def run_save_learning(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Learning saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Learning saved to {path.name}[/green]")
     console.print()
     console.print(f"  Issue:            {note.issue}")
     console.print(f"  Title:            {note.title}")

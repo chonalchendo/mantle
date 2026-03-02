@@ -57,9 +57,7 @@ class TestRenderTemplate:
         with pytest.raises(jinja2.TemplateNotFound):
             render_template(tmp_path, "missing.j2", {})
 
-    def test_raises_undefined_error_for_missing_variable(
-        self, tmp_path: Path
-    ):
+    def test_raises_undefined_error_for_missing_variable(self, tmp_path: Path):
         _write(tmp_path / "strict.j2", "{{ missing_var }}")
         with pytest.raises(jinja2.UndefinedError):
             render_template(tmp_path, "strict.j2", {})

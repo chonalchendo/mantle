@@ -40,9 +40,7 @@ _DEFAULTS: dict[str, object] = {
         "Ship MVP in 2 weeks",
         "5 active users in first month",
     ),
-    "system_design_content": (
-        "## Architecture\n\nLayered design.\n"
-    ),
+    "system_design_content": ("## Architecture\n\nLayered design.\n"),
 }
 
 
@@ -138,9 +136,7 @@ class TestRunSaveAdoption:
     ) -> None:
         from mantle.cli.adopt import run_save_adoption
 
-        (project / ".mantle" / "product-design.md").write_text(
-            "existing"
-        )
+        (project / ".mantle" / "product-design.md").write_text("existing")
 
         with pytest.raises(SystemExit, match="1"):
             run_save_adoption(**_DEFAULTS, project_dir=project)
@@ -167,16 +163,12 @@ class TestRunSaveAdoption:
             "## Current Focus\n\nTest\n\n"
             "## Blockers\n\n_None_\n"
         )
-        vault.write_note(
-            tmp_path / ".mantle" / "state.md", st, body
-        )
+        vault.write_note(tmp_path / ".mantle" / "state.md", st, body)
 
         from mantle.cli.adopt import run_save_adoption
 
         with pytest.raises(SystemExit, match="1"):
-            run_save_adoption(
-                **_DEFAULTS, project_dir=tmp_path
-            )
+            run_save_adoption(**_DEFAULTS, project_dir=tmp_path)
 
         captured = capsys.readouterr()
         assert "planning" in captured.out
@@ -189,12 +181,8 @@ class TestRunSaveAdoption:
     ) -> None:
         from mantle.cli.adopt import run_save_adoption
 
-        (project / ".mantle" / "product-design.md").write_text(
-            "existing"
-        )
-        (project / ".mantle" / "system-design.md").write_text(
-            "existing"
-        )
+        (project / ".mantle" / "product-design.md").write_text("existing")
+        (project / ".mantle" / "system-design.md").write_text("existing")
 
         run_save_adoption(
             **_DEFAULTS,

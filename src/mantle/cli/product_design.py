@@ -136,14 +136,10 @@ def run_revise_product_design(
 
     console.print()
     console.print(
-        "[green]Product design revised"
-        " in .mantle/product-design.md[/green]"
+        "[green]Product design revised in .mantle/product-design.md[/green]"
     )
     console.print()
     console.print(f"  Change:   {change_topic}")
     console.print(f"  Decision: {decision_path.name}")
     console.print()
-    console.print(
-        "  Next: review the revision"
-        " in .mantle/product-design.md"
-    )
+    console.print("  Next: review the revision in .mantle/product-design.md")

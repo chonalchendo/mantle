@@ -331,15 +331,10 @@ class TestIsCompilationStale:
         path = tmp_path / ".compile-manifest.json"
         save_compilation_manifest(path, {"a": "hash_a"})
         assert (
-            is_compilation_stale(
-                path, {"a": "hash_a", "b": "hash_b"}
-            )
-            is True
+            is_compilation_stale(path, {"a": "hash_a", "b": "hash_b"}) is True
         )
 
     def test_stale_when_file_removed(self, tmp_path: Path):
         path = tmp_path / ".compile-manifest.json"
-        save_compilation_manifest(
-            path, {"a": "hash_a", "b": "hash_b"}
-        )
+        save_compilation_manifest(path, {"a": "hash_a", "b": "hash_b"})
         assert is_compilation_stale(path, {"a": "hash_a"}) is True

@@ -59,9 +59,7 @@ class ShapedIssueExistsError(Exception):
 
     def __init__(self, path: Path) -> None:
         self.path = path
-        super().__init__(
-            f"Shaped issue already exists at {path}"
-        )
+        super().__init__(f"Shaped issue already exists at {path}")
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -167,9 +165,7 @@ def list_shaped_issues(project_dir: Path) -> list[Path]:
     return sorted(shaped_dir.glob("issue-*-shaped.md"))
 
 
-def shaped_issue_exists(
-    project_dir: Path, issue: int
-) -> bool:
+def shaped_issue_exists(project_dir: Path, issue: int) -> bool:
     """True if a shaped issue file exists for the given issue number.
 
     Args:
@@ -195,12 +191,7 @@ def _shaped_issue_path(project_dir: Path, issue: int) -> Path:
     Returns:
         Path for the shaped issue file.
     """
-    return (
-        project_dir
-        / ".mantle"
-        / "shaped"
-        / f"issue-{issue:02d}-shaped.md"
-    )
+    return project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
 
 
 def _update_state_body(

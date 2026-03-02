@@ -1,9 +1,13 @@
 """Tests for mantle.core.project."""
 
-from pathlib import Path
-from unittest.mock import patch
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from mantle.core.project import (
     CONFIG_BODY,

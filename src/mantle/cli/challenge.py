@@ -38,9 +38,7 @@ def run_save_challenge(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Challenge saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Challenge saved to {path.name}[/green]")
     console.print()
     console.print(f"  Date:   {note.date}")
     console.print(f"  Author: {note.author}")

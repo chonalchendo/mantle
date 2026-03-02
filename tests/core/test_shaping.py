@@ -107,9 +107,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_correct_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.issue == 21
@@ -123,14 +121,10 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_file_at_expected_path(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
-        expected = (
-            project / ".mantle" / "shaped" / "issue-21-shaped.md"
-        )
+        expected = project / ".mantle" / "shaped" / "issue-21-shaped.md"
         assert path == expected
         assert path.exists()
 
@@ -149,9 +143,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_shaped_issue(path)
 
@@ -166,9 +158,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_content_in_body(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_content_in_body(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         _, body = load_shaped_issue(path)
 
@@ -178,9 +168,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_raises_on_exists(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_raises_on_exists(self, _mock: object, project: Path) -> None:
         _save(project)
 
         with pytest.raises(ShapedIssueExistsError):
@@ -190,9 +178,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_overwrite_replaces(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_overwrite_replaces(self, _mock: object, project: Path) -> None:
         _save(project)
         note, path = _save(
             project,
@@ -207,9 +193,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_stamps_author(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_stamps_author(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.author == MOCK_EMAIL
@@ -218,9 +202,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_default_tags(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_default_tags(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.tags == ("type/shaped", "phase/shaping")
@@ -229,9 +211,7 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_state_body_updated(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_state_body_updated(self, _mock: object, project: Path) -> None:
         _save(project)
         text = (project / ".mantle" / "state.md").read_text()
 
@@ -246,9 +226,7 @@ class TestSaveShapedIssue:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
@@ -257,13 +235,9 @@ class TestSaveShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_status_unchanged(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_status_unchanged(self, _mock: object, project: Path) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PLANNING
 
@@ -276,9 +250,7 @@ class TestLoadShapedIssue:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_reads_saved(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_reads_saved(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_shaped_issue(path)
 
@@ -301,9 +273,7 @@ class TestListShapedIssues:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_sorted_paths(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project, issue=2)
         _save(project, issue=1)
         paths = list_shaped_issues(project)
@@ -323,9 +293,7 @@ class TestShapedIssueExists:
         "mantle.core.shaping.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_true_after(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_true_after(self, _mock: object, project: Path) -> None:
         _save(project)
 
         assert shaped_issue_exists(project, 21) is True

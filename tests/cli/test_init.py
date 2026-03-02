@@ -1,10 +1,15 @@
 """Tests for mantle.cli.init."""
 
+from __future__ import annotations
+
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from mantle.core.project import MANTLE_DIR
 
@@ -36,9 +41,7 @@ class TestRunInit:
 
         assert "already exists" in captured.out
 
-    def test_idempotency_preserves_files(
-        self, tmp_path: Path
-    ) -> None:
+    def test_idempotency_preserves_files(self, tmp_path: Path) -> None:
         mantle_path = tmp_path / MANTLE_DIR
         mantle_path.mkdir()
         marker = mantle_path / "custom.md"
@@ -50,9 +53,7 @@ class TestRunInit:
 
         assert marker.read_text() == "user content"
 
-    def test_creates_mantle_directory(
-        self, tmp_path: Path
-    ) -> None:
+    def test_creates_mantle_directory(self, tmp_path: Path) -> None:
         from mantle.cli.init import run_init
 
         run_init(tmp_path)

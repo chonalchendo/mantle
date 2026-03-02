@@ -98,9 +98,7 @@ class TestRunSaveSession:
             project_dir=project,
         )
 
-        sessions = list(
-            (project / ".mantle" / "sessions").glob("*.md")
-        )
+        sessions = list((project / ".mantle" / "sessions").glob("*.md"))
         assert len(sessions) == 1
 
     def test_prints_word_count(

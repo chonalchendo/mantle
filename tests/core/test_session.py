@@ -86,9 +86,7 @@ def _save(
     commands_used: tuple[str, ...] = (),
 ) -> tuple[SessionNote, Path]:
     """Save a session with sensible defaults."""
-    return save_session(
-        project_dir, content, commands_used=commands_used
-    )
+    return save_session(project_dir, content, commands_used=commands_used)
 
 
 # ── save_session ─────────────────────────────────────────────────
@@ -99,9 +97,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_writes_file(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_writes_file(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
         assert path.exists()
@@ -111,9 +107,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_filename_pattern(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_filename_pattern(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
         # Format: YYYY-MM-DD-HHMM.md
@@ -129,12 +123,8 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_correct_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
-        note, _ = _save(
-            project, commands_used=("idea", "challenge")
-        )
+    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
+        note, _ = _save(project, commands_used=("idea", "challenge"))
 
         assert note.project == "test-project"
         assert note.author == MOCK_EMAIL
@@ -144,9 +134,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip_frontmatter(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_session(path)
 
@@ -159,9 +147,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip_body(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip_body(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         _, body = load_session(path)
 
@@ -171,9 +157,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_stamps_author(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_stamps_author(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.author == MOCK_EMAIL
@@ -182,9 +166,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_project_from_state(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_project_from_state(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.project == "test-project"
@@ -193,9 +175,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_date_is_datetime(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_date_is_datetime(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert isinstance(note.date, datetime)
@@ -204,12 +184,8 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_commands_used_stored(
-        self, _mock: object, project: Path
-    ) -> None:
-        note, _ = _save(
-            project, commands_used=("idea", "challenge")
-        )
+    def test_commands_used_stored(self, _mock: object, project: Path) -> None:
+        note, _ = _save(project, commands_used=("idea", "challenge"))
 
         assert note.commands_used == ("idea", "challenge")
 
@@ -217,9 +193,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_empty_commands_default(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_empty_commands_default(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.commands_used == ()
@@ -228,9 +202,7 @@ class TestSaveSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_default_tags(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_default_tags(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.tags == ("type/session-log",)
@@ -265,9 +237,7 @@ class TestSaveSession:
             _save(project, short_body)
 
         session_warnings = [
-            x
-            for x in w
-            if issubclass(x.category, SessionTooLongWarning)
+            x for x in w if issubclass(x.category, SessionTooLongWarning)
         ]
         assert len(session_warnings) == 0
 
@@ -293,9 +263,7 @@ class TestLoadSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_reads_saved(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_reads_saved(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_session(path)
 
@@ -318,9 +286,7 @@ class TestListSessions:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_sorted_paths(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project)
         _save(project)
         paths = list_sessions(project)
@@ -332,9 +298,7 @@ class TestListSessions:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_filters_by_author(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_filters_by_author(self, _mock: object, project: Path) -> None:
         _save(project)
         paths = list_sessions(project, author=MOCK_EMAIL)
 
@@ -348,9 +312,7 @@ class TestListSessions:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        paths_filtered = list_sessions(
-            project, author=MOCK_EMAIL
-        )
+        paths_filtered = list_sessions(project, author=MOCK_EMAIL)
         paths_all = list_sessions(project)
 
         assert paths_filtered == paths_all
@@ -367,9 +329,7 @@ class TestSessionExists:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_true_after_save(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_true_after_save(self, _mock: object, project: Path) -> None:
         _save(project)
 
         assert session_exists(project) is True
@@ -449,9 +409,7 @@ class TestLatestSession:
         "mantle.core.session.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_returns_tuple(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_returns_tuple(self, _mock: object, project: Path) -> None:
         _save(project)
 
         result = latest_session(project)
@@ -465,9 +423,7 @@ class TestLatestSession:
         assert len(body) > 0
 
     def test_filters_by_author(self, project: Path) -> None:
-        _write_session(
-            project, "2026-03-01-1400.md", author=MOCK_EMAIL
-        )
+        _write_session(project, "2026-03-01-1400.md", author=MOCK_EMAIL)
         _write_session(
             project,
             "2026-03-01-1500.md",
@@ -481,12 +437,8 @@ class TestLatestSession:
         note, _ = result
         assert note.author == MOCK_EMAIL
 
-    def test_none_when_author_has_no_sessions(
-        self, project: Path
-    ) -> None:
-        _write_session(
-            project, "2026-03-01-1400.md", author=OTHER_EMAIL
-        )
+    def test_none_when_author_has_no_sessions(self, project: Path) -> None:
+        _write_session(project, "2026-03-01-1400.md", author=OTHER_EMAIL)
 
         result = latest_session(project, author=MOCK_EMAIL)
 

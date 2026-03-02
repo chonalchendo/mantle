@@ -38,12 +38,8 @@ def _print_onboarding() -> None:
     console.print()
     console.print("[green]Mantle initialized in .mantle/[/green]")
     console.print()
-    console.print(
-        "  Run [bold]/mantle:idea[/bold] to log your first idea"
-    )
-    console.print(
-        "  Run [bold]/mantle:help[/bold] to see all commands"
-    )
+    console.print("  Run [bold]/mantle:idea[/bold] to log your first idea")
+    console.print("  Run [bold]/mantle:help[/bold] to see all commands")
     console.print()
     console.print(
         "  Want cross-project skills? "

@@ -45,9 +45,7 @@ def run_install() -> None:
 
     # Summary
     installed_count = len(plan.safe_to_write) + len(approved)
-    _print_summary(
-        installed_count, declined, hook_registered=hook_registered
-    )
+    _print_summary(installed_count, declined, hook_registered=hook_registered)
 
 
 def _locate_bundled_claude_dir() -> Path:
@@ -138,9 +136,7 @@ def _register_hooks(target_dir: Path) -> bool:
     settings_path = target_dir / "settings.json"
 
     if settings_path.is_file():
-        settings = json.loads(
-            settings_path.read_text(encoding="utf-8")
-        )
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
     else:
         settings = {}
 

@@ -126,9 +126,7 @@ class TestSaveSystemDesign:
             "phase/system-design",
         )
 
-    def test_raises_on_duplicate_without_overwrite(
-        self, project: Path
-    ) -> None:
+    def test_raises_on_duplicate_without_overwrite(self, project: Path) -> None:
         save_system_design(project, CONTENT)
 
         # Reset state to allow second transition
@@ -149,9 +147,7 @@ class TestSaveSystemDesign:
         assert note.author == MOCK_EMAIL
         assert "Updated content" in body
 
-    def test_invalid_transition_propagates(
-        self, tmp_path: Path
-    ) -> None:
+    def test_invalid_transition_propagates(self, tmp_path: Path) -> None:
         (tmp_path / ".mantle").mkdir()
         _write_state(tmp_path, status=Status.IDEA)
 
@@ -234,14 +230,14 @@ def _update_design(
     defaults.update(overrides)
     content = defaults.pop("content")
     return update_system_design(
-        project_dir, content, **defaults  # type: ignore[arg-type]
+        project_dir,
+        content,
+        **defaults,  # type: ignore[arg-type]
     )
 
 
 class TestUpdateSystemDesign:
-    def test_revised_content(
-        self, project_with_design: Path
-    ) -> None:
+    def test_revised_content(self, project_with_design: Path) -> None:
         _update_design(project_with_design)
         _, body = load_system_design(project_with_design)
 
@@ -264,9 +260,7 @@ class TestUpdateSystemDesign:
         assert note.updated == date.today()
         assert note.updated_by == MOCK_EMAIL
 
-    def test_round_trip(
-        self, project_with_design: Path
-    ) -> None:
+    def test_round_trip(self, project_with_design: Path) -> None:
         _update_design(project_with_design)
         note, body = load_system_design(project_with_design)
 
@@ -290,9 +284,7 @@ class TestUpdateSystemDesign:
         assert entry.topic == "add-caching-layer"
         assert entry.scope == "system-design"
 
-    def test_decision_entry_body(
-        self, project_with_design: Path
-    ) -> None:
+    def test_decision_entry_body(self, project_with_design: Path) -> None:
         _, decision_path = _update_design(project_with_design)
         _, body = decisions.load_decision(decision_path)
 

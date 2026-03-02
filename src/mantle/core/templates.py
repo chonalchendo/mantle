@@ -54,6 +54,4 @@ def find_templates(template_dir: Path) -> list[str]:
     """
     if not template_dir.is_dir():
         return []
-    return sorted(
-        p.name for p in template_dir.iterdir() if p.suffix == ".j2"
-    )
+    return sorted(p.name for p in template_dir.iterdir() if p.suffix == ".j2")

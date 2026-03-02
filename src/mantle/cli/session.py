@@ -37,25 +37,16 @@ def run_save_session(
         )
 
     session_warnings = [
-        x
-        for x in w
-        if issubclass(x.category, session.SessionTooLongWarning)
+        x for x in w if issubclass(x.category, session.SessionTooLongWarning)
     ]
     for warning in session_warnings:
-        console.print(
-            f"[yellow]Warning:[/yellow] {warning.message}"
-        )
+        console.print(f"[yellow]Warning:[/yellow] {warning.message}")
 
     word_count = session.count_words(content)
     console.print()
-    console.print(
-        f"[green]Session log saved to"
-        f" {path.name}[/green]"
-    )
+    console.print(f"[green]Session log saved to {path.name}[/green]")
     console.print()
     console.print(f"  Words:    {word_count}")
     console.print(f"  Author:   {note.author}")
     if note.commands_used:
-        console.print(
-            f"  Commands: {', '.join(note.commands_used)}"
-        )
+        console.print(f"  Commands: {', '.join(note.commands_used)}")

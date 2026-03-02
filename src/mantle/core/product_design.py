@@ -255,9 +255,7 @@ def update_product_design(
     )
 
     design_path = project_dir / ".mantle" / "product-design.md"
-    vault.write_note(
-        design_path, note, _build_product_design_body(note)
-    )
+    vault.write_note(design_path, note, _build_product_design_body(note))
 
     _, decision_path = decisions.save_decision(
         project_dir,
@@ -265,9 +263,7 @@ def update_product_design(
         decision=change_summary,
         alternatives=["Keep current design"],
         rationale=change_rationale,
-        reversal_trigger=(
-            "Revert if change no longer serves product goals."
-        ),
+        reversal_trigger=("Revert if change no longer serves product goals."),
         confidence="7/10",
         reversible="high",
         scope="product-design",

@@ -87,8 +87,7 @@ def save_session(
     words = count_words(content)
     if words > WORD_CAP:
         warnings.warn(
-            f"Session log exceeds ~{WORD_CAP} word cap "
-            f"({words} words).",
+            f"Session log exceeds ~{WORD_CAP} word cap ({words} words).",
             SessionTooLongWarning,
             stacklevel=2,
         )
@@ -138,8 +137,7 @@ def list_sessions(
         paths = [
             p
             for p in paths
-            if vault.read_note(p, SessionNote).frontmatter.author
-            == author
+            if vault.read_note(p, SessionNote).frontmatter.author == author
         ]
 
     return paths

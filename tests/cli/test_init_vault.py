@@ -1,10 +1,15 @@
 """Tests for mantle.cli.init_vault."""
 
+from __future__ import annotations
+
 import subprocess
 import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from mantle.core.project import MANTLE_DIR
 
@@ -16,8 +21,7 @@ def _create_project(root: Path) -> None:
     mantle = root / MANTLE_DIR
     mantle.mkdir()
     (mantle / "config.md").write_text(
-        "---\npersonal_vault: null\ntags:\n  - type/config\n---\n\n"
-        "## Config\n"
+        "---\npersonal_vault: null\ntags:\n  - type/config\n---\n\n## Config\n"
     )
 
 

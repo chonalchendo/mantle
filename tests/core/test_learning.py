@@ -102,9 +102,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_correct_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_correct_frontmatter(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.issue == 21
@@ -116,14 +114,10 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_file_at_expected_path(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
-        expected = (
-            project / ".mantle" / "learnings" / "issue-21.md"
-        )
+        expected = project / ".mantle" / "learnings" / "issue-21.md"
         assert path == expected
         assert path.exists()
 
@@ -142,26 +136,20 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_learning(path)
 
         assert loaded_note.issue == saved_note.issue
         assert loaded_note.title == saved_note.title
-        assert loaded_note.confidence_delta == (
-            saved_note.confidence_delta
-        )
+        assert loaded_note.confidence_delta == (saved_note.confidence_delta)
         assert loaded_note.tags == saved_note.tags
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_content_in_body(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_content_in_body(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         _, body = load_learning(path)
 
@@ -171,9 +159,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_raises_on_exists(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_raises_on_exists(self, _mock: object, project: Path) -> None:
         _save(project)
 
         with pytest.raises(LearningExistsError):
@@ -183,9 +169,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_overwrite_replaces(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_overwrite_replaces(self, _mock: object, project: Path) -> None:
         _save(project)
         note, path = _save(
             project,
@@ -200,9 +184,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_stamps_author(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_stamps_author(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.author == MOCK_EMAIL
@@ -211,9 +193,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_default_tags(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_default_tags(self, _mock: object, project: Path) -> None:
         note, _ = _save(project)
 
         assert note.tags == ("type/learning", "phase/reviewing")
@@ -222,9 +202,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_state_body_updated(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_state_body_updated(self, _mock: object, project: Path) -> None:
         _save(project)
         text = (project / ".mantle" / "state.md").read_text()
 
@@ -239,9 +217,7 @@ class TestSaveLearning:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
@@ -250,13 +226,9 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_status_unchanged(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_status_unchanged(self, _mock: object, project: Path) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.REVIEWING
 
@@ -294,9 +266,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_valid_positive_delta(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_valid_positive_delta(self, _mock: object, project: Path) -> None:
         note, _ = _save(project, confidence_delta="+5")
 
         assert note.confidence_delta == "+5"
@@ -305,9 +275,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_valid_negative_delta(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_valid_negative_delta(self, _mock: object, project: Path) -> None:
         note, _ = _save(project, confidence_delta="-3")
 
         assert note.confidence_delta == "-3"
@@ -316,9 +284,7 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_valid_two_digit_delta(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_valid_two_digit_delta(self, _mock: object, project: Path) -> None:
         note, _ = _save(project, confidence_delta="+10")
 
         assert note.confidence_delta == "+10"
@@ -332,9 +298,7 @@ class TestLoadLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_reads_saved(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_reads_saved(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_learning(path)
 
@@ -357,9 +321,7 @@ class TestListLearnings:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_sorted_paths(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project, issue=2)
         _save(project, issue=1)
         paths = list_learnings(project)
@@ -379,9 +341,7 @@ class TestLearningExists:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_true_after(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_true_after(self, _mock: object, project: Path) -> None:
         _save(project)
 
         assert learning_exists(project, 21) is True

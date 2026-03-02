@@ -34,16 +34,11 @@ def run_compile(
                 project_dir, target_dir=target_dir
             )
             if result is None:
-                console.print(
-                    "Already up to date "
-                    "— no recompilation needed."
-                )
+                console.print("Already up to date — no recompilation needed.")
                 return
             compiled = result
         else:
-            compiled = compiler.compile(
-                project_dir, target_dir=target_dir
-            )
+            compiled = compiler.compile(project_dir, target_dir=target_dir)
     except FileNotFoundError:
         console.print(
             "[red]Error:[/red] no .mantle/ directory found. "
@@ -51,10 +46,11 @@ def run_compile(
         )
         raise SystemExit(1) from None
 
-    display_target = target_dir or Path.home() / ".claude" / "commands" / "mantle"
+    display_target = (
+        target_dir or Path.home() / ".claude" / "commands" / "mantle"
+    )
     console.print(
-        f"Compiled {len(compiled)} template(s) "
-        f"to {display_target}/\n"
+        f"Compiled {len(compiled)} template(s) to {display_target}/\n"
     )
     for name in compiled:
         console.print(f"  - {name}")

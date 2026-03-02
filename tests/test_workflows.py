@@ -50,10 +50,11 @@ class TestPublishWorkflow:
 
     def test_has_id_token_write_permission(self):
         wf = _load_workflow("publish.yml")
-        assert wf["permissions"]["id-token"] == "write"
+        perms = wf["jobs"]["publish"]["permissions"]
+        assert perms["id-token"] == "write"
 
-    def test_uses_pypi_publish_action(self):
+    def test_uses_uv_publish(self):
         wf = _load_workflow("publish.yml")
         steps = wf["jobs"]["publish"]["steps"]
-        uses = [s.get("uses", "") for s in steps]
-        assert any("pypa/gh-action-pypi-publish" in u for u in uses)
+        runs = [s.get("run", "") for s in steps]
+        assert any("uv publish" in r for r in runs)

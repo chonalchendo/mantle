@@ -27,9 +27,7 @@ class AdoptionExistsError(Exception):
 
     def __init__(self, path: Path) -> None:
         self.path = path
-        super().__init__(
-            f"Design documents already exist: {path}"
-        )
+        super().__init__(f"Design documents already exist: {path}")
 
 
 # ── Public API ───────────────────────────────────────────────────

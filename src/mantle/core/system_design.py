@@ -185,9 +185,7 @@ def update_system_design(
         decision=change_summary,
         alternatives=["Keep current design"],
         rationale=change_rationale,
-        reversal_trigger=(
-            "Revert if change no longer serves system goals."
-        ),
+        reversal_trigger=("Revert if change no longer serves system goals."),
         confidence="7/10",
         reversible="high",
         scope="system-design",

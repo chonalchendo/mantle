@@ -43,8 +43,7 @@ def _make_template_dir(tmp_path: Path) -> Path:
     tpl_dir = tmp_path / "templates"
     tpl_dir.mkdir()
     (tpl_dir / "status.md.j2").write_text(
-        "# {{ project }}\nStatus: {{ status }}\n"
-        "{{ summary }}\n"
+        "# {{ project }}\nStatus: {{ status }}\n{{ summary }}\n"
     )
     return tpl_dir
 
@@ -62,9 +61,7 @@ class TestRunCompile:
             "mantle.core.compiler.template_dir",
             return_value=tpl_dir,
         ):
-            run_compile(
-                project_dir=tmp_path, target_dir=target
-            )
+            run_compile(project_dir=tmp_path, target_dir=target)
 
         # Rich writes to its own console; verify output file exists
         assert (target / "status.md").exists()
@@ -78,9 +75,7 @@ class TestRunCompile:
             "mantle.core.compiler.template_dir",
             return_value=tpl_dir,
         ):
-            run_compile(
-                project_dir=tmp_path, target_dir=target
-            )
+            run_compile(project_dir=tmp_path, target_dir=target)
 
         content = (target / "status.md").read_text()
         assert "test-project" in content
@@ -95,9 +90,7 @@ class TestRunCompile:
             return_value=tpl_dir,
         ):
             # First compile
-            run_compile(
-                project_dir=tmp_path, target_dir=target
-            )
+            run_compile(project_dir=tmp_path, target_dir=target)
             # Second compile with if_stale — should be up to date
             run_compile(
                 if_stale=True,
@@ -114,9 +107,7 @@ class TestRunCompile:
             "mantle.core.compiler.template_dir",
             return_value=tpl_dir,
         ):
-            run_compile(
-                project_dir=tmp_path, target_dir=target
-            )
+            run_compile(project_dir=tmp_path, target_dir=target)
 
             # Modify state.md
             _write_state_md(tmp_path / ".mantle")
