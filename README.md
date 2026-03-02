@@ -51,7 +51,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.2.0** — Idea & Validation. `mantle init`, `mantle install`, `/mantle:idea`, and `/mantle:challenge` are working. Design, planning, and implementation commands are in progress.
+**v0.4.0** — Context & Continuity. Persistent context across sessions with auto-briefing, session logging, context compilation, and a cross-project skill graph. Design, planning, and implementation commands are in progress.
 
 ## License
 

@@ -47,9 +47,10 @@ Conventional commits: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`
 
 1. `uv version --bump patch` (or `minor` / `major`)
 2. Update `src/mantle/__init__.py` to match the new version
-3. `git add pyproject.toml uv.lock src/mantle/__init__.py`
-4. `git commit -m "release: v$(uv version)"`
-5. `git tag "v$(uv version)"`
-6. `git push && git push --tags`
+3. Update the `## Status` section in `README.md` with the new version and a one-line summary of what's included (match the milestone description from the product design)
+4. `git add pyproject.toml uv.lock src/mantle/__init__.py README.md`
+5. `git commit -m "release: v$(uv version)"`
+6. `git tag "v$(uv version)"`
+7. `git push && git push --tags`
 
 The `publish.yml` workflow handles build, smoke test, and PyPI upload via trusted publishers.
