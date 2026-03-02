@@ -137,3 +137,11 @@ After a successful save, review the building block list and tell the user:
 > Research saved! You can:
 > - Run `/mantle:research` to investigate the next building block
 > - Run `/mantle:design-product` when you have enough evidence to design
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "research"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).

@@ -60,3 +60,11 @@ After a successful save, tell the user:
 
 > Idea captured! Next, run `/mantle:challenge` to stress-test your idea from
 > multiple angles before investing in design.
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "idea"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).

@@ -184,3 +184,11 @@ After a successful save, tell the user:
 > - Run `/mantle:revise-product` or `/mantle:revise-system` to refine the designs
 > - Decision log entries are in `.mantle/decisions/` — review them with
 >   `/mantle:status`
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "adopt"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).

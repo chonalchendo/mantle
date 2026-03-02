@@ -16,6 +16,7 @@ from mantle.cli import (
     learning,
     product_design,
     research,
+    session,
     shaping,
     system_design,
 )
@@ -731,6 +732,38 @@ def save_learning_command(
         content=content,
         overwrite=overwrite,
         project_dir=path,
+    )
+
+
+@app.command(name="save-session")
+def save_session_command(
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Session log body (markdown).",
+        ),
+    ],
+    commands_used: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--command",
+            help="Command used during session (repeatable).",
+        ),
+    ] = (),
+    project_dir: Annotated[
+        Path | None,
+        Parameter(
+            name="--project-dir",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a session log to .mantle/sessions/."""
+    session.run_save_session(
+        content=content,
+        commands_used=commands_used,
+        project_dir=project_dir,
     )
 
 

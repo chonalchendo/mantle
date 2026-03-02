@@ -172,3 +172,11 @@ After a successful save, tell the user:
 
 > System design complete! Next, run `/mantle:plan-issues` to break down the work
 > into implementable issues.
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "design-system"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).

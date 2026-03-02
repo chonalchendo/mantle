@@ -107,3 +107,11 @@ After a successful save, tell the user:
 >   on — starting with the highest-risk assumptions from this session
 > - Run `/mantle:design-product` to go straight to design if you're confident
 >   enough to skip research
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "challenge"
+
+Keep the log under ~200 words following the session log format (Summary, What Was Done, Decisions Made, What's Next, Open Questions).
