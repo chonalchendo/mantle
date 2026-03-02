@@ -1,12 +1,12 @@
 ---
 title: Auto-briefing on session start (/mantle:resume)
-status: planned
+status: completed
 slice: [core, claude-code, tests]
 story_count: 3
 verification: null
 tags:
   - type/issue
-  - status/planned
+  - status/completed
 ---
 
 ## Parent PRD
@@ -25,14 +25,14 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] A SessionStart hook runs `mantle compile --if-stale` and auto-displays the compiled briefing
-- [ ] The briefing includes: project state, last session log (filtered to current user), open blockers, next actions
-- [ ] Session log filtering uses `git config user.email` to show only the current user's latest session
-- [ ] `/mantle:resume` is available as a manual command for mid-session context refresh
-- [ ] The briefing fits within ~3K token budget
-- [ ] The hook is installed to `~/.claude/` by `mantle install --global`
-- [ ] Auto-briefing only displays when in a directory with `.mantle/` (no-op otherwise)
-- [ ] Tests verify briefing compilation, author filtering, and hook behaviour
+- [x] A SessionStart hook runs `mantle compile --if-stale` and auto-displays the compiled briefing
+- [x] The briefing includes: project state, last session log (filtered to current user), open blockers, next actions
+- [x] Session log filtering uses `git config user.email` to show only the current user's latest session
+- [x] `/mantle:resume` is available as a manual command for mid-session context refresh
+- [x] The briefing fits within ~3K token budget
+- [x] The hook is installed to `~/.claude/` by `mantle install --global`
+- [x] Auto-briefing only displays when in a directory with `.mantle/` (no-op otherwise)
+- [x] Tests verify briefing compilation, author filtering, and hook behaviour
 
 ## Blocked by
 

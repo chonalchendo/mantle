@@ -33,7 +33,7 @@ Thin modules (straightforward wiring):
 
 | Module | What It Does |
 |---|---|
-| `core/session.py` | Read/write session logs, compile briefings |
+| `core/session.py` | Read/write session logs, latest session retrieval with author filtering |
 | `core/decisions.py` | Create decision log entries with structured metadata |
 | `core/skills.py` | CRUD on skill nodes in personal vault, link detection, gap suggestion |
 | `core/verify.py` | Load verification strategy (project-level + per-issue), run checks, build report |

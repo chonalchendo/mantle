@@ -267,7 +267,7 @@ Auto-briefing, session logs, and skill graph — the knowledge engine.
 |-------|-------|--------|------------|
 | 08 | Context compilation engine + `/mantle:status` | completed | 02 |
 | 09 | Session logging | completed | 02 |
-| 10 | Auto-briefing on session start (`/mantle:resume`) | planned | 08, 09 |
+| 10 | Auto-briefing on session start (`/mantle:resume`) | completed | 08, 09 |
 | 17 | Skill graph (`/mantle:add-skill`) | planned | 02 |
 
 **What the user can do**: Persistent context across sessions. Start a session and get an instant briefing. Build a cross-project skill graph. Never start from zero again.
