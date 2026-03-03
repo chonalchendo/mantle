@@ -2,7 +2,7 @@
 title: Story planning (/mantle:plan-stories)
 status: planned
 slice: [core, claude-code, vault, tests]
-story_count: 0
+story_count: 3
 verification: null
 tags:
   - type/issue

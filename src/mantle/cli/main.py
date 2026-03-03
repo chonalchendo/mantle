@@ -20,6 +20,7 @@ from mantle.cli import (
     session,
     shaping,
     skills,
+    stories,
     system_design,
 )
 from mantle.cli import (
@@ -684,6 +685,62 @@ def save_shaped_issue_command(
         appetite=appetite,
         content=content,
         open_questions=open_questions,
+        overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-story")
+def save_story_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Parent issue number.",
+        ),
+    ],
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="Story title.",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full story body (markdown).",
+        ),
+    ],
+    story: Annotated[
+        int | None,
+        Parameter(
+            name="--story",
+            help="Explicit story number (for overwrites).",
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing story.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a planned story to .mantle/stories/."""
+    stories.run_save_story(
+        issue=issue,
+        title=title,
+        content=content,
+        story=story,
         overwrite=overwrite,
         project_dir=path,
     )
