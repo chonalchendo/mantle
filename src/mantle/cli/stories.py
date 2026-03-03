@@ -63,3 +63,47 @@ def run_save_story(
         "  Next: run [bold]/mantle:plan-stories[/bold] for more"
         " or [bold]/mantle:implement[/bold] to start building"
     )
+
+
+def run_update_story_status(
+    *,
+    issue: int,
+    story: int,
+    status: str,
+    failure_log: str | None = None,
+    project_dir: Path | None = None,
+) -> None:
+    """Update a story's status on disk.
+
+    Args:
+        issue: Parent issue number.
+        story: Story number within the issue.
+        status: New status value (planned, in-progress,
+            completed, blocked).
+        failure_log: Error details when marking blocked.
+        project_dir: Project directory. Defaults to cwd.
+
+    Raises:
+        SystemExit: If the story file is not found.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    try:
+        stories.update_story_status(
+            project_dir,
+            issue=issue,
+            story=story,
+            status=status,
+            failure_log=failure_log,
+        )
+    except FileNotFoundError:
+        console.print(
+            f"[red]Error:[/red] Story {story} for issue {issue} not found."
+        )
+        raise SystemExit(1) from None
+
+    console.print()
+    console.print(
+        f"[green]Updated story {story} (issue {issue}):[/green] {status}"
+    )

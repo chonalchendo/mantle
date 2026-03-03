@@ -186,6 +186,72 @@ def count_stories(project_dir: Path, *, issue: int) -> int:
     return len(list_stories(project_dir, issue=issue))
 
 
+def update_story_status(
+    project_dir: Path,
+    *,
+    issue: int,
+    story: int,
+    status: str,
+    failure_log: str | None = None,
+) -> None:
+    """Update a story's status and optionally its failure_log.
+
+    Reads the story file, updates frontmatter, and writes it
+    back. Also updates the ``tags`` tuple to reflect the new
+    status.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue: Parent issue number.
+        story: Story number within the issue.
+        status: New status value (``"planned"``,
+            ``"in-progress"``, ``"completed"``, ``"blocked"``).
+        failure_log: Error details when marking ``"blocked"``.
+    """
+    path = _story_path(project_dir, issue, story)
+    note, body = load_story(path)
+
+    new_tags = tuple(
+        f"status/{status}" if t.startswith("status/") else t
+        for t in note.tags
+    )
+
+    updated = note.model_copy(
+        update={
+            "status": status,
+            "failure_log": failure_log,
+            "tags": new_tags,
+        },
+    )
+
+    vault.write_note(path, updated, body)
+
+
+def extract_story_number(story_path: Path) -> int:
+    """Extract story number from a story filename.
+
+    E.g. ``issue-01-story-03.md`` -> ``3``.
+
+    Args:
+        story_path: Path to the story file.
+
+    Returns:
+        The story number.
+
+    Raises:
+        ValueError: If the filename does not match the expected
+            pattern.
+    """
+    match = re.search(r"story-(\d+)\.md", story_path.name)
+    if not match:
+        msg = (
+            f"Cannot extract story number from"
+            f" {story_path.name}"
+        )
+        raise ValueError(msg)
+    return int(match.group(1))
+
+
 # ── Internal helpers ─────────────────────────────────────────────
 
 

@@ -747,6 +747,54 @@ def save_story_command(
     )
 
 
+@app.command(name="update-story-status")
+def update_story_status_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Parent issue number.",
+        ),
+    ],
+    story: Annotated[
+        int,
+        Parameter(
+            name="--story",
+            help="Story number within the issue.",
+        ),
+    ],
+    status: Annotated[
+        str,
+        Parameter(
+            name="--status",
+            help="New status: planned, in-progress, completed, blocked.",
+        ),
+    ],
+    failure_log: Annotated[
+        str | None,
+        Parameter(
+            name="--failure-log",
+            help="Error details when marking blocked.",
+        ),
+    ] = None,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Update a story's status."""
+    stories.run_update_story_status(
+        issue=issue,
+        story=story,
+        status=status,
+        failure_log=failure_log,
+        project_dir=path,
+    )
+
+
 @app.command(name="save-issue")
 def save_issue_command(
     title: Annotated[
