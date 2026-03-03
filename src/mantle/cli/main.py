@@ -7,6 +7,7 @@ from cyclopts import App, Parameter
 
 from mantle.cli import (
     adopt,
+    bugs,
     challenge,
     decisions,
     idea,
@@ -837,6 +838,126 @@ def set_slices_command(
 ) -> None:
     """Define project architectural slices in state.md."""
     issues.run_set_slices(slices=slices, project_dir=path)
+
+
+@app.command(name="save-bug")
+def save_bug_command(
+    summary: Annotated[
+        str,
+        Parameter(
+            name="--summary",
+            help="One-line bug summary.",
+        ),
+    ],
+    severity: Annotated[
+        str,
+        Parameter(
+            name="--severity",
+            help="Bug severity: blocker, high, medium, low.",
+        ),
+    ],
+    description: Annotated[
+        str,
+        Parameter(
+            name="--description",
+            help="What happened (paragraph).",
+        ),
+    ],
+    reproduction: Annotated[
+        str,
+        Parameter(
+            name="--reproduction",
+            help="Steps to reproduce.",
+        ),
+    ],
+    expected: Annotated[
+        str,
+        Parameter(
+            name="--expected",
+            help="Expected behaviour.",
+        ),
+    ],
+    actual: Annotated[
+        str,
+        Parameter(
+            name="--actual",
+            help="Actual behaviour.",
+        ),
+    ],
+    related_issue: Annotated[
+        str | None,
+        Parameter(
+            name="--related-issue",
+            help="Related issue (e.g. issue-08).",
+        ),
+    ] = None,
+    related_files: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--related-file",
+            help="Related file path (repeatable).",
+        ),
+    ] = (),
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Capture a bug report in .mantle/bugs/."""
+    bugs.run_save_bug(
+        summary=summary,
+        severity=severity,
+        description=description,
+        reproduction=reproduction,
+        expected=expected,
+        actual=actual,
+        related_issue=related_issue,
+        related_files=related_files,
+        project_dir=path,
+    )
+
+
+@app.command(name="update-bug-status")
+def update_bug_status_command(
+    bug: Annotated[
+        str,
+        Parameter(
+            name="--bug",
+            help="Bug filename (e.g. 2026-03-03-slug.md).",
+        ),
+    ],
+    status: Annotated[
+        str,
+        Parameter(
+            name="--status",
+            help="New status: open, fixed, wont-fix.",
+        ),
+    ],
+    fixed_by: Annotated[
+        str | None,
+        Parameter(
+            name="--fixed-by",
+            help="Issue that fixes this bug (e.g. issue-21).",
+        ),
+    ] = None,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Update a bug's status."""
+    bugs.run_update_bug_status(
+        bug=bug,
+        status=status,
+        fixed_by=fixed_by,
+        project_dir=path,
+    )
 
 
 @app.command(name="save-learning")

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 MANTLE_DIR = ".mantle"
 
 SUBDIRS: tuple[str, ...] = (
+    "bugs",
     "challenges",
     "decisions",
     "issues",
@@ -61,6 +62,7 @@ TAGS_BODY = """\
 ### Type
 
 - `type/idea`
+- `type/bug`
 - `type/challenge`
 - `type/product-design`
 - `type/system-design`
@@ -97,6 +99,13 @@ TAGS_BODY = """\
 - `confidence/high` (7-10)
 - `confidence/medium` (4-6)
 - `confidence/low` (1-3)
+
+### Severity
+
+- `severity/blocker`
+- `severity/high`
+- `severity/medium`
+- `severity/low`
 
 ### Topic
 

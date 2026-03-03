@@ -133,6 +133,7 @@ class TestTemplateConstants:
         assert len(GITIGNORE_CONTENT) > 0
 
     def test_subdirs_expected(self) -> None:
+        assert "bugs" in SUBDIRS
         assert "decisions" in SUBDIRS
         assert "sessions" in SUBDIRS
         assert "issues" in SUBDIRS
