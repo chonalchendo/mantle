@@ -159,6 +159,13 @@ def save_research_command(
             help="Research note content.",
         ),
     ],
+    no_state_update: Annotated[
+        bool,
+        Parameter(
+            name="--no-state-update",
+            help="Skip updating state.md (for sub-steps of other commands).",
+        ),
+    ] = False,
     path: Annotated[
         Path | None,
         Parameter(
@@ -172,6 +179,7 @@ def save_research_command(
         focus=focus,
         confidence=confidence,
         content=content,
+        update_state=not no_state_update,
         project_dir=path,
     )
 

@@ -16,6 +16,7 @@ def run_save_research(
     focus: str,
     confidence: str,
     content: str,
+    update_state: bool = True,
     project_dir: Path | None = None,
 ) -> None:
     """Save research note, print confirmation, suggest next steps.
@@ -24,6 +25,8 @@ def run_save_research(
         focus: Research focus angle.
         confidence: Confidence rating (e.g. "7/10").
         content: Research note body content.
+        update_state: Whether to update state.md. False when
+            research is a sub-step of another command.
         project_dir: Project directory. Defaults to cwd.
 
     Raises:
@@ -34,7 +37,11 @@ def run_save_research(
 
     try:
         note, path = research.save_research(
-            project_dir, content, focus=focus, confidence=confidence
+            project_dir,
+            content,
+            focus=focus,
+            confidence=confidence,
+            update_state=update_state,
         )
     except research.IdeaNotFoundError:
         console.print(

@@ -72,18 +72,22 @@ def save_research(
     *,
     focus: str,
     confidence: str,
+    update_state: bool = True,
 ) -> tuple[ResearchNote, Path]:
     """Save content to .mantle/research/<date>-<focus>.md.
 
     Auto-increments filename on same-day same-focus collision
     (-2, -3, ...).  Reads idea.md to snapshot idea_ref (problem
-    field).  Updates state.md Current Focus after saving.
+    field).  Optionally updates state.md Current Focus after saving.
 
     Args:
         project_dir: Directory containing .mantle/.
         content: Research note body content.
         focus: Research angle (must be in VALID_FOCUSES).
         confidence: Confidence rating in "N/10" format.
+        update_state: Whether to update state.md Current Focus.
+            Set to False when research is a sub-step of another
+            command (e.g. /mantle:add-skill).
 
     Returns:
         Tuple of (ResearchNote frontmatter, path to saved file).
@@ -126,7 +130,8 @@ def save_research(
 
     research_path = _resolve_research_path(project_dir, focus)
     vault.write_note(research_path, note, content)
-    _update_state_body(project_dir, identity, focus)
+    if update_state:
+        _update_state_body(project_dir, identity, focus)
 
     return note, research_path
 

@@ -127,7 +127,8 @@ After the agent returns, save the research note:
 mantle save-research \
   --focus "technology" \
   --confidence "<N/10 from agent>" \
-  --content "<agent report>"
+  --content "<agent report>" \
+  --no-state-update
 ```
 
 ### 4c. Draft and review with the user
