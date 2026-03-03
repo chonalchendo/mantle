@@ -51,7 +51,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.4.2** — Vault & state fixes. Correct Obsidian wikilink resolution, vault project folder structure, and prevent state clobbering during skill capture.
+**v0.5.0** — Planning & implementation. Issue planning, story decomposition, shape-issue evaluation, bug capture, retrospectives, and an automated implementation loop with per-story Agent subagents, test retries, and atomic commits.
 
 ## License
 
