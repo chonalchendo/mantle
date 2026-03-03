@@ -218,8 +218,8 @@ class TestCreateSkill:
         _, body = load_skill(path)
 
         assert "## Related Skills" in body
-        assert "- [[Python]]" in body
-        assert "- [[FastAPI]]" in body
+        assert "- [[python|Python]]" in body
+        assert "- [[fastapi|FastAPI]]" in body
 
     def test_body_has_projects_wikilinks(self, project: Path) -> None:
         _, path = _create_skill(
@@ -229,8 +229,8 @@ class TestCreateSkill:
         _, body = load_skill(path)
 
         assert "## Projects" in body
-        assert "- [[projects/mantle]]" in body
-        assert "- [[projects/webapp]]" in body
+        assert "- [[projects/mantle|mantle]]" in body
+        assert "- [[projects/webapp|webapp]]" in body
 
     def test_body_omits_related_skills_when_empty(self, project: Path) -> None:
         _, path = _create_skill(project, related_skills=())
@@ -445,7 +445,7 @@ class TestUpdateSkill:
 
         assert result.related_skills == ("Python", "FastAPI")
         _, body = load_skill(path)
-        assert "- [[Python]]" in body
+        assert "- [[python|Python]]" in body
 
     def test_updates_projects(self, project: Path) -> None:
         _, path = _create_skill(project)
@@ -457,7 +457,7 @@ class TestUpdateSkill:
 
         assert result.projects == ("mantle",)
         _, body = load_skill(path)
-        assert "- [[projects/mantle]]" in body
+        assert "- [[projects/mantle|mantle]]" in body
 
     def test_refreshes_timestamps(self, project: Path) -> None:
         _create_skill(project)

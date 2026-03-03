@@ -149,11 +149,15 @@ def _build_skill_body(note: SkillNote, content: str) -> str:
     parts: list[str] = []
 
     if note.related_skills:
-        links = "\n".join(f"- [[{s}]]" for s in note.related_skills)
+        links = "\n".join(
+            f"- [[{_slugify(s)}|{s}]]" for s in note.related_skills
+        )
         parts.append(f"## Related Skills\n\n{links}\n")
 
     if note.projects:
-        links = "\n".join(f"- [[projects/{p}]]" for p in note.projects)
+        links = "\n".join(
+            f"- [[projects/{_slugify(p)}|{p}]]" for p in note.projects
+        )
         parts.append(f"## Projects\n\n{links}\n")
 
     parts.append(f"{_CONTENT_MARKER}\n{content}")
