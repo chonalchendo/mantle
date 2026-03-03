@@ -14,6 +14,9 @@
 - `/mantle:revise-product` — Revise product design + log what changed
 - `/mantle:revise-system` — Revise system design + log what changed
 
+## Bug Capture
+- `/mantle:bug` — Quick structured bug capture during any session
+
 ## Planning
 - `/mantle:plan-issues` — Break work into vertical slice issues
 - `/mantle:shape-issue` — Shape an issue: evaluate approaches before decomposing
