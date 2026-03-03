@@ -51,7 +51,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.4.0** — Context & Continuity. Persistent context across sessions with auto-briefing, session logging, context compilation, and a cross-project skill graph. Design, planning, and implementation commands are in progress.
+**v0.4.1** — Skill Usability Patch. Validate skill links, add content tags, compile skills to `.claude/skills/` for native Claude Code loading, and surface stub skills in resume briefing.
 
 ## License
 
