@@ -68,9 +68,7 @@ def run_save_issue(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Saved {path.name} to .mantle/issues/[/green]"
-    )
+    console.print(f"[green]Saved {path.name} to .mantle/issues/[/green]")
     console.print(f"  Title: {note.title}")
     console.print(f"  Slice: {', '.join(note.slice)}")
     if note.blocked_by:
@@ -99,7 +97,5 @@ def run_set_slices(
     state.update_slices(project_dir, slices)
 
     console.print()
-    console.print(
-        f"[green]Project slices defined ({len(slices)}):[/green]"
-    )
+    console.print(f"[green]Project slices defined ({len(slices)}):[/green]")
     console.print(f"  {', '.join(slices)}")

@@ -193,9 +193,7 @@ class TestSaveIssue:
         "mantle.core.issues.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_round_trip_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_round_trip_frontmatter(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_issue(path)
 
@@ -250,9 +248,7 @@ class TestSaveIssue:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PLANNING
 
@@ -265,9 +261,7 @@ class TestSaveIssue:
     ) -> None:
         _write_state(project, status=Status.ADOPTED)
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PLANNING
 
@@ -278,9 +272,7 @@ class TestSaveIssue:
     def test_stays_in_planning(self, _mock: object, project: Path) -> None:
         _write_state(project, status=Status.PLANNING)
         _save(project)
-        note = vault.read_note(
-            project / ".mantle" / "state.md", ProjectState
-        )
+        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
 
         assert note.frontmatter.status == Status.PLANNING
 
@@ -288,9 +280,7 @@ class TestSaveIssue:
         "mantle.core.issues.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_updates_current_focus(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_updates_current_focus(self, _mock: object, project: Path) -> None:
         _save(project)
         text = (project / ".mantle" / "state.md").read_text()
 
@@ -330,9 +320,7 @@ class TestListIssues:
         "mantle.core.issues.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_returns_sorted_paths(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_returns_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project, title="Second")
         _save(project, title="Third")
         paths = list_issues(project)
