@@ -45,7 +45,7 @@ Not: non-technical users, enterprise teams, or people who need a GUI (though the
 | **Plan Issues** | `/mantle:plan-issues` | Work broken into vertical slices cutting across product layers. AI proposes one issue at a time — user approves or adjusts each before the next is proposed. Surfaces open bugs as issue candidates. Each slice delivers testable functionality. |
 | **Shape Issue** | `/mantle:shape-issue` | Before decomposing an issue into stories, evaluate 2-3 approaches with tradeoffs, rabbit holes, and no-gos. Commit to a direction with a fixed appetite. Shaped artifacts saved to `.mantle/shaped/`. |
 | **Plan Stories** | `/mantle:plan-stories` | Each issue decomposed into implementable stories sized for AI implementation. Stories include both what to implement and what tests to write (TDD: tests are a natural extension of story functionality). |
-| **Implement** | `/mantle:implement` | Python orchestration loop: for each story, compile context, invoke Claude Code in a worktree, run tests, retry once with error feedback on failure, git commit, update vault state. Each story gets a fresh context window. |
+| **Implement** | `/mantle:implement` | Prompt-based orchestrator: for each story, spawn a native Claude Code Agent subagent with file paths to read, run tests, retry once with error feedback on failure, git commit, update story status via CLI. Each story gets a fresh 200k context window with full tool access. |
 | **Verify** | `/mantle:verify` | Project-specific verification strategy. On first invoke, prompts user to define how this project should be verified (example project, localhost, integration tests, etc.). Per-issue overrides in acceptance criteria. |
 | **Review** | `/mantle:review` | Human reviews completed work via checklist. AI presents acceptance criteria with pass/fail status from verification. Human marks each as approved/needs-changes with comments. |
 | **Retrospective** | `/mantle:retrospective` | After implementation, capture structured learnings (what went well, harder than expected, wrong assumptions, recommendations) with a confidence delta. Saved to `.mantle/learnings/`. Learnings auto-surface in future shaping sessions. |
@@ -105,14 +105,14 @@ Solid lines show the primary flow. Dotted lines show feedback loops and side-cha
 4. **AI illuminates tradeoffs, humans decide** — The tool surfaces options and consequences. It never makes the call.
 5. **Core as library** — All logic lives in a core module that knows nothing about Claude Code or CLIs, enabling a future UI layer without a rewrite.
 6. **Session logs are automatic** — Every session is logged. Casual sessions can contain valuable insights. Context restoration should be effortless.
-7. **Python orchestrates, AI implements** — The implementation loop is deterministic Python code. Only the actual story implementation uses LLM calls. Zero token cost for orchestration logic.
+7. **Prompt orchestrates, AI implements** — The implementation loop is a prompt-based orchestrator (`implement.md`) that spawns native Agent subagents per story. Each agent gets a fresh 200k context window with full tool access. Python handles state management (story status updates via CLI); orchestration logic lives in the prompt.
 8. **One command, one job** — Each command does one focused thing to give the AI optimal context. Separate commands for create vs update. No overloaded multi-purpose commands.
 
 ### Differentiators
 
 | vs Tool | Mantle's Edge |
 |---|---|
-| **GSD** | GSD uses markdown-only commands with no runtime. Mantle has a Python runtime for deterministic orchestration, compiled context from vault state, and a persistent knowledge graph across projects. |
+| **GSD** | GSD uses markdown-only commands with no runtime. Mantle has a Python runtime for state management and context compilation, prompt-based orchestration inspired by GSD's Agent pattern, and a persistent knowledge graph across projects. |
 | **Aider** | Aider is a pair programmer for individual coding tasks. Mantle manages the full lifecycle from idea validation through to verified, reviewed code. |
 | **Colin** | Colin compiles context into skills (one-way). Mantle reads AND writes — it's a bidirectional workflow engine with interactive sessions, implementation loops, and vault state management. |
 | **Cursor / IDE tools** | IDE tools operate at the code level. Mantle operates at the product level — ensuring you're building the right thing before you write any code. |
@@ -170,7 +170,7 @@ Solid lines show the primary flow. Dotted lines show feedback loops and side-cha
 
 ### Implementation
 
-22. As a developer, I want `/mantle:implement` to run a Python orchestration loop that iterates over stories for a given issue, compiling context and invoking Claude Code per story, so that each story gets a fresh context window.
+22. As a developer, I want `/mantle:implement` to orchestrate implementation by spawning native Agent subagents for each story in a given issue, so that each story gets a fresh 200k context window with full tool access.
 23. As a developer, I want each completed story to result in an atomic git commit, so that I can revert individual stories if needed.
 24. As a developer, I want the implementation loop to automatically skip stories already marked "completed" on re-run, so that resumption after a failure is seamless.
 25. As a developer, I want the loop to retry once with error feedback when tests fail for a story, so that transient AI mistakes are automatically corrected.
@@ -290,8 +290,8 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 |-------|-------|--------|------------|
 | 11 | Issue planning (`/mantle:plan-issues`) | completed | 02 |
 | 12 | Story planning (`/mantle:plan-stories`) | completed | 11 |
-| 13 | Implementation orchestration loop (`/mantle:implement`) | planned | 12 |
-| 14 | Worktree parallel implementation | planned | 13 |
+| 13 | Implementation orchestration loop (`/mantle:implement`) | completed | 12 |
+| 14 | ~~Worktree parallel implementation~~ | dropped | 13 |
 | 20 | Bug capture (`/mantle:bug`) | completed | 02 |
 | 22 | Shape issue (`/mantle:shape-issue`) | completed | 11 |
 | 23 | Retrospective (`/mantle:retrospective`) | planned | 22 |

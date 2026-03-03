@@ -1,6 +1,6 @@
 ---
 title: Implementation orchestration loop (/mantle:implement)
-status: planned
+status: completed
 slice:
 - core
 - claude-code
@@ -10,7 +10,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/completed
 ---
 
 ## Parent PRD

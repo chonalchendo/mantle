@@ -2,7 +2,7 @@
 
 ## Vision
 
-Python library (`core/`) with thin CLI and future UI layers. Core never imports from delivery layers. Static markdown commands mounted into `~/.claude/`, compiled commands rendered from vault state via Jinja2. Obsidian CLI with filesystem fallback. `.mantle/` in-repo for collaboration via git; personal vault (`~/vault/`) optional for cross-project skills. Implementation loop: deterministic Python orchestrates story-by-story Claude Code invocations in worktrees with test retries and atomic commits.
+Python library (`core/`) with thin CLI and future UI layers. Core never imports from delivery layers. Static markdown commands mounted into `~/.claude/`, compiled commands rendered from vault state via Jinja2. Obsidian CLI with filesystem fallback. `.mantle/` in-repo for collaboration via git; personal vault (`~/vault/`) optional for cross-project skills. Implementation loop: prompt-based orchestrator (`implement.md`) spawns native Claude Code Agent subagents per story with fresh 200k context windows, test retries, and atomic commits. Python handles state management (story status updates via CLI).
 
 ---
 
@@ -11,7 +11,7 @@ Python library (`core/`) with thin CLI and future UI layers. Core never imports 
 ### Architecture
 
 - **Core as library**: All logic lives in `mantle/core/` which knows nothing about Claude Code, CLIs, or web servers. The CLI (`mantle/cli/`) is a thin consumer. Future UI (`mantle/api/`) would be another thin consumer.
-- **Python orchestrates, AI implements**: The implementation loop is deterministic Python code that invokes Claude Code as a subprocess per story. Zero token cost for orchestration logic.
+- **Prompt orchestrates, AI implements**: The implementation loop is a prompt-based orchestrator (`implement.md`) that spawns native Agent subagents per story. Each agent gets a fresh 200k context window with full tool access. Python handles state management (story status updates) exposed via CLI subcommands.
 - **Compiled + static commands**: Most commands are static markdown files. Compiled commands (`status`, `resume`) are rendered from vault state via Jinja2 templates. Compilation runs automatically via SessionStart hook.
 - **Obsidian CLI primary, filesystem fallback**: Official Obsidian CLI (v1.12+) for template application, property management, search, and queries. Direct filesystem read/write as fallback when CLI is unavailable.
 - **In-repo project context**: `.mantle/` lives in the project's git repo. Collaboration via git (PRs, branches, diffs). Personal vault (`~/vault/`) is separate and syncs via iCloud.
@@ -26,7 +26,7 @@ Deep modules (complex internals, simple interfaces):
 |---|---|---|
 | `core/vault.py` | `read_note()`, `write_note()`, `search()`, `update_properties()` | Obsidian CLI vs filesystem fallback, YAML frontmatter parsing, path resolution between `.mantle/` and `~/vault/` |
 | `core/compiler.py` | `compile(project_path)`, `compile_if_stale(project_path)` | Jinja2 rendering, content hashing manifest, staleness detection, context budgeting |
-| `core/orchestrator.py` | `implement(issue_id)`, `resume(issue_id)` | Story iteration, Claude Code subprocess invocation, test execution, retry-with-feedback, git commits, worktree management, state updates |
+| `core/stories.py` | `run_update_story_status()`, `save_stories()`, `load_stories()` | Story CRUD, status updates with YAML frontmatter editing, tag management. Implementation orchestration moved to `implement.md` prompt. |
 | `core/state.py` | `load()`, `update()`, `transition()` | State machine validation, multi-author conflict handling, git identity resolution |
 
 Thin modules (straightforward wiring):
@@ -67,7 +67,7 @@ flowchart TD
 
     subgraph pkg ["mantle package (pip)"]
         cli["CLI — thin routing layer"]
-        core["Core — all business logic<br/>(state, vault, compiler, orchestrator,<br/>shaping, learning, challenge, decisions,<br/>session, skills, verify, review)"]
+        core["Core — all business logic<br/>(state, vault, compiler, stories,<br/>shaping, learning, challenge, decisions,<br/>session, skills, verify, review)"]
         cli --> core
     end
 
@@ -82,10 +82,10 @@ flowchart TD
 
     hook["SessionStart Hook"] -.->|"mantle compile --if-stale"| cli
     core -.->|"Jinja2 renders"| compiled
-    core -.->|"orchestrator: subprocess<br/>per story (fresh context window)"| cc
+    cmds -.->|"implement.md: Agent subagent<br/>per story (fresh 200k context)"| cc
 ```
 
-Solid lines show the normal request flow (top-down). Dotted lines show the three special patterns: the SessionStart hook triggers compilation, compiled commands are rendered from vault state via Jinja2, and the orchestrator invokes Claude Code as a subprocess per story (creating the implementation loop).
+Solid lines show the normal request flow (top-down). Dotted lines show the three special patterns: the SessionStart hook triggers compilation, compiled commands are rendered from vault state via Jinja2, and `implement.md` spawns native Agent subagents per story (each getting a fresh 200k context window with full tool access).
 
 ### Project Status vs Issue/Story Status
 
@@ -95,11 +95,11 @@ The project has a single lifecycle status in `state.md` (idea → ... → comple
 
 **Why not automatic**: A project in `implementing` may have Issue-3 verified while Issue-4 is mid-implementation. The user decides when to transition to `verifying` (perhaps after all planned issues are done, or after a subset). This keeps the state machine simple and avoids complex rollup logic that would need to handle partial completion, deferred issues, and priority changes.
 
-**Tracking fields**: `current_issue` and `current_story` in `state.md` track what's actively being worked on. These are updated by the orchestrator and cleared between implementation sessions.
+**Tracking fields**: `current_issue` and `current_story` in `state.md` track what's actively being worked on. These are updated via CLI subcommands during implementation and cleared between sessions.
 
 ### Error Handling
 
-- **Implementation failure**: On test failure, the orchestrator feeds error output back to Claude Code for one retry attempt. If the retry also fails, the story is marked "blocked" with failure details and the loop stops.
+- **Implementation failure**: On test failure, the `implement.md` orchestrator spawns a retry Agent with the error output. If the retry also fails, the story is marked "blocked" via `mantle update-story-status` with failure details and the loop stops.
 - **Obsidian CLI unavailable**: All vault operations fall back to direct filesystem read/write. A warning is logged but nothing breaks.
 - **State conflicts**: `state.md` uses git identity to track `updated_by`. Merge conflicts in `.mantle/` are resolved via git's normal merge flow.
 
@@ -117,7 +117,7 @@ Every module in `core/` gets tests:
 |---|---|
 | `core/vault.py` | Unit tests with a temporary directory as a mock vault. Test Obsidian CLI calls via subprocess mocking. Test filesystem fallback by simulating CLI absence. |
 | `core/compiler.py` | Unit tests: provide vault state fixtures, verify rendered command output matches expected markdown. Test staleness detection with hash manifest fixtures. |
-| `core/orchestrator.py` | Integration-style tests: mock `subprocess.run` for Claude Code and pytest invocations. Verify story state transitions, retry logic, git commit calls, and worktree management. |
+| `core/stories.py` | Unit tests: save/load round-trip, status updates with YAML frontmatter editing, tag management, issue linking. Orchestration logic is in `implement.md` (not testable via pytest). |
 | `core/state.py` | Unit tests: load/save state from fixture files. Test state machine transitions (e.g., `idea` → `challenge` is valid, `idea` → `implementing` is not). |
 | `core/session.py` | Unit tests: verify session log format, briefing compilation, author filtering. |
 | `core/decisions.py` | Unit tests: verify decision log entry format, frontmatter structure, file naming. |
@@ -134,8 +134,8 @@ Every module in `core/` gets tests:
 
 - **Framework**: pytest
 - **Fixtures**: Temporary vault directories with pre-built `.mantle/` structures
-- **Mocking**: `subprocess.run` mocked for Obsidian CLI, Claude Code, and git operations
-- **No LLM calls in tests**: The orchestrator tests mock Claude Code invocations. Tests verify the loop logic, not AI output quality.
+- **Mocking**: `subprocess.run` mocked for Obsidian CLI and git operations
+- **No LLM calls in tests**: Orchestration logic lives in `implement.md` (prompt-based). Python tests cover state management and story CRUD, not the orchestration flow.
 
 ## Distribution & Installation
 
@@ -233,7 +233,7 @@ mantle/
 │       │   ├── adopt.py                   # Adoption orchestration (codebase + domain → artifacts)
 │       │   ├── vault.py                   # Obsidian vault read/write (CLI + filesystem)
 │       │   ├── compiler.py                # Compile vault context into commands
-│       │   ├── orchestrator.py            # Implementation loop (stories, worktrees, retries)
+│       │   ├── stories.py                 # Story CRUD and status management
 │       │   ├── state.py                   # Project state management
 │       │   ├── session.py                 # Session logging & briefing compilation
 │       │   ├── challenge.py               # Challenge session prompts & logic
@@ -272,7 +272,7 @@ mantle/
 │   │       ├── plan-issues.md             # Static — plan issues one at a time
 │   │       ├── shape-issue.md            # Static — evaluate approaches before story decomposition
 │   │       ├── plan-stories.md            # Static — plan stories with test specs
-│   │       ├── implement.md               # Static — triggers Python orchestration loop
+│   │       ├── implement.md               # Static — prompt-based orchestrator (Agent subagents per story)
 │   │       ├── verify.md                  # Static — run project-specific verification
 │   │       ├── review.md                  # Static — checklist-based human review
 │   │       ├── retrospective.md          # Static — capture post-implementation learnings
@@ -302,7 +302,7 @@ mantle/
     ├── test_adopt.py
     ├── test_vault.py
     ├── test_compiler.py
-    ├── test_orchestrator.py
+    ├── test_stories.py
     ├── test_state.py
     ├── test_session.py
     ├── test_decisions.py
@@ -831,7 +831,7 @@ Stored in `.mantle/tags.md` (in-repo) for reference by both humans and AI:
 | `/mantle:plan-issues` | Static | Plan vertical slice issues one at a time |
 | `/mantle:shape-issue` | Static | Evaluate approaches before story decomposition |
 | `/mantle:plan-stories` | Static | Plan stories with test specs (TDD) |
-| `/mantle:implement` | Static | Trigger Python orchestration loop |
+| `/mantle:implement` | Static | Prompt-based orchestrator — Agent subagents per story |
 | `/mantle:verify` | Static | Run project-specific verification |
 | `/mantle:review` | Static | Checklist-based human review |
 | `/mantle:retrospective` | Static | Capture post-implementation learnings |
@@ -879,122 +879,49 @@ The compiled briefing reads only the latest session log for the current user (fi
 
 ## Implementation Loop
 
-The `/mantle:implement` command triggers a Python orchestration loop:
+The `/mantle:implement` command is a prompt-based orchestrator (`implement.md`) that spawns native Claude Code Agent subagents per story. This replaced the original Python subprocess approach (issue 13, story 5).
 
-```python
-# Pseudocode of mantle implement --issue N
+### How It Works
 
-for story in get_stories(issue=N):
-    if story.status == "completed":
-        continue
+1. The `implement.md` prompt reads `.mantle/state.md` to verify prerequisites
+2. Loads story files from `.mantle/stories/issue-{NN}-story-*.md`
+3. For each non-completed story (in order):
+   - Marks in-progress via `mantle update-story-status`
+   - Spawns a `smart` Agent subagent with file paths to read (system design, issue, story)
+   - Agent reads files itself with its fresh 200k context window and full tool access
+   - After agent returns, verifies tests pass (`uv run pytest`)
+   - On failure: spawns one retry Agent with error output, re-runs tests
+   - On success: creates atomic git commit, marks completed via CLI
+   - On retry failure: marks blocked with failure log, stops loop
 
-    # 1. Compile context for this story (budgeted)
-    update_story_status(story, "in-progress")
-    context = compile_story_context(project, issue, story)
+### Why Agent-Based, Not Subprocess
 
-    # 2. Invoke Claude Code with pre-loaded context (fresh window)
-    result = subprocess.run([
-        "claude", "--print",
-        "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-        "--no-session-persistence",
-        context
-    ])
+The original design used `subprocess.run(["claude", "--print", ...])` to invoke Claude Code per story. Issue 13 story 5 replaced this with native Agent subagents because:
 
-    # 3. Run tests
-    test_result = subprocess.run(["python", "-m", "pytest", ...])
+- **No cold starts**: Agents inherit the session's environment — no re-reading CLAUDE.md, no rediscovering the project.
+- **Full tool access**: Agents get all tools (Read, Write, Edit, Bash, Glob, Grep, Agent). Subprocess `--print` mode has limited tool access and no interactivity.
+- **User interaction**: When an agent is blocked, it can ask the user. A subprocess cannot.
+- **No environment mismatch**: Agents run in the same process with the same MCP servers, permissions, and configuration.
+- **Simpler code**: No `claude_cli.py` invocation builder, no `compile_story_context()`, no `compile_retry_context()`. Pass file paths, not compiled content — agents read files themselves.
 
-    if test_result.returncode != 0:
-        # 4. Retry once with error feedback
-        retry_context = compile_retry_context(context, test_result.stderr)
-        retry_result = subprocess.run([
-            "claude", "--print",
-            "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-            "--no-session-persistence",
-            retry_context
-        ])
-        retest = subprocess.run(["python", "-m", "pytest", ...])
+### What Python Still Handles
 
-        if retest.returncode != 0:
-            update_story_status(story, "blocked", failure_log=retest.stderr)
-            print(f"Story {story.id} blocked after retry. See .mantle/stories/ for details.")
-            break
-
-    # 5. Atomic git commit
-    git_commit(f"feat(issue-{issue.id}): {story.title}")
-
-    # 6. Update vault state
-    update_story_status(story, "completed")
-    update_project_state(project)
-    write_session_log(project, story)
-```
+- **Story status updates**: YAML frontmatter editing is fragile in prompts. `mantle update-story-status` uses tested Python code (in `core/stories.py`) to reliably update status and tags.
+- **Story CRUD**: Save, load, list stories with Pydantic validation.
 
 ### Resumability Contract
 
 The orchestrator is designed to be safely re-run at any point:
 
-- **Completed stories are skipped**: The loop checks `story.status == "completed"` and advances past them. Re-running `mantle implement --issue N` after a partial run resumes from the first non-completed story.
-- **Blocked stories stop the loop**: A `blocked` story halts the loop. The user fixes the issue manually, sets the story status back to `planned` (via editing the frontmatter or a future `mantle unblock` command), and re-runs.
-- **Crash mid-story (Ctrl+C, power failure)**: The story remains `in-progress`. On re-run, the orchestrator treats `in-progress` the same as `planned` — it re-invokes Claude Code for that story from scratch. Since each story targets a small, focused change, re-doing work is cheap. The previous partial changes are in the working tree and Claude Code can see them.
-- **Claude Code non-zero exit (not test failure)**: Treated as a story failure. The story is marked `blocked` with the stderr output. The orchestrator does not retry Claude Code crashes — only test failures get the retry-with-feedback loop.
-- **Git commit failure**: If `git commit` fails after a successful story (e.g., pre-commit hook failure), the story is not marked `completed`. On re-run, Claude Code sees the already-written code and the orchestrator re-attempts the commit.
+- **Completed stories are skipped**: The prompt checks each story's status and skips `completed` stories.
+- **Blocked stories stop the loop**: A `blocked` story halts the loop. The user fixes the issue manually, sets the story status back to `planned`, and re-runs.
+- **Crash mid-story**: The story remains `in-progress`. On re-run, the orchestrator treats `in-progress` the same as `planned` — it spawns a new Agent for that story. The previous partial changes are in the working tree and the agent can see them.
 
-The invariant: a story is only marked `completed` after both its tests pass AND its git commit succeeds. This makes the loop idempotent.
+The invariant: a story is only marked `completed` after both its tests pass AND its git commit succeeds.
 
 ### Worktree Support
 
-When implementing an issue, Mantle leverages Claude Code's native worktree support (`--worktree` / `-w` flag). Claude Code creates worktrees at `.claude/worktrees/<name>/` with a `worktree-<name>` branch, handles cleanup automatically, and tracks sessions per worktree.
-
-```python
-# mantle implement --issue 3
-
-# Each story's Claude Code invocation uses the same worktree
-result = subprocess.run([
-    "claude", "--worktree", f"mantle-issue-{issue_id}",
-    "--print",
-    "--allowedTools", "Read,Write,Edit,Bash,Glob,Grep",
-    "--no-session-persistence",
-    context
-])
-
-# On successful verify + review:
-# Merge the worktree branch back to main
-git_merge(f"worktree-mantle-issue-{issue_id}", target="main")
-# Claude Code handles worktree cleanup on session exit
-```
-
-This enables parallel implementation of multiple issues in separate terminal sessions without conflicts. Each issue gets its own branch and working directory. Add `.claude/worktrees/` to `.gitignore`.
-
-### Why Python, Not Bash or Markdown-Driven
-
-- Deterministic orchestration (Python controls flow, not AI)
-- Proper error handling (try/except, explicit recovery, retry logic)
-- Zero token cost for loop logic
-- Resumable (skips completed stories on re-run)
-- Testable (unit test the loop without LLM calls)
-- Clean vault updates (YAML parsing, frontmatter manipulation)
-- Worktree management (subprocess calls to git)
-
-Each story gets a fresh Claude Code invocation with compiled context, preventing context window degradation across stories.
-
-### Claude Code Flags Reference
-
-Flags available for orchestrator subprocess invocations (verified against `claude --help`):
-
-| Flag | Purpose | Usage |
-|---|---|---|
-| `--print` | Non-interactive mode, print response and exit | Required for all orchestrator calls |
-| `--allowedTools` | Whitelist of tools (e.g. `"Read,Write,Edit,Bash,Glob,Grep"`) | Restrict per story type |
-| `--worktree <name>` | Create/reuse git worktree for isolation | Per-issue branch isolation |
-| `--system-prompt <prompt>` | Inject system-level context separately from story prompt | Project state, skills, conventions |
-| `--max-budget-usd <amount>` | Cost ceiling per invocation (only with `--print`) | Prevent runaway token usage |
-| `--output-format json` | Structured JSON output (only with `--print`) | Parse completion signals |
-| `--no-session-persistence` | Don't persist session to disk (only with `--print`) | Keep `~/.claude/` clean |
-| `--model <model>` | Override model (e.g. `sonnet`, `opus`) | Configurable per project via config.md |
-| `--permission-mode <mode>` | Permission level (`default`, `acceptEdits`, `bypassPermissions`) | Autonomous execution |
-| `--tools <tools>` | Specify available built-in tools | Alternative to `--allowedTools` |
-| `--tmux` | Create tmux session for worktree (requires `--worktree`) | Parallel issue visibility |
-
-Note: The prompt is a **positional argument**, not a flag. Invocation pattern: `claude --print [flags] <prompt>`.
+Issue 14 (automated worktree management) was dropped — it was designed around passing `--worktree` to subprocess invocations which no longer exist. Users who want parallel issue implementation can use Claude Code's native `/worktree` command before running `/mantle:implement`. This is a single user action and not worth automating.
 
 ## Technology Choices
 
@@ -1031,7 +958,7 @@ Note: The prompt is a **positional argument**, not a flag. Invocation pattern: `
 13. `/mantle:plan-issues` — One-at-a-time issue planning
 14. `/mantle:plan-stories` — Story planning with test specs (TDD)
 14b. `/mantle:shape-issue` — Shape issue approaches before story decomposition
-15. `/mantle:implement` — Python orchestration loop with retry-with-feedback
+15. `/mantle:implement` — Prompt-based orchestrator with Agent subagents and retry-with-feedback
 16. Worktree support — Auto-create worktree/branch per issue, merge on completion
 17. `/mantle:verify` — Project-specific verification strategy (config on first use)
 18. `/mantle:review` — Checklist-based human review

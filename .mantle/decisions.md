@@ -37,7 +37,9 @@ Decisions made during design and implementation.
 
 ## 3. Python Orchestration Loop, Not Bash or Markdown-Driven
 
-**Decision**: The implementation loop (`/mantle:implement`) is orchestrated by Python code that invokes Claude Code as a subprocess per story. Not a bash script, and not Claude Code interpreting markdown instructions (GSD approach).
+> **Superseded by Decision 34.** The implementation shifted from Python subprocess orchestration to prompt-based Agent orchestration during issue 13 (story 5).
+
+**Decision**: ~~The implementation loop (`/mantle:implement`) is orchestrated by Python code that invokes Claude Code as a subprocess per story. Not a bash script, and not Claude Code interpreting markdown instructions (GSD approach).~~
 
 **Alternatives Considered**:
 - GSD approach: loop logic written as markdown instructions, Claude Code orchestrates
@@ -369,17 +371,13 @@ date: 2026-02-22
 
 ## 21. Worktree-Based Parallel Implementation
 
-**Decision**: `mantle implement --issue N` automatically creates a git worktree and branch. Merges back on successful verify + review. Enables parallel issue implementation in separate terminal sessions.
+> **Dropped.** Issue 14 was dropped after Decision 34 replaced subprocess orchestration with prompt-based Agent orchestration. The `--worktree` flag was a subprocess concern — there is no subprocess to pass it to. Users can use Claude Code's native `/worktree` command before running `/mantle:implement`.
 
-**Alternatives Considered**:
-- Single-issue only (one `current_issue` in state.md)
-- Parallel allowed but user manages worktrees manually
-- v2 feature
+**Original Decision**: `mantle implement --issue N` automatically creates a git worktree and branch. Merges back on successful verify + review. Enables parallel issue implementation in separate terminal sessions.
 
-**Rationale**: Claude Code has native worktree support. Parallel implementation is a natural workflow when issues are independent. Automating worktree creation removes friction and prevents accidental conflicts. The implementation loop already uses `subprocess.run` for git operations, so worktree management is a natural extension.
+**Why dropped**: The decision was designed around `subprocess.run(["claude", "--worktree", ...])`. With prompt-based orchestration (Decision 34), the implementation runs inside the user's existing Claude Code session. Worktree isolation is a single user action (`/worktree` or `EnterWorktree`) — automating it adds complexity without meaningful UX gain.
 
-**Confidence**: Medium (depends on worktree management complexity in practice)
-**Reversible**: High (can fall back to single-issue mode)
+**User stories 27-28**: Deferred, not deleted. If automated worktree management proves needed, it would be redesigned around the Agent-based architecture.
 
 ---
 
@@ -573,3 +571,41 @@ date: 2026-02-22
 
 **Confidence**: High
 **Reversible**: High (split into two commands if users want more control)
+
+---
+
+## 34. Prompt-Based Agent Orchestration, Not Python Subprocess
+
+**Decision**: The implementation loop (`/mantle:implement`) is a prompt-based orchestrator (`implement.md`) that spawns native Claude Code Agent subagents per story. Replaces the Python subprocess approach from Decision 3.
+
+**Supersedes**: Decision 3
+
+**Alternatives Considered**:
+- Python subprocess loop via `subprocess.run(["claude", "--print", ...])` (original approach, Decision 3)
+- Hybrid: Python loop that calls Agent tool via SDK (no SDK available)
+- Keep subprocess for CI/CD, use Agent for interactive sessions
+
+**Rationale**: Building the Python subprocess orchestrator (issue 13, stories 1-4) revealed fundamental limitations of the "Claude outside Claude" pattern:
+
+1. **Cold starts**: Each `claude --print` invocation re-reads CLAUDE.md, re-discovers the project, and starts from zero. Agents inherit the session's environment instantly.
+2. **No tool access**: `--print` mode has limited tool access and no interactivity. Agents get all tools (Read, Write, Edit, Bash, Glob, Grep, Agent) with full capability.
+3. **No user interaction**: When a subprocess is stuck, it fails silently. An Agent can ask the user for guidance.
+4. **No MCP servers**: Subprocesses don't inherit MCP server connections. Agents do.
+5. **Environment mismatch**: The inner subprocess has different permissions, tools, and context than the outer session. Agents run in the same process.
+6. **Simpler code**: The subprocess approach required `claude_cli.py` (invocation builder), `compile_story_context()` (context serialization), `compile_retry_context()`, and a Python implementation loop. The Agent approach passes file paths and lets agents read files themselves — the orchestration logic fits in a single markdown file.
+
+The GSD project (23.8k stars) validated this pattern: a prompt-based orchestrator staying lean (~10-15% context) while each Agent subagent gets a fresh 200k context window. Python still handles state management (story status updates via `mantle update-story-status`) because YAML frontmatter editing is fragile in prompts.
+
+**What changed**:
+- Deleted: `core/claude_cli.py`, `cli/implement.py`, `orchestrator.implement()`, `compile_story_context()`, `compile_retry_context()`, `_run_tests()`, `_git_commit()`
+- Kept: `update_story_status()` (moved to `core/stories.py`, exposed via CLI)
+- Rewritten: `implement.md` is now the full orchestrator, not just a trigger for Python code
+
+**Trade-offs accepted**:
+- Orchestration logic is no longer unit-testable (lives in a prompt, not Python). Accepted because the orchestration is simple sequential logic (iterate stories, spawn agent, check tests, commit), and the complex parts (story status management) remain in tested Python.
+- Token cost for orchestration is no longer zero. Accepted because the cost is small (~10-15% of one context window) and the capability gain (full tool access, user interaction, no cold starts) is substantial.
+
+**Future option — Claude Agent SDK**: The Python Agent SDK (`claude-agent-sdk`) provides `query()` and `ClaudeSDKClient` APIs that spawn full Claude Code agents from Python with tool access, MCP servers, CLAUDE.md loading, permission callbacks, and budget controls. This would enable "Approach B": a testable Python loop (Decision 3's strength) with full agent capabilities per story (Decision 34's strength). The SDK's advantages over the current prompt approach are testable orchestration, headless/CI execution, zero token cost for loop logic, and programmatic control (`max_budget_usd` per story, `can_use_tool` callbacks). The prompt approach wins on cold start (zero — same process vs new process per `query()`), inherited session environment (MCP servers, permissions are implicit vs explicit config), and natural user interaction (agent asks user directly vs interrupt handling). For the current use case — interactive sessions with user present — Decision 34 is the better fit. Revisit the SDK approach if headless execution is needed (e.g., `mantle implement --issue 5 --headless` for CI/CD).
+
+**Confidence**: High
+**Reversible**: Medium (SDK approach is a natural evolution, not a rewrite — the loop logic and state management patterns transfer directly)

@@ -1,11 +1,11 @@
 ---
 issue: 13
 title: Replace subprocess orchestration with native Agent-based execution
-status: planned
+status: completed
 failure_log: null
 tags:
   - type/story
-  - status/planned
+  - status/completed
 ---
 
 ## User Story
