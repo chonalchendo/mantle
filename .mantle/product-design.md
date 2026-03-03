@@ -259,7 +259,7 @@ Each milestone represents a complete user workflow — something a user can inst
 
 **What the user can do**: Full idea-to-design workflow. Product and system design documents with every decision logged and traceable. Research building blocks through first-principles decomposition. Revise designs as understanding evolves. Existing projects can adopt Mantle and generate design docs from their codebase.
 
-### v0.4.0 — Context & Continuity (issues 8–10, 17)
+### v0.4.0 — Context & Continuity (issues 8–10, 17) ✅
 
 Auto-briefing, session logs, and skill graph — the knowledge engine.
 
@@ -286,15 +286,15 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 
 `/mantle:plan-issues` → `/mantle:plan-stories` → `/mantle:implement` → automated build loop.
 
-| Issue | Title | Depends on |
-|-------|-------|------------|
-| 11 | Issue planning (`/mantle:plan-issues`) | 02 |
-| 12 | Story planning (`/mantle:plan-stories`) | 11 |
-| 13 | Implementation orchestration loop (`/mantle:implement`) | 12 |
-| 14 | Worktree parallel implementation | 13 |
-| 20 | Bug capture (`/mantle:bug`) | 02 |
-| 22 | Shape issue (`/mantle:shape-issue`) | 11 |
-| 23 | Retrospective (`/mantle:retrospective`) | 22 |
+| Issue | Title | Status | Depends on |
+|-------|-------|--------|------------|
+| 11 | Issue planning (`/mantle:plan-issues`) | completed | 02 |
+| 12 | Story planning (`/mantle:plan-stories`) | completed | 11 |
+| 13 | Implementation orchestration loop (`/mantle:implement`) | planned | 12 |
+| 14 | Worktree parallel implementation | planned | 13 |
+| 20 | Bug capture (`/mantle:bug`) | completed | 02 |
+| 22 | Shape issue (`/mantle:shape-issue`) | completed | 11 |
+| 23 | Retrospective (`/mantle:retrospective`) | planned | 22 |
 
 **What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning.
 
