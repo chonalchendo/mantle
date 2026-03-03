@@ -51,7 +51,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.4.1** — Skill Usability Patch. Validate skill links, add content tags, compile skills to `.claude/skills/` for native Claude Code loading, and surface stub skills in resume briefing.
+**v0.4.2** — Vault & state fixes. Correct Obsidian wikilink resolution, vault project folder structure, and prevent state clobbering during skill capture.
 
 ## License
 
