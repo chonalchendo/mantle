@@ -293,8 +293,8 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 | 13 | Implementation orchestration loop (`/mantle:implement`) | 12 |
 | 14 | Worktree parallel implementation | 13 |
 | 20 | Bug capture (`/mantle:bug`) | 02 |
-| 21 | Shape issue (`/mantle:shape-issue`) | 11 |
-| 22 | Retrospective (`/mantle:retrospective`) | 21 |
+| 22 | Shape issue (`/mantle:shape-issue`) | 11 |
+| 23 | Retrospective (`/mantle:retrospective`) | 22 |
 
 **What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning.
 
@@ -331,5 +331,5 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 ### Open Questions
 
 - How should the personal vault skill graph interact with `.mantle/` project context when multiple team members have different personal vaults? (The current answer: personal vault is private, project vault is shared. They link via `skills_required` in state.md but don't merge.)
-- Should there be a `/mantle:retrospective` command for end-of-project reflection? (Resolved: Implemented in issue 22. Captures structured learnings with confidence delta after each issue. Learnings auto-surface in future `/mantle:shape-issue` sessions.)
+- Should there be a `/mantle:retrospective` command for end-of-project reflection? (Resolved: Implemented in issue 23. Captures structured learnings with confidence delta after each issue. Learnings auto-surface in future `/mantle:shape-issue` sessions.)
 - What's the right behaviour when Obsidian CLI is unavailable (not installed, wrong version)? (Current answer: filesystem fallback for all operations. Log a warning.)
