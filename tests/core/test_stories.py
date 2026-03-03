@@ -20,6 +20,7 @@ from mantle.core.stories import (
     next_story_number,
     save_story,
     story_exists,
+    update_story_status,
 )
 
 if TYPE_CHECKING:
@@ -326,3 +327,158 @@ class TestCountStories:
         _save(project, title="Second")
 
         assert count_stories(project, issue=1) == 2
+
+
+# ── update_story_status ───────────────────────────────────────
+
+
+class TestUpdateStoryStatus:
+    def test_changes_status(self, project: Path) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.status == "in-progress"
+
+    def test_round_trip(self, project: Path) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="completed"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.status == "completed"
+
+    def test_sets_failure_log(self, project: Path) -> None:
+        _save(project)
+        update_story_status(
+            project,
+            issue=1,
+            story=1,
+            status="blocked",
+            failure_log="tests failed: AssertionError",
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.failure_log == (
+            "tests failed: AssertionError"
+        )
+
+    def test_leaves_failure_log_none(
+        self, project: Path
+    ) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.failure_log is None
+
+    def test_updates_tags(self, project: Path) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert "status/in-progress" in note.frontmatter.tags
+        assert "status/planned" not in note.frontmatter.tags
+
+    def test_planned_to_in_progress(
+        self, project: Path
+    ) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.status == "in-progress"
+
+    def test_in_progress_to_completed(
+        self, project: Path
+    ) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+        update_story_status(
+            project, issue=1, story=1, status="completed"
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.status == "completed"
+        assert "status/completed" in note.frontmatter.tags
+
+    def test_in_progress_to_blocked_with_failure_log(
+        self, project: Path
+    ) -> None:
+        _save(project)
+        update_story_status(
+            project, issue=1, story=1, status="in-progress"
+        )
+        update_story_status(
+            project,
+            issue=1,
+            story=1,
+            status="blocked",
+            failure_log="test_foo FAILED",
+        )
+
+        path = (
+            project
+            / ".mantle"
+            / "stories"
+            / "issue-01-story-01.md"
+        )
+        note = vault.read_note(path, StoryNote)
+        assert note.frontmatter.status == "blocked"
+        assert (
+            note.frontmatter.failure_log == "test_foo FAILED"
+        )
+        assert "status/blocked" in note.frontmatter.tags

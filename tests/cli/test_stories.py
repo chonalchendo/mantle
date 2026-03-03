@@ -11,7 +11,8 @@ import pytest
 
 from mantle.core.issues import IssueNote
 from mantle.core.state import ProjectState, Status
-from mantle.core.vault import write_note
+from mantle.core.stories import StoryNote
+from mantle.core.vault import read_note, write_note
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -58,6 +59,30 @@ def project(tmp_path: Path) -> Path:
         "## What to build\n\nBuild it.\n",
     )
     return tmp_path
+
+
+def _write_story(
+    project_dir: Path,
+    *,
+    issue: int = 1,
+    story: int = 1,
+    title: str = "Core module",
+    status: str = "planned",
+) -> None:
+    note = StoryNote(
+        issue=issue,
+        title=title,
+        status=status,
+        tags=("type/story", f"status/{status}"),
+    )
+    write_note(
+        project_dir
+        / ".mantle"
+        / "stories"
+        / f"issue-{issue:02d}-story-{story:02d}.md",
+        note,
+        "## Implementation\n\nBuild it.\n",
+    )
 
 
 # ── run_save_story ─────────────────────────────────────────────
@@ -150,6 +175,93 @@ class TestRunSaveStory:
 # ── CLI wiring ─────────────────────────────────────────────────
 
 
+# ── run_update_story_status ────────────────────────────────────
+
+
+class TestRunUpdateStoryStatus:
+    def test_updates_status(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _write_story(project)
+
+        from mantle.cli.stories import run_update_story_status
+
+        run_update_story_status(
+            issue=1,
+            story=1,
+            status="in-progress",
+            project_dir=project,
+        )
+
+        path = project / ".mantle" / "stories" / "issue-01-story-01.md"
+        note = read_note(path, StoryNote)
+        assert note.frontmatter.status == "in-progress"
+
+    def test_prints_confirmation(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _write_story(project)
+
+        from mantle.cli.stories import run_update_story_status
+
+        run_update_story_status(
+            issue=1,
+            story=1,
+            status="completed",
+            project_dir=project,
+        )
+        captured = capsys.readouterr()
+
+        assert "Updated story 1" in captured.out
+        assert "completed" in captured.out
+
+    def test_defaults_to_cwd(
+        self,
+        project: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _write_story(project)
+        monkeypatch.chdir(project)
+
+        from mantle.cli.stories import run_update_story_status
+
+        run_update_story_status(
+            issue=1,
+            story=1,
+            status="in-progress",
+        )
+
+        path = project / ".mantle" / "stories" / "issue-01-story-01.md"
+        note = read_note(path, StoryNote)
+        assert note.frontmatter.status == "in-progress"
+
+    def test_handles_not_found(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.stories import run_update_story_status
+
+        with pytest.raises(SystemExit, match="1"):
+            run_update_story_status(
+                issue=1,
+                story=99,
+                status="in-progress",
+                project_dir=project,
+            )
+
+        captured = capsys.readouterr()
+        assert "not found" in captured.out
+
+
+# ── CLI wiring ─────────────────────────────────────────────────
+
+
 class TestCLIWiring:
     def test_save_story_help(self) -> None:
         result = subprocess.run(
@@ -167,3 +279,21 @@ class TestCLIWiring:
         assert result.returncode == 0
         assert "issue" in result.stdout.lower()
         assert "title" in result.stdout.lower()
+
+    def test_update_story_status_help(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "update-story-status",
+                "--help",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert "issue" in result.stdout.lower()
+        assert "story" in result.stdout.lower()
+        assert "status" in result.stdout.lower()
