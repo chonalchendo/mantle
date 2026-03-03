@@ -153,7 +153,7 @@ def _build_skill_body(note: SkillNote, content: str) -> str:
         parts.append(f"## Related Skills\n\n{links}\n")
 
     if note.projects:
-        links = "\n".join(f"- [[{p}]]" for p in note.projects)
+        links = "\n".join(f"- [[projects/{p}]]" for p in note.projects)
         parts.append(f"## Projects\n\n{links}\n")
 
     parts.append(f"{_CONTENT_MARKER}\n{content}")

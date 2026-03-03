@@ -237,6 +237,7 @@ class TestInitVault:
         assert (vault / "skills").is_dir()
         assert (vault / "knowledge").is_dir()
         assert (vault / "inbox").is_dir()
+        assert (vault / "projects").is_dir()
 
     def test_tilde_expansion(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
@@ -269,7 +270,7 @@ class TestInitVault:
     def test_raises_if_all_exist(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
         vault = tmp_path / "vault"
-        for d in ("skills", "knowledge", "inbox"):
+        for d in ("skills", "knowledge", "inbox", "projects"):
             (vault / d).mkdir(parents=True)
 
         with pytest.raises(FileExistsError):
@@ -284,6 +285,7 @@ class TestInitVault:
 
         assert (vault / "knowledge").is_dir()
         assert (vault / "inbox").is_dir()
+        assert (vault / "projects").is_dir()
 
     def test_raises_if_mantle_missing(self, tmp_path: Path) -> None:
         vault = tmp_path / "vault"

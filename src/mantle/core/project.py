@@ -205,7 +205,7 @@ def update_config(project_root: Path, **kwargs: Any) -> None:
 def init_vault(vault_path: Path, project_root: Path) -> None:
     """Create personal vault structure and link it to this project.
 
-    Creates skills/, knowledge/, inbox/ at vault_path.
+    Creates skills/, knowledge/, inbox/, projects/ at vault_path.
     Records the resolved vault path in .mantle/config.md.
 
     Args:
@@ -222,7 +222,7 @@ def init_vault(vault_path: Path, project_root: Path) -> None:
         raise FileNotFoundError(msg)
 
     resolved = vault_path.expanduser().resolve()
-    subdirs = ("skills", "knowledge", "inbox")
+    subdirs = ("skills", "knowledge", "inbox", "projects")
 
     if all((resolved / d).is_dir() for d in subdirs):
         msg = f"Personal vault already exists at {resolved}"

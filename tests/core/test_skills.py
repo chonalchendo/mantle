@@ -229,8 +229,8 @@ class TestCreateSkill:
         _, body = load_skill(path)
 
         assert "## Projects" in body
-        assert "- [[mantle]]" in body
-        assert "- [[webapp]]" in body
+        assert "- [[projects/mantle]]" in body
+        assert "- [[projects/webapp]]" in body
 
     def test_body_omits_related_skills_when_empty(self, project: Path) -> None:
         _, path = _create_skill(project, related_skills=())
@@ -457,7 +457,7 @@ class TestUpdateSkill:
 
         assert result.projects == ("mantle",)
         _, body = load_skill(path)
-        assert "- [[mantle]]" in body
+        assert "- [[projects/mantle]]" in body
 
     def test_refreshes_timestamps(self, project: Path) -> None:
         _create_skill(project)

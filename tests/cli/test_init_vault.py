@@ -59,7 +59,7 @@ class TestRunInitVault:
         monkeypatch.chdir(tmp_path)
 
         vault = tmp_path / "vault"
-        for d in ("skills", "knowledge", "inbox"):
+        for d in ("skills", "knowledge", "inbox", "projects"):
             (vault / d).mkdir(parents=True)
 
         from mantle.cli.init_vault import run_init_vault
