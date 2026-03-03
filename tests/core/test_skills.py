@@ -14,14 +14,19 @@ from mantle.core.skills import (
     SkillNote,
     VaultNotConfiguredError,
     _match_skill_slug,
+    compile_skills,
     create_skill,
+    create_stub_skill,
     detect_gaps,
+    detect_stubs,
     list_skills,
     load_relevant_skills,
     load_skill,
     skill_exists,
     suggest_gap_message,
+    suggest_stub_message,
     update_skill,
+    validate_related_skills,
 )
 from mantle.core.state import ProjectState, Status
 
@@ -274,6 +279,32 @@ class TestCreateSkill:
 
         assert note.tags == ("type/skill",)
 
+    def test_with_custom_tags(self, project: Path) -> None:
+        note, _ = _create_skill(
+            project,
+            tags=("type/skill", "topic/python-asyncio", "domain/concurrency"),
+        )
+
+        assert note.tags == (
+            "type/skill",
+            "topic/python-asyncio",
+            "domain/concurrency",
+        )
+
+    def test_always_includes_type_skill(self, project: Path) -> None:
+        note, _ = _create_skill(project)
+
+        assert "type/skill" in note.tags
+
+    def test_enforces_type_skill(self, project: Path) -> None:
+        note, _ = _create_skill(
+            project,
+            tags=("topic/python-asyncio",),
+        )
+
+        assert "type/skill" in note.tags
+        assert "topic/python-asyncio" in note.tags
+
     def test_raises_vault_not_configured(self, project_no_vault: Path) -> None:
         with pytest.raises(VaultNotConfiguredError):
             _create_skill(project_no_vault)
@@ -472,6 +503,20 @@ class TestUpdateSkill:
         assert "## Context" in body
         assert "asyncio.TaskGroup" in body
 
+    def test_update_with_tags(self, project: Path) -> None:
+        _create_skill(project)
+        result = update_skill(
+            project,
+            "Python asyncio",
+            tags=("type/skill", "topic/python-asyncio", "domain/concurrency"),
+        )
+
+        assert result.tags == (
+            "type/skill",
+            "topic/python-asyncio",
+            "domain/concurrency",
+        )
+
     def test_raises_when_skill_missing(self, project: Path) -> None:
         with pytest.raises(FileNotFoundError):
             update_skill(
@@ -522,6 +567,73 @@ class TestMatchSkillSlug:
         result = _match_skill_slug("Python asyncio", paths)
 
         assert result is None
+
+
+# ── validate_related_skills ──────────────────────────────────────
+
+
+class TestValidateRelatedSkills:
+    """Tests for validate_related_skills()."""
+
+    def test_all_exist(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        _create_skill(project, name="FastAPI")
+
+        existing, missing = validate_related_skills(
+            project, ["Python asyncio", "FastAPI"]
+        )
+
+        assert existing == ("Python asyncio", "FastAPI")
+        assert missing == ()
+
+    def test_some_missing(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+
+        existing, missing = validate_related_skills(
+            project, ["Python asyncio", "Docker compose"]
+        )
+
+        assert existing == ("Python asyncio",)
+        assert missing == ("Docker compose",)
+
+    def test_empty(self, project: Path) -> None:
+        existing, missing = validate_related_skills(project, [])
+
+        assert existing == ()
+        assert missing == ()
+
+
+# ── create_stub_skill ───────────────────────────────────────────
+
+
+class TestCreateStubSkill:
+    """Tests for create_stub_skill()."""
+
+    def test_creates_stub(self, project: Path) -> None:
+        path = create_stub_skill(project, "Docker compose")
+
+        assert path.exists()
+        assert path.name == "docker-compose.md"
+
+        note, body = load_skill(path)
+        assert note.proficiency == "0/10"
+        assert "TODO" in body
+
+    def test_already_exists(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+
+        with pytest.raises(SkillExistsError):
+            create_stub_skill(project, "Python asyncio")
+
+    def test_roundtrip(self, project: Path) -> None:
+        path = create_stub_skill(project, "Docker compose")
+
+        note, body = load_skill(path)
+
+        assert note.name == "Docker compose"
+        assert note.type == "skill"
+        assert note.tags == ("type/skill",)
+        assert "## Context" in body
 
 
 # ── detect_gaps ──────────────────────────────────────────────────
@@ -607,6 +719,69 @@ class TestSuggestGapMessage:
         assert "/mantle:add-skill" in result
 
 
+# ── detect_stubs ────────────────────────────────────────────────
+
+
+class TestDetectStubs:
+    """Tests for detect_stubs()."""
+
+    def test_finds_zero_proficiency(self, project_with_state: Path) -> None:
+        create_stub_skill(project_with_state, "Python asyncio")
+
+        result = detect_stubs(project_with_state)
+
+        assert len(result) == 1
+        name, path = result[0]
+        assert name == "Python asyncio"
+        assert path.exists()
+
+    def test_ignores_authored(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+
+        result = detect_stubs(project_with_state)
+
+        assert result == []
+
+    def test_ignores_missing(self, project_with_state: Path) -> None:
+        # "Python asyncio" and "WebSocket protocol" are required but
+        # neither exists in the vault — those are gaps, not stubs.
+        result = detect_stubs(project_with_state)
+
+        assert result == []
+
+    def test_empty_when_no_stubs(self, project: Path) -> None:
+        _write_state(project, skills_required=())
+
+        result = detect_stubs(project)
+
+        assert result == []
+
+
+# ── suggest_stub_message ────────────────────────────────────────
+
+
+class TestSuggestStubMessage:
+    """Tests for suggest_stub_message()."""
+
+    def test_lists_stubs(self) -> None:
+        stubs = [
+            ("Python asyncio", Path("/vault/skills/python-asyncio.md")),
+            ("Docker compose", Path("/vault/skills/docker-compose.md")),
+        ]
+
+        result = suggest_stub_message(stubs)
+
+        assert "Python asyncio" in result
+        assert "Docker compose" in result
+        assert "0/10" in result
+        assert "/mantle:add-skill" in result
+
+    def test_empty_for_no_stubs(self) -> None:
+        result = suggest_stub_message([])
+
+        assert result == ""
+
+
 # ── load_relevant_skills ─────────────────────────────────────────
 
 
@@ -673,3 +848,167 @@ class TestLoadRelevantSkills:
 
         with pytest.raises(VaultNotConfiguredError):
             load_relevant_skills(project_no_vault)
+
+
+# ── compile_skills ──────────────────────────────────────────────
+
+
+class TestCompileSkills:
+    """Tests for compile_skills()."""
+
+    def test_creates_directories(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+        _create_skill(project_with_state, name="WebSocket protocol")
+
+        result = compile_skills(project_with_state)
+
+        assert len(result) == 2
+        for slug in result:
+            skill_md = (
+                project_with_state / ".claude" / "skills" / slug / "SKILL.md"
+            )
+            assert skill_md.exists()
+
+    def test_frontmatter(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+
+        result = compile_skills(project_with_state)
+
+        skill_md = (
+            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        )
+        text = skill_md.read_text()
+        assert "name: python-asyncio" in text
+        assert "user-invocable: false" in text
+        assert "description:" in text
+
+    def test_content_excludes_wikilinks(self, project_with_state: Path) -> None:
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            related_skills=("FastAPI",),
+            projects=("mantle",),
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_md = (
+            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        )
+        text = skill_md.read_text()
+        assert "[[FastAPI]]" not in text
+        assert "[[mantle]]" not in text
+        assert "## Related Skills" not in text
+        assert "## Projects" not in text
+        assert "## Context" in text
+
+    def test_progressive_disclosure(self, project_with_state: Path) -> None:
+        # Build content that exceeds 500 lines.
+        long_content = (
+            "## Context\n\nIntro.\n\n"
+            "## Core Knowledge\n\n"
+            + "\n".join(f"Point {i}." for i in range(250))
+            + "\n\n## Examples\n\n"
+            + "\n".join(f"Example {i}." for i in range(250))
+        )
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            content=long_content,
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_dir = project_with_state / ".claude" / "skills" / result[0]
+        assert (skill_dir / "SKILL.md").exists()
+        assert (skill_dir / "reference.md").exists()
+
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        assert "## Context" in skill_text
+        assert "## Core Knowledge" in skill_text
+        assert "reference.md" in skill_text
+
+        ref_text = (skill_dir / "reference.md").read_text()
+        assert "## Examples" in ref_text
+
+    def test_short_content_no_split(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+
+        result = compile_skills(project_with_state)
+
+        skill_dir = project_with_state / ".claude" / "skills" / result[0]
+        assert (skill_dir / "SKILL.md").exists()
+        assert not (skill_dir / "reference.md").exists()
+
+    def test_stale_cleanup(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+        _create_skill(project_with_state, name="WebSocket protocol")
+
+        # First compile with both skills required.
+        compile_skills(project_with_state)
+
+        # Remove one skill from skills_required.
+        _write_state(
+            project_with_state,
+            skills_required=("Python asyncio",),
+        )
+        compile_skills(project_with_state)
+
+        skills_dir = project_with_state / ".claude" / "skills"
+        assert (skills_dir / "python-asyncio").is_dir()
+        assert not (skills_dir / "websocket-protocol").exists()
+
+    def test_missing_vault_skill(self, project_with_state: Path) -> None:
+        # Only create one of the two required skills.
+        _create_skill(project_with_state, name="Python asyncio")
+
+        with pytest.warns(UserWarning, match="WebSocket protocol"):
+            result = compile_skills(project_with_state)
+
+        assert len(result) == 1
+        assert result[0] == "python-asyncio"
+
+    def test_no_skills_required(self, project: Path) -> None:
+        _write_state(project, skills_required=())
+
+        # Create a stale skill directory.
+        stale_dir = project / ".claude" / "skills" / "old-skill"
+        stale_dir.mkdir(parents=True)
+        (stale_dir / "SKILL.md").write_text("stale")
+
+        result = compile_skills(project)
+
+        assert result == []
+        assert not stale_dir.exists()
+
+    def test_idempotent(self, project_with_state: Path) -> None:
+        _create_skill(project_with_state, name="Python asyncio")
+        _create_skill(project_with_state, name="WebSocket protocol")
+
+        first = compile_skills(project_with_state)
+        skill_md = (
+            project_with_state / ".claude" / "skills" / first[0] / "SKILL.md"
+        )
+        first_text = skill_md.read_text()
+
+        second = compile_skills(project_with_state)
+        second_text = skill_md.read_text()
+
+        assert first == second
+        assert first_text == second_text
+
+    def test_description_preserved(self, project_with_state: Path) -> None:
+        desc = "Async patterns using asyncio."
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            description=desc,
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_md = (
+            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        )
+        text = skill_md.read_text()
+        assert f"description: {desc}" in text

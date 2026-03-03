@@ -13,7 +13,7 @@ Read `.mantle/config.md` and check for `personal_vault`.
 - If not configured, tell the user to run `mantle init-vault <path>` first.
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 
-## Step 2 — Check for gaps
+## Step 2 — Check for gaps and stubs
 
 Read `.mantle/state.md` for `skills_required`. List existing skills in
 `<vault>/skills/`. If there are required skills without matching nodes, show
@@ -25,7 +25,15 @@ them:
 >
 > Want to start with one of these?
 
-If no gaps, proceed directly to step 3.
+Also check for stub skills (0/10 proficiency) among required skills. If any
+stubs exist, surface them:
+
+> Stub skills that could be fleshed out:
+>   - Docker compose (0/10)
+>
+> Want to fill one of these, or create a new skill?
+
+If no gaps and no stubs, proceed directly to step 3.
 
 ## Step 3 — Gather skill metadata
 
@@ -44,6 +52,25 @@ Quick pass on the structural info. Ask for each in turn:
    - 10 = wrote the spec
 4. **Related skills** — Other skills this connects to. Suggest from existing
    skill nodes if any are present.
+
+   After the user provides related skills, validate each link by running:
+
+   ```bash
+   mantle validate-related-skills --name "<skill1>" --name "<skill2>" ...
+   ```
+
+   If any skills don't exist in the vault, present each missing skill with
+   options:
+   - **Create stub** — create a minimal skill node (0/10 proficiency,
+     placeholder content) so the wikilink resolves. Run:
+     `mantle create-stub-skill --name "<missing skill>"`
+   - **Remove link** — drop it from the related_skills list
+   - **Keep anyway** — leave the dangling link (Obsidian will show it as
+     unresolved, but it's not harmful)
+
+   Process each missing skill individually — the user may want different
+   actions for different links.
+
 5. **Projects** — Which projects use this skill? Suggest from known project
    names.
 
@@ -158,9 +185,29 @@ simple):
 
 Review the final draft with the user and iterate once before saving.
 
-## Step 6 — Confirm and save
+## Step 6 — Suggest content tags
 
-Show the full summary (metadata + content preview), then run:
+Before saving, suggest content-based tags for the skill:
+
+1. Read `.mantle/tags.md` to see the existing tag taxonomy
+2. Based on the skill's name, description, and authored content, suggest
+   `topic/` and `domain/` tags:
+   - **`topic/<slug>`** — one tag matching the skill's subject (e.g.,
+     `topic/python-asyncio`, `topic/docker-compose`)
+   - **`domain/<area>`** — the broad domain (e.g., `domain/web`,
+     `domain/concurrency`, `domain/database`)
+3. Reuse existing tags from `tags.md` where they fit (e.g., if
+   `domain/web` already exists, use it rather than creating `domain/web-dev`)
+4. If proposing a new tag not in `tags.md`, note it as "(new)"
+5. Present the suggested tags to the user for confirmation — they can add,
+   remove, or edit tags before proceeding
+
+After the user confirms, these tags will be passed to the save command via
+`--tag` options. New tags are automatically appended to `tags.md`.
+
+## Step 7 — Confirm and save
+
+Show the full summary (metadata + content preview + tags), then run:
 
 ```bash
 mantle save-skill \
@@ -170,15 +217,24 @@ mantle save-skill \
   --content "<authored content>" \
   --related-skills "<skill1>" \
   --related-skills "<skill2>" \
-  --projects "<project1>"
+  --projects "<project1>" \
+  --tag "topic/<slug>" \
+  --tag "domain/<area>"
 ```
 
-## Step 7 — Offer to continue
+After saving, trigger recompilation so the new skill is immediately available
+to Claude Code:
+
+```bash
+mantle compile --force
+```
+
+## Step 8 — Offer to continue
 
 After saving, ask if they want to add another skill. If gaps were detected in
 step 2, suggest the next untracked skill.
 
-## Step 8 — Session logging
+## Step 9 — Session logging
 
 Before ending, write a session log:
 

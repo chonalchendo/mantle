@@ -19,6 +19,7 @@ def run_save_skill(
     content: str,
     related_skills: tuple[str, ...] = (),
     projects: tuple[str, ...] = (),
+    tags: tuple[str, ...] = (),
     overwrite: bool = False,
     project_dir: Path | None = None,
 ) -> None:
@@ -31,6 +32,7 @@ def run_save_skill(
         content: Authored skill knowledge (markdown).
         related_skills: Related skill names.
         projects: Project names using this skill.
+        tags: Content tags (e.g. ``topic/python``, ``domain/web``).
         overwrite: Replace existing skill if True.
         project_dir: Project directory. Defaults to cwd.
 
@@ -50,6 +52,7 @@ def run_save_skill(
             content=content,
             related_skills=related_skills,
             projects=projects,
+            tags=tags,
             overwrite=overwrite,
         )
     except skills.SkillExistsError as exc:

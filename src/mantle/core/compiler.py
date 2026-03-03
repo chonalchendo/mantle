@@ -7,7 +7,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from mantle.core import manifest, session, state, templates, vault
+from mantle.core import manifest, session, skills, state, templates, vault
 
 # ── Public API ───────────────────────────────────────────────────
 
@@ -45,6 +45,13 @@ def collect_context(project_dir: Path) -> dict[str, Any]:
 
     context.update(_collect_session_context(project_dir))
 
+    # Detect stub skills for resume template
+    try:
+        stub_results = skills.detect_stubs(project_dir)
+        context["skill_stubs"] = [name for name, _ in stub_results]
+    except skills.VaultNotConfiguredError, FileNotFoundError:
+        context["skill_stubs"] = []
+
     return context
 
 
@@ -77,6 +84,13 @@ def source_paths(project_dir: Path) -> list[Path]:
     tpl_dir = template_dir()
     if tpl_dir.is_dir():
         paths.extend(sorted(p for p in tpl_dir.iterdir() if p.suffix == ".j2"))
+
+    # Vault skill files for staleness detection
+    try:
+        skill_paths = skills.list_skills(project_dir)
+        paths.extend(skill_paths)
+    except skills.VaultNotConfiguredError, FileNotFoundError:
+        pass
 
     return paths
 
@@ -143,6 +157,9 @@ def compile(
         out_name = tpl_name.removesuffix(".j2")
         (target_dir / out_name).write_text(rendered, encoding="utf-8")
         compiled.append(out_name)
+
+    # Compile vault skills to .claude/skills/
+    skills.compile_skills(project_dir)
 
     paths = source_paths(project_dir)
     hashes = manifest.hash_paths(paths)

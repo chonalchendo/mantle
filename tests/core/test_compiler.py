@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from mantle.core import compiler, templates, vault
+from mantle.core.project import _ConfigFrontmatter
 from mantle.core.session import SessionNote
+from mantle.core.skills import SkillNote
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -540,3 +542,93 @@ class TestResumeTemplate:
         # this should be well under budget.
         word_count = len(rendered.split())
         assert word_count < 750
+
+
+# ── compile (skills integration) ──────────────────────────────
+
+
+def _setup_skills_project(
+    tmp_path: Path,
+    *,
+    skill_names: tuple[str, ...] = ("python",),
+) -> None:
+    """Set up a project with vault, state, and skills for compiler tests."""
+    _write_state_md(tmp_path / ".mantle")
+
+    # Create vault with skills directory.
+    vault_path = tmp_path / "vault"
+    (vault_path / "skills").mkdir(parents=True)
+
+    # Write config pointing to vault.
+    fm = _ConfigFrontmatter(personal_vault=str(vault_path))
+    vault.write_note(tmp_path / ".mantle" / "config.md", fm, "## Config\n")
+
+    # Create vault skill files.
+    identity = MOCK_EMAIL
+    today = date(2025, 1, 1)
+    for name in skill_names:
+        slug = name.lower().replace(" ", "-")
+        note = SkillNote(
+            name=name,
+            description=f"Skill for {name}.",
+            proficiency="7/10",
+            last_used=today,
+            author=identity,
+            created=today,
+            updated=today,
+            updated_by=identity,
+        )
+        body = (
+            f"<!-- mantle:content -->\n## Context\n\nKnowledge about {name}.\n"
+        )
+        vault.write_note(
+            vault_path / "skills" / f"{slug}.md",
+            note,
+            body,
+        )
+
+
+class TestCompileIncludesSkills:
+    @patch(
+        "mantle.core.skills.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_compile_includes_skills(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        _setup_skills_project(tmp_path)
+        tpl_dir = _make_template_dir(tmp_path)
+        target = tmp_path / "output"
+
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
+            compiler.compile(tmp_path, target_dir=target)
+
+        skill_dir = tmp_path / ".claude" / "skills" / "python"
+        assert (skill_dir / "SKILL.md").exists()
+
+    @patch(
+        "mantle.core.skills.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_staleness_detects_skill_changes(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        _setup_skills_project(tmp_path)
+        tpl_dir = _make_template_dir(tmp_path)
+        target = tmp_path / "output"
+
+        with patch.object(compiler, "template_dir", return_value=tpl_dir):
+            compiler.compile(tmp_path, target_dir=target)
+
+            # Should be up to date.
+            result = compiler.compile_if_stale(tmp_path, target_dir=target)
+            assert result is None
+
+            # Modify a vault skill file.
+            vault_skill = tmp_path / "vault" / "skills" / "python.md"
+            text = vault_skill.read_text()
+            vault_skill.write_text(text + "\nNew content.\n")
+
+            # Should detect staleness and recompile.
+            result = compiler.compile_if_stale(tmp_path, target_dir=target)
+            assert result is not None

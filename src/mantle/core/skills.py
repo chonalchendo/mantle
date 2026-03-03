@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import re
+import shutil
+import warnings
 from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pydantic
+import yaml
 
 from mantle.core import project, state, vault
 
@@ -125,7 +128,7 @@ def _validate_proficiency(proficiency: str) -> None:
         msg = 'Invalid proficiency format. Use "N/10" (e.g. "7/10").'
         raise ValueError(msg)
     n = int(match.group(1))
-    if n < 1 or n > 10:
+    if n < 0 or n > 10:
         msg = 'Invalid proficiency format. Use "N/10" (e.g. "7/10").'
         raise ValueError(msg)
 
@@ -175,6 +178,46 @@ def _match_skill_slug(name: str, existing_paths: Sequence[Path]) -> Path | None:
     return None
 
 
+def _match_required_skills(
+    project_dir: Path,
+) -> list[tuple[str, Path | None]]:
+    """Match ``skills_required`` names to vault paths.
+
+    Loads state and vault skill list once, then matches each required
+    skill name by slug.
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+
+    Returns:
+        List of ``(required name, matched path or None)`` pairs.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    current_state = state.load_state(project_dir)
+    required = current_state.skills_required
+    if not required:
+        return []
+    existing = list_skills(project_dir)
+    return [(name, _match_skill_slug(name, existing)) for name in required]
+
+
+def _ensure_type_skill(tags: Sequence[str]) -> tuple[str, ...]:
+    """Ensure ``type/skill`` is present in the tags tuple.
+
+    Args:
+        tags: Input tag sequence.
+
+    Returns:
+        Tuple with ``type/skill`` guaranteed to be included.
+    """
+    result = list(tags)
+    if "type/skill" not in result:
+        result.insert(0, "type/skill")
+    return tuple(result)
+
+
 # ── Public API ───────────────────────────────────────────────────
 
 
@@ -187,6 +230,7 @@ def create_skill(
     content: str,
     related_skills: tuple[str, ...] = (),
     projects: tuple[str, ...] = (),
+    tags: tuple[str, ...] = (),
     overwrite: bool = False,
 ) -> tuple[SkillNote, Path]:
     """Create a skill node in the personal vault.
@@ -199,6 +243,7 @@ def create_skill(
         content: Authored skill knowledge (markdown).
         related_skills: Related skill names.
         projects: Project names using this skill.
+        tags: Content tags. ``type/skill`` is always included.
         overwrite: Replace existing skill if True.
 
     Returns:
@@ -227,6 +272,7 @@ def create_skill(
         proficiency=proficiency,
         related_skills=related_skills,
         projects=projects,
+        tags=_ensure_type_skill(tags),
         last_used=today,
         author=identity,
         created=today,
@@ -292,6 +338,62 @@ def skill_exists(project_dir: Path, name: str) -> bool:
     return (skills_dir / f"{slug}.md").exists()
 
 
+def validate_related_skills(
+    project_dir: Path,
+    related_skills: Sequence[str],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Check which related skills exist in the vault.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        related_skills: Skill names to check.
+
+    Returns:
+        Tuple of (existing, missing) skill name tuples.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    existing: list[str] = []
+    missing: list[str] = []
+    for name in related_skills:
+        if skill_exists(project_dir, name):
+            existing.append(name)
+        else:
+            missing.append(name)
+    return tuple(existing), tuple(missing)
+
+
+def create_stub_skill(
+    project_dir: Path,
+    name: str,
+) -> Path:
+    """Create a minimal stub skill node in the vault.
+
+    Stub skills have proficiency 0/10 and a placeholder context
+    section, intended to be fleshed out later via /mantle:add-skill.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        name: Human-readable skill name.
+
+    Returns:
+        Path to the created stub file.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+        SkillExistsError: If the skill already exists.
+    """
+    _, path = create_skill(
+        project_dir,
+        name=name,
+        description=f"Stub for {name}. Flesh out via /mantle:add-skill.",
+        proficiency="0/10",
+        content="## Context\n\nTODO: Add skill knowledge.",
+    )
+    return path
+
+
 def update_skill(
     project_dir: Path,
     name: str,
@@ -301,6 +403,7 @@ def update_skill(
     content: str | None = None,
     related_skills: tuple[str, ...] | None = None,
     projects: tuple[str, ...] | None = None,
+    tags: tuple[str, ...] | None = None,
 ) -> SkillNote:
     """Update fields on an existing skill node.
 
@@ -312,6 +415,8 @@ def update_skill(
         content: New authored content, or None to keep current.
         related_skills: New related skills, or None to keep current.
         projects: New projects, or None to keep current.
+        tags: New tags, or None to keep current. ``type/skill``
+            is always included.
 
     Returns:
         The updated SkillNote.
@@ -349,6 +454,8 @@ def update_skill(
         updates["related_skills"] = related_skills
     if projects is not None:
         updates["projects"] = projects
+    if tags is not None:
+        updates["tags"] = _ensure_type_skill(tags)
 
     updated_note = current_note.model_copy(update=updates)
 
@@ -402,17 +509,11 @@ def detect_gaps(project_dir: Path) -> list[str]:
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
-    current_state = state.load_state(project_dir)
-    required = current_state.skills_required
-    if not required:
-        return []
-
-    existing = list_skills(project_dir)
-    gaps: list[str] = []
-    for name in required:
-        if _match_skill_slug(name, existing) is None:
-            gaps.append(name)
-    return gaps
+    return [
+        name
+        for name, path in _match_required_skills(project_dir)
+        if path is None
+    ]
 
 
 def suggest_gap_message(gaps: Sequence[str]) -> str:
@@ -435,6 +536,48 @@ def suggest_gap_message(gaps: Sequence[str]) -> str:
     )
 
 
+def detect_stubs(project_dir: Path) -> list[tuple[str, Path]]:
+    """Find ``skills_required`` that exist as stubs (0/10 proficiency).
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+
+    Returns:
+        List of ``(skill name, path)`` tuples for stub skills that
+        are in ``skills_required`` and have proficiency ``"0/10"``.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    stubs: list[tuple[str, Path]] = []
+    for _, path in _match_required_skills(project_dir):
+        if path is not None:
+            note, _ = load_skill(path)
+            if note.proficiency == "0/10":
+                stubs.append((note.name, path))
+    return stubs
+
+
+def suggest_stub_message(stubs: Sequence[tuple[str, Path]]) -> str:
+    """Format a message prompting the user to fill stub skills.
+
+    Args:
+        stubs: List of ``(skill name, path)`` tuples.
+
+    Returns:
+        Formatted message string, or empty string if no stubs.
+    """
+    if not stubs:
+        return ""
+    items = "\n".join(f"  - {name} (0/10)" for name, _ in stubs)
+    return (
+        "Stub skills detected that could be fleshed out:\n"
+        f"{items}\n"
+        "\n"
+        "Run /mantle:add-skill to add your knowledge to these.\n"
+    )
+
+
 def load_relevant_skills(
     project_dir: Path,
 ) -> list[tuple[SkillNote, str]]:
@@ -454,16 +597,218 @@ def load_relevant_skills(
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
-    current_state = state.load_state(project_dir)
-    required = current_state.skills_required
-    if not required:
-        return []
+    return [
+        load_skill(path)
+        for _, path in _match_required_skills(project_dir)
+        if path is not None
+    ]
 
-    existing = list_skills(project_dir)
-    results: list[tuple[SkillNote, str]] = []
-    for name in required:
-        match = _match_skill_slug(name, existing)
-        if match is not None:
-            note, body = load_skill(match)
-            results.append((note, body))
-    return results
+
+# ── Skill compilation ────────────────────────────────────────────
+
+_ESSENTIAL_HEADINGS = frozenset(
+    {"context", "core knowledge", "decision criteria"}
+)
+_PROGRESSIVE_DISCLOSURE_THRESHOLD = 500
+
+
+def compile_skills(project_dir: Path) -> list[str]:
+    """Compile vault skills to ``.claude/skills/`` for Claude Code.
+
+    Reads ``skills_required`` from ``state.md``, loads matching skills
+    from the personal vault, and writes each to
+    ``.claude/skills/<slug>/SKILL.md`` following the Claude Code skill
+    specification.
+
+    Removes stale skill directories (skills no longer in
+    ``skills_required`` or deleted from vault).
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+
+    Returns:
+        List of compiled skill slugs.
+    """
+    skills_target = project_dir / ".claude" / "skills"
+    compiled_slugs: list[str] = []
+
+    try:
+        matches = _match_required_skills(project_dir)
+    except VaultNotConfiguredError, FileNotFoundError:
+        _cleanup_stale_skills(skills_target, compiled_slugs)
+        return compiled_slugs
+
+    for name, path in matches:
+        if path is None:
+            warnings.warn(
+                f"Skill '{name}' in skills_required but not found in vault",
+                stacklevel=2,
+            )
+            continue
+
+        note, body = load_skill(path)
+        slug = _slugify(note.name)
+        content = _extract_content(body)
+
+        _write_compiled_skill(skills_target, slug, note.description, content)
+        compiled_slugs.append(slug)
+
+    _cleanup_stale_skills(skills_target, compiled_slugs)
+    if compiled_slugs:
+        _ensure_skills_gitignore(project_dir)
+
+    return compiled_slugs
+
+
+def _write_compiled_skill(
+    skills_target: Path,
+    slug: str,
+    description: str,
+    content: str,
+) -> None:
+    """Write a compiled skill to ``.claude/skills/<slug>/``.
+
+    Args:
+        skills_target: Root ``.claude/skills/`` directory.
+        slug: Skill slug used as directory name.
+        description: Skill description for frontmatter.
+        content: Authored content (after ``<!-- mantle:content -->``).
+    """
+    skill_dir = skills_target / slug
+    skill_dir.mkdir(parents=True, exist_ok=True)
+
+    lines = content.split("\n")
+    if len(lines) > _PROGRESSIVE_DISCLOSURE_THRESHOLD:
+        essential, reference = _split_content_for_disclosure(content)
+        skill_md = _build_compiled_frontmatter(slug, description)
+        skill_md += essential
+        skill_md += (
+            "\n\n## Additional resources\n\n"
+            "- For examples and anti-patterns, "
+            "see [reference.md](reference.md)\n"
+        )
+        (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
+        (skill_dir / "reference.md").write_text(reference, encoding="utf-8")
+    else:
+        skill_md = _build_compiled_frontmatter(slug, description)
+        skill_md += content
+        (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
+        ref_path = skill_dir / "reference.md"
+        if ref_path.exists():
+            ref_path.unlink()
+
+
+def _build_compiled_frontmatter(slug: str, description: str) -> str:
+    """Build YAML frontmatter for a compiled SKILL.md.
+
+    Args:
+        slug: Skill slug for the ``name`` field.
+        description: Skill description.
+
+    Returns:
+        Frontmatter string including ``---`` delimiters.
+    """
+    data = {
+        "name": slug,
+        "description": description,
+        "user-invocable": False,
+    }
+    frontmatter = yaml.dump(
+        data,
+        default_flow_style=False,
+        sort_keys=False,
+        allow_unicode=True,
+    )
+    return f"---\n{frontmatter}---\n\n"
+
+
+def _split_content_for_disclosure(
+    content: str,
+) -> tuple[str, str]:
+    """Split content into essential and reference sections.
+
+    Essential sections: Context, Core Knowledge, Decision Criteria.
+    Reference sections: everything else (Examples, Anti-patterns).
+
+    Args:
+        content: Full authored content.
+
+    Returns:
+        Tuple of (essential content, reference content).
+    """
+    sections = _parse_content_sections(content)
+
+    essential_parts: list[str] = []
+    reference_parts: list[str] = []
+
+    for heading, body in sections:
+        if heading.lower().strip() in _ESSENTIAL_HEADINGS:
+            essential_parts.append(f"## {heading}\n\n{body}")
+        else:
+            reference_parts.append(f"## {heading}\n\n{body}")
+
+    if not essential_parts:
+        return content, ""
+
+    return "\n\n".join(essential_parts), "\n\n".join(reference_parts)
+
+
+def _parse_content_sections(
+    content: str,
+) -> list[tuple[str, str]]:
+    """Parse content into ``(heading, body)`` pairs by ``##`` headings.
+
+    Args:
+        content: Markdown content.
+
+    Returns:
+        List of ``(heading text, section body)`` tuples.
+    """
+    parts = re.split(r"^## ", content, flags=re.MULTILINE)
+    sections: list[tuple[str, str]] = []
+
+    for part in parts[1:]:
+        lines = part.split("\n", 1)
+        heading = lines[0].strip()
+        body = lines[1].strip() if len(lines) > 1 else ""
+        sections.append((heading, body))
+
+    return sections
+
+
+def _cleanup_stale_skills(
+    skills_target: Path,
+    compiled_slugs: Sequence[str],
+) -> None:
+    """Remove skill directories not in the compiled set.
+
+    Args:
+        skills_target: Root ``.claude/skills/`` directory.
+        compiled_slugs: Slugs that were just compiled.
+    """
+    if not skills_target.is_dir():
+        return
+    for child in skills_target.iterdir():
+        if child.is_dir() and child.name not in compiled_slugs:
+            shutil.rmtree(child)
+
+
+def _ensure_skills_gitignore(project_dir: Path) -> None:
+    """Ensure ``.claude/.gitignore`` contains ``skills/`` entry.
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+    """
+    gitignore_path = project_dir / ".claude" / ".gitignore"
+
+    if gitignore_path.exists():
+        text = gitignore_path.read_text()
+        if "skills/" in text.splitlines():
+            return
+        if not text.endswith("\n"):
+            text += "\n"
+        text += "skills/\n"
+        gitignore_path.write_text(text)
+    else:
+        gitignore_path.parent.mkdir(parents=True, exist_ok=True)
+        gitignore_path.write_text("skills/\n")

@@ -173,6 +173,28 @@ class TestRunSaveSkill:
         captured = capsys.readouterr()
         assert "proficiency" in captured.out.lower()
 
+    def test_save_skill_with_tags(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _save_skill(
+            project,
+            tags=("topic/python-asyncio", "domain/concurrency"),
+        )
+        captured = capsys.readouterr()
+
+        assert "Skill saved" in captured.out
+
+        # Verify tags were written to the skill file.
+        from mantle.core import skills
+
+        skill_path = project / "vault" / "skills" / "python-asyncio.md"
+        note, _ = skills.load_skill(skill_path)
+        assert "topic/python-asyncio" in note.tags
+        assert "domain/concurrency" in note.tags
+        assert "type/skill" in note.tags
+
     def test_defaults_to_cwd(
         self,
         project: Path,

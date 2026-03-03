@@ -97,6 +97,18 @@ TAGS_BODY = """\
 - `confidence/high` (7-10)
 - `confidence/medium` (4-6)
 - `confidence/low` (1-3)
+
+### Topic
+
+- `topic/<skill-slug>` — content topic, one per skill
+
+### Domain
+
+- `domain/web` — web frameworks, HTTP, frontend
+- `domain/database` — SQL, NoSQL, caching
+- `domain/devops` — containers, CI/CD, infrastructure
+- `domain/testing` — test frameworks and strategies
+- `domain/concurrency` — async, threading, parallelism
 """
 
 GITIGNORE_CONTENT = """\

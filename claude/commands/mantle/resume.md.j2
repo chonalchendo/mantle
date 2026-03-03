@@ -22,3 +22,12 @@ You are resuming work on **{{ project }}** ({{ status }}, confidence {{ confiden
 
 {% for skill in skills_required %}- {{ skill }}
 {% endfor %}{% endif %}
+{% if skill_stubs %}
+## Skill Stubs
+
+The following required skills are stubs (0/10) — flesh them out when relevant:
+
+{% for name in skill_stubs %}- {{ name }}
+{% endfor %}
+Run `/mantle:add-skill` to add your knowledge to any of these.
+{% endif %}

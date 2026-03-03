@@ -812,6 +812,13 @@ def save_skill_command(
             help="Project using this skill (repeatable).",
         ),
     ] = (),
+    tags: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--tag",
+            help="Content tag (repeatable, e.g. topic/python).",
+        ),
+    ] = (),
     overwrite: Annotated[
         bool,
         Parameter(
@@ -835,6 +842,7 @@ def save_skill_command(
         content=content,
         related_skills=related_skills,
         projects=projects,
+        tags=tags,
         overwrite=overwrite,
         project_dir=path,
     )

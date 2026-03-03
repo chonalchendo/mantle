@@ -272,6 +272,16 @@ Auto-briefing, session logs, and skill graph — the knowledge engine.
 
 **What the user can do**: Persistent context across sessions. Start a session and get an instant briefing. Build a cross-project skill graph. Never start from zero again.
 
+### v0.4.1 — Skill Usability Patch (issue 21)
+
+Validate skill links, add content tags, compile skills to `.claude/skills/` for native Claude Code loading.
+
+| Issue | Title | Status | Depends on |
+|-------|-------|--------|------------|
+| 21 | Skill usability fixes (validation, tagging, Claude Code loading) | planned | 17 |
+
+**What the user can do**: Skills created via `/mantle:add-skill` are now usable by Claude Code out of the box. Related skill links are validated during creation. Content-based tags enable Obsidian graph discovery. Skills are compiled to `.claude/skills/` so Claude Code natively loads them.
+
 ### v0.5.0 — Planning & Implementation (issues 11–14)
 
 `/mantle:plan-issues` → `/mantle:plan-stories` → `/mantle:implement` → automated build loop.

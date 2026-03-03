@@ -534,6 +534,53 @@ The `description` field is the most important metadata — it determines whether
 
 Skill content is dense, imperative knowledge written for Claude's consumption (not a human tutorial). The `/mantle:add-skill` command coaches the user through authoring and includes a research phase using the researcher agent to complement personal knowledge with current best practices.
 
+#### Skill Link Validation
+
+During the `/mantle:add-skill` workflow, each `related_skills` entry is validated against existing vault skills using `skill_exists()`. Missing links trigger a per-link prompt: create a stub (minimal node with 0/10 proficiency), remove the link, or keep the dangling reference. Validation happens at workflow time, not save time, so users can act on warnings interactively.
+
+#### Content-Based Tags
+
+Skills receive content tags beyond `type/skill`:
+
+- **Topic tags** (`topic/X`): One per skill, reflecting the skill's subject. E.g., `topic/python-asyncio`, `topic/rest-api-design`.
+- **Domain tags** (`domain/X`): Broader category. E.g., `domain/web`, `domain/database`, `domain/concurrency`.
+
+Tags are AI-driven: during the `/mantle:add-skill` workflow, the AI reads `.mantle/tags.md`, reuses existing tags where appropriate, and proposes new ones for user confirmation. New tags are appended to `tags.md` via `core/tags.py`. This keeps the taxonomy growing organically rather than relying on a hardcoded lookup. `type/skill` is always enforced in code regardless of what tags are passed.
+
+#### Skill Compilation to `.claude/skills/`
+
+`mantle compile` syncs vault skills to Claude Code's native skill directory format ([skill docs](https://code.claude.com/docs/en/skills)). Each compiled skill is a directory with `SKILL.md` as the entrypoint:
+
+```
+.claude/skills/<skill-slug>/
+├── SKILL.md           # Main instructions (required, <500 lines)
+└── reference.md       # Overflow content if skill exceeds 500 lines (optional)
+```
+
+`SKILL.md` uses Claude Code's YAML frontmatter for discovery and invocation control:
+
+```yaml
+---
+name: python-asyncio
+description: "Async Python patterns using asyncio. Use when building concurrent I/O-bound services."
+user-invocable: false
+---
+```
+
+Key compilation rules:
+
+- **Frontmatter mapping**: Vault `name` (slugified) → `name`, vault `description` → `description`, always `user-invocable: false` (vault skills are background knowledge, not slash commands). Vault-specific metadata (`proficiency`, `related_skills`, `projects`, `tags`, wikilink sections) is omitted.
+- **Content**: Only the authored content (after `<!-- mantle:content -->` marker) is compiled. Obsidian wikilink sections are stripped.
+- **Progressive disclosure**: If authored content exceeds 500 lines, essential sections (Context, Core Knowledge, Decision Criteria) go in `SKILL.md` and remaining sections (Examples, Anti-patterns) go in `reference.md` with a cross-reference link.
+- **Description quality**: The `description` field drives Claude Code's skill discovery (loaded at 2% of context window, ~16,000 chars budget across all skills). Must describe what the skill covers AND when it's relevant, under 200 chars.
+- **Project-level only**: Compiled to `.claude/skills/` (not `~/.claude/skills/`) because `skills_required` is per-project.
+- **Stale cleanup**: Skills removed from `skills_required` or deleted from the vault have their `.claude/skills/` directory removed on each compile.
+- **Gitignored**: Compiled skills are personal vault content, not project source (added to `.claude/.gitignore`).
+
+Compilation is triggered by:
+- The SessionStart hook (alongside command compilation)
+- `/mantle:add-skill` after saving a new skill (immediate availability)
+
 ### Session Log (Auto-Written)
 
 ```yaml
@@ -812,7 +859,7 @@ Triggered automatically via SessionStart hook. The hook also triggers auto-displ
 | `product-design.md` | When in design/planning phases | ~5K |
 | `system-design.md` | When implementing | ~5K |
 | Current issue + stories | When implementing (loaded per story) | ~3K |
-| Relevant skill nodes | Matched by `skills_required` in state.md | ~2K each |
+| Relevant skill nodes | Compiled to `.claude/skills/` from `skills_required` in state.md | ~2K each |
 | Shaped issue for current issue | When shaping/planning | ~2K |
 | Past learnings | When shaping (loaded for patterns) | ~1K each |
 | Decision log entries | On demand ("what did we decide about X?") | ~1K each |

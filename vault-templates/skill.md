@@ -12,6 +12,8 @@ updated:
 updated_by: ""
 tags:
   - type/skill
+  - topic/skill-name
+  - domain/relevant-domain
 ---
 
 ## Related Skills
