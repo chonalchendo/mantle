@@ -48,6 +48,7 @@ class ProjectState(pydantic.BaseModel, frozen=True):
         updated_by: Git email of the last updater.
         current_issue: Active issue number, if any.
         current_story: Active story number, if any.
+        slices: Project architectural layers for vertical slice planning.
         skills_required: Skills needed for current work.
         tags: Mantle tags for categorization.
     """
@@ -62,6 +63,7 @@ class ProjectState(pydantic.BaseModel, frozen=True):
     updated_by: str
     current_issue: int | None = None
     current_story: int | None = None
+    slices: tuple[str, ...] = ()
     skills_required: tuple[str, ...] = ()
     tags: tuple[str, ...] = ("status/active",)
 
@@ -263,6 +265,35 @@ def update_tracking(
         update={
             "current_issue": current_issue,
             "current_story": current_story,
+            "updated": date.today(),
+            "updated_by": identity,
+        },
+    )
+
+    vault.write_note(path, updated, note.body)
+    return updated
+
+
+def update_slices(
+    project_dir: Path,
+    slices: tuple[str, ...],
+) -> ProjectState:
+    """Set the project's architectural slices.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        slices: Architectural layer names for vertical slice planning.
+
+    Returns:
+        The updated ProjectState.
+    """
+    path = project_dir / ".mantle" / "state.md"
+    note = vault.read_note(path, ProjectState)
+
+    identity = resolve_git_identity()
+    updated = note.frontmatter.model_copy(
+        update={
+            "slices": slices,
             "updated": date.today(),
             "updated_by": identity,
         },

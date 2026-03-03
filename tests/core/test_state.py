@@ -20,6 +20,7 @@ from mantle.core.state import (
     load_state,
     resolve_git_identity,
     transition,
+    update_slices,
     update_tracking,
     valid_transitions,
 )
@@ -468,6 +469,102 @@ class TestProjectState:
 
         assert loaded.schema_version == 1
         assert loaded.project == "legacy"
+
+    def test_slices_defaults_to_empty_tuple(self) -> None:
+        state = ProjectState(
+            project="test",
+            status=Status.IDEA,
+            created=date.today(),
+            created_by="a@b.com",
+            updated=date.today(),
+            updated_by="a@b.com",
+        )
+
+        assert state.slices == ()
+
+    def test_slices_accepts_tuple_of_strings(self) -> None:
+        state = ProjectState(
+            project="test",
+            status=Status.IDEA,
+            created=date.today(),
+            created_by="a@b.com",
+            updated=date.today(),
+            updated_by="a@b.com",
+            slices=("core", "cli", "tests"),
+        )
+
+        assert state.slices == ("core", "cli", "tests")
+
+
+# ── update_slices ───────────────────────────────────────────────
+
+
+class TestUpdateSlices:
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_sets_slices(self, _mock: object, project: Path) -> None:
+        _write_state(project)
+        result = update_slices(project, ("core", "cli", "tests"))
+
+        assert result.slices == ("core", "cli", "tests")
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_round_trip_preserves_slices(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        update_slices(project, ("ingestion", "api", "storage"))
+        loaded = load_state(project)
+
+        assert loaded.slices == ("ingestion", "api", "storage")
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_updates_timestamp_and_identity(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(
+            project,
+            updated=date(2020, 1, 1),
+            updated_by="old@example.com",
+        )
+        result = update_slices(project, ("core",))
+
+        assert result.updated == date.today()
+        assert result.updated_by == MOCK_EMAIL
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_preserves_existing_fields(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project, status=Status.PLANNING)
+        result = update_slices(project, ("core",))
+
+        assert result.status == Status.PLANNING
+        assert result.project == "test-project"
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_overwrites_previous_slices(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        update_slices(project, ("core", "cli"))
+        result = update_slices(project, ("api", "storage"))
+
+        assert result.slices == ("api", "storage")
 
 
 # ── Status enum ──────────────────────────────────────────────────

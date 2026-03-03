@@ -13,6 +13,7 @@ from mantle.cli import (
     init,
     init_vault,
     install,
+    issues,
     learning,
     product_design,
     research,
@@ -686,6 +687,99 @@ def save_shaped_issue_command(
         overwrite=overwrite,
         project_dir=path,
     )
+
+
+@app.command(name="save-issue")
+def save_issue_command(
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="Issue title.",
+        ),
+    ],
+    slice: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--slice",
+            help="Layer touched (repeatable).",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full issue body (markdown).",
+        ),
+    ],
+    blocked_by: Annotated[
+        tuple[int, ...],
+        Parameter(
+            name="--blocked-by",
+            help="Blocking issue number (repeatable).",
+        ),
+    ] = (),
+    verification: Annotated[
+        str | None,
+        Parameter(
+            name="--verification",
+            help="Per-issue verification override.",
+        ),
+    ] = None,
+    issue: Annotated[
+        int | None,
+        Parameter(
+            name="--issue",
+            help="Explicit issue number (for overwrites).",
+        ),
+    ] = None,
+    overwrite: Annotated[
+        bool,
+        Parameter(
+            name="--overwrite",
+            help="Replace existing issue.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a planned issue to .mantle/issues/."""
+    issues.run_save_issue(
+        title=title,
+        slice=slice,
+        content=content,
+        blocked_by=blocked_by,
+        verification=verification,
+        issue=issue,
+        overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="set-slices")
+def set_slices_command(
+    slices: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--slice",
+            help="Architectural layer (repeatable).",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Define project architectural slices in state.md."""
+    issues.run_set_slices(slices=slices, project_dir=path)
 
 
 @app.command(name="save-learning")
