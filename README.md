@@ -89,7 +89,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.5.1** — Enhanced Claude Code integration. Named agents with frontmatter, project-level permission wildcards, dynamic context injection, argument hints on commands, `context: fork` verification skill, and agent memory for the story implementer.
+**v0.5.2** — Enhanced Claude Code integration. Named agents with frontmatter, project-level permission wildcards, dynamic context injection, argument hints on commands, `context: fork` verification skill, and agent memory for the story implementer.
 
 ## License
 
