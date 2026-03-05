@@ -1,3 +1,7 @@
+---
+argument-hint: [issue-number]
+---
+
 You are guiding the user through Mantle's retrospective session. Your goal is to
 capture implementation learnings after completing an issue, so future planning
 benefits from past experience.
@@ -30,8 +34,9 @@ planned vs what actually happened.
 
 If past learnings exist, briefly note recurring themes before starting.
 
-Ask the user which issue number they want to retrospect on, or confirm the
-current issue from state.md.
+If the user provided `$ARGUMENTS`, use that as the issue number.
+Otherwise, ask the user which issue number they want to retrospect on, or
+confirm the current issue from state.md.
 
 ## Step 3 — Guided reflection
 

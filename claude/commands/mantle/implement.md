@@ -1,4 +1,16 @@
-You are the implementation orchestrator for a Mantle project. You will implement stories for a given issue by spawning Agent subagents for each story.
+---
+description: Implement stories for a Mantle issue using dedicated story agents
+argument-hint: [issue-number]
+allowed-tools: Read, Bash(uv run pytest*), Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*)
+---
+
+You are the implementation orchestrator for a Mantle project. You will implement stories for a given issue by spawning dedicated agents for each story.
+
+## Dynamic Context
+
+- **Current branch**: !`git branch --show-current`
+- **Working tree status**: !`git status --short`
+- **Recent commits**: !`git log --oneline -5`
 
 **Step 1 — Check prerequisites**
 
@@ -7,10 +19,12 @@ Read `.mantle/state.md` and verify:
 - Status is `planning` or `implementing` (valid states for implementation)
 - If status is earlier, tell the user the current status and suggest the appropriate next command
 
+If git working tree is dirty (from the dynamic context above), warn the user and ask whether to proceed or commit/stash first.
+
 **Step 2 — Select issue**
 
-Ask the user which issue to implement. Read `.mantle/issues/` to show available issues.
-If the user provided an issue number with the command, use that.
+If the user provided `$ARGUMENTS`, use that as the issue number.
+Otherwise, read `.mantle/issues/` to show available issues and ask the user which to implement.
 
 Display:
 > **Issue {NN}**: {title}
@@ -19,14 +33,16 @@ Display:
 
 Confirm with the user before proceeding.
 
-**Step 3 — Load stories**
+**Step 3 — Load context and stories**
 
-Read all story files from `.mantle/stories/issue-{NN}-story-*.md` for the selected issue.
+Read all required context files:
+- `.mantle/issues/issue-{NN}.md` — the issue specification
+- `.mantle/system-design.md` — system architecture (if it exists)
+- `.mantle/product-design.md` — product context (if it exists)
+- `.mantle/stories/issue-{NN}-story-*.md` — all stories for this issue
 
 For each story, note:
-- Story number
-- Title
-- Current status (planned, in-progress, completed, blocked)
+- Story number, title, current status (planned, in-progress, completed, blocked)
 
 Determine the implementation order (ascending story number). Skip stories already marked "completed".
 
@@ -34,25 +50,26 @@ Determine the implementation order (ascending story number). Skip stories alread
 
 For each story that is not "completed", follow this sequence:
 
-1. **Mark in-progress**: Run `mantle update-story-status --issue {N} --story {S} --status in-progress`
+1. **Check for blockers**: If the story is "blocked", stop — do not attempt blocked stories. Tell the user which story is blocked and show the failure_log.
 
-2. **Spawn an Agent**: Use the Agent tool (subagent_type: "smart") to implement the story. Provide the agent with:
+2. **Mark in-progress**: Run `mantle update-story-status --issue {N} --story {S} --status in-progress`
+
+3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. Provide the agent with:
    - The full story content (from the story file)
    - The issue context (from the issue file)
    - The system design (from `.mantle/system-design.md` if it exists)
-   - Clear instruction: "Implement this story. Follow all project conventions from CLAUDE.md. Run tests after implementation and fix any failures."
+   - Any learnings from `.mantle/learnings/` relevant to this issue
+   - Clear instruction: "Implement this story. Run tests after implementation and fix any failures."
 
-3. **Verify tests**: After the agent completes, run `uv run pytest` to verify all tests pass.
+4. **Verify**: After the agent completes, invoke the `verify-implementation` skill via `Skill(skill: "verify-implementation")` with the story specification as input. This runs in a forked context so it doesn't bloat the orchestrator's context window.
 
-4. **Retry on failure**: If tests fail, spawn one more Agent with the test error output included:
-   - "The previous implementation failed tests. Here is the error output: {errors}. Please read the existing code, diagnose the failure, fix the issues, and ensure all tests pass."
-   - Run tests again after the retry agent completes.
+5. **Retry on failure**: If verification fails, spawn one more story-implementer agent with the verification output:
+   - "The previous implementation attempt failed verification. Here is the report: {verification_output}. Read the existing code, diagnose the failures, fix the issues, and ensure all checks pass."
+   - Run verification again after the retry agent completes.
 
-5. **Handle outcome**:
-   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
-   - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
-
-6. **If the story was already "blocked"**: Stop — do not attempt blocked stories. Tell the user which story is blocked and show the failure_log.
+6. **Handle outcome**:
+   - **Verification passes**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
+   - **Verification fails after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
 **Step 5 — Report results**
 
@@ -60,4 +77,4 @@ After all stories are processed (or the loop stops), summarise:
 - Stories completed this run
 - Stories skipped (already completed)
 - Stories blocked (if any) — show the failure_log
-- Next steps: fix the blocked story and re-run `/mantle:implement`, or proceed to `/mantle:verify` if all stories are done
+- Next steps: fix the blocked story and re-run `/mantle:implement`, or proceed to the next workflow step if all stories are done

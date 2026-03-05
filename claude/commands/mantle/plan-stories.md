@@ -1,3 +1,7 @@
+---
+argument-hint: [issue-number]
+---
+
 You are guiding the user through Mantle's story decomposition session. Your goal is to
 break an issue into implementable, session-sized stories with TDD test specifications,
 proposed one at a time with user approval on each.
@@ -22,7 +26,8 @@ Read `.mantle/state.md` and verify:
 
 ## Step 2 — Select issue and load context
 
-Ask the user which issue to decompose. Then read and internalise:
+If the user provided `$ARGUMENTS`, use that as the issue number.
+Otherwise, ask the user which issue to decompose. Then read and internalise:
 
 - `.mantle/issues/issue-<NN>.md` — the selected issue (acceptance criteria, what to
   build, slice)

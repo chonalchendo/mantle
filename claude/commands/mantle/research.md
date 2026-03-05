@@ -77,12 +77,12 @@ for the CLI:
 
 ## Step 5 — Launch researcher agent
 
-Use the Task tool to spawn a subagent (subagent_type: "general-purpose") with
+Use the Agent tool to spawn a subagent (subagent_type: "researcher") with
 the following prompt:
 
 ```
-You are researching the viability of a specific building block for an
-early-stage product idea.
+Research the viability of a specific building block for an early-stage product
+idea.
 
 ## Idea Context
 
@@ -105,12 +105,6 @@ What we need to know: <the specific research question>
 ## Focus: <chosen focus category>
 
 <Include any prior research summaries that relate to this block>
-
-## Instructions
-
-Read the researcher agent instructions at claude/agents/researcher.md, then
-conduct focused web research on this building block. Follow the rules and output
-structure defined there.
 ```
 
 ## Step 6 — Save report

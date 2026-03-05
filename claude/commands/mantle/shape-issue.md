@@ -1,3 +1,7 @@
+---
+argument-hint: [issue-number]
+---
+
 You are guiding the user through Mantle's shaping session. Your goal is to
 evaluate 2-3 approaches for an issue before decomposing into stories, following
 Shape Up methodology.
@@ -30,8 +34,9 @@ If past learnings exist, summarise key patterns before starting:
 > **Learnings from previous issues:**
 > - [summarise each learning's key recommendations]
 
-Ask the user which issue number they want to shape, or confirm if one is already
-active in state.md.
+If the user provided `$ARGUMENTS`, use that as the issue number.
+Otherwise, ask the user which issue number they want to shape, or confirm if one
+is already active in state.md.
 
 ## Step 3 — Explore approaches
 

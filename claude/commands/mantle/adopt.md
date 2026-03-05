@@ -39,22 +39,20 @@ Check whether `.mantle/` and `.mantle/state.md` exist by reading them.
 
 ## Step 2 — Phase 1: Concurrent agent analysis
 
-Launch two subagents concurrently using the Task tool:
+Launch two subagents concurrently using the Agent tool:
 
-**Agent 1: Codebase analyst** (subagent_type: "general-purpose")
+**Agent 1: Codebase analyst** (subagent_type: "codebase-analyst")
 
 Prompt includes:
-- Instructions to read `claude/agents/codebase-analyst.md` and follow its
-  methodology
 - The project directory path for exploration
+- Instruction to follow its built-in methodology
 
-**Agent 2: Domain researcher** (subagent_type: "general-purpose")
+**Agent 2: Domain researcher** (subagent_type: "domain-researcher")
 
 Prompt includes:
-- Instructions to read `claude/agents/domain-researcher.md` and follow its
-  methodology
 - Context about what the project appears to be (from directory name, README, or
   initial observation)
+- Instruction to follow its built-in methodology
 
 Both agents run in parallel. Wait for both to complete before proceeding.
 
