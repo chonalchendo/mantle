@@ -43,6 +43,44 @@ Once initialized, `.mantle/` is created in your project. Start a Claude Code ses
 
 **Already have an existing project?** Run `mantle init` then `/mantle:adopt` — AI agents analyze your codebase and domain, then interactively generate product and system design documents from what already exists.
 
+## Workflow
+
+Every phase is a `/mantle:*` slash command inside Claude Code. The flow runs top-to-bottom, but you can skip optional phases, revise designs at any point, and re-run implementation after fixing blocked stories.
+
+### Project Setup (once)
+
+| Phase | Command | What It Does |
+|---|---|---|
+| **Idea** | `/mantle:idea` | Capture your idea with structured metadata — hypothesis, target user, success criteria. Saved as `.mantle/idea.md`. |
+| **Challenge** | `/mantle:challenge` | _Optional._ AI stress-tests your idea from multiple angles (devil's advocate, pre-mortem, competitive analysis). Produces a verdict with confidence level. |
+| **Research** | `/mantle:research` | _Optional._ Web research to validate technical feasibility and explore existing solutions. Reports saved to `.mantle/research/`. |
+| **Product Design** | `/mantle:design-product` | Interactive session defining the _what and why_ — features, target users, user stories, release milestones. Creates `.mantle/product-design.md`. |
+| **System Design** | `/mantle:design-system` | Interactive session defining the _how_ — architecture, tech choices, data model. Every decision logged with rationale and alternatives. Creates `.mantle/system-design.md`. |
+
+**Already have an existing project?** Run `/mantle:adopt` instead — AI agents analyze your codebase and domain, then interactively generate product and system design documents from what already exists.
+
+### Per-Issue Cycle (repeat for each issue)
+
+| Phase | Command | What It Does |
+|---|---|---|
+| **Plan Issues** | `/mantle:plan-issues` | Break work into vertical slices. AI proposes one issue at a time — you approve or adjust each before the next. |
+| **Shape Issue** | `/mantle:shape-issue` | Evaluate 2-3 approaches with tradeoffs before committing to a direction. Past learnings are loaded automatically. |
+| **Plan Stories** | `/mantle:plan-stories` | Decompose the issue into implementable stories sized for a single AI context window. Each story includes test expectations (TDD). |
+| **Implement** | `/mantle:implement` | Automated build loop — spawns an Agent per story, runs tests, retries once on failure, creates atomic git commits. |
+| **Retrospective** | `/mantle:retrospective` | Capture what went well, what was harder than expected, and wrong assumptions. Learnings auto-surface in future shaping sessions. |
+
+### Available Any Time
+
+| Command | What It Does |
+|---|---|
+| `/mantle:bug` | Quick structured bug capture. Open bugs surface during `/mantle:plan-issues`. |
+| `/mantle:revise-product` | Update the product design. Creates a decision log entry. |
+| `/mantle:revise-system` | Update the system design. Creates a decision log entry. |
+| `/mantle:status` | Show current project state compiled from vault data. |
+| `/mantle:resume` | Re-display the project briefing mid-session. |
+| `/mantle:add-skill` | Add a skill node to your personal vault for cross-project knowledge. |
+| `/mantle:help` | List all commands grouped by phase. |
+
 ## How It Works
 
 Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude Code (`/mantle:*`). The core library handles all state and vault operations. The CLI is a thin wrapper. Claude Code commands compile context from your vault and orchestrate AI-assisted workflows.
@@ -51,7 +89,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.5.0** — Planning & implementation. Issue planning, story decomposition, shape-issue evaluation, bug capture, retrospectives, and an automated implementation loop with per-story Agent subagents, test retries, and atomic commits.
+**v0.5.1** — Enhanced Claude Code integration. Named agents with frontmatter, project-level permission wildcards, dynamic context injection, argument hints on commands, `context: fork` verification skill, and agent memory for the story implementer.
 
 ## License
 
