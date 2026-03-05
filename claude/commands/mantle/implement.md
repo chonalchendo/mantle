@@ -1,7 +1,7 @@
 ---
 description: Implement stories for a Mantle issue using dedicated story agents
 argument-hint: [issue-number]
-allowed-tools: Read, Bash(uv run pytest*), Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*)
+allowed-tools: Read, Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*)
 ---
 
 You are the implementation orchestrator for a Mantle project. You will implement stories for a given issue by spawning dedicated agents for each story.
@@ -61,15 +61,15 @@ For each story that is not "completed", follow this sequence:
    - Any learnings from `.mantle/learnings/` relevant to this issue
    - Clear instruction: "Implement this story. Run tests after implementation and fix any failures."
 
-4. **Verify**: After the agent completes, invoke the `verify-implementation` skill via `Skill(skill: "verify-implementation")` with the story specification as input. This runs in a forked context so it doesn't bloat the orchestrator's context window.
+4. **Verify tests**: After the agent completes, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
 
-5. **Retry on failure**: If verification fails, spawn one more story-implementer agent with the verification output:
-   - "The previous implementation attempt failed verification. Here is the report: {verification_output}. Read the existing code, diagnose the failures, fix the issues, and ensure all checks pass."
-   - Run verification again after the retry agent completes.
+5. **Retry on failure**: If tests fail, spawn one more story-implementer agent with the test error output:
+   - "The previous implementation attempt failed tests. Here is the error output: {errors}. Read the existing code, diagnose the failure, fix the issues, and ensure all tests pass."
+   - Run tests again after the retry agent completes.
 
 6. **Handle outcome**:
-   - **Verification passes**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
-   - **Verification fails after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
+   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
+   - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
 **Step 5 — Report results**
 
