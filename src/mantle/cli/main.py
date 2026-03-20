@@ -18,6 +18,7 @@ from mantle.cli import (
     learning,
     product_design,
     research,
+    review,
     session,
     shaping,
     skills,
@@ -1220,6 +1221,54 @@ def transition_issue_verified_command(
 ) -> None:
     """Transition an issue from implemented to verified."""
     verify.run_transition_to_verified(
+        issue=issue,
+        project_dir=path,
+    )
+
+
+@app.command(name="transition-issue-approved")
+def transition_issue_approved_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to transition to approved.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Transition an issue from verified to approved."""
+    review.run_transition_to_approved(
+        issue=issue,
+        project_dir=path,
+    )
+
+
+@app.command(name="transition-issue-implementing")
+def transition_issue_implementing_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to transition to implementing.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Transition an issue from verified to implementing."""
+    review.run_transition_to_implementing(
         issue=issue,
         project_dir=path,
     )
