@@ -54,6 +54,22 @@ class IssueExistsError(Exception):
         super().__init__(f"Issue already exists at {path}")
 
 
+class InvalidTransitionError(Exception):
+    """Raised when a status transition is not allowed.
+
+    Attributes:
+        current_status: The current issue status.
+        target_status: The target status that was rejected.
+    """
+
+    def __init__(self, current_status: str, target_status: str) -> None:
+        self.current_status = current_status
+        self.target_status = target_status
+        super().__init__(
+            f"Cannot transition from '{current_status}' to '{target_status}'"
+        )
+
+
 # ── Public API ───────────────────────────────────────────────────
 
 
@@ -190,6 +206,47 @@ def count_issues(project_dir: Path) -> int:
         Count of issue files.
     """
     return len(list_issues(project_dir))
+
+
+_VERIFIED_FROM = frozenset({"implementing", "implemented"})
+
+
+def transition_to_verified(project_root: Path, issue_number: int) -> Path:
+    """Transition an issue to ``verified`` status.
+
+    Loads the issue, validates the current status allows the
+    transition (must be ``implementing`` or ``implemented``),
+    updates status and tags, and writes back.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue_number: Issue number to transition.
+
+    Returns:
+        Path to the updated issue file.
+
+    Raises:
+        InvalidTransitionError: If current status does not allow
+            transition to ``verified``.
+        FileNotFoundError: If the issue file does not exist.
+    """
+    issue_path = _issue_path(project_root, issue_number)
+    note, body = load_issue(issue_path)
+
+    if note.status not in _VERIFIED_FROM:
+        raise InvalidTransitionError(note.status, "verified")
+
+    # Replace status tag if present, otherwise append.
+    new_tags = (
+        *(t for t in note.tags if not t.startswith("status/")),
+        "status/verified",
+    )
+
+    updated = note.model_copy(
+        update={"status": "verified", "tags": new_tags},
+    )
+    vault.write_note(issue_path, updated, body)
+    return issue_path
 
 
 # ── Internal helpers ─────────────────────────────────────────────
