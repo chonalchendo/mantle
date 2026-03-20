@@ -1,12 +1,16 @@
 ---
 title: Review (/mantle:review)
 status: planned
-slice: [core, claude-code, tests]
-story_count: 0
+slice:
+- core
+- claude-code
+- tests
+story_count: 2
 verification: null
+blocked_by: []
 tags:
-  - type/issue
-  - status/planned
+- type/issue
+- status/planned
 ---
 
 ## Parent PRD
