@@ -209,6 +209,8 @@ def count_issues(project_dir: Path) -> int:
 
 
 _VERIFIED_FROM = frozenset({"implementing", "implemented"})
+_APPROVED_FROM = frozenset({"verified"})
+_IMPLEMENTING_FROM = frozenset({"planned", "verified"})
 
 
 def transition_to_verified(project_root: Path, issue_number: int) -> Path:
@@ -244,6 +246,83 @@ def transition_to_verified(project_root: Path, issue_number: int) -> Path:
 
     updated = note.model_copy(
         update={"status": "verified", "tags": new_tags},
+    )
+    vault.write_note(issue_path, updated, body)
+    return issue_path
+
+
+def transition_to_approved(project_root: Path, issue_number: int) -> Path:
+    """Transition an issue to ``approved`` status.
+
+    Loads the issue, validates the current status allows the
+    transition (must be ``verified``), updates status and tags,
+    and writes back.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue_number: Issue number to transition.
+
+    Returns:
+        Path to the updated issue file.
+
+    Raises:
+        InvalidTransitionError: If current status does not allow
+            transition to ``approved``.
+        FileNotFoundError: If the issue file does not exist.
+    """
+    issue_path = _issue_path(project_root, issue_number)
+    note, body = load_issue(issue_path)
+
+    if note.status not in _APPROVED_FROM:
+        raise InvalidTransitionError(note.status, "approved")
+
+    new_tags = (
+        *(t for t in note.tags if not t.startswith("status/")),
+        "status/approved",
+    )
+
+    updated = note.model_copy(
+        update={"status": "approved", "tags": new_tags},
+    )
+    vault.write_note(issue_path, updated, body)
+    return issue_path
+
+
+def transition_to_implementing(
+    project_root: Path,
+    issue_number: int,
+) -> Path:
+    """Transition an issue to ``implementing`` status.
+
+    Loads the issue, validates the current status allows the
+    transition (must be ``planned`` or ``verified``), updates
+    status and tags, and writes back.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue_number: Issue number to transition.
+
+    Returns:
+        Path to the updated issue file.
+
+    Raises:
+        InvalidTransitionError: If current status does not allow
+            transition to ``implementing``.
+        FileNotFoundError: If the issue file does not exist.
+    """
+    issue_path = _issue_path(project_root, issue_number)
+    note, body = load_issue(issue_path)
+
+    if note.status not in _IMPLEMENTING_FROM:
+        raise InvalidTransitionError(note.status, "implementing")
+
+    new_tags = (
+        *(t for t in note.tags if not t.startswith("status/")),
+        "status/implementing",
+    )
+
+    updated = note.model_copy(
+        update={"status": "implementing", "tags": new_tags},
     )
     vault.write_note(issue_path, updated, body)
     return issue_path

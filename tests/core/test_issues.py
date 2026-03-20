@@ -13,7 +13,9 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from mantle.core import vault
+from mantle.core import issues as issues_mod
 from mantle.core.issues import (
+    InvalidTransitionError,
     IssueExistsError,
     IssueNote,
     count_issues,
@@ -400,3 +402,78 @@ class TestCountIssues:
         _save(project, title="Second")
 
         assert count_issues(project) == 2
+
+
+# ── transition_to_approved ───────────────────────────────────────
+
+
+def _write_issue_direct(
+    project_dir: Path,
+    issue_number: int,
+    *,
+    status: str = "planned",
+) -> Path:
+    """Write a minimal issue file without state.md interaction."""
+    note = IssueNote(
+        title=f"Issue {issue_number}",
+        status=status,
+        slice=("core",),
+        tags=("type/issue", f"status/{status}"),
+    )
+    path = (
+        project_dir
+        / ".mantle"
+        / "issues"
+        / f"issue-{issue_number:02d}.md"
+    )
+    vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
+    return path
+
+
+class TestTransitionToApproved:
+    def test_transition_to_approved_from_verified(
+        self, project: Path
+    ) -> None:
+        """Verified issue transitions to approved."""
+        _write_issue_direct(project, 10, status="verified")
+
+        path = issues_mod.transition_to_approved(project, 10)
+
+        note, _ = load_issue(path)
+        assert note.status == "approved"
+        assert "status/approved" in note.tags
+
+    def test_transition_to_approved_invalid_status(
+        self, project: Path
+    ) -> None:
+        """Non-verified issue raises InvalidTransitionError."""
+        _write_issue_direct(project, 11, status="planned")
+
+        with pytest.raises(InvalidTransitionError):
+            issues_mod.transition_to_approved(project, 11)
+
+
+# ── transition_to_implementing ───────────────────────────────────
+
+
+class TestTransitionToImplementing:
+    def test_transition_to_implementing_from_verified(
+        self, project: Path
+    ) -> None:
+        """Verified issue transitions back to implementing."""
+        _write_issue_direct(project, 12, status="verified")
+
+        path = issues_mod.transition_to_implementing(project, 12)
+
+        note, _ = load_issue(path)
+        assert note.status == "implementing"
+        assert "status/implementing" in note.tags
+
+    def test_transition_to_implementing_invalid_status(
+        self, project: Path
+    ) -> None:
+        """Non-planned/non-verified issue raises error."""
+        _write_issue_direct(project, 13, status="approved")
+
+        with pytest.raises(InvalidTransitionError):
+            issues_mod.transition_to_implementing(project, 13)
