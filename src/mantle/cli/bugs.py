@@ -104,9 +104,7 @@ def run_update_bug_status(
             fixed_by=fixed_by,
         )
     except FileNotFoundError:
-        console.print(
-            f"[red]Error:[/red] Bug not found: {bug}"
-        )
+        console.print(f"[red]Error:[/red] Bug not found: {bug}")
         raise SystemExit(1) from None
     except ValueError as exc:
         console.print(f"[red]Error:[/red] {exc}")
@@ -114,8 +112,6 @@ def run_update_bug_status(
 
     console.print()
     console.print(f"[green]Bug updated:[/green] {bug}")
-    console.print(
-        f"  Status: {old_status} \u2192 {updated.status}"
-    )
+    console.print(f"  Status: {old_status} \u2192 {updated.status}")
     if updated.fixed_by:
         console.print(f"  Fixed by: {updated.fixed_by}")

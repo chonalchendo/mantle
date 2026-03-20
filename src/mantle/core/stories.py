@@ -212,8 +212,7 @@ def update_story_status(
     note, body = load_story(path)
 
     new_tags = tuple(
-        f"status/{status}" if t.startswith("status/") else t
-        for t in note.tags
+        f"status/{status}" if t.startswith("status/") else t for t in note.tags
     )
 
     updated = note.model_copy(
@@ -244,10 +243,7 @@ def extract_story_number(story_path: Path) -> int:
     """
     match = re.search(r"story-(\d+)\.md", story_path.name)
     if not match:
-        msg = (
-            f"Cannot extract story number from"
-            f" {story_path.name}"
-        )
+        msg = f"Cannot extract story number from {story_path.name}"
         raise ValueError(msg)
     return int(match.group(1))
 

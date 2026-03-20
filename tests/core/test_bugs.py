@@ -142,9 +142,7 @@ class TestCreateBug:
 
         assert note.date == date.today()
         assert note.author == MOCK_EMAIL
-        assert note.summary == (
-            "Compilation fails when no idea.md exists"
-        )
+        assert note.summary == ("Compilation fails when no idea.md exists")
         assert note.severity == "medium"
         assert note.status == "open"
         assert note.related_issue is None
@@ -236,9 +234,7 @@ class TestLoadBug:
         _, path = _create_bug(project)
         loaded, _ = bugs.load_bug(path)
 
-        assert loaded.summary == (
-            "Compilation fails when no idea.md exists"
-        )
+        assert loaded.summary == ("Compilation fails when no idea.md exists")
 
     def test_file_not_found(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
@@ -286,9 +282,7 @@ class TestListBugs:
 
         assert len(result) == 2
 
-    def test_returns_empty_when_dir_missing(
-        self, tmp_path: Path
-    ) -> None:
+    def test_returns_empty_when_dir_missing(self, tmp_path: Path) -> None:
         result = bugs.list_bugs(tmp_path)
 
         assert result == []
@@ -300,9 +294,7 @@ class TestListBugs:
 class TestUpdateBugStatus:
     def test_changes_status(self, project: Path) -> None:
         _, path = _create_bug(project)
-        updated, _ = bugs.update_bug_status(
-            project, path.name, status="fixed"
-        )
+        updated, _ = bugs.update_bug_status(project, path.name, status="fixed")
 
         assert updated.status == "fixed"
 
@@ -327,28 +319,20 @@ class TestUpdateBugStatus:
 
     def test_updates_tags(self, project: Path) -> None:
         _, path = _create_bug(project)
-        updated, _ = bugs.update_bug_status(
-            project, path.name, status="fixed"
-        )
+        updated, _ = bugs.update_bug_status(project, path.name, status="fixed")
 
         assert "status/fixed" in updated.tags
         assert "status/open" not in updated.tags
 
     def test_file_not_found(self, project: Path) -> None:
-        with pytest.raises(
-            FileNotFoundError, match="Bug not found"
-        ):
-            bugs.update_bug_status(
-                project, "nonexistent.md", status="fixed"
-            )
+        with pytest.raises(FileNotFoundError, match="Bug not found"):
+            bugs.update_bug_status(project, "nonexistent.md", status="fixed")
 
     def test_invalid_status(self, project: Path) -> None:
         _, path = _create_bug(project)
 
         with pytest.raises(ValueError, match="Invalid status"):
-            bugs.update_bug_status(
-                project, path.name, status="invalid"
-            )
+            bugs.update_bug_status(project, path.name, status="invalid")
 
     def test_preserves_other_fields(self, project: Path) -> None:
         _, path = _create_bug(
@@ -356,13 +340,9 @@ class TestUpdateBugStatus:
             related_issue="issue-08",
             related_files=("src/foo.py",),
         )
-        updated, _ = bugs.update_bug_status(
-            project, path.name, status="fixed"
-        )
+        updated, _ = bugs.update_bug_status(project, path.name, status="fixed")
 
-        assert updated.summary == (
-            "Compilation fails when no idea.md exists"
-        )
+        assert updated.summary == ("Compilation fails when no idea.md exists")
         assert updated.severity == "medium"
         assert updated.related_issue == "issue-08"
         assert updated.related_files == ("src/foo.py",)

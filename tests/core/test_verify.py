@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING
 import pytest
 
 from mantle.core import issues as issues_mod
-from mantle.core import project, vault, verify
+from mantle.core import project, verify
+from mantle.core import vault
 from mantle.core.issues import InvalidTransitionError, IssueNote
 from mantle.core.verify import (
     VerificationStrategyNotFoundError,
@@ -25,10 +26,11 @@ def _init_mantle(tmp_path: Path) -> Path:
     mantle = tmp_path / ".mantle"
     mantle.mkdir()
     (mantle / "issues").mkdir()
-    vault.write_note(
-        mantle / "config.md",
-        project._ConfigFrontmatter(),
-        project.CONFIG_BODY,
+    (mantle / "config.md").write_text(
+        "---\ntags:\n- type/config\n---\n\n"
+        "## Verification Strategy\n\n"
+        "## Personal Vault\n",
+        encoding="utf-8",
     )
     return tmp_path
 

@@ -20,9 +20,7 @@ if TYPE_CHECKING:
 VALID_SEVERITIES: frozenset[str] = frozenset(
     {"blocker", "high", "medium", "low"}
 )
-VALID_STATUSES: frozenset[str] = frozenset(
-    {"open", "fixed", "wont-fix"}
-)
+VALID_STATUSES: frozenset[str] = frozenset({"open", "fixed", "wont-fix"})
 
 
 # ── Data model ──────────────────────────────────────────────────
@@ -217,8 +215,7 @@ def update_bug_status(
     old_status_tag = f"status/{current.status}"
     new_status_tag = f"status/{status}"
     tags = tuple(
-        new_status_tag if t == old_status_tag else t
-        for t in current.tags
+        new_status_tag if t == old_status_tag else t for t in current.tags
     )
 
     updates: dict[str, object] = {
@@ -249,9 +246,7 @@ def _bug_path(project_dir: Path, date_str: str, slug: str) -> Path:
     Returns:
         Path for the bug file.
     """
-    return (
-        project_dir / ".mantle" / "bugs" / f"{date_str}-{slug}.md"
-    )
+    return project_dir / ".mantle" / "bugs" / f"{date_str}-{slug}.md"
 
 
 def _slugify(summary: str) -> str:
@@ -316,8 +311,5 @@ def _validate_choice(
     """
     if value not in valid:
         options = ", ".join(sorted(valid))
-        msg = (
-            f"Invalid {label} '{value}'. "
-            f"Valid options: {options}"
-        )
+        msg = f"Invalid {label} '{value}'. Valid options: {options}"
         raise ValueError(msg)
