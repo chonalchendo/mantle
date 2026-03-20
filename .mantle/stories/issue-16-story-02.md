@@ -1,11 +1,11 @@
 ---
 issue: 16
 title: CLI wiring + Claude Code review command
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

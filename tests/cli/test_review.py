@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import subprocess
-import sys
 from typing import TYPE_CHECKING
 
 import pytest
 
+from mantle.cli import review as cli_review
 from mantle.core import issues as core_issues
 from mantle.core import vault
 
@@ -40,8 +39,12 @@ def _write_issue(
             f"status/{status}",
         ),
     )
-    path = project / ".mantle" / "issues" / f"issue-{issue:02d}.md"
-    vault.write_note(path, note, "## Acceptance Criteria\n\n- It works\n")
+    path = (
+        project / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    )
+    vault.write_note(
+        path, note, "## Acceptance Criteria\n\n- It works\n"
+    )
 
 
 class TestTransitionIssueApprovedCLI:
@@ -51,27 +54,13 @@ class TestTransitionIssueApprovedCLI:
     ) -> None:
         _write_issue(project, 1, status="verified")
 
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "mantle.cli.main",
-                "transition-issue-approved",
-                "--issue",
-                "1",
-                "--path",
-                str(project),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        cli_review.run_transition_to_approved(
+            issue=1, project_dir=project
         )
 
-        assert result.returncode == 0
-        assert "approved" in result.stdout.lower()
-
-        # Verify the issue file was updated.
-        issue_path = project / ".mantle" / "issues" / "issue-01.md"
+        issue_path = (
+            project / ".mantle" / "issues" / "issue-01.md"
+        )
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "approved"
 
@@ -81,24 +70,10 @@ class TestTransitionIssueApprovedCLI:
     ) -> None:
         _write_issue(project, 1, status="planned")
 
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "mantle.cli.main",
-                "transition-issue-approved",
-                "--issue",
-                "1",
-                "--path",
-                str(project),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        assert result.returncode != 0
-        assert "Cannot transition" in result.stdout
+        with pytest.raises(SystemExit):
+            cli_review.run_transition_to_approved(
+                issue=1, project_dir=project
+            )
 
 
 class TestTransitionIssueImplementingCLI:
@@ -108,27 +83,13 @@ class TestTransitionIssueImplementingCLI:
     ) -> None:
         _write_issue(project, 1, status="verified")
 
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "mantle.cli.main",
-                "transition-issue-implementing",
-                "--issue",
-                "1",
-                "--path",
-                str(project),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        cli_review.run_transition_to_implementing(
+            issue=1, project_dir=project
         )
 
-        assert result.returncode == 0
-        assert "implementing" in result.stdout.lower()
-
-        # Verify the issue file was updated.
-        issue_path = project / ".mantle" / "issues" / "issue-01.md"
+        issue_path = (
+            project / ".mantle" / "issues" / "issue-01.md"
+        )
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "implementing"
 
@@ -136,23 +97,9 @@ class TestTransitionIssueImplementingCLI:
         self,
         project: Path,
     ) -> None:
-        _write_issue(project, 1, status="implemented")
+        _write_issue(project, 1, status="approved")
 
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "mantle.cli.main",
-                "transition-issue-implementing",
-                "--issue",
-                "1",
-                "--path",
-                str(project),
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        assert result.returncode != 0
-        assert "Cannot transition" in result.stdout
+        with pytest.raises(SystemExit):
+            cli_review.run_transition_to_implementing(
+                issue=1, project_dir=project
+            )

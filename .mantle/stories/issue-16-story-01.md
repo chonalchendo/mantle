@@ -1,11 +1,11 @@
 ---
 issue: 16
 title: Core review module — checklist construction, feedback collection, status transitions
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
