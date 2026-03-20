@@ -26,7 +26,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 16 — 2 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Issue 24 — 2 stories planned. Run /mantle:implement to start building.
 
 ## Blockers
 
@@ -34,4 +34,10 @@ _None_
 
 ## Next Steps
 
-- Plan stories for issue 15
+- Implement issue 24 (simplify command)
+
+## Recently Completed
+
+- Issue 15 — Verification (/mantle:verify)
+- Issue 16 — Review (/mantle:review)
+- Issue 23 — Retrospective (/mantle:retrospective)
