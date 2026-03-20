@@ -1,0 +1,68 @@
+"""CLI wrappers for verification operations."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from rich.console import Console
+
+from mantle.core import issues, verify
+
+console = Console()
+
+
+def run_save_verification_strategy(
+    *,
+    strategy: str,
+    project_dir: Path | None = None,
+) -> None:
+    """Save verification strategy, print confirmation.
+
+    Args:
+        strategy: Verification strategy text to persist.
+        project_dir: Project directory. Defaults to cwd.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    verify.save_strategy(project_dir, strategy)
+
+    console.print()
+    console.print("[green]Verification strategy saved to config.md[/green]")
+    console.print(f"  Strategy: {strategy}")
+
+
+def run_transition_to_verified(
+    *,
+    issue: int,
+    project_dir: Path | None = None,
+) -> None:
+    """Transition issue to verified, print confirmation.
+
+    Args:
+        issue: Issue number to transition.
+        project_dir: Project directory. Defaults to cwd.
+
+    Raises:
+        SystemExit: If the transition is not allowed.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    try:
+        path = issues.transition_to_verified(project_dir, issue)
+    except issues.InvalidTransitionError as exc:
+        console.print(
+            f"[red]Error:[/red] Cannot transition to 'verified'"
+            f" from '{exc.current_status}' status."
+        )
+        raise SystemExit(1) from None
+
+    console.print()
+    console.print(
+        f"[green]Issue {issue} transitioned to verified ({path.name})[/green]"
+    )
+    console.print(
+        "  Next: run [bold]/mantle:review[/bold]"
+        " for checklist-based human review"
+    )

@@ -23,6 +23,7 @@ from mantle.cli import (
     skills,
     stories,
     system_design,
+    verify,
 )
 from mantle.cli import (
     compile as compile_cmd,
@@ -1172,6 +1173,54 @@ def save_skill_command(
         projects=projects,
         tags=tags,
         overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-verification-strategy")
+def save_verification_strategy_command(
+    strategy: Annotated[
+        str,
+        Parameter(
+            name="--strategy",
+            help="Verification strategy text to persist.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a project-wide verification strategy to config.md."""
+    verify.run_save_verification_strategy(
+        strategy=strategy,
+        project_dir=path,
+    )
+
+
+@app.command(name="transition-issue-verified")
+def transition_issue_verified_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to transition to verified.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Transition an issue from implemented to verified."""
+    verify.run_transition_to_verified(
+        issue=issue,
         project_dir=path,
     )
 
