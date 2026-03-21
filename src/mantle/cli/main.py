@@ -21,6 +21,7 @@ from mantle.cli import (
     review,
     session,
     shaping,
+    simplify,
     skills,
     stories,
     system_design,
@@ -1310,6 +1311,46 @@ def compile_command(
 def install_command() -> None:
     """Mount commands, agents, and hooks into ~/.claude/."""
     install.run_install()
+
+
+@app.command(name="collect-issue-files")
+def collect_issue_files_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to collect files for.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """List files changed by an issue's commits."""
+    simplify.run_collect_issue_files(
+        issue=issue,
+        project_dir=path,
+    )
+
+
+@app.command(name="collect-changed-files")
+def collect_changed_files_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """List all changed files in the working tree."""
+    simplify.run_collect_changed_files(
+        project_dir=path,
+    )
 
 
 if __name__ == "__main__":
