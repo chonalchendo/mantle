@@ -67,6 +67,9 @@ Every phase is a `/mantle:*` slash command inside Claude Code. The flow runs top
 | **Shape Issue** | `/mantle:shape-issue` | Evaluate 2-3 approaches with tradeoffs before committing to a direction. Past learnings are loaded automatically. |
 | **Plan Stories** | `/mantle:plan-stories` | Decompose the issue into implementable stories sized for a single AI context window. Each story includes test expectations (TDD). |
 | **Implement** | `/mantle:implement` | Automated build loop — spawns an Agent per story, runs tests, retries once on failure, creates atomic git commits. |
+| **Simplify** | `/mantle:simplify` | _Optional._ Post-implementation quality gate. Spawns per-file agents to identify and remove AI-generated code bloat (unnecessary abstractions, defensive over-engineering, dead code, comment noise). Test-gated — changes only committed if tests pass. |
+| **Verify** | `/mantle:verify` | Project-specific verification strategy. On first use, prompts you to define how this project should be verified. Per-issue overrides supported. |
+| **Review** | `/mantle:review` | Human review with acceptance criteria checklist. AI presents pass/fail status from verification. You approve or request changes per criterion. |
 | **Retrospective** | `/mantle:retrospective` | Capture what went well, what was harder than expected, and wrong assumptions. Learnings auto-surface in future shaping sessions. |
 
 ### Available Any Time
@@ -89,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.5.2** — Enhanced Claude Code integration. Named agents with frontmatter, project-level permission wildcards, dynamic context injection, argument hints on commands, `context: fork` verification skill, and agent memory for the story implementer.
+**v0.6.0** — Complete idea-to-reviewed-code lifecycle. Verification with project-specific strategies, human review with acceptance criteria checklists, and a post-implementation simplify command that removes AI-generated code bloat.
 
 ## License
 
