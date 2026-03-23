@@ -282,9 +282,9 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 
 **What the user can do**: Skills created via `/mantle:add-skill` are now usable by Claude Code out of the box. Related skill links are validated during creation. Content-based tags enable Obsidian graph discovery. Skills are compiled to `.claude/skills/` so Claude Code natively loads them.
 
-### v0.5.0 — Planning & Implementation (issues 11–14)
+### v0.5.0 — Planning & Implementation (issues 11–14, 20, 22–23) ✅
 
-`/mantle:plan-issues` → `/mantle:plan-stories` → `/mantle:implement` → automated build loop.
+`/mantle:plan-issues` → `/mantle:shape-issue` → `/mantle:plan-stories` → `/mantle:implement` → `/mantle:retrospective` → automated build loop with structured reflection.
 
 | Issue | Title | Status | Depends on |
 |-------|-------|--------|------------|
@@ -294,20 +294,30 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 | 14 | ~~Worktree parallel implementation~~ | dropped | 13 |
 | 20 | Bug capture (`/mantle:bug`) | completed | 02 |
 | 22 | Shape issue (`/mantle:shape-issue`) | completed | 11 |
-| 23 | Retrospective (`/mantle:retrospective`) | planned | 22 |
+| 23 | Retrospective (`/mantle:retrospective`) | completed | 22 |
 
-**What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning.
+**What the user can do**: Full planning-to-code pipeline. Break work into vertical slices, shape issues with tradeoff analysis, decompose into stories, and run an automated implementation loop with per-story context windows, test retries, and atomic commits. Capture bugs on the fly and surface them during planning. Structured retrospectives after each issue with learnings that auto-surface in future shaping.
 
-### v0.6.0 — Verification & Review (issues 15–16)
+### v0.6.0 — Verification & Review (issues 15–16) ✅
 
 `/mantle:verify` → `/mantle:review` → verified and reviewed code.
 
-| Issue | Title | Depends on |
-|-------|-------|------------|
-| 15 | Verification (`/mantle:verify`) | 02 |
-| 16 | Review (`/mantle:review`) | 15 |
+| Issue | Title | Status | Depends on |
+|-------|-------|--------|------------|
+| 15 | Verification (`/mantle:verify`) | completed | 02 |
+| 16 | Review (`/mantle:review`) | completed | 15 |
 
 **What the user can do**: Complete lifecycle from idea to reviewed code. Project-specific verification strategies with per-issue overrides. Human review with acceptance criteria checklist.
+
+### v0.7.0 — Code Quality (issue 24)
+
+`/mantle:simplify` → post-implementation quality gate for AI-generated code.
+
+| Issue | Title | Status | Depends on |
+|-------|-------|--------|------------|
+| 24 | Simplify command (`/mantle:simplify`) | completed | 13 |
+
+**What the user can do**: Run a dedicated simplification pass after implementation to identify and remove characteristic AI-generated code bloat. Issue-scoped mode targets files changed by an issue's stories. Standalone mode works on any changed files. Per-file agents apply an LLM bloat pattern checklist. Test-gated — changes only committed if tests pass.
 
 ## Out of Scope
 
@@ -331,5 +341,5 @@ Validate skill links, add content tags, compile skills to `.claude/skills/` for 
 ### Open Questions
 
 - How should the personal vault skill graph interact with `.mantle/` project context when multiple team members have different personal vaults? (The current answer: personal vault is private, project vault is shared. They link via `skills_required` in state.md but don't merge.)
-- Should there be a `/mantle:retrospective` command for end-of-project reflection? (Resolved: Implemented in issue 23. Captures structured learnings with confidence delta after each issue. Learnings auto-surface in future `/mantle:shape-issue` sessions.)
+- ~~Should there be a `/mantle:retrospective` command for end-of-project reflection?~~ Resolved: Shipped in v0.5.0 (issue 23). Captures structured learnings with confidence delta after each issue. Learnings auto-surface in future `/mantle:shape-issue` sessions.
 - What's the right behaviour when Obsidian CLI is unavailable (not installed, wrong version)? (Current answer: filesystem fallback for all operations. Log a warning.)
