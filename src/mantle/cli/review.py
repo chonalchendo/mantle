@@ -39,12 +39,9 @@ def run_transition_to_approved(
 
     console.print()
     console.print(
-        f"[green]Issue {issue} transitioned to approved"
-        f" ({path.name})[/green]"
+        f"[green]Issue {issue} transitioned to approved ({path.name})[/green]"
     )
-    console.print(
-        "  Issue approved — ready for release or deployment."
-    )
+    console.print("  Issue approved — ready for release or deployment.")
 
 
 def run_transition_to_implementing(
@@ -78,6 +75,4 @@ def run_transition_to_implementing(
         f"[green]Issue {issue} transitioned to implementing"
         f" ({path.name})[/green]"
     )
-    console.print(
-        "  Review flagged changes — fix and re-verify."
-    )
+    console.print("  Review flagged changes — fix and re-verify.")

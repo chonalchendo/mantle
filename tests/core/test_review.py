@@ -6,7 +6,6 @@ import pytest
 
 from mantle.core import review, verify
 
-
 # ── Helpers ──────────────────────────────────────────────────────
 
 
@@ -71,9 +70,7 @@ class TestApplyFeedback:
         report = _make_report()
         checklist = review.build_checklist(report)
 
-        updated = review.apply_feedback(
-            checklist, [(0, "approved", None)]
-        )
+        updated = review.apply_feedback(checklist, [(0, "approved", None)])
 
         assert updated.items[0].status == "approved"
         assert updated.items[0].comment is None
@@ -107,9 +104,7 @@ class TestApplyFeedback:
         checklist = review.build_checklist(report)
 
         with pytest.raises(review.InvalidFeedbackError):
-            review.apply_feedback(
-                checklist, [(0, "rejected", None)]
-            )
+            review.apply_feedback(checklist, [(0, "rejected", None)])
 
 
 # ── Properties ───────────────────────────────────────────────────

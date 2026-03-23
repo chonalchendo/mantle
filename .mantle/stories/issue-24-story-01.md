@@ -1,11 +1,11 @@
 ---
 issue: 24
 title: Core simplify module — file collection and diff utilities
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

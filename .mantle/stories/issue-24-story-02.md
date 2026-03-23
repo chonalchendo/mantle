@@ -1,11 +1,11 @@
 ---
 issue: 24
 title: Claude Code simplify command — orchestrator prompt
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

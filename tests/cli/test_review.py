@@ -39,12 +39,8 @@ def _write_issue(
             f"status/{status}",
         ),
     )
-    path = (
-        project / ".mantle" / "issues" / f"issue-{issue:02d}.md"
-    )
-    vault.write_note(
-        path, note, "## Acceptance Criteria\n\n- It works\n"
-    )
+    path = project / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    vault.write_note(path, note, "## Acceptance Criteria\n\n- It works\n")
 
 
 class TestTransitionIssueApprovedCLI:
@@ -54,13 +50,9 @@ class TestTransitionIssueApprovedCLI:
     ) -> None:
         _write_issue(project, 1, status="verified")
 
-        cli_review.run_transition_to_approved(
-            issue=1, project_dir=project
-        )
+        cli_review.run_transition_to_approved(issue=1, project_dir=project)
 
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "approved"
 
@@ -71,9 +63,7 @@ class TestTransitionIssueApprovedCLI:
         _write_issue(project, 1, status="planned")
 
         with pytest.raises(SystemExit):
-            cli_review.run_transition_to_approved(
-                issue=1, project_dir=project
-            )
+            cli_review.run_transition_to_approved(issue=1, project_dir=project)
 
 
 class TestTransitionIssueImplementingCLI:
@@ -83,13 +73,9 @@ class TestTransitionIssueImplementingCLI:
     ) -> None:
         _write_issue(project, 1, status="verified")
 
-        cli_review.run_transition_to_implementing(
-            issue=1, project_dir=project
-        )
+        cli_review.run_transition_to_implementing(issue=1, project_dir=project)
 
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "implementing"
 

@@ -21,5 +21,8 @@ htmlcov/
 .ruff_cache/
 .ty_cache/
 
+# macOS
+.DS_Store
+
 # Claude Code
 .claude/worktrees/

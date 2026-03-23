@@ -12,8 +12,8 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
-from mantle.core import vault
 from mantle.core import issues as issues_mod
+from mantle.core import vault
 from mantle.core.issues import (
     InvalidTransitionError,
     IssueExistsError,
@@ -420,20 +420,13 @@ def _write_issue_direct(
         slice=("core",),
         tags=("type/issue", f"status/{status}"),
     )
-    path = (
-        project_dir
-        / ".mantle"
-        / "issues"
-        / f"issue-{issue_number:02d}.md"
-    )
+    path = project_dir / ".mantle" / "issues" / f"issue-{issue_number:02d}.md"
     vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
     return path
 
 
 class TestTransitionToApproved:
-    def test_transition_to_approved_from_verified(
-        self, project: Path
-    ) -> None:
+    def test_transition_to_approved_from_verified(self, project: Path) -> None:
         """Verified issue transitions to approved."""
         _write_issue_direct(project, 10, status="verified")
 
@@ -443,9 +436,7 @@ class TestTransitionToApproved:
         assert note.status == "approved"
         assert "status/approved" in note.tags
 
-    def test_transition_to_approved_invalid_status(
-        self, project: Path
-    ) -> None:
+    def test_transition_to_approved_invalid_status(self, project: Path) -> None:
         """Non-verified issue raises InvalidTransitionError."""
         _write_issue_direct(project, 11, status="planned")
 

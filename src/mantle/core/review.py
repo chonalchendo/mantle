@@ -127,8 +127,7 @@ def apply_feedback(
     for index, status, comment in feedback:
         if index < 0 or index >= len(items):
             raise InvalidFeedbackError(
-                f"Index {index} out of bounds"
-                f" (0..{len(items) - 1})"
+                f"Index {index} out of bounds (0..{len(items) - 1})"
             )
         if status not in _VALID_STATUSES:
             raise InvalidFeedbackError(

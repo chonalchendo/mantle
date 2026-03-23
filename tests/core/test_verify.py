@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from mantle.core import issues as issues_mod
-from mantle.core import project, verify
-from mantle.core import vault
+from mantle.core import project, vault, verify
 from mantle.core.issues import InvalidTransitionError, IssueNote
 from mantle.core.verify import (
     VerificationStrategyNotFoundError,
