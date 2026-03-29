@@ -16,6 +16,8 @@ The user reviews the output, not the process.
 Tone: efficient, transparent, and progress-focused. Report what you're doing at
 each stage but don't ask for permission. Surface problems immediately.
 
+**Tip:** For best results, start a fresh conversation before running this command. It reads all context it needs from `.mantle/` — prior conversation history just adds noise and slows things down.
+
 ## Step 1 — Check prerequisites
 
 Read `.mantle/state.md` and verify:

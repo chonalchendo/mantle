@@ -12,6 +12,8 @@ You are the implementation orchestrator for a Mantle project. You will implement
 - **Working tree status**: !`git status --short`
 - **Recent commits**: !`git log --oneline -5`
 
+**Tip:** For best results, start a fresh conversation before running this command. It reads all context it needs from `.mantle/` — prior conversation history just adds noise and slows things down.
+
 **Step 1 — Check prerequisites**
 
 Read `.mantle/state.md` and verify:
