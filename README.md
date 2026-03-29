@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.0** — Automated build pipeline (`/mantle:build`), auto-detected skill context from issue/story content, dynamic next-step routing, and streamlined review with approve-all quick action.
+**v0.7.1** — Build pipeline now includes simplify step, skill gap detection, and auto-commit of .mantle/ artifacts after every command. Auto-detected skill context from issue/story content.
 
 ## License
 
