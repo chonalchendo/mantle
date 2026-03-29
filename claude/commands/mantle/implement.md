@@ -77,4 +77,23 @@ After all stories are processed (or the loop stops), summarise:
 - Stories completed this run
 - Stories skipped (already completed)
 - Stories blocked (if any) — show the failure_log
-- Next steps: fix the blocked story and re-run `/mantle:implement`, or proceed to the next workflow step if all stories are done
+
+Then briefly assess before recommending next steps:
+
+- Did all stories complete successfully?
+- Were there blocked stories that need fixing?
+- Was the implementation complex — lots of files touched, tricky logic, or workarounds?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:verify` — default. Recommend when all stories completed successfully.
+- `/mantle:simplify` — recommend when all stories completed but the implementation was complex and could benefit from a quality pass before verification.
+- `/mantle:implement` — recommend when a blocked story was fixed and implementation should resume.
+
+**Default:** `/mantle:verify` if all stories completed.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]

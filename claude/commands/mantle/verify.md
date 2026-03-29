@@ -106,9 +106,21 @@ Display a formatted verification report:
    ```bash
    mantle transition-issue-verified --issue <N>
    ```
-2. Tell the user:
-   > All criteria passed. Issue {N} is now verified.
-   > Next: run `/mantle:review` for checklist-based human review.
+2. Briefly assess before recommending next steps:
+   - Was the implementation straightforward, or did verification reveal complexity?
+   - Did you notice code that could benefit from simplification?
+
+   **Valid next commands** (recommend the best fit, not all of them):
+   - `/mantle:review` — default. Recommend in most cases for checklist-based human review.
+   - `/mantle:simplify` — recommend when verification passed but you noticed code complexity, unnecessary abstractions, or bloat that should be addressed before review.
+
+   **Default:** `/mantle:review` if nothing suggests otherwise.
+
+   Present one clear recommendation:
+
+   > **Recommended next step:** `/mantle:<command>` — [reason based on what you observed]
+   >
+   > Other options: [brief alternatives]
 
 **If any criteria fail:**
 1. List the failing criteria with details.

@@ -91,7 +91,18 @@ mantle save-learning \
 
 ## Step 6 — Next steps
 
-After a successful save, tell the user:
+After a successful save, check `.mantle/issues/` for remaining unimplemented issues before recommending next steps.
 
-> Learning captured! These learnings will automatically surface in future
-> `/mantle:shape-issue` sessions to inform planning.
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:shape-issue` — recommend when unimplemented issues remain. These learnings will automatically surface in that session to inform planning.
+- `/mantle:plan-issues` — recommend when all current issues are done but the project needs more work planned.
+- `/mantle:status` — recommend when the user might want to see overall project state before deciding what's next.
+
+**Default:** `/mantle:shape-issue` if unimplemented issues remain.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed]
+>
+> Other options: [brief list of alternatives with one-line descriptions]

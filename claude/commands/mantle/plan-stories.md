@@ -182,5 +182,22 @@ When the user stops planning, summarise:
 > **Story planning complete for issue {NN}.**
 > - Stories planned: {count}
 > - Acceptance criteria covered: {covered}/{total}
-> - Next: run `/mantle:implement --issue {NN}` to start building, or
->   `/mantle:plan-stories` for another issue.
+
+Then briefly assess before recommending next steps:
+
+- Is acceptance criteria coverage complete?
+- Are any stories unclear or underspecified?
+- Were coverage gaps identified that need additional stories?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:implement --issue {NN}` — default. Recommend when stories are complete and acceptance criteria coverage is good.
+- `/mantle:plan-stories` — recommend when coverage gaps were identified that need additional stories before implementation.
+
+**Default:** `/mantle:implement --issue {NN}` if coverage is complete.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]

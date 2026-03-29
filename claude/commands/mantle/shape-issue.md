@@ -86,7 +86,22 @@ mantle save-shaped-issue \
 
 ## Step 6 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess this session before recommending next steps:
 
-> Issue shaped! Next, run `/mantle:plan-stories` to decompose into
-> implementable stories.
+- Did shaping surface open questions about technical feasibility?
+- Does the chosen approach align with the current system design, or does it change it?
+- Were there unknowns that could benefit from targeted research?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:plan-stories` — default. Recommend when the issue is shaped and ready for decomposition into implementable stories.
+- `/mantle:research` — recommend when shaping revealed unknown technical areas that should be investigated before committing to implementation.
+- `/mantle:revise-system` — recommend when the chosen approach changes the system design in ways that should be documented first.
+
+**Default:** `/mantle:plan-stories` if nothing suggests otherwise.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]

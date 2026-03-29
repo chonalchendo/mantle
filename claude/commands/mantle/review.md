@@ -78,8 +78,21 @@ Record the user's response (approved or needs-changes) and any comments.
    ```bash
    mantle transition-issue-approved --issue <N>
    ```
-2. Tell the user:
-   > All criteria approved. Issue {N} is now approved.
+2. Check `.mantle/learnings/` for whether a retrospective already exists for this issue.
+3. Check `.mantle/issues/` for remaining unimplemented issues.
+
+   **Valid next commands** (recommend the best fit, not all of them):
+   - `/mantle:retrospective` — **always recommend first** if no learning exists for this issue. Retrospectives capture what went well and what was harder than expected, directly improving future planning.
+   - `/mantle:shape-issue` — recommend after retrospective, when more unimplemented issues remain.
+   - `/mantle:plan-issues` — recommend when all current issues are done but the project needs more work.
+
+   **Default:** `/mantle:retrospective` — always do this before moving on.
+
+   Present one clear recommendation:
+
+   > **Recommended next step:** `/mantle:retrospective` — capture learnings from this issue before moving on. This takes 5 minutes and directly improves future planning.
+   >
+   > After that: `/mantle:shape-issue` to pick up the next issue (or `/mantle:plan-issues` if all current issues are done).
 
 **If any criteria need changes:**
 1. Transition the issue back to implementing:

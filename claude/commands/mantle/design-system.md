@@ -168,10 +168,23 @@ decomposition, not a template.
 
 ## Step 6 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess this session before recommending next steps:
 
-> System design complete! Next, run `/mantle:plan-issues` to break down the work
-> into implementable issues.
+- Were any product design gaps discovered during system design?
+- Did the design require decisions that the product design didn't anticipate?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:plan-issues` — default. Recommend in most cases to break down the work into implementable issues.
+- `/mantle:revise-product` — recommend when system design revealed gaps or contradictions in the product design that should be resolved before planning.
+
+**Default:** `/mantle:plan-issues` if nothing suggests otherwise.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

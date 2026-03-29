@@ -117,10 +117,23 @@ Add `--overwrite` if they confirmed overwriting in Step 1.
 
 ## Step 5 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess this session before recommending next steps:
 
-> Product design captured! Next, run `/mantle:design-system` to define the how —
-> architecture, tech stack, and system boundaries.
+- Did the design session surface building blocks with unknown technical feasibility?
+- Were there areas where you lacked evidence to make confident design choices?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:design-system` — default. Recommend in most cases to define the how — architecture, tech stack, and system boundaries.
+- `/mantle:research` — recommend when the design session revealed building blocks that need technical investigation before system design can proceed.
+
+**Default:** `/mantle:design-system` if nothing suggests otherwise.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

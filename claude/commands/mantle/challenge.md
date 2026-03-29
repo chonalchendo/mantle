@@ -99,14 +99,26 @@ mantle save-challenge --transcript "<formatted transcript>"
 
 ## Step 5 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess this session before recommending next steps:
 
-> Challenge complete! The assumptions, uncertainties, and weaknesses surfaced
-> here are the input for research. You can:
-> - Run `/mantle:research` to investigate the building blocks your idea depends
->   on — starting with the highest-risk assumptions from this session
-> - Run `/mantle:design-product` to go straight to design if you're confident
->   enough to skip research
+- How many high-risk assumptions remain unvalidated?
+- What was the overall verdict (Proceed / Iterate / Pivot)?
+- Were there "would change my mind if" conditions that need investigation?
+- How confident is the user about feasibility?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:research` — recommend when high-risk assumptions were identified, unknowns remain, or confidence is low. Start with the highest-risk assumptions from this session.
+- `/mantle:design-product` — recommend when challenges were well-addressed and confidence is sufficient to proceed without further investigation.
+- `/mantle:idea` — recommend rarely, only when the challenge revealed the idea needs fundamental rethinking (e.g., the core insight doesn't hold up).
+
+**Default:** `/mantle:research` if any significant unknowns were surfaced.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

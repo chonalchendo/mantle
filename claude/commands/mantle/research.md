@@ -128,9 +128,25 @@ After a successful save, review the building block list and tell the user:
 - Whether any challenge assumptions have been confirmed or refuted
 - Whether the evidence so far supports proceeding to design
 
-> Research saved! You can:
-> - Run `/mantle:research` to investigate the next building block
-> - Run `/mantle:design-product` when you have enough evidence to design
+Then assess this session before recommending next steps:
+
+- How many building blocks still lack research, especially high-risk ones?
+- What is the overall confidence level across researched blocks?
+- Did any findings contradict earlier challenge assumptions?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:research` — recommend when unresearched high-risk building blocks remain, especially those flagged during challenge.
+- `/mantle:design-product` — recommend when enough evidence exists to proceed with confidence.
+- `/mantle:challenge` — recommend rarely, when research uncovered information that fundamentally changes earlier challenge assumptions and they should be re-evaluated.
+
+**Default:** `/mantle:research` if unresearched blocks remain; `/mantle:design-product` once coverage is sufficient.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

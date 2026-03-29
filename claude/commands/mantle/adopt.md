@@ -173,15 +173,25 @@ Add `--overwrite` if the user confirmed overwriting in Step 1.
 
 ## Step 6 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess the quality of the generated design artifacts:
 
-> Adoption complete! Your project now has structured design artifacts in `.mantle/`.
+- How confident are you in the reverse-engineered product design?
+- Does the system design accurately capture the existing architecture?
+- Were there areas where you had low confidence or made assumptions?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:plan-issues` — default. Recommend when the design docs are solid and the user is ready to start planning work.
+- `/mantle:revise-product` — recommend when the reverse-engineered product design needs refinement (e.g., vision or principles felt uncertain).
+- `/mantle:revise-system` — recommend when the system design needs updating (e.g., architecture areas with low confidence).
+
+**Default:** `/mantle:plan-issues` if the designs are solid.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on the adoption session]
 >
-> Next steps:
-> - Run `/mantle:plan-issues` to break down the work into implementable issues
-> - Run `/mantle:revise-product` or `/mantle:revise-system` to refine the designs
-> - Decision log entries are in `.mantle/decisions/` — review them with
->   `/mantle:status`
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

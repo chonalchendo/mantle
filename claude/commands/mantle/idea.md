@@ -56,10 +56,25 @@ Add `--overwrite` if they confirmed overwriting in Step 1.
 
 ## Step 4 — Next steps
 
-After a successful save, tell the user:
+After a successful save, briefly assess this session before recommending next steps:
 
-> Idea captured! Next, run `/mantle:challenge` to stress-test your idea from
-> multiple angles before investing in design.
+- Does the idea involve technology or domains the user seems unfamiliar with?
+- Did the user express uncertainty about whether something is technically feasible?
+- How well-formed is the problem/insight — is it concrete or still fuzzy?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:challenge` — default. Recommend when the idea is well-formed and ready for stress-testing.
+- `/mantle:research` — recommend when the idea depends on unfamiliar technology or the user expressed uncertainty about feasibility. Research gathers evidence before investing in design.
+- `/mantle:design-product` — recommend only when the user has very high confidence and wants to move fast. Note that skipping validation carries risk.
+
+**Default:** `/mantle:challenge` if nothing suggests otherwise.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
 
 ## Session Logging
 

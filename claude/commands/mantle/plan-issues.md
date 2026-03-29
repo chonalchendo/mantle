@@ -175,5 +175,22 @@ When the user stops planning (or all planned work is proposed), summarise:
 > **Planning session complete.**
 > - Issues planned: [count this session]
 > - Total issues now: [total count]
-> - Next: run `/mantle:shape-issue` to evaluate approaches for the next issue to
->   implement.
+
+Then briefly assess before recommending next steps:
+
+- Did any issues imply changes to the product or system design (from Step 5)?
+- Are the issues well-defined enough for shaping?
+
+**Valid next commands** (recommend the best fit, not all of them):
+
+- `/mantle:shape-issue` — default. Recommend when issues are ready to be shaped and evaluated.
+- `/mantle:revise-system` — recommend when issue planning revealed system design gaps that should be addressed before shaping.
+- `/mantle:revise-product` — recommend when issue planning revealed product design gaps.
+
+**Default:** `/mantle:shape-issue` if nothing suggests otherwise.
+
+Present one clear recommendation with a reason, then mention alternatives briefly:
+
+> **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
+>
+> Other options: [brief list of alternatives with one-line descriptions]
