@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.6.0** — Complete idea-to-reviewed-code lifecycle. Verification with project-specific strategies, human review with acceptance criteria checklists, and a post-implementation simplify command that removes AI-generated code bloat.
+**v0.6.1** — Dynamic next-step routing across all workflow commands. Each skill now recommends the best next command based on session context, and retrospective is included in the post-review flow.
 
 ## License
 
