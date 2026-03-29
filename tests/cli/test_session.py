@@ -133,6 +133,108 @@ class TestRunSaveSession:
         assert "Warning:" in captured.out
 
 
+# ── _extract_summary ──────────────────────────────────────────────
+
+
+class TestExtractSummary:
+    def test_extracts_first_line_after_summary_heading(self) -> None:
+        from mantle.cli.session import _extract_summary
+
+        content = (
+            "## Summary\n\n"
+            "Implemented the build pipeline.\n\n"
+            "## What Was Done\n"
+        )
+        assert _extract_summary(content) == "Implemented the build pipeline."
+
+    def test_fallback_when_no_summary(self) -> None:
+        from mantle.cli.session import _extract_summary
+
+        assert _extract_summary("Just some text.") == "update artifacts"
+
+    def test_truncates_long_summary(self) -> None:
+        from mantle.cli.session import _extract_summary
+
+        content = "## Summary\n\n" + "a" * 100 + "\n"
+        result = _extract_summary(content)
+        assert len(result) <= 72
+
+
+# ── _auto_commit ──────────────────────────────────────────────────
+
+
+class TestAutoCommit:
+    @pytest.fixture
+    def git_project(self, tmp_path: Path) -> Path:
+        """Create a project with a git repo."""
+        subprocess.run(
+            ["git", "init"], cwd=tmp_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "config", "user.email", MOCK_EMAIL],
+            cwd=tmp_path,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test"],
+            cwd=tmp_path,
+            capture_output=True,
+        )
+        (tmp_path / ".mantle").mkdir()
+        (tmp_path / ".mantle" / "sessions").mkdir()
+        _write_state(tmp_path)
+        # Initial commit so we can make further commits
+        subprocess.run(
+            ["git", "add", "."], cwd=tmp_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "init"],
+            cwd=tmp_path,
+            capture_output=True,
+        )
+        return tmp_path
+
+    def test_commits_mantle_changes(self, git_project: Path) -> None:
+        from mantle.cli.session import _auto_commit
+
+        # Create an uncommitted file
+        (git_project / ".mantle" / "issues").mkdir(exist_ok=True)
+        (git_project / ".mantle" / "issues" / "issue-01.md").write_text(
+            "test"
+        )
+
+        _auto_commit(git_project, "plan-issues", "planned 3 issues")
+
+        result = subprocess.run(
+            ["git", "log", "--oneline", "-1"],
+            cwd=git_project,
+            capture_output=True,
+            text=True,
+        )
+        assert "chore(mantle): plan-issues" in result.stdout
+
+    def test_no_commit_when_clean(self, git_project: Path) -> None:
+        from mantle.cli.session import _auto_commit
+
+        # Get current commit count
+        before = subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            cwd=git_project,
+            capture_output=True,
+            text=True,
+        )
+
+        _auto_commit(git_project, "idea", "test")
+
+        after = subprocess.run(
+            ["git", "rev-list", "--count", "HEAD"],
+            cwd=git_project,
+            capture_output=True,
+            text=True,
+        )
+        assert before.stdout == after.stdout
+
+
 # ── CLI wiring ───────────────────────────────────────────────────
 
 

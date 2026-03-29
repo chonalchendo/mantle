@@ -36,6 +36,7 @@ class _ConfigFrontmatter(pydantic.BaseModel):
 
     personal_vault: str | None = None
     verification_strategy: str | None = None
+    auto_push: bool = False
     tags: tuple[str, ...] = ("type/config",)
 
 
