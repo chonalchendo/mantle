@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.2** — Descriptive filenames for issues, stories, and shaped issues (e.g., `issue-05-auto-detect-skills.md`). Build pipeline with simplify step, skill gap detection, and auto-commit.
+**v0.7.3** — Condensed build pipeline, fixed CLI bugs (issue lookup, skill validation, exception syntax), removed phantom command references.
 
 ## License
 

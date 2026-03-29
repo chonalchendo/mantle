@@ -370,7 +370,11 @@ def find_issue_path(project_dir: Path, issue: int) -> Path | None:
     """
     issues_dir = project_dir / ".mantle" / "issues"
     matches = sorted(issues_dir.glob(f"issue-{issue:02d}-*.md"))
-    return matches[0] if matches else None
+    if matches:
+        return matches[0]
+    # Fallback: old naming format without slug (issue-NN.md)
+    old_format = issues_dir / f"issue-{issue:02d}.md"
+    return old_format if old_format.exists() else None
 
 
 def _update_state_body(

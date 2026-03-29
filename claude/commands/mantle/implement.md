@@ -41,7 +41,7 @@ First, ensure skills are up to date for this issue:
 
 ```bash
 mantle update-skills --issue {NN}
-mantle compile --force
+mantle compile
 ```
 
 Then read all required context files:

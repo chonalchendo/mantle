@@ -638,7 +638,10 @@ def detect_skills_from_content(
     matched: list[str] = []
 
     for path in existing:
-        note, _ = load_skill(path)
+        try:
+            note, _ = load_skill(path)
+        except (vault.NoteParseError, vault.NoteValidationError):
+            continue
         # Match by name (case-insensitive)
         if note.name.lower() in content_lower:
             matched.append(note.name)
@@ -747,7 +750,7 @@ def compile_skills(project_dir: Path) -> list[str]:
 
     try:
         matches = _match_required_skills(project_dir)
-    except VaultNotConfiguredError, FileNotFoundError:
+    except (VaultNotConfiguredError, FileNotFoundError):
         _cleanup_stale_skills(skills_target, compiled_slugs)
         return compiled_slugs
 

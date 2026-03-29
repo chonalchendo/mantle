@@ -53,20 +53,9 @@ Quick pass on the structural info. Ask for each in turn:
 4. **Related skills** — Other skills this connects to. Suggest from existing
    skill nodes if any are present.
 
-   After the user provides related skills, validate each link by running:
-
-   ```bash
-   mantle validate-related-skills --name "<skill1>" --name "<skill2>" ...
-   ```
-
-   If any skills don't exist in the vault, present each missing skill with
-   options:
-   - **Create stub** — create a minimal skill node (0/10 proficiency,
-     placeholder content) so the wikilink resolves. Run:
-     `mantle create-stub-skill --name "<missing skill>"`
-   - **Remove link** — drop it from the related_skills list
-   - **Keep anyway** — leave the dangling link (Obsidian will show it as
-     unresolved, but it's not harmful)
+   After the user provides related skills, note them for the save command.
+   Obsidian will show unresolved wikilinks for skills that don't exist yet
+   in the vault — this is fine and expected.
 
    Process each missing skill individually — the user may want different
    actions for different links.
@@ -227,7 +216,7 @@ After saving, trigger recompilation so the new skill is immediately available
 to Claude Code:
 
 ```bash
-mantle compile --force
+mantle compile
 ```
 
 ## Step 8 — Offer to continue

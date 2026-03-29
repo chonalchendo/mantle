@@ -194,7 +194,7 @@ implementation.
    > knowledge (patterns, conventions, anti-patterns) beyond what's in its
    > training data.
 
-3. Run `mantle compile --force` to ensure the latest skills are compiled.
+3. Run `mantle compile` to ensure the latest skills are compiled.
 
 ## Step 6 — Session wrap-up
 
