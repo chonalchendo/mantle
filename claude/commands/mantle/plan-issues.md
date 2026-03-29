@@ -183,8 +183,9 @@ Then briefly assess before recommending next steps:
 
 **Valid next commands** (recommend the best fit, not all of them):
 
-- `/mantle:shape-issue` — default. Recommend when issues are ready to be shaped and evaluated.
-- `/mantle:revise-system` — recommend when issue planning revealed system design gaps that should be addressed before shaping.
+- `/mantle:build` — recommend when the user wants to move fast. Automates shaping, story planning, implementation, and verification in one pass.
+- `/mantle:shape-issue` — recommend when the user wants fine-grained control over approach selection before building.
+- `/mantle:revise-system` — recommend when issue planning revealed system design gaps that should be addressed before building.
 - `/mantle:revise-product` — recommend when issue planning revealed product design gaps.
 
 **Default:** `/mantle:shape-issue` if nothing suggests otherwise.

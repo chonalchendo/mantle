@@ -176,6 +176,7 @@ After a successful save, briefly assess this session before recommending next st
 **Valid next commands** (recommend the best fit, not all of them):
 
 - `/mantle:plan-issues` — default. Recommend in most cases to break down the work into implementable issues.
+- `/mantle:build` — recommend when the user wants to move fast and issues already exist. Automates shaping through verification in one pass.
 - `/mantle:revise-product` — recommend when system design revealed gaps or contradictions in the product design that should be resolved before planning.
 
 **Default:** `/mantle:plan-issues` if nothing suggests otherwise.

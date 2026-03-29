@@ -23,7 +23,8 @@
 - `/mantle:plan-stories [issue-number]` — Decompose issues into implementable stories
 
 ## Implementation
-- `/mantle:implement [issue-number]` — Run the implementation orchestration loop
+- `/mantle:build [issue-number]` — Automated pipeline: shape → stories → implement → verify in one pass
+- `/mantle:implement [issue-number]` — Run the implementation orchestration loop (stories only)
 
 ## Verification & Review
 - `/mantle:verify` — Run project-specific verification
