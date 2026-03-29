@@ -303,6 +303,46 @@ def update_slices(
     return updated
 
 
+def update_skills_required(
+    project_dir: Path,
+    skills: tuple[str, ...],
+    *,
+    additive: bool = True,
+) -> ProjectState:
+    """Update skills_required in state.md.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        skills: Skill names to set or add.
+        additive: If True, merge with existing skills. If False,
+            replace entirely.
+
+    Returns:
+        The updated ProjectState.
+    """
+    path = project_dir / ".mantle" / "state.md"
+    note = vault.read_note(path, ProjectState)
+
+    if additive:
+        existing = set(note.frontmatter.skills_required)
+        merged = existing | set(skills)
+        new_skills = tuple(sorted(merged))
+    else:
+        new_skills = skills
+
+    identity = resolve_git_identity()
+    updated = note.frontmatter.model_copy(
+        update={
+            "skills_required": new_skills,
+            "updated": date.today(),
+            "updated_by": identity,
+        },
+    )
+
+    vault.write_note(path, updated, note.body)
+    return updated
+
+
 def valid_transitions(status: Status) -> frozenset[Status]:
     """Return the set of valid target statuses for a given status.
 

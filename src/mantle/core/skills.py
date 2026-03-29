@@ -608,6 +608,113 @@ def load_relevant_skills(
     ]
 
 
+# ── Auto-detection ─────────────────────────────────────────────
+
+
+def detect_skills_from_content(
+    project_dir: Path,
+    content: str,
+) -> list[str]:
+    """Extract skill references from markdown content by matching vault skills.
+
+    Scans the content for vault skill names (case-insensitive) and returns
+    matched skill names. Only matches skills that exist in the vault.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        content: Markdown content to scan (e.g., issue or story body).
+
+    Returns:
+        List of matched skill names from the vault.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    existing = list_skills(project_dir)
+    if not existing:
+        return []
+
+    content_lower = content.lower()
+    matched: list[str] = []
+
+    for path in existing:
+        note, _ = load_skill(path)
+        # Match by name (case-insensitive)
+        if note.name.lower() in content_lower:
+            matched.append(note.name)
+            continue
+        # Match by slug (e.g., "python-asyncio" in code blocks)
+        if path.stem in content_lower:
+            matched.append(note.name)
+
+    return matched
+
+
+def auto_update_skills(
+    project_dir: Path,
+    issue_number: int,
+) -> list[str]:
+    """Auto-detect and update skills_required from issue and story content.
+
+    Reads the issue and all its stories, detects vault skill matches,
+    and merges them into ``skills_required`` in ``state.md``.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue_number: Issue number to scan.
+
+    Returns:
+        List of newly detected skill names (not previously in
+        skills_required).
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    mantle_dir = project_dir / ".mantle"
+
+    # Collect all content from issue and its stories
+    content_parts: list[str] = []
+
+    issue_path = mantle_dir / "issues" / f"issue-{issue_number:02d}.md"
+    if issue_path.exists():
+        content_parts.append(issue_path.read_text(encoding="utf-8"))
+
+    stories_dir = mantle_dir / "stories"
+    if stories_dir.exists():
+        pattern = f"issue-{issue_number:02d}-story-*.md"
+        for story_path in sorted(stories_dir.glob(pattern)):
+            content_parts.append(story_path.read_text(encoding="utf-8"))
+
+    shaped_dir = mantle_dir / "shaped"
+    if shaped_dir.exists():
+        shaped_path = shaped_dir / f"issue-{issue_number:02d}-shaped.md"
+        if shaped_path.exists():
+            content_parts.append(shaped_path.read_text(encoding="utf-8"))
+
+    if not content_parts:
+        return []
+
+    combined = "\n".join(content_parts)
+    detected = detect_skills_from_content(project_dir, combined)
+
+    if not detected:
+        return []
+
+    # Determine which are new
+    current_state = state.load_state(project_dir)
+    existing = set(current_state.skills_required)
+    new_skills = [s for s in detected if s not in existing]
+
+    if new_skills:
+        state.update_skills_required(
+            project_dir,
+            tuple(detected),
+            additive=True,
+        )
+
+    return new_skills
+
+
 # ── Skill compilation ────────────────────────────────────────────
 
 _ESSENTIAL_HEADINGS = frozenset(

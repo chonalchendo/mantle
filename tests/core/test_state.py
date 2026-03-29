@@ -20,6 +20,7 @@ from mantle.core.state import (
     load_state,
     resolve_git_identity,
     transition,
+    update_skills_required,
     update_slices,
     update_tracking,
     valid_transitions,
@@ -565,6 +566,95 @@ class TestUpdateSlices:
         result = update_slices(project, ("api", "storage"))
 
         assert result.slices == ("api", "storage")
+
+
+# ── update_skills_required ──────────────────────────────────────
+
+
+class TestUpdateSkillsRequired:
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_sets_skills(self, _mock: object, project: Path) -> None:
+        _write_state(project)
+        result = update_skills_required(project, ("python",))
+
+        assert result.skills_required == ("python",)
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_additive_merges_with_existing(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project, skills_required=("python",))
+        result = update_skills_required(
+            project, ("react",), additive=True
+        )
+
+        assert "python" in result.skills_required
+        assert "react" in result.skills_required
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_additive_deduplicates(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project, skills_required=("python",))
+        result = update_skills_required(
+            project, ("python", "react"), additive=True
+        )
+
+        assert result.skills_required.count("python") == 1
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_replace_mode_overwrites(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project, skills_required=("python", "react"))
+        result = update_skills_required(
+            project, ("go",), additive=False
+        )
+
+        assert result.skills_required == ("go",)
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_round_trip_preserves_skills(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        update_skills_required(project, ("python", "react"))
+        loaded = load_state(project)
+
+        assert "python" in loaded.skills_required
+        assert "react" in loaded.skills_required
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_updates_timestamp(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(
+            project,
+            updated=date(2020, 1, 1),
+            updated_by="old@example.com",
+        )
+        result = update_skills_required(project, ("python",))
+
+        assert result.updated == date.today()
+        assert result.updated_by == MOCK_EMAIL
 
 
 # ── Status enum ──────────────────────────────────────────────────

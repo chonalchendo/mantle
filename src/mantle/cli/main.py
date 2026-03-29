@@ -891,6 +891,44 @@ def set_slices_command(
     issues.run_set_slices(slices=slices, project_dir=path)
 
 
+@app.command(name="update-skills")
+def update_skills_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to detect skills from.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Auto-detect and update skills_required from issue content."""
+    if path is None:
+        path = Path.cwd()
+
+    from mantle.core import skills
+
+    new_skills = skills.auto_update_skills(path, issue)
+    if new_skills:
+        console.print()
+        console.print(
+            f"[green]Detected {len(new_skills)} new skill(s):[/green]"
+        )
+        for s in new_skills:
+            console.print(f"  - {s}")
+        console.print()
+        console.print("Updated skills_required in state.md.")
+    else:
+        console.print()
+        console.print("No new skills detected.")
+
+
 @app.command(name="save-bug")
 def save_bug_command(
     summary: Annotated[

@@ -175,6 +175,18 @@ Display coverage summary:
 >
 > **Slice coverage:** core ✓, cli ✓, claude-code ✓, tests ✓
 
+## Step 5b — Auto-detect skills
+
+After stories are saved, update the project's skill context:
+
+```bash
+mantle update-skills --issue {NN}
+```
+
+This scans the issue and stories for references to vault skills and updates
+`skills_required` in `state.md`. If new skills are detected, run
+`mantle compile --force` to recompile immediately.
+
 ## Step 6 — Session wrap-up
 
 When the user stops planning, summarise:

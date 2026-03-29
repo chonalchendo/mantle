@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from pathlib import Path
+from unittest.mock import patch
 
 import pydantic
 import pytest
@@ -14,10 +15,12 @@ from mantle.core.skills import (
     SkillNote,
     VaultNotConfiguredError,
     _match_skill_slug,
+    auto_update_skills,
     compile_skills,
     create_skill,
     create_stub_skill,
     detect_gaps,
+    detect_skills_from_content,
     detect_stubs,
     list_skills,
     load_relevant_skills,
@@ -28,7 +31,7 @@ from mantle.core.skills import (
     update_skill,
     validate_related_skills,
 )
-from mantle.core.state import ProjectState, Status
+from mantle.core.state import ProjectState, Status, load_state
 
 MOCK_EMAIL = "test@example.com"
 
@@ -1012,3 +1015,148 @@ class TestCompileSkills:
         )
         text = skill_md.read_text()
         assert f"description: {desc}" in text
+
+
+# ── detect_skills_from_content ─────────────────────────────────
+
+
+class TestDetectSkillsFromContent:
+    """Tests for detect_skills_from_content()."""
+
+    def test_matches_skill_by_name(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        content = "This story uses Python asyncio for the event loop."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Python asyncio" in result
+
+    def test_case_insensitive_match(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        content = "We need python asyncio here."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Python asyncio" in result
+
+    def test_matches_by_slug(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        content = "Reference: python-asyncio patterns apply."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Python asyncio" in result
+
+    def test_no_match_returns_empty(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        content = "This story is about React components."
+
+        result = detect_skills_from_content(project, content)
+
+        assert result == []
+
+    def test_empty_vault_returns_empty(self, project: Path) -> None:
+        content = "Uses Python asyncio for concurrency."
+
+        result = detect_skills_from_content(project, content)
+
+        assert result == []
+
+    def test_multiple_skills_matched(self, project: Path) -> None:
+        _create_skill(project, name="Python asyncio")
+        _create_skill(project, name="WebSocket protocol")
+        content = "Uses Python asyncio with WebSocket protocol."
+
+        result = detect_skills_from_content(project, content)
+
+        assert len(result) == 2
+
+
+# ── auto_update_skills ─────────────────────────────────────────
+
+
+class TestAutoUpdateSkills:
+    """Tests for auto_update_skills()."""
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_detects_from_issue_content(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        _create_skill(project, name="Python asyncio")
+
+        # Write an issue that references the skill
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\n"
+            "Uses Python asyncio for async I/O.\n"
+        )
+
+        result = auto_update_skills(project, 1)
+
+        assert "Python asyncio" in result
+        loaded = load_state(project)
+        assert "Python asyncio" in loaded.skills_required
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_preserves_existing_skills(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project, skills_required=("React",))
+        _create_skill(project, name="Python asyncio")
+
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\n"
+            "Uses Python asyncio.\n"
+        )
+
+        auto_update_skills(project, 1)
+
+        loaded = load_state(project)
+        assert "React" in loaded.skills_required
+        assert "Python asyncio" in loaded.skills_required
+
+    def test_no_issue_returns_empty(self, project: Path) -> None:
+        _write_state(project)
+
+        result = auto_update_skills(project, 99)
+
+        assert result == []
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_scans_stories_too(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        _create_skill(project, name="Python asyncio")
+
+        # Issue without skill reference
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\nBasic issue.\n"
+        )
+
+        # Story with skill reference
+        stories_dir = project / ".mantle" / "stories"
+        stories_dir.mkdir(parents=True, exist_ok=True)
+        (stories_dir / "issue-01-story-01.md").write_text(
+            "---\ntitle: Story\n---\n"
+            "Implement using Python asyncio event loop.\n"
+        )
+
+        result = auto_update_skills(project, 1)
+
+        assert "Python asyncio" in result

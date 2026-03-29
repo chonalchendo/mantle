@@ -116,6 +116,19 @@ Report:
 > **Stories planned:** {count}
 > **Acceptance criteria coverage:** {covered}/{total}
 
+## Step 4b — Auto-detect skills
+
+After stories are planned, update the project's skill context:
+
+```bash
+mantle update-skills --issue {NN}
+```
+
+This scans the issue, shaped issue, and stories for references to vault skills,
+then updates `skills_required` in `state.md` so the right knowledge is compiled
+into Claude's context. If new skills are detected, run `mantle compile --force`
+to recompile immediately.
+
 ## Step 5 — Implement stories
 
 Follow the same implementation pattern as `/mantle:implement`:
