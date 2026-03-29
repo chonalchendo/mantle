@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.6.1** — Dynamic next-step routing across all workflow commands. Each skill now recommends the best next command based on session context, and retrospective is included in the post-review flow.
+**v0.6.2** — Automated build pipeline (`/mantle:build`) that runs shape-through-verify in one pass. Approve-all quick action in review. Dynamic next-step routing across all workflow commands.
 
 ## License
 
