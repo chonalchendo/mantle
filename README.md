@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.1** — Build pipeline now includes simplify step, skill gap detection, and auto-commit of .mantle/ artifacts after every command. Auto-detected skill context from issue/story content.
+**v0.7.2** — Descriptive filenames for issues, stories, and shaped issues (e.g., `issue-05-auto-detect-skills.md`). Build pipeline with simplify step, skill gap detection, and auto-commit.
 
 ## License
 
