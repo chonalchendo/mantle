@@ -169,6 +169,26 @@ For each story that is not "completed", in order:
 Report progress after each story:
 > **Story {S}:** {title} — {completed/blocked}
 
+## Step 5b — Simplify
+
+If all stories completed, run a simplification pass on the implemented code
+to remove AI-generated bloat before verification.
+
+1. Run `mantle collect-issue-files --issue {NN}` to get the list of files
+   touched by this issue.
+2. Run the project's test suite as a baseline.
+3. For each code file, spawn an Agent (`subagent_type: "implementer"`) to
+   review and simplify, applying the LLM Bloat Pattern Checklist:
+   - Unnecessary abstractions, defensive over-engineering, code duplication
+   - Unnecessary conditionals, dead code, comment noise
+   - Slop scaffolding, over-parameterisation
+4. Run tests again after simplification.
+   - If tests pass: commit as `refactor(issue-{NN}): simplify implementation`
+   - If tests fail: revert with `git checkout -- .` and report.
+
+Report:
+> **Simplification:** {files simplified}/{files reviewed} files changed
+
 ## Step 6 — Auto-verify
 
 If all stories completed, run verification:
