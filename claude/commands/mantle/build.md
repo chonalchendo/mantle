@@ -116,18 +116,39 @@ Report:
 > **Stories planned:** {count}
 > **Acceptance criteria coverage:** {covered}/{total}
 
-## Step 4b — Auto-detect skills
+## Step 4b — Load relevant skills
 
-After stories are planned, update the project's skill context:
+After stories are planned, ensure the right vault knowledge is available for
+implementation.
 
-```bash
-mantle update-skills --issue {NN}
-```
+1. **Auto-detect existing skills**: Run `mantle update-skills --issue {NN}` to
+   scan the issue and stories for references to vault skills and update
+   `skills_required` in `state.md`.
 
-This scans the issue, shaped issue, and stories for references to vault skills,
-then updates `skills_required` in `state.md` so the right knowledge is compiled
-into Claude's context. If new skills are detected, run `mantle compile --force`
-to recompile immediately.
+2. **Identify skill gaps**: Read the issue and stories to identify key
+   technologies, patterns, and domains involved. List the vault skills in
+   `.mantle/state.md` `skills_required`. For each technology or domain
+   referenced in the stories that does NOT have a matching vault skill:
+
+   - Report the gap:
+     > **Skill gap detected:** {technology/pattern} — no vault skill found.
+   - Create a stub skill so it can be fleshed out later:
+     ```bash
+     mantle save-skill-stub --name "<skill name>"
+     ```
+   - Add the new skill name to `skills_required` via:
+     ```bash
+     mantle update-skills --issue {NN}
+     ```
+
+3. **Load existing skills**: For technologies that DO have vault skills, those
+   skills are already compiled into `.claude/skills/` and will be available to
+   the story-implementer agents. Run `mantle compile --force` to ensure the
+   latest skills are compiled.
+
+4. Report skill status:
+   > **Skills loaded:** {list of matched skills}
+   > **Skill gaps (stubs created):** {list of new stubs, or "none"}
 
 ## Step 5 — Implement stories
 

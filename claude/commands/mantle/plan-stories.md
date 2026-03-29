@@ -175,17 +175,26 @@ Display coverage summary:
 >
 > **Slice coverage:** core ✓, cli ✓, claude-code ✓, tests ✓
 
-## Step 5b — Auto-detect skills
+## Step 5b — Load relevant skills
 
-After stories are saved, update the project's skill context:
+After stories are saved, ensure the right vault knowledge is available for
+implementation.
 
-```bash
-mantle update-skills --issue {NN}
-```
+1. **Auto-detect existing skills**: Run `mantle update-skills --issue {NN}` to
+   scan the issue and stories for vault skill matches.
 
-This scans the issue and stories for references to vault skills and updates
-`skills_required` in `state.md`. If new skills are detected, run
-`mantle compile --force` to recompile immediately.
+2. **Identify skill gaps**: Review the technologies and patterns referenced in
+   the stories. For any that don't have a matching vault skill, tell the user:
+
+   > **Skill gaps detected:**
+   > - {technology} — no vault skill found
+   >
+   > Consider running `/mantle:add-skill` to create skills for these before
+   > implementation. Vault skills give the implementing agent domain-specific
+   > knowledge (patterns, conventions, anti-patterns) beyond what's in its
+   > training data.
+
+3. Run `mantle compile --force` to ensure the latest skills are compiled.
 
 ## Step 6 — Session wrap-up
 

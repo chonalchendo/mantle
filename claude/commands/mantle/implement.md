@@ -37,11 +37,19 @@ Confirm with the user before proceeding.
 
 **Step 3 — Load context and stories**
 
-Read all required context files:
+First, ensure skills are up to date for this issue:
+
+```bash
+mantle update-skills --issue {NN}
+mantle compile --force
+```
+
+Then read all required context files:
 - `.mantle/issues/issue-{NN}.md` — the issue specification
 - `.mantle/system-design.md` — system architecture (if it exists)
 - `.mantle/product-design.md` — product context (if it exists)
 - `.mantle/stories/issue-{NN}-story-*.md` — all stories for this issue
+- `.claude/skills/*/SKILL.md` — compiled vault skills (these provide domain-specific knowledge to story agents)
 
 For each story, note:
 - Story number, title, current status (planned, in-progress, completed, blocked)
