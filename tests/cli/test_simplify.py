@@ -42,7 +42,7 @@ def _init_git_repo(tmp_path: Path) -> Path:
 
 def _write_issue_file(project_root: Path, issue: int) -> None:
     """Write a minimal issue file for testing."""
-    path = project_root / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    path = project_root / ".mantle" / "issues" / f"issue-{issue:02d}-test-issue.md"
     path.write_text(
         f"---\ntitle: Issue {issue}\nstatus: implemented\n"
         f"slice:\n- core\ntags:\n- type/issue\n"

@@ -70,7 +70,9 @@ class TestRunSaveIssue:
             project_dir=project,
         )
 
-        assert (project / ".mantle" / "issues" / "issue-01.md").exists()
+        assert (
+            project / ".mantle" / "issues" / "issue-01-context-engine.md"
+        ).exists()
 
     def test_prints_confirmation(
         self,
@@ -87,7 +89,7 @@ class TestRunSaveIssue:
         )
         captured = capsys.readouterr()
 
-        assert "issue-01.md" in captured.out
+        assert "issue-01-context-engine.md" in captured.out
         assert "Context engine" in captured.out
 
     def test_prints_slice(
@@ -161,7 +163,7 @@ class TestRunSaveIssue:
         )
         captured = capsys.readouterr()
 
-        assert "issue-01.md" in captured.out
+        assert "issue-01-context-engine.md" in captured.out
 
     def test_handles_issue_exists_error(
         self,

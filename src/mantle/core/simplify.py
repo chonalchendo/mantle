@@ -75,7 +75,10 @@ def collect_issue_files(
         NoCommitsFoundError: If no matching commits exist.
         FileNotFoundError: If the issue file does not exist.
     """
-    issue_path = project_root / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    issue_path = issues.find_issue_path(project_root, issue)
+    if issue_path is None:
+        msg = f"Issue {issue} not found"
+        raise FileNotFoundError(msg)
     issues.load_issue(issue_path)
 
     result = subprocess.run(

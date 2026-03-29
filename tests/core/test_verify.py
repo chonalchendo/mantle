@@ -49,7 +49,9 @@ def _write_issue(
         verification=verification,
         tags=("type/issue", f"status/{status}"),
     )
-    path = project_root / ".mantle" / "issues" / f"issue-{issue_number:02d}.md"
+    title = f"Issue {issue_number}"
+    slug = title.lower().replace(" ", "-")
+    path = project_root / ".mantle" / "issues" / f"issue-{issue_number:02d}-{slug}.md"
     vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
     return path
 

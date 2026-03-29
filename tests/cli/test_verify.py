@@ -46,7 +46,8 @@ def _write_issue(
             f"status/{status}",
         ),
     )
-    path = project / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    slug = f"test-issue-{issue}"
+    path = project / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
     vault.write_note(path, note, "## Acceptance Criteria\n\n- It works\n")
 
 
@@ -107,7 +108,9 @@ class TestTransitionIssueVerifiedCLI:
         assert "verified" in result.stdout.lower()
 
         # Verify the issue file was updated.
-        issue_path = project / ".mantle" / "issues" / "issue-01.md"
+        issue_path = (
+            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
+        )
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "verified"
 

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import issues, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -86,7 +86,7 @@ def save_learning(
     """
     _validate_confidence_delta(confidence_delta)
 
-    learning_path = _learning_path(project_dir, issue)
+    learning_path = _learning_path(project_dir, issue, title)
 
     if learning_path.exists() and not overwrite:
         raise LearningExistsError(learning_path)
@@ -151,7 +151,7 @@ def learning_exists(project_dir: Path, issue: int) -> bool:
     Returns:
         True if the learning file exists.
     """
-    return _learning_path(project_dir, issue).exists()
+    return find_learning_path(project_dir, issue) is not None
 
 
 # ── Internal helpers ─────────────────────────────────────────────
@@ -174,17 +174,47 @@ def _validate_confidence_delta(confidence_delta: str) -> None:
         raise ValueError(msg)
 
 
-def _learning_path(project_dir: Path, issue: int) -> Path:
-    """Compute learning file path.
+def _learning_path(
+    project_dir: Path, issue: int, title: str = "",
+) -> Path:
+    """Compute learning file path with slug.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue: Issue number.
+        title: Issue title (slugified for filename).
+
+    Returns:
+        Path for the learning file.
+    """
+    slug = issues._slugify_title(title) if title else ""
+    if slug:
+        return (
+            project_dir
+            / ".mantle"
+            / "learnings"
+            / f"issue-{issue:02d}-{slug}.md"
+        )
+    return project_dir / ".mantle" / "learnings" / f"issue-{issue:02d}.md"
+
+
+def find_learning_path(project_dir: Path, issue: int) -> Path | None:
+    """Find a learning file by issue number using glob lookup.
 
     Args:
         project_dir: Directory containing .mantle/.
         issue: Issue number.
 
     Returns:
-        Path for the learning file.
+        Path to the learning file, or None if not found.
     """
-    return project_dir / ".mantle" / "learnings" / f"issue-{issue:02d}.md"
+    learnings_dir = project_dir / ".mantle" / "learnings"
+    matches = sorted(learnings_dir.glob(f"issue-{issue:02d}-*.md"))
+    if matches:
+        return matches[0]
+    # Fallback to old naming convention
+    old = learnings_dir / f"issue-{issue:02d}.md"
+    return old if old.exists() else None
 
 
 def _update_state_body(

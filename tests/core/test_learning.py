@@ -117,7 +117,12 @@ class TestSaveLearning:
     def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
-        expected = project / ".mantle" / "learnings" / "issue-21.md"
+        expected = (
+            project
+            / ".mantle"
+            / "learnings"
+            / "issue-21-shaping-phase-implementation.md"
+        )
         assert path == expected
         assert path.exists()
 
@@ -130,7 +135,7 @@ class TestSaveLearning:
     ) -> None:
         _, path = _save(project, issue=3)
 
-        assert path.name == "issue-03.md"
+        assert path.name == "issue-03-shaping-phase-implementation.md"
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",

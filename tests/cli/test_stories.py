@@ -54,7 +54,7 @@ def project(tmp_path: Path) -> Path:
     write_note(tmp_path / ".mantle" / "state.md", state, body)
     issue = IssueNote(title="Test issue", slice=("core", "tests"))
     write_note(
-        tmp_path / ".mantle" / "issues" / "issue-01.md",
+        tmp_path / ".mantle" / "issues" / "issue-01-test-issue.md",
         issue,
         "## What to build\n\nBuild it.\n",
     )
@@ -79,7 +79,7 @@ def _write_story(
         project_dir
         / ".mantle"
         / "stories"
-        / f"issue-{issue:02d}-story-{story:02d}.md",
+        / f"issue-{issue:02d}-test-issue-story-{story:02d}.md",
         note,
         "## Implementation\n\nBuild it.\n",
     )
@@ -104,7 +104,7 @@ class TestRunSaveStory:
         )
 
         assert (
-            project / ".mantle" / "stories" / "issue-01-story-01.md"
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
         ).exists()
 
     def test_prints_confirmation(
@@ -122,7 +122,7 @@ class TestRunSaveStory:
         )
         captured = capsys.readouterr()
 
-        assert "issue-01-story-01.md" in captured.out
+        assert "issue-01-test-issue-story-01.md" in captured.out
         assert "Core module" in captured.out
         assert "Stories for issue 1: 1" in captured.out
 
@@ -143,7 +143,7 @@ class TestRunSaveStory:
         )
         captured = capsys.readouterr()
 
-        assert "issue-01-story-01.md" in captured.out
+        assert "issue-01-test-issue-story-01.md" in captured.out
 
     def test_handles_story_exists_error(
         self,
@@ -195,7 +195,7 @@ class TestRunUpdateStoryStatus:
             project_dir=project,
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-story-01.md"
+        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
         note = read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 
@@ -236,7 +236,7 @@ class TestRunUpdateStoryStatus:
             status="in-progress",
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-story-01.md"
+        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
         note = read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 

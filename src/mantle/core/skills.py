@@ -675,21 +675,23 @@ def auto_update_skills(
     # Collect all content from issue and its stories
     content_parts: list[str] = []
 
-    issue_path = mantle_dir / "issues" / f"issue-{issue_number:02d}.md"
-    if issue_path.exists():
-        content_parts.append(issue_path.read_text(encoding="utf-8"))
+    # Use glob patterns to support both old and new naming conventions
+    issues_dir = mantle_dir / "issues"
+    if issues_dir.exists():
+        for p in issues_dir.glob(f"issue-{issue_number:02d}-*.md"):
+            content_parts.append(p.read_text(encoding="utf-8"))
 
     stories_dir = mantle_dir / "stories"
     if stories_dir.exists():
-        pattern = f"issue-{issue_number:02d}-story-*.md"
-        for story_path in sorted(stories_dir.glob(pattern)):
+        for story_path in sorted(
+            stories_dir.glob(f"issue-{issue_number:02d}-*story-*.md")
+        ):
             content_parts.append(story_path.read_text(encoding="utf-8"))
 
     shaped_dir = mantle_dir / "shaped"
     if shaped_dir.exists():
-        shaped_path = shaped_dir / f"issue-{issue_number:02d}-shaped.md"
-        if shaped_path.exists():
-            content_parts.append(shaped_path.read_text(encoding="utf-8"))
+        for p in shaped_dir.glob(f"issue-{issue_number:02d}-*shaped.md"):
+            content_parts.append(p.read_text(encoding="utf-8"))
 
     if not content_parts:
         return []

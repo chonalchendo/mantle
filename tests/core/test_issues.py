@@ -156,7 +156,12 @@ class TestSaveIssue:
     ) -> None:
         _, path = _save(project)
 
-        expected = project / ".mantle" / "issues" / "issue-01.md"
+        expected = (
+            project
+            / ".mantle"
+            / "issues"
+            / "issue-01-context-compilation-engine.md"
+        )
         assert path == expected
         assert path.exists()
 
@@ -170,7 +175,7 @@ class TestSaveIssue:
         _save(project)
         _, path = _save(project, title="Second issue")
 
-        assert path.name == "issue-02.md"
+        assert path.name == "issue-02-second-issue.md"
 
     @patch(
         "mantle.core.issues.state.resolve_git_identity",
@@ -328,8 +333,8 @@ class TestListIssues:
         paths = list_issues(project)
 
         assert len(paths) == 2
-        assert paths[0].name == "issue-01.md"
-        assert paths[1].name == "issue-02.md"
+        assert paths[0].name == "issue-01-second.md"
+        assert paths[1].name == "issue-02-third.md"
 
     @patch(
         "mantle.core.issues.state.resolve_git_identity",
@@ -414,13 +419,20 @@ def _write_issue_direct(
     status: str = "planned",
 ) -> Path:
     """Write a minimal issue file without state.md interaction."""
+    title = f"Issue {issue_number}"
     note = IssueNote(
-        title=f"Issue {issue_number}",
+        title=title,
         status=status,
         slice=("core",),
         tags=("type/issue", f"status/{status}"),
     )
-    path = project_dir / ".mantle" / "issues" / f"issue-{issue_number:02d}.md"
+    slug = title.lower().replace(" ", "-")
+    path = (
+        project_dir
+        / ".mantle"
+        / "issues"
+        / f"issue-{issue_number:02d}-{slug}.md"
+    )
     vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
     return path
 

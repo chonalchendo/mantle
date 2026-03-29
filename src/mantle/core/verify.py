@@ -89,10 +89,8 @@ def load_strategy(project_root: Path, issue_number: int) -> tuple[str, bool]:
         VerificationStrategyNotFoundError: If no strategy exists
             in either the issue or the project config.
     """
-    issue_path = (
-        project_root / ".mantle" / "issues" / f"issue-{issue_number:02d}.md"
-    )
-    if issue_path.exists():
+    issue_path = issues.find_issue_path(project_root, issue_number)
+    if issue_path is not None:
         note, _ = issues.load_issue(issue_path)
         if note.verification:
             return note.verification, True

@@ -199,7 +199,7 @@ class TestAutoCommit:
 
         # Create an uncommitted file
         (git_project / ".mantle" / "issues").mkdir(exist_ok=True)
-        (git_project / ".mantle" / "issues" / "issue-01.md").write_text(
+        (git_project / ".mantle" / "issues" / "issue-01-test-issue.md").write_text(
             "test"
         )
 

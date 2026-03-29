@@ -1091,7 +1091,7 @@ class TestAutoUpdateSkills:
         # Write an issue that references the skill
         issues_dir = project / ".mantle" / "issues"
         issues_dir.mkdir(parents=True, exist_ok=True)
-        (issues_dir / "issue-01.md").write_text(
+        (issues_dir / "issue-01-test.md").write_text(
             "---\ntitle: Test\nstatus: planned\n---\n"
             "Uses Python asyncio for async I/O.\n"
         )
@@ -1114,7 +1114,7 @@ class TestAutoUpdateSkills:
 
         issues_dir = project / ".mantle" / "issues"
         issues_dir.mkdir(parents=True, exist_ok=True)
-        (issues_dir / "issue-01.md").write_text(
+        (issues_dir / "issue-01-test.md").write_text(
             "---\ntitle: Test\nstatus: planned\n---\n"
             "Uses Python asyncio.\n"
         )
@@ -1145,7 +1145,7 @@ class TestAutoUpdateSkills:
         # Issue without skill reference
         issues_dir = project / ".mantle" / "issues"
         issues_dir.mkdir(parents=True, exist_ok=True)
-        (issues_dir / "issue-01.md").write_text(
+        (issues_dir / "issue-01-test.md").write_text(
             "---\ntitle: Test\nstatus: planned\n---\nBasic issue.\n"
         )
 

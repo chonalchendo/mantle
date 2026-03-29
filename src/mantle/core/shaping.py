@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import issues, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -99,7 +99,7 @@ def save_shaped_issue(
     Raises:
         ShapedIssueExistsError: If file exists and overwrite is False.
     """
-    shaped_path = _shaped_issue_path(project_dir, issue)
+    shaped_path = _shaped_issue_path(project_dir, issue, title)
 
     if shaped_path.exists() and not overwrite:
         raise ShapedIssueExistsError(shaped_path)
@@ -175,23 +175,55 @@ def shaped_issue_exists(project_dir: Path, issue: int) -> bool:
     Returns:
         True if the shaped issue file exists.
     """
-    return _shaped_issue_path(project_dir, issue).exists()
+    return find_shaped_issue_path(project_dir, issue) is not None
 
 
 # ── Internal helpers ─────────────────────────────────────────────
 
 
-def _shaped_issue_path(project_dir: Path, issue: int) -> Path:
-    """Compute shaped issue file path.
+def _shaped_issue_path(
+    project_dir: Path, issue: int, title: str = "",
+) -> Path:
+    """Compute shaped issue file path with slug.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue: Issue number.
+        title: Issue title (slugified for filename).
+
+    Returns:
+        Path for the shaped issue file.
+    """
+    slug = issues._slugify_title(title) if title else ""
+    if slug:
+        return (
+            project_dir
+            / ".mantle"
+            / "shaped"
+            / f"issue-{issue:02d}-{slug}-shaped.md"
+        )
+    return (
+        project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
+    )
+
+
+def find_shaped_issue_path(project_dir: Path, issue: int) -> Path | None:
+    """Find a shaped issue file by number using glob lookup.
 
     Args:
         project_dir: Directory containing .mantle/.
         issue: Issue number.
 
     Returns:
-        Path for the shaped issue file.
+        Path to the shaped issue file, or None if not found.
     """
-    return project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
+    shaped_dir = project_dir / ".mantle" / "shaped"
+    matches = sorted(shaped_dir.glob(f"issue-{issue:02d}-*-shaped.md"))
+    if matches:
+        return matches[0]
+    # Fallback to old naming convention
+    old = shaped_dir / f"issue-{issue:02d}-shaped.md"
+    return old if old.exists() else None
 
 
 def _update_state_body(

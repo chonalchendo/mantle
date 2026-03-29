@@ -124,7 +124,7 @@ class TestSaveShapedIssue:
     def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
-        expected = project / ".mantle" / "shaped" / "issue-21-shaped.md"
+        expected = project / ".mantle" / "shaped" / "issue-21-shaping-phase-shaped.md"
         assert path == expected
         assert path.exists()
 
@@ -137,7 +137,7 @@ class TestSaveShapedIssue:
     ) -> None:
         _, path = _save(project, issue=3)
 
-        assert path.name == "issue-03-shaped.md"
+        assert path.name == "issue-03-shaping-phase-shaped.md"
 
     @patch(
         "mantle.core.shaping.state.resolve_git_identity",

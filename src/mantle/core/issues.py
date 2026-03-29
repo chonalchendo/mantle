@@ -109,10 +109,12 @@ def save_issue(
     if issue is None:
         issue = next_issue_number(project_dir)
 
-    issue_path = _issue_path(project_dir, issue)
+    # Check for existing issue with this number (any slug)
+    existing = find_issue_path(project_dir, issue)
+    if existing is not None and not overwrite:
+        raise IssueExistsError(existing)
 
-    if issue_path.exists() and not overwrite:
-        raise IssueExistsError(issue_path)
+    issue_path = _issue_path(project_dir, issue, title)
 
     note = IssueNote(
         title=title,
@@ -174,7 +176,7 @@ def next_issue_number(project_dir: Path) -> int:
     Returns:
         The next available issue number.
     """
-    pattern = re.compile(r"issue-(\d+)\.md")
+    pattern = re.compile(r"issue-(\d+)-.*\.md")
     highest = 0
     for path in list_issues(project_dir):
         match = pattern.match(path.name)
@@ -184,7 +186,7 @@ def next_issue_number(project_dir: Path) -> int:
 
 
 def issue_exists(project_dir: Path, issue: int) -> bool:
-    """True if issue-NN.md exists.
+    """True if an issue file exists for the given number.
 
     Args:
         project_dir: Directory containing .mantle/.
@@ -193,7 +195,7 @@ def issue_exists(project_dir: Path, issue: int) -> bool:
     Returns:
         True if the issue file exists.
     """
-    return _issue_path(project_dir, issue).exists()
+    return find_issue_path(project_dir, issue) is not None
 
 
 def count_issues(project_dir: Path) -> int:
@@ -240,7 +242,10 @@ def _transition_issue(
         FileNotFoundError: If the issue file does not exist.
     """
     allowed_from = _ALLOWED_TRANSITIONS[target_status]
-    issue_path = _issue_path(project_root, issue_number)
+    issue_path = find_issue_path(project_root, issue_number)
+    if issue_path is None:
+        msg = f"Issue {issue_number} not found"
+        raise FileNotFoundError(msg)
     note, body = load_issue(issue_path)
 
     if note.status not in allowed_from:
@@ -318,17 +323,54 @@ def transition_to_implementing(
 # ── Internal helpers ─────────────────────────────────────────────
 
 
-def _issue_path(project_dir: Path, issue: int) -> Path:
-    """Compute issue file path.
+def _slugify_title(title: str) -> str:
+    """Convert a title to a filename-safe slug.
+
+    Lowercase, replace spaces with hyphens, strip non-alphanumeric
+    characters (except hyphens), truncate to 50 chars.
+
+    Args:
+        title: Human-readable title.
+
+    Returns:
+        Lowercased, hyphenated slug.
+    """
+    slug = title.lower().replace(" ", "-")
+    slug = re.sub(r"[^a-z0-9-]", "", slug)
+    slug = re.sub(r"-+", "-", slug).strip("-")
+    return slug[:50]
+
+
+def _issue_path(project_dir: Path, issue: int, title: str) -> Path:
+    """Compute issue file path with slug.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue: Issue number.
+        title: Issue title (slugified for filename).
+
+    Returns:
+        Path for the issue file.
+    """
+    slug = _slugify_title(title)
+    return (
+        project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
+    )
+
+
+def find_issue_path(project_dir: Path, issue: int) -> Path | None:
+    """Find an issue file by number using glob lookup.
 
     Args:
         project_dir: Directory containing .mantle/.
         issue: Issue number.
 
     Returns:
-        Path for the issue file.
+        Path to the issue file, or None if not found.
     """
-    return project_dir / ".mantle" / "issues" / f"issue-{issue:02d}.md"
+    issues_dir = project_dir / ".mantle" / "issues"
+    matches = sorted(issues_dir.glob(f"issue-{issue:02d}-*.md"))
+    return matches[0] if matches else None
 
 
 def _update_state_body(

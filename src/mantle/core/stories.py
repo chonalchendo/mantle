@@ -86,7 +86,15 @@ def save_story(
     if story is None:
         story = next_story_number(project_dir, issue=issue)
 
-    story_path = _story_path(project_dir, issue, story)
+    # Get issue title for slugified filename
+    issue_path = issues.find_issue_path(project_dir, issue)
+    if issue_path is not None:
+        issue_note, _ = issues.load_issue(issue_path)
+        issue_title = issue_note.title
+    else:
+        issue_title = ""
+
+    story_path = _story_path(project_dir, issue, story, issue_title)
 
     if story_path.exists() and not overwrite:
         raise StoryExistsError(story_path)
@@ -134,7 +142,8 @@ def list_stories(project_dir: Path, *, issue: int) -> list[Path]:
     stories_dir = project_dir / ".mantle" / "stories"
     if not stories_dir.is_dir():
         return []
-    return sorted(stories_dir.glob(f"issue-{issue:02d}-story-*.md"))
+    # Match both old (issue-NN-story-SS) and new (issue-NN-slug-story-SS) formats
+    return sorted(stories_dir.glob(f"issue-{issue:02d}-*story-*.md"))
 
 
 def next_story_number(project_dir: Path, *, issue: int) -> int:
@@ -150,10 +159,9 @@ def next_story_number(project_dir: Path, *, issue: int) -> int:
     Returns:
         The next available story number.
     """
-    pattern = re.compile(r"issue-\d+-story-(\d+)\.md")
     highest = 0
     for path in list_stories(project_dir, issue=issue):
-        match = pattern.match(path.name)
+        match = re.search(r"story-(\d+)\.md", path.name)
         if match:
             highest = max(highest, int(match.group(1)))
     return highest + 1
@@ -170,7 +178,11 @@ def story_exists(project_dir: Path, *, issue: int, story: int) -> bool:
     Returns:
         True if the story file exists.
     """
-    return _story_path(project_dir, issue, story).exists()
+    stories_dir = project_dir / ".mantle" / "stories"
+    matches = list(
+        stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md")
+    )
+    return len(matches) > 0
 
 
 def count_stories(project_dir: Path, *, issue: int) -> int:
@@ -208,7 +220,15 @@ def update_story_status(
             ``"in-progress"``, ``"completed"``, ``"blocked"``).
         failure_log: Error details when marking ``"blocked"``.
     """
-    path = _story_path(project_dir, issue, story)
+    # Find story by glob to support both old and new naming
+    stories_dir = project_dir / ".mantle" / "stories"
+    matches = sorted(
+        stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md")
+    )
+    if not matches:
+        msg = f"Story {story} for issue {issue} not found"
+        raise FileNotFoundError(msg)
+    path = matches[0]
     note, body = load_story(path)
 
     new_tags = tuple(
@@ -251,17 +271,28 @@ def extract_story_number(story_path: Path) -> int:
 # ── Internal helpers ─────────────────────────────────────────────
 
 
-def _story_path(project_dir: Path, issue: int, story: int) -> Path:
-    """Compute story file path.
+def _story_path(
+    project_dir: Path, issue: int, story: int, title: str = "",
+) -> Path:
+    """Compute story file path with issue slug.
 
     Args:
         project_dir: Directory containing .mantle/.
         issue: Issue number.
         story: Story number.
+        title: Issue title (slugified for filename).
 
     Returns:
         Path for the story file.
     """
+    slug = issues._slugify_title(title) if title else ""
+    if slug:
+        return (
+            project_dir
+            / ".mantle"
+            / "stories"
+            / f"issue-{issue:02d}-{slug}-story-{story:02d}.md"
+        )
     return (
         project_dir
         / ".mantle"
@@ -280,7 +311,10 @@ def _update_issue_story_count(project_dir: Path, issue: int) -> int:
     Returns:
         The updated story count.
     """
-    issue_path = issues._issue_path(project_dir, issue)
+    issue_path = issues.find_issue_path(project_dir, issue)
+    if issue_path is None:
+        msg = f"Issue {issue} not found"
+        raise FileNotFoundError(msg)
     note_obj = vault.read_note(issue_path, issues.IssueNote)
     story_count = count_stories(project_dir, issue=issue)
     updated = note_obj.frontmatter.model_copy(
