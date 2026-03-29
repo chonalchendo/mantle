@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.6.2** — Automated build pipeline (`/mantle:build`) that runs shape-through-verify in one pass. Approve-all quick action in review. Dynamic next-step routing across all workflow commands.
+**v0.7.0** — Automated build pipeline (`/mantle:build`), auto-detected skill context from issue/story content, dynamic next-step routing, and streamlined review with approve-all quick action.
 
 ## License
 
