@@ -56,20 +56,32 @@ Display each acceptance criterion with its verification result:
 > | 1 | {criterion} | Pass | Pending |
 > | 2 | {criterion} | Pass | Pending |
 
-Tell the user you will go through each criterion one at a time.
+Then offer the user a quick-action choice:
 
-## Step 5 — Collect feedback
+> **How would you like to review?**
+>
+> 1. **Approve all** — approve every criterion in one go
+> 2. **Discuss** — go through each criterion one at a time
+>
+> _(pick 1 or 2)_
+
+**If the user picks "Approve all" (or 1):** skip Step 5 and go straight to
+Step 6 with all criteria marked as approved.
+
+**If the user picks "Discuss" (or 2):** proceed to Step 5.
+
+## Step 5 — Collect feedback (discuss mode)
 
 For each criterion, present it and ask the user:
 
 > **Criterion {N}**: {criterion text}
 > **Verification result**: Pass/Fail
 >
-> Does this criterion meet your expectations?
-> - **approved** — criterion is satisfied
-> - **needs-changes** — criterion needs work (please describe what needs to change)
+> **approve** or **needs-changes**?
 
-Record the user's response (approved or needs-changes) and any comments.
+Keep it brief — don't re-explain the options each time. If the user says
+needs-changes, ask what should change. Record the response and move to the
+next criterion.
 
 ## Step 6 — Handle outcome
 
