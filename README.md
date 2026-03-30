@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.6** — Research-backed build pipeline with checklist progress tracking, per-step motivation, and inlined instructions. Fixed CLI bugs and shorter filenames.
+**v0.7.7** — Build pipeline with checklist tracking, skill loading step, and `list-skills` CLI. Fixed CLI bugs and shorter filenames.
 
 ## License
 
