@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.9** — Build pipeline auto-creates missing skills, loads skills before story planning. Sub-agents, task tracking, AskUserQuestion, learnings feedback loop.
+**v0.7.10** — Skill progressive disclosure, trigger descriptions, agent memory prompting, enhanced install defaults.
 
 ## License
 
