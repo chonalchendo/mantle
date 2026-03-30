@@ -207,7 +207,7 @@ class TestCreateBug:
 
         # Filename = date + "-" + slug + ".md"
         slug = path.stem.split("-", 3)[-1]  # Skip YYYY-MM-DD
-        assert len(slug) <= 50
+        assert len(slug) <= 30
 
     def test_related_issue_optional(self, project: Path) -> None:
         note, _ = _create_bug(

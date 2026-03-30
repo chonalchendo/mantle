@@ -253,7 +253,7 @@ def _slugify(summary: str) -> str:
     """Convert summary to filename-safe slug.
 
     Lowercase, replace spaces with hyphens, strip non-alphanumeric
-    characters (except hyphens), truncate to 50 chars.
+    characters (except hyphens), truncate to 30 chars.
 
     Args:
         summary: The bug summary text.
@@ -266,7 +266,7 @@ def _slugify(summary: str) -> str:
     slug = re.sub(r"[^a-z0-9-]", "", slug)
     slug = re.sub(r"-+", "-", slug)
     slug = slug.strip("-")
-    return slug[:50]
+    return slug[:30].rstrip("-")
 
 
 def _build_bug_body(
