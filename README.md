@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.5** — Condensed build pipeline with mandatory step sequencing, fixed CLI bugs (issue lookup, skill validation, exception syntax), shorter filenames.
+**v0.7.6** — Research-backed build pipeline with checklist progress tracking, per-step motivation, and inlined instructions. Fixed CLI bugs and shorter filenames.
 
 ## License
 
