@@ -929,6 +929,38 @@ def update_skills_command(
         console.print("No new skills detected.")
 
 
+@app.command(name="list-skills")
+def list_skills_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """List all skills in the personal vault."""
+    if path is None:
+        path = Path.cwd()
+
+    from mantle.core import skills
+
+    try:
+        skill_paths = skills.list_skills(path)
+    except (skills.VaultNotConfiguredError, FileNotFoundError):
+        print("No personal vault configured.")
+        print("Run `mantle init-vault` to set up your vault.")
+        return
+
+    if not skill_paths:
+        print("No skills found in vault.")
+        return
+
+    print(f"{len(skill_paths)} skill(s) in vault:")
+    for p in skill_paths:
+        print(f"  - {p.stem}")
+
+
 @app.command(name="save-bug")
 def save_bug_command(
     summary: Annotated[
