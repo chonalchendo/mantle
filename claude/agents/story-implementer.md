@@ -4,6 +4,8 @@ description: Implements a single Mantle story with tests, following project conv
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: opus
 memory: project
+maxTurns: 50
+effort: high
 ---
 
 You are a senior software engineer implementing a single story from a Mantle project.

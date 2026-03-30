@@ -43,9 +43,17 @@ def run_install() -> None:
     # Register SessionStart hook in settings.json
     hook_registered = _register_hooks(target_dir)
 
+    # Enhance settings with best-practice defaults
+    settings_enhanced = _enhance_settings(target_dir)
+
     # Summary
     installed_count = len(plan.safe_to_write) + len(approved)
-    _print_summary(installed_count, declined, hook_registered=hook_registered)
+    _print_summary(
+        installed_count,
+        declined,
+        hook_registered=hook_registered,
+        settings_enhanced=settings_enhanced,
+    )
 
 
 def _locate_bundled_claude_dir() -> Path:
@@ -95,6 +103,7 @@ def _print_summary(
     declined: frozenset[str],
     *,
     hook_registered: bool = False,
+    settings_enhanced: bool = False,
 ) -> None:
     """Print a Rich-formatted install summary."""
     console.print()
@@ -103,6 +112,11 @@ def _print_summary(
         console.print(
             "[green]SessionStart hook[/green] registered "
             "in ~/.claude/settings.json"
+        )
+    if settings_enhanced:
+        console.print(
+            "[green]Settings enhanced[/green] with schema "
+            "and auto-compact defaults"
         )
     if declined:
         console.print(
@@ -117,7 +131,67 @@ def _print_summary(
     )
 
 
+_SETTINGS_SCHEMA = (
+    "https://json.schemastore.org/claude-code-settings.json"
+)
+_DEFAULT_AUTOCOMPACT = "80"
+_DEFAULT_DENY = [
+    "Bash(rm -rf *)",
+    "Bash(git push --force*)",
+    "Bash(git reset --hard*)",
+]
+
 _HOOK_COMMAND = "bash $HOME/.claude/hooks/session-start.sh"
+
+
+def _enhance_settings(target_dir: Path) -> bool:
+    """Add best-practice defaults to settings.json.
+
+    Sets ``$schema`` for IDE autocompletion,
+    ``CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`` for long-session stability,
+    and default ``permissions.deny`` rules. Never overwrites existing
+    values.
+
+    Args:
+        target_dir: The ``~/.claude/`` directory.
+
+    Returns:
+        True if any changes were made, False otherwise.
+    """
+    settings_path = target_dir / "settings.json"
+
+    if settings_path.is_file():
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    else:
+        settings = {}
+
+    changed = False
+
+    # Schema reference for IDE autocompletion
+    if "$schema" not in settings:
+        settings["$schema"] = _SETTINGS_SCHEMA
+        changed = True
+
+    # Auto-compact threshold
+    env = settings.setdefault("env", {})
+    if "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE" not in env:
+        env["CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"] = _DEFAULT_AUTOCOMPACT
+        changed = True
+
+    # Default deny permissions
+    permissions = settings.setdefault("permissions", {})
+    deny = permissions.setdefault("deny", [])
+    if not deny:
+        permissions["deny"] = list(_DEFAULT_DENY)
+        changed = True
+
+    if changed:
+        settings_path.write_text(
+            json.dumps(settings, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    return changed
 
 
 def _register_hooks(target_dir: Path) -> bool:

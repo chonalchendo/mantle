@@ -1,3 +1,8 @@
+---
+description: Stress-test the user's idea from multiple angles and save the transcript.
+context: fork
+---
+
 Stress-test the user's idea from multiple angles and save the transcript. Find
 the hard questions, not rubber-stamp.
 

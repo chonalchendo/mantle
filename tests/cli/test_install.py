@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from mantle.cli.install import (
     _copy_files,
+    _enhance_settings,
     _print_summary,
     _register_hooks,
     run_install,
@@ -374,3 +375,77 @@ class TestRegisterHooks:
         _register_hooks(tmp_path)
 
         assert _register_hooks(tmp_path) is False
+
+
+# ── _enhance_settings ──────────────────────────────────────────
+
+
+class TestEnhanceSettings:
+    def test_adds_schema_to_empty_settings(self, tmp_path: Path):
+        result = _enhance_settings(tmp_path)
+
+        assert result is True
+        settings = json.loads((tmp_path / "settings.json").read_text())
+        assert "$schema" in settings
+
+    def test_adds_env_autocompact(self, tmp_path: Path):
+        _enhance_settings(tmp_path)
+
+        settings = json.loads((tmp_path / "settings.json").read_text())
+        assert settings["env"]["CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"] == "80"
+
+    def test_adds_default_deny_permissions(self, tmp_path: Path):
+        _enhance_settings(tmp_path)
+
+        settings = json.loads((tmp_path / "settings.json").read_text())
+        deny = settings["permissions"]["deny"]
+        assert "Bash(rm -rf *)" in deny
+        assert "Bash(git push --force*)" in deny
+        assert "Bash(git reset --hard*)" in deny
+
+    def test_preserves_existing_env_vars(self, tmp_path: Path):
+        settings = {"env": {"MY_VAR": "hello"}}
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
+
+        _enhance_settings(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        assert result["env"]["MY_VAR"] == "hello"
+        assert result["env"]["CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"] == "80"
+
+    def test_does_not_overwrite_existing_autocompact(self, tmp_path: Path):
+        settings = {"env": {"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "60"}}
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
+
+        _enhance_settings(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        assert result["env"]["CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"] == "60"
+
+    def test_preserves_existing_deny_permissions(self, tmp_path: Path):
+        settings = {"permissions": {"deny": ["Bash(rm *)"]}}
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
+
+        _enhance_settings(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        assert result["permissions"]["deny"] == ["Bash(rm *)"]
+
+    def test_idempotent(self, tmp_path: Path):
+        _enhance_settings(tmp_path)
+        first = (tmp_path / "settings.json").read_text()
+
+        result = _enhance_settings(tmp_path)
+
+        assert result is False
+        assert (tmp_path / "settings.json").read_text() == first
+
+    def test_adds_schema_to_existing_settings(self, tmp_path: Path):
+        settings = {"permissions": {"allow": ["Read"]}}
+        (tmp_path / "settings.json").write_text(json.dumps(settings))
+
+        _enhance_settings(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        assert "$schema" in result
+        assert result["permissions"]["allow"] == ["Read"]

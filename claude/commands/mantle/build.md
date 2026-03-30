@@ -79,6 +79,8 @@ Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
 
 **If not shaped**, spawn an Agent (`subagent_type: "smart"`) with this prompt:
 
+> Before starting, review your project memory for relevant context.
+>
 > Read `claude/commands/mantle/shape-issue.md` for detailed instructions.
 > Follow Steps 2-5.
 >
@@ -142,6 +144,8 @@ Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
 **If no stories exist**, spawn an Agent (`subagent_type: "smart"`) with this
 prompt:
 
+> Before starting, review your project memory for relevant context.
+>
 > Read `claude/commands/mantle/plan-stories.md` for detailed instructions.
 > Follow Steps 2-5b.
 >
@@ -182,6 +186,8 @@ cleaner code and fewer false verification issues.
 
 Spawn an Agent (`subagent_type: "smart"`) with this prompt:
 
+> Before starting, review your project memory for relevant context.
+>
 > Read `claude/commands/mantle/simplify.md` for detailed instructions.
 > Follow Steps 2-6.
 >
@@ -202,6 +208,8 @@ acceptance criterion — catching gaps that tests alone don't cover.
 
 Spawn an Agent (`subagent_type: "smart"`) with this prompt:
 
+> Before starting, review your project memory for relevant context.
+>
 > Read `claude/commands/mantle/verify.md` for detailed instructions.
 > Follow Steps 3-8.
 >

@@ -784,6 +784,18 @@ def _write_compiled_skill(
 ) -> None:
     """Write a compiled skill to ``.claude/skills/<slug>/``.
 
+    Always produces a folder with progressive disclosure::
+
+        <slug>/
+        ├── SKILL.md          # Lean summary + pointers
+        └── references/
+            └── core.md       # Full skill content
+
+    For long content (>500 lines), SKILL.md contains only essential
+    sections; reference sections go into ``references/core.md``.
+    For short content, SKILL.md has a summary and pointer;
+    ``references/core.md`` holds the full content.
+
     Args:
         skills_target: Root ``.claude/skills/`` directory.
         slug: Skill slug used as directory name.
@@ -791,27 +803,50 @@ def _write_compiled_skill(
         content: Authored content (after ``<!-- mantle:content -->``).
     """
     skill_dir = skills_target / slug
-    skill_dir.mkdir(parents=True, exist_ok=True)
+    refs_dir = skill_dir / "references"
+    refs_dir.mkdir(parents=True, exist_ok=True)
+
+    # Clean up legacy flat reference.md
+    legacy_ref = skill_dir / "reference.md"
+    if legacy_ref.exists():
+        legacy_ref.unlink()
+
+    frontmatter = _build_compiled_frontmatter(slug, description)
+    pointer = (
+        "For detailed knowledge, "
+        "see [references/core.md](references/core.md)\n"
+    )
 
     lines = content.split("\n")
     if len(lines) > _PROGRESSIVE_DISCLOSURE_THRESHOLD:
         essential, reference = _split_content_for_disclosure(content)
-        skill_md = _build_compiled_frontmatter(slug, description)
-        skill_md += essential
-        skill_md += (
-            "\n\n## Additional resources\n\n"
-            "- For examples and anti-patterns, "
-            "see [reference.md](reference.md)\n"
-        )
-        (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
-        (skill_dir / "reference.md").write_text(reference, encoding="utf-8")
+        skill_md = frontmatter + essential + "\n\n## Additional resources\n\n- " + pointer
+        (refs_dir / "core.md").write_text(reference, encoding="utf-8")
     else:
-        skill_md = _build_compiled_frontmatter(slug, description)
-        skill_md += content
-        (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
-        ref_path = skill_dir / "reference.md"
-        if ref_path.exists():
-            ref_path.unlink()
+        skill_md = frontmatter + pointer
+        (refs_dir / "core.md").write_text(content, encoding="utf-8")
+
+    (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
+
+
+def _to_trigger_description(description: str) -> str:
+    """Transform a summary description into a trigger-style description.
+
+    Trigger descriptions tell Claude *when* to activate the skill,
+    not *what* it contains. If the description already starts with
+    ``TRIGGER``, it is returned unchanged.
+
+    Args:
+        description: Original skill description.
+
+    Returns:
+        Description prefixed with ``TRIGGER when``.
+    """
+    if description.upper().startswith("TRIGGER"):
+        return description
+    if description.lower().startswith("use when "):
+        return f"TRIGGER when {description[9:]}"
+    return f"TRIGGER when using {description}"
 
 
 def _build_compiled_frontmatter(slug: str, description: str) -> str:
@@ -826,7 +861,7 @@ def _build_compiled_frontmatter(slug: str, description: str) -> str:
     """
     data = {
         "name": slug,
-        "description": description,
+        "description": _to_trigger_description(description),
         "user-invocable": False,
     }
     frontmatter = yaml.dump(

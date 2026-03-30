@@ -69,7 +69,7 @@ For each story that is not "completed", follow this sequence:
    - The issue context (from the issue file)
    - The system design (from `.mantle/system-design.md` if it exists)
    - Any learnings from `.mantle/learnings/` relevant to this issue
-   - Clear instruction: "Implement this story. Run tests after implementation and fix any failures."
+   - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story. Run tests after implementation and fix any failures. After completing, update your project memory with any new patterns learned, gotchas encountered, or conventions established."
 
 4. **Verify tests**: After the agent completes, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
 

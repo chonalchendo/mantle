@@ -883,7 +883,7 @@ class TestCompileSkills:
         text = skill_md.read_text()
         assert "name: python-asyncio" in text
         assert "user-invocable: false" in text
-        assert "description:" in text
+        assert "description: TRIGGER when" in text
 
     def test_content_excludes_wikilinks(self, project_with_state: Path) -> None:
         _create_skill(
@@ -895,15 +895,17 @@ class TestCompileSkills:
 
         result = compile_skills(project_with_state)
 
-        skill_md = (
-            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        skill_dir = (
+            project_with_state / ".claude" / "skills" / result[0]
         )
-        text = skill_md.read_text()
-        assert "[[FastAPI]]" not in text
-        assert "[[mantle]]" not in text
-        assert "## Related Skills" not in text
-        assert "## Projects" not in text
-        assert "## Context" in text
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
+        combined = skill_text + ref_text
+        assert "[[FastAPI]]" not in combined
+        assert "[[mantle]]" not in combined
+        assert "## Related Skills" not in combined
+        assert "## Projects" not in combined
+        assert "## Context" in ref_text
 
     def test_progressive_disclosure(self, project_with_state: Path) -> None:
         # Build content that exceeds 500 lines.
@@ -924,24 +926,29 @@ class TestCompileSkills:
 
         skill_dir = project_with_state / ".claude" / "skills" / result[0]
         assert (skill_dir / "SKILL.md").exists()
-        assert (skill_dir / "reference.md").exists()
+        assert (skill_dir / "references" / "core.md").exists()
 
         skill_text = (skill_dir / "SKILL.md").read_text()
         assert "## Context" in skill_text
         assert "## Core Knowledge" in skill_text
-        assert "reference.md" in skill_text
+        assert "references/core.md" in skill_text
 
-        ref_text = (skill_dir / "reference.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
         assert "## Examples" in ref_text
 
-    def test_short_content_no_split(self, project_with_state: Path) -> None:
+    def test_short_content_uses_references_dir(
+        self, project_with_state: Path
+    ) -> None:
         _create_skill(project_with_state, name="Python asyncio")
 
         result = compile_skills(project_with_state)
 
         skill_dir = project_with_state / ".claude" / "skills" / result[0]
         assert (skill_dir / "SKILL.md").exists()
-        assert not (skill_dir / "reference.md").exists()
+        assert (skill_dir / "references" / "core.md").exists()
+        # SKILL.md should be lean with a pointer
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        assert "references/core.md" in skill_text
 
     def test_stale_cleanup(self, project_with_state: Path) -> None:
         _create_skill(project_with_state, name="Python asyncio")
@@ -1000,7 +1007,9 @@ class TestCompileSkills:
         assert first == second
         assert first_text == second_text
 
-    def test_description_preserved(self, project_with_state: Path) -> None:
+    def test_description_transformed_to_trigger(
+        self, project_with_state: Path
+    ) -> None:
         desc = "Async patterns using asyncio."
         _create_skill(
             project_with_state,
@@ -1014,7 +1023,9 @@ class TestCompileSkills:
             project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
         )
         text = skill_md.read_text()
-        assert f"description: {desc}" in text
+        assert "TRIGGER when" in text
+        # Original description should not appear as-is
+        assert f"description: {desc}" not in text
 
 
 # ── detect_skills_from_content ─────────────────────────────────
