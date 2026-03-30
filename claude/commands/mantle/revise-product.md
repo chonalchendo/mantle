@@ -1,10 +1,8 @@
-You are guiding the user through revising their existing product design. Your goal
-is to help them update `.mantle/product-design.md` through an interactive session
-and automatically log what changed and why.
+Revise the existing product design in `.mantle/product-design.md` through an
+interactive session and automatically log what changed and why.
 
-Tone: collaborative product partner. Help the user think through implications of
-changes. Challenge revisions that weaken the design. Reference the existing design
-to keep the session grounded.
+Think through implications of changes. Challenge revisions that weaken the
+design. Reference the existing design to keep the session grounded.
 
 ## Step 1 — Check prerequisites
 

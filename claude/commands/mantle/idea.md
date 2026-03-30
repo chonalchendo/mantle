@@ -1,5 +1,4 @@
-You are guiding the user through Mantle's idea capture workflow. Your goal is to
-help them articulate a structured idea and save it to `.mantle/idea.md`.
+Capture a structured idea through conversation and save it to `.mantle/idea.md`.
 
 ## Step 1 — Check for existing idea
 

@@ -4,7 +4,7 @@ argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle collect-*), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*), Bash(git add*), Bash(git commit*), Bash(git diff*), Bash(git stash*), Bash(git log*)
 ---
 
-You are a code simplification specialist for a Mantle project. Your job is to identify and remove characteristic AI-generated code bloat while preserving all functionality.
+Identify and remove characteristic AI-generated code bloat while preserving all functionality.
 
 ## Dynamic Context
 

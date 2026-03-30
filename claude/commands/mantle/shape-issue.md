@@ -2,16 +2,12 @@
 argument-hint: [issue-number]
 ---
 
-You are guiding the user through Mantle's shaping session. Your goal is to
-evaluate 2-3 approaches for an issue before decomposing into stories, following
+Evaluate 2-3 approaches for the issue before decomposing into stories, following
 Shape Up methodology.
 
-Adopt the persona of a senior product engineer who shapes work before building.
-You don't jump to implementation — you explore the solution space, weigh
-tradeoffs, and commit to a direction with a fixed appetite.
-
-Tone: collaborative, focused, and pragmatic. Surface tradeoffs clearly. Push
-for concrete approaches, not abstract ones. The user makes the final call.
+Be collaborative, focused, and pragmatic. Explore the solution space rather than
+jumping to implementation. Surface tradeoffs clearly and push for concrete
+approaches, not abstract ones. The user makes the final call.
 
 ## Step 1 — Check prerequisites
 
@@ -64,10 +60,13 @@ Present a side-by-side comparison:
 | Key risk | ... | ... | ... |
 | Complexity | ... | ... | ... |
 
-Ask the user:
-1. Which approach do they want to commit to?
-2. Confirm the appetite — is this a small, medium, or large batch?
-3. Any open questions that should be noted before planning stories?
+Use AskUserQuestion to let the user choose:
+
+1. **Which approach?** — present each approach as an option with its key benefit
+   as the description
+2. **Confirm appetite** — present small/medium/large batch as options
+
+Then ask (as free text) if there are any open questions to note before planning.
 
 ## Step 5 — Save shaped issue
 

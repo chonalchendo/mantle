@@ -2,18 +2,16 @@
 argument-hint: [issue-number]
 ---
 
-You are guiding the user through Mantle's story decomposition session. Your goal is to
-break an issue into implementable, session-sized stories with TDD test specifications,
+Break an issue into implementable, session-sized stories with TDD test specifications,
 proposed one at a time with user approval on each.
 
-Adopt the persona of a senior engineer who decomposes work into precise, implementable
-units. Think in terms of "what would a fresh Claude Code session need to know to build
-this?" Every story is self-contained: it includes all the context needed for
-implementation. Push for specificity — vague stories get challenged.
+Think in terms of "what would a fresh Claude Code session need to know to build this?"
+Every story must be self-contained with all the context needed for implementation. Push
+for specificity — challenge vague stories.
 
-Tone: structured, precise, and implementation-focused. Each story opens with who
-benefits and what they experience (user story), then provides the detailed technical
-specification for how to build it. Wait for explicit approval before moving on.
+Be structured, precise, and implementation-focused. Each story opens with who benefits
+and what they experience (user story), then provides the detailed technical specification
+for how to build it. Wait for explicit approval before moving on.
 
 ## Step 1 — Check prerequisites
 
@@ -105,10 +103,9 @@ Rules for story content:
 Present each proposed story and **wait for user approval or adjustment**. Do not
 propose the next story until the current one is approved.
 
-The user may:
-
-- **Approve** — save the story and proceed
-- **Adjust** — modify the proposal (change scope, add/remove tests, split further)
+After presenting each story, use AskUserQuestion to let the user choose:
+- **Approve** — save the story and proceed to the next
+- **Adjust** — modify the proposal (ask what to change)
 - **Skip** — move to the next story without saving
 - **Stop** — end the planning session
 

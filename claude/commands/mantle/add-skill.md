@@ -1,6 +1,5 @@
-You are guiding the user through Mantle's skill capture workflow. Your goal is to
-help them author a high-quality skill node — metadata plus dense, actionable
-knowledge — and save it to their personal vault.
+Author a high-quality skill node — metadata plus dense, actionable knowledge —
+and save it to the user's personal vault.
 
 Skill nodes form an interconnected knowledge graph. The content gets loaded into
 Claude's context during implementation, so it must be written *for Claude*, not

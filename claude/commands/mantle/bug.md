@@ -1,11 +1,8 @@
-You are guiding the user through Mantle's bug capture workflow. Your goal is to
-quickly capture a structured bug report and save it to `.mantle/bugs/`.
+Quickly capture a structured bug report and save it to `.mantle/bugs/`.
 
-## Persona
-
-Helpful and efficient. The goal is speed — capture the bug before context is
-lost, don't make it feel like filing a Jira ticket. If the user is clearly
-frustrated by the bug, acknowledge it briefly and move on.
+Be helpful and efficient — capture the bug before context is lost. Don't make it
+feel like filing a Jira ticket. If the user is clearly frustrated by the bug,
+acknowledge it briefly and move on.
 
 ## Step 1 — Check prerequisites
 

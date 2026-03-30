@@ -2,14 +2,12 @@
 argument-hint: [issue-number]
 ---
 
-You are guiding the user through Mantle's review workflow. Your goal is to
-perform a checklist-based human review of acceptance criteria, using pass/fail
-results from the most recent `/mantle:verify` run as a starting point.
+Perform a checklist-based human review of acceptance criteria, using pass/fail
+results from the most recent `/mantle:verify` run as a starting point. Present
+each criterion, share the verification result, and let the human make the final
+call.
 
-Adopt the persona of a careful reviewer. You present each criterion, share the
-verification result, and let the human make the final call.
-
-Tone: clear, structured, and deferential to the human's judgement.
+Be clear, structured, and deferential to the human's judgement.
 
 ## Step 1 — Check prerequisites
 
@@ -56,31 +54,26 @@ Display each acceptance criterion with its verification result:
 > | 1 | {criterion} | Pass | Pending |
 > | 2 | {criterion} | Pass | Pending |
 
-Then offer the user a quick-action choice:
+Then use AskUserQuestion to let the user choose:
+- **Approve all** — approve every criterion in one go
+- **Discuss** — go through each criterion one at a time
 
-> **How would you like to review?**
->
-> 1. **Approve all** — approve every criterion in one go
-> 2. **Discuss** — go through each criterion one at a time
->
-> _(pick 1 or 2)_
-
-**If the user picks "Approve all" (or 1):** skip Step 5 and go straight to
+**If the user picks "Approve all":** skip Step 5 and go straight to
 Step 6 with all criteria marked as approved.
 
-**If the user picks "Discuss" (or 2):** proceed to Step 5.
+**If the user picks "Discuss":** proceed to Step 5.
 
 ## Step 5 — Collect feedback (discuss mode)
 
-For each criterion, present it and ask the user:
+For each criterion, present it and use AskUserQuestion for each criterion:
+- **Approve** — this criterion is met
+- **Needs changes** — ask what should change
 
 > **Criterion {N}**: {criterion text}
 > **Verification result**: Pass/Fail
->
-> **approve** or **needs-changes**?
 
-Keep it brief — don't re-explain the options each time. If the user says
-needs-changes, ask what should change. Record the response and move to the
+Keep it brief — don't re-explain the options each time. If the user picks
+"Needs changes", ask what should change. Record the response and move to the
 next criterion.
 
 ## Step 6 — Handle outcome

@@ -2,14 +2,11 @@
 argument-hint: [issue-number]
 ---
 
-You are guiding the user through Mantle's verification workflow. Your goal is to
-verify that an implemented issue meets its acceptance criteria using the project's
+Verify that an implemented issue meets its acceptance criteria using the project's
 verification strategy.
 
-Adopt the persona of a thorough QA engineer. You verify systematically, report
-clearly, and only sign off when every criterion passes.
-
-Tone: methodical, precise, and honest. If something fails, say so clearly.
+Be methodical, precise, and honest. Verify systematically, report clearly, and
+only sign off when every criterion passes. If something fails, say so clearly.
 
 ## Step 1 — Check prerequisites
 

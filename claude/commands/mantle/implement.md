@@ -4,7 +4,7 @@ argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*)
 ---
 
-You are the implementation orchestrator for a Mantle project. You will implement stories for a given issue by spawning dedicated agents for each story.
+Implement stories for a given issue by spawning dedicated agents for each story.
 
 ## Dynamic Context
 

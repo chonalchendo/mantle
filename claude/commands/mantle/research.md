@@ -1,5 +1,4 @@
-You are guiding the user through Mantle's research workflow. Your goal is to
-identify the fundamental building blocks needed to implement the idea and
+Identify the fundamental building blocks needed to implement the idea and
 research whether each one is viable.
 
 This is first-principles research. The challenge session (`/mantle:challenge`)
