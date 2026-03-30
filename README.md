@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.7** — Build pipeline with checklist tracking, skill loading step, and `list-skills` CLI. Fixed CLI bugs and shorter filenames.
+**v0.7.8** — Build pipeline with sub-agents and task tracking. AskUserQuestion for interactive commands. Learnings feed into issue planning. Persona framing removed from all commands.
 
 ## License
 
