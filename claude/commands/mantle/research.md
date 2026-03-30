@@ -1,6 +1,7 @@
 ---
 description: Identify the fundamental building blocks needed to implement the idea and research whether each one is viable.
 context: fork
+allowed-tools: Read, Bash(mantle *), Agent
 ---
 
 Identify the fundamental building blocks needed to implement the idea and

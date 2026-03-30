@@ -1,7 +1,7 @@
 ---
 description: Implement stories for a Mantle issue using dedicated story agents
 argument-hint: [issue-number]
-allowed-tools: Read, Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*)
+allowed-tools: Read, Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*), Agent
 ---
 
 Implement stories for a given issue by spawning dedicated agents for each story.

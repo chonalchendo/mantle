@@ -376,6 +376,37 @@ class TestRegisterHooks:
 
         assert _register_hooks(tmp_path) is False
 
+    def test_adds_post_tool_use_hook(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        entries = result["hooks"]["PostToolUse"]
+        assert len(entries) == 1
+        assert entries[0]["matcher"] == "Write|Edit"
+        hook = entries[0]["hooks"][0]
+        assert hook["type"] == "command"
+        assert "post-tool-use-format.sh" in hook["command"]
+
+    def test_adds_stop_hook(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        entries = result["hooks"]["Stop"]
+        assert len(entries) == 1
+        assert entries[0]["matcher"] == ""
+        hook = entries[0]["hooks"][0]
+        assert hook["type"] == "command"
+        assert "stop.sh" in hook["command"]
+
+    def test_all_hooks_idempotent(self, tmp_path: Path):
+        _register_hooks(tmp_path)
+        _register_hooks(tmp_path)
+
+        result = json.loads((tmp_path / "settings.json").read_text())
+        assert len(result["hooks"]["SessionStart"]) == 1
+        assert len(result["hooks"]["PostToolUse"]) == 1
+        assert len(result["hooks"]["Stop"]) == 1
+
 
 # ── _enhance_settings ──────────────────────────────────────────
 

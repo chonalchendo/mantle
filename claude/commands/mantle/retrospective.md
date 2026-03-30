@@ -1,10 +1,16 @@
 ---
 argument-hint: [issue-number]
+allowed-tools: Read, Bash(mantle *)
 ---
 
 Capture implementation learnings after completing an issue, so future planning
 benefits from past experience. Help the user think clearly about what happened
 and why, then distill actionable recommendations.
+
+## Dynamic Context
+
+- **Current branch**: !`git branch --show-current`
+- **Recent commits**: !`git log --oneline -10`
 
 Be reflective, honest, and forward-looking. Ask probing questions. Draw out
 specific examples, not vague generalities. Focus on what's useful for next time.

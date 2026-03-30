@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Decompose the project's product and system design into thin vertical slice issues,
 proposed one at a time with user approval on each. Think in vertical slices. Push
 for small, testable slices. Challenge proposals that are too broad ("that sounds

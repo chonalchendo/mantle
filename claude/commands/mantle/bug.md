@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Quickly capture a structured bug report and save it to `.mantle/bugs/`.
 
 Be helpful and efficient — capture the bug before context is lost. Don't make it

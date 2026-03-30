@@ -1,5 +1,6 @@
 ---
 argument-hint: [issue-number]
+allowed-tools: Read, Bash(mantle *)
 ---
 
 Break an issue into implementable, session-sized stories with TDD test specifications,

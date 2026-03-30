@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Define the system design by thinking from first principles -- decompose the
 product into its irreducible building blocks, then assemble them into a system
 using the research already gathered. Start with what must be true for the product

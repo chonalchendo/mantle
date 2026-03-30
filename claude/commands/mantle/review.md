@@ -1,11 +1,18 @@
 ---
 argument-hint: [issue-number]
+allowed-tools: Read, Bash(mantle *)
 ---
 
 Perform a checklist-based human review of acceptance criteria, using pass/fail
 results from the most recent `/mantle:verify` run as a starting point. Present
 each criterion, share the verification result, and let the human make the final
 call.
+
+## Dynamic Context
+
+- **Current branch**: !`git branch --show-current`
+- **Working tree status**: !`git status --short`
+- **Recent commits**: !`git log --oneline -5`
 
 Be clear, structured, and deferential to the human's judgement.
 

@@ -1,6 +1,7 @@
 ---
 description: Stress-test the user's idea from multiple angles and save the transcript.
 context: fork
+allowed-tools: Read, Bash(mantle *)
 ---
 
 Stress-test the user's idea from multiple angles and save the transcript. Find

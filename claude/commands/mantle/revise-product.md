@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Revise the existing product design in `.mantle/product-design.md` through an
 interactive session and automatically log what changed and why.
 

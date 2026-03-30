@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *), Agent
+---
+
 Author a high-quality skill node — metadata plus dense, actionable knowledge —
 and save it to the user's personal vault.
 

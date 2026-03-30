@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *), Agent
+---
+
 Onboard an existing codebase into Mantle by reverse-engineering structured design
 artifacts from the code that already exists. Decompose the system into its
 irreducible building blocks before reaching for labels or patterns.

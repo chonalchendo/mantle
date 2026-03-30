@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Revise the existing system design in `.mantle/system-design.md` through an
 interactive session. Log what changed and why. Challenge changes that introduce
 unnecessary complexity and ensure revisions stay grounded in the product design

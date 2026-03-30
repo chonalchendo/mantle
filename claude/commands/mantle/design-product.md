@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Decompose the product into first-principles building blocks and save a structured
 design to `.mantle/product-design.md`.
 

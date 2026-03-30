@@ -1,3 +1,7 @@
+---
+allowed-tools: Read, Bash(mantle *)
+---
+
 Capture a structured idea through conversation and save it to `.mantle/idea.md`.
 
 ## Step 1 — Check for existing idea

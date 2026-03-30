@@ -1,9 +1,16 @@
 ---
 argument-hint: [issue-number]
+allowed-tools: Read, Bash(mantle *), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*)
 ---
 
 Verify that an implemented issue meets its acceptance criteria using the project's
 verification strategy.
+
+## Dynamic Context
+
+- **Current branch**: !`git branch --show-current`
+- **Working tree status**: !`git status --short`
+- **Recent commits**: !`git log --oneline -5`
 
 Be methodical, precise, and honest. Verify systematically, report clearly, and
 only sign off when every criterion passes. If something fails, say so clearly.

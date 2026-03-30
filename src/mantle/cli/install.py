@@ -110,8 +110,9 @@ def _print_summary(
     console.print(f"[green]Installed[/green] {installed_count} file(s).")
     if hook_registered:
         console.print(
-            "[green]SessionStart hook[/green] registered "
-            "in ~/.claude/settings.json"
+            "[green]Hooks[/green] registered "
+            "in ~/.claude/settings.json "
+            "(SessionStart, PostToolUse, Stop)"
         )
     if settings_enhanced:
         console.print(
@@ -142,6 +143,8 @@ _DEFAULT_DENY = [
 ]
 
 _HOOK_COMMAND = "bash $HOME/.claude/hooks/session-start.sh"
+_POST_TOOL_USE_COMMAND = "bash $HOME/.claude/hooks/post-tool-use-format.sh"
+_STOP_HOOK_COMMAND = "bash $HOME/.claude/hooks/stop.sh"
 
 
 def _enhance_settings(target_dir: Path) -> bool:
@@ -195,17 +198,19 @@ def _enhance_settings(target_dir: Path) -> bool:
 
 
 def _register_hooks(target_dir: Path) -> bool:
-    """Register Mantle's SessionStart hook in settings.json.
+    """Register Mantle's hooks in settings.json.
 
-    Reads existing settings, merges the hook entry, and writes
-    back. Idempotent — skips if already registered.
+    Registers SessionStart, PostToolUse (auto-format), and Stop
+    (session-log nudge) hooks. Reads existing settings, merges
+    entries, and writes back. Idempotent — skips hooks already
+    registered.
 
     Args:
         target_dir: The ``~/.claude/`` directory.
 
     Returns:
-        True if the hook was newly registered, False if already
-        present.
+        True if any hook was newly registered, False if all were
+        already present.
     """
     settings_path = target_dir / "settings.json"
 
@@ -215,28 +220,73 @@ def _register_hooks(target_dir: Path) -> bool:
         settings = {}
 
     hooks = settings.setdefault("hooks", {})
-    session_start = hooks.setdefault("SessionStart", [])
+    changed = False
 
-    # Check if already registered
-    for entry in session_start:
+    # SessionStart hook
+    changed |= _ensure_hook(
+        hooks, "SessionStart", "session-start.sh", _HOOK_COMMAND
+    )
+
+    # PostToolUse hook — auto-format after Write/Edit
+    changed |= _ensure_hook(
+        hooks,
+        "PostToolUse",
+        "post-tool-use-format.sh",
+        _POST_TOOL_USE_COMMAND,
+        matcher="Write|Edit",
+    )
+
+    # Stop hook — session-log nudge
+    changed |= _ensure_hook(
+        hooks, "Stop", "stop.sh", _STOP_HOOK_COMMAND
+    )
+
+    if changed:
+        settings_path.write_text(
+            json.dumps(settings, indent=2) + "\n",
+            encoding="utf-8",
+        )
+
+    return changed
+
+
+def _ensure_hook(
+    hooks: dict,
+    event: str,
+    script_name: str,
+    command: str,
+    *,
+    matcher: str = "",
+) -> bool:
+    """Add a hook entry if not already registered.
+
+    Args:
+        hooks: The ``hooks`` dict from settings.json.
+        event: Hook event name (e.g. ``"SessionStart"``).
+        script_name: Substring to match in existing commands for
+            idempotency.
+        command: The shell command to register.
+        matcher: Optional tool matcher (e.g. ``"Write|Edit"``).
+
+    Returns:
+        True if the hook was newly added, False if already present.
+    """
+    entries = hooks.setdefault(event, [])
+
+    for entry in entries:
         for hook in entry.get("hooks", []):
-            if "session-start.sh" in hook.get("command", ""):
+            if script_name in hook.get("command", ""):
                 return False
 
-    session_start.append(
+    entries.append(
         {
-            "matcher": "",
+            "matcher": matcher,
             "hooks": [
                 {
                     "type": "command",
-                    "command": _HOOK_COMMAND,
+                    "command": command,
                 }
             ],
         }
-    )
-
-    settings_path.write_text(
-        json.dumps(settings, indent=2) + "\n",
-        encoding="utf-8",
     )
     return True

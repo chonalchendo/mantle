@@ -1,5 +1,6 @@
 ---
 argument-hint: [issue-number]
+allowed-tools: Read, Bash(mantle *)
 ---
 
 Evaluate 2-3 approaches for the issue before decomposing into stories, following
