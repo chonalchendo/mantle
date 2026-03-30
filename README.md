@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.3** — Condensed build pipeline, fixed CLI bugs (issue lookup, skill validation, exception syntax), removed phantom command references.
+**v0.7.4** — Condensed build pipeline, fixed CLI bugs (issue lookup, skill validation, exception syntax), shorter filenames, removed phantom command references.
 
 ## License
 
