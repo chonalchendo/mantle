@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.8** — Build pipeline with sub-agents and task tracking. AskUserQuestion for interactive commands. Learnings feed into issue planning. Persona framing removed from all commands.
+**v0.7.9** — Build pipeline auto-creates missing skills, loads skills before story planning. Sub-agents, task tracking, AskUserQuestion, learnings feedback loop.
 
 ## License
 
