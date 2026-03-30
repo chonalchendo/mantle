@@ -13,8 +13,8 @@ TaskCreate to create a task for each step:
 1. "Step 1 — Prerequisites"
 2. "Step 2 — Select issue"
 3. "Step 3 — Shape"
-4. "Step 4 — Plan stories"
-5. "Step 5 — Load skills"
+4. "Step 4 — Load skills"
+5. "Step 5 — Plan stories"
 6. "Step 6 — Implement"
 7. "Step 7 — Simplify"
 8. "Step 8 — Verify"
@@ -94,7 +94,42 @@ Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
 Report the agent's result:
 > **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
 
-## Step 4 — Plan stories (agent)
+## Step 4 — Load skills
+
+Why: vault skills give implementation agents domain-specific knowledge
+(patterns, conventions, anti-patterns) that improves code quality. Loading
+skills before story planning ensures the planning agent can reference available
+skills when designing stories.
+
+1. Run `mantle list-skills` to see what skills exist in the vault.
+2. Run `mantle update-skills --issue {NN}` to auto-detect which vault skills
+   match the issue, updating `skills_required` in `state.md`.
+3. Read the issue to identify technologies and patterns involved. For any
+   technology referenced that doesn't have a matching vault skill, create
+   it now by spawning an Agent (`subagent_type: "smart"`) with this prompt:
+
+   > Read `claude/commands/mantle/add-skill.md` for detailed instructions.
+   > Follow Steps 1-7.
+   >
+   > Build-mode overrides:
+   > - No user interaction — auto-fill all fields based on your knowledge
+   > - Use a proficiency of "5/10" (baseline for AI-authored skills)
+   > - Skip the "offer to continue" step (Step 8 in that file)
+   >
+   > Skill to create: {technology/pattern name}
+
+   After each skill is created, run `mantle update-skills --issue {NN}` again
+   to pick up the new skill.
+
+4. Run `mantle compile` to compile all matched vault skills into
+   `.claude/skills/` so they are available to planning and implementation
+   agents.
+
+Report:
+> **Skills loaded:** {list of matched skills}
+> **Skills created:** {list of new skills, or "none"}
+
+## Step 5 — Plan stories (agent)
 
 Why: stories break the issue into session-sized units so each implementation
 agent has focused, completable work with clear test criteria.
@@ -102,7 +137,7 @@ agent has focused, completable work with clear test criteria.
 Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
 
 **If stories already exist**, read them and report:
-> **Stories:** {count} stories already planned. Proceeding to skill loading.
+> **Stories:** {count} stories already planned. Proceeding to implementation.
 
 **If no stories exist**, spawn an Agent (`subagent_type: "smart"`) with this
 prompt:
@@ -122,27 +157,6 @@ prompt:
 Report the agent's result:
 > **Stories planned:** {count}
 > **Acceptance criteria coverage:** {covered}/{total}
-
-## Step 5 — Load skills
-
-Why: vault skills give implementation agents domain-specific knowledge
-(patterns, conventions, anti-patterns) that improves code quality. Without
-this step, agents work from training data alone.
-
-1. Run `mantle list-skills` to see what skills exist in the vault.
-2. Run `mantle update-skills --issue {NN}` to auto-detect which vault skills
-   match the issue and stories, updating `skills_required` in `state.md`.
-3. Read the issue and stories to identify technologies and patterns involved.
-   For any technology referenced that doesn't have a matching vault skill,
-   report the gap:
-   > **Skill gap:** {technology} — no vault skill found. Consider running
-   > `claude/commands/mantle/add-skill.md` after this build to improve future implementations.
-4. Run `mantle compile` to compile matched vault skills into `.claude/skills/`
-   so they are available to story-implementer agents.
-
-Report:
-> **Skills loaded:** {list of matched skills}
-> **Skill gaps:** {list of unmatched technologies, or "none"}
 
 ## Step 6 — Implement
 
@@ -213,8 +227,8 @@ Report the full pipeline run:
 > | Stage | Result |
 > |-------|--------|
 > | Shape | {auto-shaped / pre-existing} |
-> | Stories | {count} planned |
 > | Skills | {count loaded, count gaps} |
+> | Stories | {count} planned |
 > | Implementation | {completed/blocked} stories |
 > | Simplification | {files changed} |
 > | Verification | {PASSED / FAILED} |
@@ -237,5 +251,5 @@ Report the full pipeline run:
 ---
 
 Reminder — the full pipeline sequence is:
-1. Prerequisites → 2. Select issue → 3. Shape → 4. Plan stories →
-5. Load skills → 6. Implement → 7. Simplify → 8. Verify → 9. Summary
+1. Prerequisites → 2. Select issue → 3. Shape → 4. Load skills →
+5. Plan stories → 6. Implement → 7. Simplify → 8. Verify → 9. Summary
