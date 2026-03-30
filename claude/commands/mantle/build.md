@@ -8,14 +8,26 @@ You are the automated build pipeline for a Mantle project. You orchestrate the
 full journey from a planned issue to verified code — without requiring human
 confirmation at each intermediate step.
 
-**CRITICAL: You MUST execute every step in this sequence. Do NOT skip any step.**
+The pipeline has 8 steps. Execute them in order. After completing each step,
+update the progress tracker below by copying it into your response with the
+current step checked off. This keeps you and the user aligned on where you are.
 
-The pipeline has 7 steps. Execute them in order:
-1. Prerequisites → 2. Select issue → 3. Shape → 4. Plan stories →
-5. Implement → 6. Simplify → 7. Verify
+```
+## Pipeline Progress
+- [ ] Step 1 — Prerequisites
+- [ ] Step 2 — Select issue
+- [ ] Step 3 — Shape
+- [ ] Step 4 — Plan stories
+- [ ] Step 5 — Implement
+- [ ] Step 6 — Simplify
+- [ ] Step 7 — Verify
+- [ ] Step 8 — Summary
+```
 
-If implementation fails (story blocked), stop the pipeline at that point.
-Otherwise, every step runs — no exceptions.
+The only reason to stop early is if a story is blocked after retry in Step 5.
+Every other step always runs because each one catches different problems —
+simplification removes bloat that verification would otherwise flag, and
+verification catches issues that implementation missed.
 
 Tone: efficient, transparent, and progress-focused. Report what you're doing at
 each stage but don't ask for permission. Surface problems immediately.
@@ -54,33 +66,61 @@ Display:
 > **Status**: {status}
 > **Stories**: {count} planned
 
-## Step 3 — Shape (if needed)
+## Step 3 — Shape
+
+Why: shaping evaluates approaches before committing to one, preventing wasted
+implementation effort on suboptimal designs.
 
 Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
 
 **If already shaped**, read it and report:
 > **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
 
-**If not shaped**, read `claude/commands/mantle/shape-issue.md` and follow
-Steps 2-5 with these build-mode overrides:
-- **No user interaction** — auto-choose the smallest-appetite approach that
-  satisfies all acceptance criteria
-- Skip the "next steps" recommendation (Step 6)
+**If not shaped**, auto-shape the issue:
 
-Report your choice:
+1. Read the issue, product design, system design, and any learnings from
+   `.mantle/learnings/`.
+2. Evaluate 2-3 approaches. For each, assess: description, appetite, tradeoffs,
+   rabbit holes, no-gos.
+3. Choose the smallest-appetite approach that satisfies all acceptance criteria.
+4. Save via CLI:
+   ```bash
+   mantle save-shaped-issue \
+     --issue <number> \
+     --title "<issue title>" \
+     --approaches "<approach 1>" --approaches "<approach 2>" \
+     --chosen-approach "<selected approach name>" \
+     --appetite "<appetite>" \
+     --content "<full shaping write-up>"
+   ```
+
+Report:
 > **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
 
-## Step 4 — Plan stories (if needed)
+## Step 4 — Plan stories
+
+Why: stories break the issue into session-sized units so each implementation
+agent has focused, completable work with clear test criteria.
 
 Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
 
 **If stories already exist**, read them and report:
 > **Stories:** {count} stories already planned. Proceeding to implementation.
 
-**If no stories exist**, read `claude/commands/mantle/plan-stories.md` and
-follow Steps 2-5b with these build-mode overrides:
-- **Auto-approve all stories** — don't wait for user input on each story
-- Skip the "next steps" recommendation (Step 6)
+**If no stories exist**, decompose the issue into stories:
+
+1. Read the shaped issue, product design, system design, and codebase patterns.
+2. Break into session-sized stories (1-3 implementation files each, tests
+   included). Stories build on each other: foundation first, then layers.
+3. Each story needs: title, user story, approach, implementation details, tests.
+4. Save each story via CLI:
+   ```bash
+   mantle save-story \
+     --issue <issue_number> \
+     --title "<story title>" \
+     --content "<full story body>"
+   ```
+5. Verify each acceptance criterion is covered by at least one story.
 
 Report:
 > **Stories planned:** {count}
@@ -88,41 +128,67 @@ Report:
 
 ## Step 5 — Implement
 
-Read `claude/commands/mantle/implement.md` and follow Steps 3-4 with these
-build-mode overrides:
-- Skip user confirmation on issue selection
-- Don't recommend next steps — the pipeline continues automatically
+Why: each story is implemented by a dedicated agent with focused context,
+then verified with tests before moving to the next.
+
+For each story that is not "completed", in order:
+
+1. Mark in-progress: `mantle update-story-status --issue {N} --story {S} --status in-progress`
+2. Spawn a story-implementer agent (`subagent_type: "story-implementer"`)
+   with the full story content, issue context, system design, and learnings.
+3. Run the project's test command after the agent completes (check CLAUDE.md
+   for the command — e.g. `uv run pytest`, `npm test`).
+4. If tests fail, spawn one retry agent with the error output.
+5. Tests pass: commit as `feat(issue-{N}): {story title}`, mark completed.
+   Tests fail after retry: mark blocked, stop the pipeline here.
 
 Report progress after each story:
 > **Story {S}:** {title} — {completed/blocked}
 
-If any story is blocked after retry, stop the pipeline here. Do NOT continue
-to Step 6.
+If any story is blocked, stop here. Do not continue to Step 6.
 
 ## Step 6 — Simplify
 
-**This step is mandatory.** After all stories complete, run simplification.
+Why: AI-generated code accumulates bloat (unnecessary abstractions, defensive
+over-engineering, dead code). Cleaning this up before verification produces
+cleaner code and fewer false verification issues.
 
-Read `claude/commands/mantle/simplify.md` and follow Steps 2-6 with these
-build-mode overrides:
-- Use issue-scoped mode (pass the issue number)
-- Don't ask about dirty working tree — build manages git state
+1. Run `mantle collect-issue-files --issue {NN}` to get the file list.
+2. Run the test suite as a baseline.
+3. For each code file, spawn an implementer agent (`subagent_type: "implementer"`)
+   to review and simplify — removing unnecessary abstractions, defensive
+   over-engineering, code duplication, dead code, and comment noise. The agent
+   must not change what the code does, only how it does it.
+4. Run tests again after simplification.
+   - Tests pass: commit as `refactor(issue-{NN}): simplify implementation`.
+   - Tests fail: revert with `git checkout -- .` and report.
 
 Report:
 > **Simplification:** {files simplified}/{files reviewed} files changed
 
-Then proceed to Step 7.
-
 ## Step 7 — Verify
 
-Read `claude/commands/mantle/verify.md` and follow Steps 3-8 with these
-build-mode overrides:
-- Skip user confirmation — auto-verify all criteria
-- If no verification strategy is configured, use a sensible default: run the
-  test suite and check each acceptance criterion against the implementation
-- Don't ask the user to define a strategy — just proceed
+Why: verification checks that the implementation actually satisfies every
+acceptance criterion — catching gaps that tests alone don't cover.
 
-## Step 8 — Pipeline summary
+1. Read the verification strategy from `.mantle/config.md`. If none exists,
+   use a sensible default: run the test suite and check each acceptance
+   criterion against the implementation.
+2. For each acceptance criterion, check via tests, code reading, or running
+   commands. Record Pass/Fail with detail.
+3. If all pass: `mantle transition-issue-verified --issue {N}`
+4. If any fail: report failures and stop. Do not transition.
+
+Report:
+> ## Verification Report — Issue {NN}
+>
+> | # | Criterion | Result | Detail |
+> |---|-----------|--------|--------|
+> | 1 | {criterion} | Pass/Fail | {detail} |
+>
+> **Overall: {PASSED | FAILED}**
+
+## Step 8 — Summary
 
 Report the full pipeline run:
 
@@ -150,3 +216,9 @@ Report the full pipeline run:
 > **Pipeline stopped.** Fix the issues listed above and re-run
 > `/mantle:build {NN}` to resume from where it left off.
 > Stories already completed will be skipped.
+
+---
+
+Reminder — the full pipeline sequence is:
+1. Prerequisites → 2. Select issue → 3. Shape → 4. Plan stories →
+5. Implement → 6. Simplify → 7. Verify → 8. Summary
