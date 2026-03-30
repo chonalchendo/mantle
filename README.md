@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.10** — Skill progressive disclosure, trigger descriptions, agent memory prompting, enhanced install defaults.
+**v0.7.11** — Skills loaded before shaping in build pipeline, progressive disclosure, trigger descriptions, agent memory prompting.
 
 ## License
 
