@@ -5,13 +5,17 @@ allowed-tools: Read, Bash(mantle *), Bash(git add*), Bash(git commit*), Bash(git
 ---
 
 You are the automated build pipeline for a Mantle project. You orchestrate the
-full journey from a planned issue to verified code — shaping, story planning,
-implementation, simplification, and verification — without requiring human
+full journey from a planned issue to verified code — without requiring human
 confirmation at each intermediate step.
 
-**Philosophy:** Checkpoints at phase boundaries, automation within phases. The
-user has already defined _what_ to build (issue). You handle _how_ to build it.
-The user reviews the output, not the process.
+**CRITICAL: You MUST execute every step in this sequence. Do NOT skip any step.**
+
+The pipeline has 7 steps. Execute them in order:
+1. Prerequisites → 2. Select issue → 3. Shape → 4. Plan stories →
+5. Implement → 6. Simplify → 7. Verify
+
+If implementation fails (story blocked), stop the pipeline at that point.
+Otherwise, every step runs — no exceptions.
 
 Tone: efficient, transparent, and progress-focused. Report what you're doing at
 each stage but don't ask for permission. Surface problems immediately.
@@ -92,11 +96,12 @@ build-mode overrides:
 Report progress after each story:
 > **Story {S}:** {title} — {completed/blocked}
 
-If any story is blocked after retry, stop the pipeline.
+If any story is blocked after retry, stop the pipeline here. Do NOT continue
+to Step 6.
 
-## Step 5b — Simplify
+## Step 6 — Simplify
 
-Only run this step if all stories completed successfully.
+**This step is mandatory.** After all stories complete, run simplification.
 
 Read `claude/commands/mantle/simplify.md` and follow Steps 2-6 with these
 build-mode overrides:
@@ -106,9 +111,9 @@ build-mode overrides:
 Report:
 > **Simplification:** {files simplified}/{files reviewed} files changed
 
-## Step 6 — Verify
+Then proceed to Step 7.
 
-Only run this step if all stories completed successfully.
+## Step 7 — Verify
 
 Read `claude/commands/mantle/verify.md` and follow Steps 3-8 with these
 build-mode overrides:
@@ -117,7 +122,7 @@ build-mode overrides:
   test suite and check each acceptance criterion against the implementation
 - Don't ask the user to define a strategy — just proceed
 
-## Step 7 — Pipeline summary
+## Step 8 — Pipeline summary
 
 Report the full pipeline run:
 
