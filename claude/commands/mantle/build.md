@@ -1,5 +1,5 @@
 ---
-description: Automated build pipeline — shape, plan stories, implement, and verify in one pass
+description: Automated build pipeline — load skills, shape, plan stories, implement, and verify in one pass
 argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle *), Bash(git add*), Bash(git commit*), Bash(git checkout -- *), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*), Agent
 ---
@@ -12,8 +12,8 @@ TaskCreate to create a task for each step:
 
 1. "Step 1 — Prerequisites"
 2. "Step 2 — Select issue"
-3. "Step 3 — Shape"
-4. "Step 4 — Load skills"
+3. "Step 3 — Load skills"
+4. "Step 4 — Shape"
 5. "Step 5 — Plan stories"
 6. "Step 6 — Implement"
 7. "Step 7 — Simplify"
@@ -67,41 +67,11 @@ Display:
 > **Status**: {status}
 > **Stories**: {count} planned
 
-## Step 3 — Shape (agent)
+## Step 3 — Load skills
 
-Why: shaping evaluates approaches before committing to one, preventing wasted
-implementation effort on suboptimal designs.
-
-Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
-
-**If already shaped**, read it and report:
-> **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
-
-**If not shaped**, spawn an Agent (`subagent_type: "smart"`) with this prompt:
-
-> Before starting, review your project memory for relevant context.
->
-> Read `claude/commands/mantle/shape-issue.md` for detailed instructions.
-> Follow Steps 2-5.
->
-> Build-mode overrides:
-> - No user interaction — auto-choose the smallest-appetite approach that
->   satisfies all acceptance criteria
-> - Skip the "next steps" recommendation (Step 6 in that file)
->
-> Issue number: {NN}
->
-> When done, report: chosen approach name, appetite, and rationale.
-
-Report the agent's result:
-> **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
-
-## Step 4 — Load skills
-
-Why: vault skills give implementation agents domain-specific knowledge
-(patterns, conventions, anti-patterns) that improves code quality. Loading
-skills before story planning ensures the planning agent can reference available
-skills when designing stories.
+Why: vault skills give agents domain-specific knowledge (patterns, conventions,
+anti-patterns) that improves both shaping decisions and code quality. Loading
+skills first ensures the shaping agent can make informed approach choices.
 
 1. Run `mantle list-skills` to see what skills exist in the vault.
 2. Run `mantle update-skills --issue {NN}` to auto-detect which vault skills
@@ -124,12 +94,45 @@ skills when designing stories.
    to pick up the new skill.
 
 4. Run `mantle compile` to compile all matched vault skills into
-   `.claude/skills/` so they are available to planning and implementation
-   agents.
+   `.claude/skills/` so they are available to shaping, planning, and
+   implementation agents.
 
 Report:
 > **Skills loaded:** {list of matched skills}
 > **Skills created:** {list of new skills, or "none"}
+
+## Step 4 — Shape (agent)
+
+Why: shaping evaluates approaches before committing to one, preventing wasted
+implementation effort on suboptimal designs. Skills loaded in Step 3 provide
+domain knowledge that informs approach selection.
+
+Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
+
+**If already shaped**, read it and report:
+> **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
+
+**If not shaped**, spawn an Agent (`subagent_type: "smart"`) with this prompt:
+
+> Before starting, review your project memory for relevant context.
+> Read any compiled skills in `.claude/skills/*/SKILL.md` that are relevant
+> to this issue — they contain domain knowledge that should inform your
+> approach evaluation.
+>
+> Read `claude/commands/mantle/shape-issue.md` for detailed instructions.
+> Follow Steps 2-5.
+>
+> Build-mode overrides:
+> - No user interaction — auto-choose the smallest-appetite approach that
+>   satisfies all acceptance criteria
+> - Skip the "next steps" recommendation (Step 6 in that file)
+>
+> Issue number: {NN}
+>
+> When done, report: chosen approach name, appetite, and rationale.
+
+Report the agent's result:
+> **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
 
 ## Step 5 — Plan stories (agent)
 
@@ -259,5 +262,5 @@ Report the full pipeline run:
 ---
 
 Reminder — the full pipeline sequence is:
-1. Prerequisites → 2. Select issue → 3. Shape → 4. Load skills →
+1. Prerequisites → 2. Select issue → 3. Load skills → 4. Shape →
 5. Plan stories → 6. Implement → 7. Simplify → 8. Verify → 9. Summary
