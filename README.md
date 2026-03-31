@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.13** — Skill trigger conditions (when_to_use), analysis scratchpad for design commands, faster build pipeline agents.
+**v0.7.14** — Per-story context selection, post-story learning extraction, skill trigger conditions, analysis scratchpad, faster build pipeline.
 
 ## License
 
