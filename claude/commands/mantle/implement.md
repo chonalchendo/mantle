@@ -81,6 +81,16 @@ full files). Include:
 - Architectural constraints from relevant decisions
 - Domain knowledge from relevant skills
 
+For each item included, note its age. If a file was last modified more than
+2 days ago, prefix it with a staleness caveat:
+
+> **[5 days ago]** This context may reference code or patterns that have since
+> changed. Verify against current code before acting on it.
+
+This prevents agents from confidently following outdated advice — a learning
+that says "use pattern X in module Y" is dangerous if module Y was refactored
+last week.
+
 If nothing is relevant (first story, empty project), skip this step.
 
 **Step 5 — Implement each story**

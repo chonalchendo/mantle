@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import issues, state, vault
+from mantle.core import issues, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -102,7 +102,9 @@ def save_learning(
         confidence_delta=confidence_delta,
     )
 
-    vault.write_note(learning_path, note, content)
+    vault.write_note(
+        learning_path, note, sanitize.strip_analysis_blocks(content)
+    )
     _update_state_body(project_dir, identity, issue)
 
     return note, learning_path

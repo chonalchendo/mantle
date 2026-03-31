@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -91,7 +91,9 @@ def save_challenge(
     )
 
     challenge_path = _resolve_challenge_path(project_dir)
-    vault.write_note(challenge_path, note, transcript)
+    vault.write_note(
+        challenge_path, note, sanitize.strip_analysis_blocks(transcript)
+    )
     _update_state_body(project_dir, identity)
 
     return note, challenge_path

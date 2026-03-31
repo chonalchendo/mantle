@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -129,7 +129,9 @@ def save_research(
     )
 
     research_path = _resolve_research_path(project_dir, focus)
-    vault.write_note(research_path, note, content)
+    vault.write_note(
+        research_path, note, sanitize.strip_analysis_blocks(content)
+    )
     if update_state:
         _update_state_body(project_dir, identity, focus)
 
