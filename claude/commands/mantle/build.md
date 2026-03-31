@@ -170,7 +170,7 @@ Report the agent's result:
 Why: each story is implemented by a dedicated agent with focused context,
 then verified with tests before moving to the next.
 
-Read `claude/commands/mantle/implement.md` and follow Steps 3-4 with these
+Read `claude/commands/mantle/implement.md` and follow Steps 3-5 with these
 build-mode overrides:
 - Skip user confirmation on issue selection
 - Don't recommend next steps — the pipeline continues automatically

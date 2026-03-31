@@ -1,7 +1,7 @@
 ---
 description: Implement stories for a Mantle issue using dedicated story agents
 argument-hint: [issue-number]
-allowed-tools: Read, Bash(mantle update-story-status*), Bash(git add*), Bash(git commit*), Agent
+allowed-tools: Read, Bash(mantle update-story-status*), Bash(mantle save-learning*), Bash(git add*), Bash(git commit*), Agent
 ---
 
 Implement stories for a given issue by spawning dedicated agents for each story.
@@ -56,7 +56,34 @@ For each story, note:
 
 Determine the implementation order (ascending story number). Skip stories already marked "completed".
 
-**Step 4 — Implement each story**
+**Step 4 — Select relevant context per story**
+
+Before spawning each story agent, select the most relevant context from the
+project's accumulated knowledge. This is a context engineering step — the goal
+is signal, not volume.
+
+For each story, review these sources and select only what's directly relevant
+to that story's implementation:
+
+- `.mantle/learnings/` — scan all learning files. Pick learnings whose
+  recommendations, gotchas, or patterns apply to the specific technology,
+  module, or pattern this story touches. Skip learnings about unrelated areas.
+- `.mantle/decisions/` — scan decision files. Pick decisions about architecture
+  or technology choices that constrain how this story should be implemented.
+  Skip decisions about unrelated subsystems.
+- `.claude/skills/*/SKILL.md` — scan compiled skill summaries. Pick skills
+  whose domain matches this story's work. A story about database migrations
+  doesn't need the WebSocket skill.
+
+Build a **context brief** — a focused summary of the selected items (not the
+full files). Include:
+- Key patterns or conventions from relevant learnings
+- Architectural constraints from relevant decisions
+- Domain knowledge from relevant skills
+
+If nothing is relevant (first story, empty project), skip this step.
+
+**Step 5 — Implement each story**
 
 For each story that is not "completed", follow this sequence:
 
@@ -68,8 +95,8 @@ For each story that is not "completed", follow this sequence:
    - The full story content (from the story file)
    - The issue context (from the issue file)
    - The system design (from `.mantle/system-design.md` if it exists)
-   - Any learnings from `.mantle/learnings/` relevant to this issue
-   - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story. Run tests after implementation and fix any failures. After completing, update your project memory with any new patterns learned, gotchas encountered, or conventions established."
+   - The context brief from Step 4 (selected learnings, decisions, and skills relevant to this specific story)
+   - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story. Run tests after implementation and fix any failures. After completing, report any patterns you discovered, gotchas you encountered, or conventions you established that future stories should know about."
 
 4. **Verify tests**: After the agent completes, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
 
@@ -81,7 +108,23 @@ For each story that is not "completed", follow this sequence:
    - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
    - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
-**Step 5 — Report results**
+7. **Extract learnings**: After a story completes successfully, check whether
+   the agent reported any patterns, gotchas, or conventions. If so, save them:
+
+   ```bash
+   mantle save-learning \
+     --issue {N} \
+     --title "story-{S}: {brief topic}" \
+     --confidence-delta "+0" \
+     --content "<structured learnings>" \
+     --overwrite
+   ```
+
+   Keep extracted learnings concise (under 100 words). Focus on what would
+   change how a future story is implemented — not a summary of what was built.
+   Skip this step if the agent reported nothing noteworthy.
+
+**Step 6 — Report results**
 
 After all stories are processed (or the loop stops), summarise:
 - Stories completed this run
