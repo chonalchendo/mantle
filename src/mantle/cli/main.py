@@ -1199,6 +1199,13 @@ def save_skill_command(
             help="Authored skill knowledge (markdown).",
         ),
     ],
+    when_to_use: Annotated[
+        str,
+        Parameter(
+            name="--when-to-use",
+            help="Trigger conditions for auto-invocation.",
+        ),
+    ] = "",
     related_skills: Annotated[
         tuple[str, ...],
         Parameter(
@@ -1241,6 +1248,7 @@ def save_skill_command(
         description=description,
         proficiency=proficiency,
         content=content,
+        when_to_use=when_to_use,
         related_skills=related_skills,
         projects=projects,
         tags=tags,

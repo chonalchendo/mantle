@@ -44,11 +44,15 @@ Quick pass on the structural info. Ask for each in turn:
 
 1. **Name** — What skill or technology? Be specific: "Python asyncio" not just
    "Python".
-2. **Description** — One-line summary of what this skill covers and when it's
-   relevant. Write in third person. Example: "Async Python patterns using
-   asyncio. Use when building concurrent I/O-bound services or working with
-   aiohttp/FastAPI."
-3. **Proficiency** — Self-assessment 1–10. Brief calibration:
+2. **Description** — One-line summary of what this skill covers. Write in third
+   person. Example: "Async Python patterns using asyncio for concurrent
+   I/O-bound services."
+3. **When to use** — Trigger conditions for auto-invocation, separate from the
+   description. Describes *when* to activate the skill, not *what* it is.
+   Example: "Use when building concurrent I/O-bound services, working with
+   aiohttp/FastAPI, or debugging async deadlocks." If the user can't think of
+   specific triggers, leave it blank — the description will be used as fallback.
+4. **Proficiency** — Self-assessment 1–10. Brief calibration:
    - 1–3 = learning, following tutorials
    - 4–6 = can ship production code with it
    - 7–9 = deep expertise, can debug obscure issues
@@ -206,6 +210,7 @@ Show the full summary (metadata + content preview + tags), then run:
 mantle save-skill \
   --name "<name>" \
   --description "<description>" \
+  --when-to-use "<trigger conditions>" \
   --proficiency "<N/10>" \
   --content "<authored content>" \
   --related-skills "<skill1>" \
@@ -214,6 +219,8 @@ mantle save-skill \
   --tag "topic/<slug>" \
   --tag "domain/<area>"
 ```
+
+Omit `--when-to-use` if the user left it blank.
 
 After saving, trigger recompilation so the new skill is immediately available
 to Claude Code:

@@ -66,6 +66,24 @@ through them as a rigid checklist.
   challenge, say so briefly and move on to the next attack vector.
 - **Wrap up after 5–8 exchanges** with a synthesis.
 
+## Analysis scratchpad
+
+Before synthesising findings, drafting verdicts, or making recommendations, use
+`<analysis>` blocks to organise your thinking. These blocks are internal
+scratchpad — do NOT show them to the user. Strip them from any saved output.
+
+```
+<analysis>
+- Which assumptions held up? Which cracked under pressure?
+- What pattern emerged across the five lenses?
+- Where was the user's response weakest?
+- What's the honest confidence level?
+</analysis>
+```
+
+Use `<analysis>` whenever you need to weigh competing evidence or draft a
+synthesis before presenting it.
+
 ## Step 4 — Synthesise and save
 
 After the session, format the full exchange as a transcript:

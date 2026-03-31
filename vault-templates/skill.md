@@ -1,6 +1,7 @@
 ---
 name: ""
 description: ""
+when_to_use: ""
 type: skill
 proficiency: "/10"
 related_skills: []

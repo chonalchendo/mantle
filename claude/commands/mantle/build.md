@@ -78,7 +78,7 @@ skills first ensures the shaping agent can make informed approach choices.
    match the issue, updating `skills_required` in `state.md`.
 3. Read the issue to identify technologies and patterns involved. For any
    technology referenced that doesn't have a matching vault skill, create
-   it now by spawning an Agent (`subagent_type: "smart"`) with this prompt:
+   it now by spawning an Agent (`subagent_type: "general-purpose"`) with this prompt:
 
    > Read `claude/commands/mantle/add-skill.md` for detailed instructions.
    > Follow Steps 1-7.
@@ -112,7 +112,7 @@ Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
 **If already shaped**, read it and report:
 > **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
 
-**If not shaped**, spawn an Agent (`subagent_type: "smart"`) with this prompt:
+**If not shaped**, spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
 
 > Before starting, review your project memory for relevant context.
 > Read any compiled skills in `.claude/skills/*/SKILL.md` that are relevant
@@ -144,8 +144,8 @@ Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
 **If stories already exist**, read them and report:
 > **Stories:** {count} stories already planned. Proceeding to implementation.
 
-**If no stories exist**, spawn an Agent (`subagent_type: "smart"`) with this
-prompt:
+**If no stories exist**, spawn an Agent (`subagent_type: "general-purpose"`) with
+this prompt:
 
 > Before starting, review your project memory for relevant context.
 >
@@ -187,7 +187,7 @@ Why: AI-generated code accumulates bloat (unnecessary abstractions, defensive
 over-engineering, dead code). Cleaning this up before verification produces
 cleaner code and fewer false verification issues.
 
-Spawn an Agent (`subagent_type: "smart"`) with this prompt:
+Spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
 
 > Before starting, review your project memory for relevant context.
 >
@@ -209,7 +209,7 @@ Report the agent's result:
 Why: verification checks that the implementation actually satisfies every
 acceptance criterion — catching gaps that tests alone don't cover.
 
-Spawn an Agent (`subagent_type: "smart"`) with this prompt:
+Spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
 
 > Before starting, review your project memory for relevant context.
 >

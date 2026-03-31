@@ -41,6 +41,24 @@ Read all challenge transcripts in `.mantle/challenges/`. Extract:
 
 Read any existing research notes in `.mantle/research/` (to build on, not repeat).
 
+## Analysis scratchpad
+
+Before synthesising findings, choosing focus areas, or making recommendations,
+use `<analysis>` blocks to organise your thinking. These blocks are internal
+scratchpad — do NOT show them to the user. Strip them from any saved output.
+
+```
+<analysis>
+- What are the strongest/weakest assumptions from the challenge?
+- Which building block carries the most risk?
+- What evidence would resolve the biggest uncertainty?
+- How do prior research findings narrow the search space?
+</analysis>
+```
+
+Use `<analysis>` whenever you need to weigh competing evidence or draft a
+synthesis before presenting it.
+
 ## Step 3 — Derive building blocks
 
 The building blocks come from the challenge output. Each assumption that must

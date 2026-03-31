@@ -17,6 +17,7 @@ def run_save_skill(
     description: str,
     proficiency: str,
     content: str,
+    when_to_use: str = "",
     related_skills: tuple[str, ...] = (),
     projects: tuple[str, ...] = (),
     tags: tuple[str, ...] = (),
@@ -30,6 +31,7 @@ def run_save_skill(
         description: What this skill covers and when it's relevant.
         proficiency: Self-assessment in "N/10" format.
         content: Authored skill knowledge (markdown).
+        when_to_use: Trigger conditions for auto-invocation.
         related_skills: Related skill names.
         projects: Project names using this skill.
         tags: Content tags (e.g. ``topic/python``, ``domain/web``).
@@ -50,6 +52,7 @@ def run_save_skill(
             description=description,
             proficiency=proficiency,
             content=content,
+            when_to_use=when_to_use,
             related_skills=related_skills,
             projects=projects,
             tags=tags,

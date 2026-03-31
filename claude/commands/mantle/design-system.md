@@ -42,6 +42,25 @@ If no research exists, tell the user:
 You may proceed without research if the user explicitly chooses to, but note that
 decisions made without research carry lower confidence.
 
+## Analysis scratchpad
+
+Before synthesising context, evaluating design trade-offs, or making
+architecture recommendations, use `<analysis>` blocks to organise your
+thinking. These blocks are internal scratchpad — do NOT show them to the user.
+Strip them from any saved output.
+
+```
+<analysis>
+- What are the real constraints vs inherited conventions?
+- Does the research actually support this technology choice?
+- Which building block is riskiest and should be spiked first?
+- Where am I making assumptions the research didn't cover?
+</analysis>
+```
+
+Use `<analysis>` whenever you need to weigh competing evidence or draft a
+synthesis before presenting it.
+
 ## Step 3 — Interactive system design session
 
 This is a collaborative conversation, not a monologue. Work through the following

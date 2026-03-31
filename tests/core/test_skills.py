@@ -205,6 +205,16 @@ class TestCreateSkill:
         assert loaded.author == created.author
         assert loaded.tags == created.tags
 
+    def test_round_trip_when_to_use(self, project: Path) -> None:
+        created, path = _create_skill(
+            project,
+            when_to_use="Use when building concurrent I/O services.",
+        )
+        loaded, _ = load_skill(path)
+
+        assert loaded.when_to_use == created.when_to_use
+        assert loaded.when_to_use == "Use when building concurrent I/O services."
+
     def test_round_trip_preserves_content(self, project: Path) -> None:
         _, path = _create_skill(project)
         _, body = load_skill(path)
@@ -1026,6 +1036,45 @@ class TestCompileSkills:
         assert "TRIGGER when" in text
         # Original description should not appear as-is
         assert f"description: {desc}" not in text
+
+    def test_when_to_use_preferred_over_description(
+        self, project_with_state: Path
+    ) -> None:
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            description="Async Python patterns using asyncio.",
+            when_to_use="Use when building concurrent services.",
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_md = (
+            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        )
+        text = skill_md.read_text()
+        assert "concurrent services" in text
+        # Description should not be used when when_to_use is set
+        assert "Async Python patterns" not in text
+
+    def test_empty_when_to_use_falls_back_to_description(
+        self, project_with_state: Path
+    ) -> None:
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            description="Async Python patterns using asyncio.",
+            when_to_use="",
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_md = (
+            project_with_state / ".claude" / "skills" / result[0] / "SKILL.md"
+        )
+        text = skill_md.read_text()
+        assert "TRIGGER when" in text
+        assert "Async Python patterns" in text
 
 
 # ── detect_skills_from_content ─────────────────────────────────

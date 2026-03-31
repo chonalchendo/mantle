@@ -29,6 +29,10 @@ class SkillNote(pydantic.BaseModel, frozen=True):
     Attributes:
         name: Human-readable skill name.
         description: What this skill covers and when it's relevant.
+        when_to_use: Trigger conditions for auto-invocation, separate
+            from the description.  Used during compilation to generate
+            the ``TRIGGER when`` line.  Falls back to ``description``
+            when empty.
         type: Always "skill".
         proficiency: Self-assessment in "N/10" format.
         related_skills: Plain names of related skills (rendered as
@@ -44,6 +48,7 @@ class SkillNote(pydantic.BaseModel, frozen=True):
 
     name: str
     description: str
+    when_to_use: str = ""
     type: str = "skill"
     proficiency: str
     related_skills: tuple[str, ...] = ()
@@ -232,6 +237,7 @@ def create_skill(
     description: str,
     proficiency: str,
     content: str,
+    when_to_use: str = "",
     related_skills: tuple[str, ...] = (),
     projects: tuple[str, ...] = (),
     tags: tuple[str, ...] = (),
@@ -245,6 +251,7 @@ def create_skill(
         description: What this skill covers and when it's relevant.
         proficiency: Self-assessment in "N/10" format.
         content: Authored skill knowledge (markdown).
+        when_to_use: Trigger conditions for auto-invocation.
         related_skills: Related skill names.
         projects: Project names using this skill.
         tags: Content tags. ``type/skill`` is always included.
@@ -273,6 +280,7 @@ def create_skill(
     note = SkillNote(
         name=name,
         description=description,
+        when_to_use=when_to_use,
         proficiency=proficiency,
         related_skills=related_skills,
         projects=projects,
@@ -403,6 +411,7 @@ def update_skill(
     name: str,
     *,
     description: str | None = None,
+    when_to_use: str | None = None,
     proficiency: str | None = None,
     content: str | None = None,
     related_skills: tuple[str, ...] | None = None,
@@ -415,6 +424,7 @@ def update_skill(
         project_dir: Directory containing .mantle/.
         name: Human-readable skill name (used to find the file).
         description: New description, or None to keep current.
+        when_to_use: New trigger conditions, or None to keep current.
         proficiency: New proficiency, or None to keep current.
         content: New authored content, or None to keep current.
         related_skills: New related skills, or None to keep current.
@@ -452,6 +462,8 @@ def update_skill(
     }
     if description is not None:
         updates["description"] = description
+    if when_to_use is not None:
+        updates["when_to_use"] = when_to_use
     if proficiency is not None:
         updates["proficiency"] = proficiency
     if related_skills is not None:
@@ -765,8 +777,9 @@ def compile_skills(project_dir: Path) -> list[str]:
         note, body = load_skill(path)
         slug = _slugify(note.name)
         content = _extract_content(body)
+        trigger_source = note.when_to_use or note.description
 
-        _write_compiled_skill(skills_target, slug, note.description, content)
+        _write_compiled_skill(skills_target, slug, trigger_source, content)
         compiled_slugs.append(slug)
 
     _cleanup_stale_skills(skills_target, compiled_slugs)

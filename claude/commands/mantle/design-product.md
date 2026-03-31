@@ -36,6 +36,25 @@ landscape, technology options, and risks. Research findings should directly info
 the prior art, building blocks, and principles discussions. Reference specific
 research conclusions rather than making the user repeat what was already explored.
 
+## Analysis scratchpad
+
+Before synthesising context, challenging user answers, or making design
+recommendations, use `<analysis>` blocks to organise your thinking. These
+blocks are internal scratchpad — do NOT show them to the user. Strip them from
+any saved output.
+
+```
+<analysis>
+- What did the challenge/research establish that constrains this design choice?
+- Is this answer a genuine principle or an aspiration disguised as one?
+- What's missing from the building blocks list?
+- Do the success metrics actually measure what matters?
+</analysis>
+```
+
+Use `<analysis>` whenever you need to weigh competing evidence or draft a
+synthesis before presenting it.
+
 ## Step 3 — Interactive design session
 
 Guide through seven areas one at a time. Ask each, reflect back, confirm before
