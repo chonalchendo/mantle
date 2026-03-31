@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.14** — Per-story context selection, post-story learning extraction, skill trigger conditions, analysis scratchpad, faster build pipeline.
+**v0.7.15** — Memory freshness warnings, analysis block stripping, per-story context selection, post-story learning extraction, skill trigger conditions.
 
 ## License
 
