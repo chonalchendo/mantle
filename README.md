@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.12** — Tool allowlists on all commands, inline context injection, PostToolUse auto-formatting and Stop session-log hooks.
+**v0.7.13** — Skill trigger conditions (when_to_use), analysis scratchpad for design commands, faster build pipeline agents.
 
 ## License
 
