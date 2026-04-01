@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.16** — Refactor command for structured code refactoring with dynamic skill selection and multi-approach design.
+**v0.7.17** — Fix update-skills NameError and issue file glob matching.
 
 ## License
 
