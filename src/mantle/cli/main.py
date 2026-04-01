@@ -916,17 +916,15 @@ def update_skills_command(
 
     new_skills = skills.auto_update_skills(path, issue)
     if new_skills:
-        console.print()
-        console.print(
-            f"[green]Detected {len(new_skills)} new skill(s):[/green]"
-        )
+        print()
+        print(f"Detected {len(new_skills)} new skill(s):")
         for s in new_skills:
-            console.print(f"  - {s}")
-        console.print()
-        console.print("Updated skills_required in state.md.")
+            print(f"  - {s}")
+        print()
+        print("Updated skills_required in state.md.")
     else:
-        console.print()
-        console.print("No new skills detected.")
+        print()
+        print("No new skills detected.")
 
 
 @app.command(name="list-skills")

@@ -690,23 +690,27 @@ def auto_update_skills(
     # Collect all content from issue and its stories
     content_parts: list[str] = []
 
-    # Use glob patterns to support both old and new naming conventions
+    # Match both "issue-01.md" and "issue-01-title.md" naming conventions
     issues_dir = mantle_dir / "issues"
     if issues_dir.exists():
-        for p in issues_dir.glob(f"issue-{issue_number:02d}-*.md"):
-            content_parts.append(p.read_text(encoding="utf-8"))
+        prefix = f"issue-{issue_number:02d}"
+        for p in issues_dir.glob("*.md"):
+            if p.stem == prefix or p.stem.startswith(f"{prefix}-"):
+                content_parts.append(p.read_text(encoding="utf-8"))
 
     stories_dir = mantle_dir / "stories"
     if stories_dir.exists():
-        for story_path in sorted(
-            stories_dir.glob(f"issue-{issue_number:02d}-*story-*.md")
-        ):
-            content_parts.append(story_path.read_text(encoding="utf-8"))
+        for story_path in sorted(stories_dir.glob("*.md")):
+            if story_path.stem.startswith(f"issue-{issue_number:02d}"):
+                content_parts.append(
+                    story_path.read_text(encoding="utf-8")
+                )
 
     shaped_dir = mantle_dir / "shaped"
     if shaped_dir.exists():
-        for p in shaped_dir.glob(f"issue-{issue_number:02d}-*shaped.md"):
-            content_parts.append(p.read_text(encoding="utf-8"))
+        for p in shaped_dir.glob("*.md"):
+            if p.stem.startswith(f"issue-{issue_number:02d}"):
+                content_parts.append(p.read_text(encoding="utf-8"))
 
     if not content_parts:
         return []
