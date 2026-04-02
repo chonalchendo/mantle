@@ -8,6 +8,18 @@ interactive session and automatically log what changed and why.
 Think through implications of changes. Challenge revisions that weaken the
 design. Reference the existing design to keep the session grounded.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Interactive revision session"
+4. "Step 4 — Vision section enforcement"
+5. "Step 5 — Confirm and save"
+6. "Step 6 — Confirmation"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/` and `.mantle/product-design.md` exist by reading them.

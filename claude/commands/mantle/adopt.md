@@ -28,6 +28,18 @@ from what must be true, not what's conventional.
 - **Respect existing choices.** The user chose their stack for reasons.
   Considerations are framed as options, not criticism.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Concurrent agent analysis"
+3. "Step 3 — Interactive synthesis"
+4. "Step 4 — Log decisions"
+5. "Step 5 — Save adoption"
+6. "Step 6 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/` and `.mantle/state.md` exist by reading them.

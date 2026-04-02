@@ -12,6 +12,18 @@ Be collaborative, structured, and efficient. Present one issue at a time with
 clear formatting. Wait for explicit approval before moving on. Never rush the user
 through planning.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context and define slices"
+3. "Step 3 — Propose issues one at a time"
+4. "Step 4 — Save each approved issue"
+5. "Step 5 — Design impact analysis"
+6. "Step 6 — Session wrap-up"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Read `.mantle/state.md` and verify:

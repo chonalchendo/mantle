@@ -9,6 +9,21 @@ Skill nodes form an interconnected knowledge graph. The content gets loaded into
 Claude's context during implementation, so it must be written *for Claude*, not
 as a human tutorial. Quality is everything: dense, imperative, opinionated.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Check for gaps and stubs"
+3. "Step 3 — Gather skill metadata"
+4. "Step 4 — Research the skill"
+5. "Step 5 — Author skill content"
+6. "Step 6 — Suggest content tags"
+7. "Step 7 — Confirm and save"
+8. "Step 8 — Offer to continue"
+9. "Step 9 — Session logging"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Read `.mantle/config.md` and check for `personal_vault`.

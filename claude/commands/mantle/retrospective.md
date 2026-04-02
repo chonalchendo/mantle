@@ -15,6 +15,18 @@ and why, then distill actionable recommendations.
 Be reflective, honest, and forward-looking. Ask probing questions. Draw out
 specific examples, not vague generalities. Focus on what's useful for next time.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Guided reflection"
+4. "Step 4 — Assess confidence delta"
+5. "Step 5 — Save learning"
+6. "Step 6 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/`, `.mantle/state.md` exist by reading them.

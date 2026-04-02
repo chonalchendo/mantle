@@ -4,6 +4,16 @@ allowed-tools: Read, Bash(mantle *)
 
 Capture a structured idea through conversation and save it to `.mantle/idea.md`.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check for existing idea"
+2. "Step 2 — Gather the idea"
+3. "Step 3 — Confirm and save"
+4. "Step 4 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check for existing idea
 
 Run `mantle save-idea --help` to confirm the CLI is available, then check

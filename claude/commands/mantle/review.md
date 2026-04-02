@@ -16,6 +16,18 @@ call.
 
 Be clear, structured, and deferential to the human's judgement.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Select issue"
+3. "Step 3 — Load verification results"
+4. "Step 4 — Present review checklist"
+5. "Step 5 — Collect feedback"
+6. "Step 6 — Handle outcome"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
