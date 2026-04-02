@@ -150,7 +150,16 @@ For each story that is not "completed", follow this sequence:
 
 2. **Mark in-progress**: Run `mantle update-story-status --issue {N} --story {S} --status in-progress`
 
-3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. Provide the agent with:
+3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. Select the model based on story complexity:
+
+   **Model selection:**
+   - **`model: "haiku"`** — Mechanical stories: 1 file, clear spec, no design judgment (e.g., "add CLI flag", "write tests for existing function", "update config")
+   - **`model: "sonnet"`** — Standard stories: 1-3 files, moderate integration, follows established patterns (e.g., "add new endpoint following existing pattern", "implement module with clear spec")
+   - **`model: "opus"`** — Complex stories: 3+ files, cross-module integration, design judgment required, ambiguous requirements, or novel patterns not seen in the codebase
+
+   When in doubt, use sonnet. Upgrade to opus if the story involves architectural decisions or touches unfamiliar territory. Downgrade to haiku only when the task is truly mechanical.
+
+   Provide the agent with:
    - The full story content (from the story file)
    - The issue context (from the issue file)
    - The system design (from `.mantle/system-design.md` if it exists)
@@ -164,10 +173,10 @@ For each story that is not "completed", follow this sequence:
 
 4. **Handle agent status**: Parse the status code from the agent's response and act accordingly:
 
-   - **DONE**: Proceed to test verification (step 5).
-   - **DONE_WITH_CONCERNS**: Proceed to test verification (step 5), but record the concerns. Include them in the story's commit message and in any extracted learnings (step 8).
+   - **DONE**: Proceed to test verification (sub-step 5).
+   - **DONE_WITH_CONCERNS**: Proceed to test verification (sub-step 5), but record the concerns. Include them in the story's commit message and in any extracted learnings (sub-step 9).
    - **NEEDS_CONTEXT**: Do NOT retry blindly. Read the agent's request, gather the missing context (from project files, the user, or other sources), then re-spawn the story-implementer agent with the original prompt PLUS the additional context. This counts as the first attempt, not a retry.
-   - **BLOCKED**: Skip directly to marking the story blocked (step 7, failure path). Do NOT retry — the agent already determined it cannot proceed. Retrying the same agent without changes is wasted effort.
+   - **BLOCKED**: Skip directly to marking the story blocked (sub-step 8, failure path). Do NOT retry — the agent already determined it cannot proceed. Retrying the same agent without changes is wasted effort.
 
 5. **Verify tests**: After the agent completes with DONE or DONE_WITH_CONCERNS, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
 
@@ -176,11 +185,50 @@ For each story that is not "completed", follow this sequence:
    - Include the same status code instruction from step 3.
    - Run tests again after the retry agent completes.
 
-7. **Handle outcome**:
-   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`. If the agent reported DONE_WITH_CONCERNS, append the concerns to the commit body.
+7. **Two-stage review**: After tests pass, run two sequential review agents before committing. Both use `subagent_type: "code-reviewer"` with `model: "sonnet"`.
+
+   **Stage 1 — Spec compliance review:**
+
+   > Review the implementation of story {S} against its specification.
+   >
+   > **Story spec:** {full story content}
+   > **Files changed:** {list of files the implementer touched}
+   >
+   > Check:
+   > - Does the implementation deliver exactly what the story specifies? Nothing more, nothing less.
+   > - Are all test cases from the story spec covered?
+   > - Does it match the approach described in the story?
+   >
+   > Report one of:
+   > - `REVIEW: PASS` — implementation matches spec
+   > - `REVIEW: ISSUES` — list each discrepancy between spec and implementation
+
+   **Stage 2 — Code quality review** (only if Stage 1 passes):
+
+   > Review the code quality of the implementation for story {S}.
+   >
+   > **Files changed:** {list of files the implementer touched}
+   > **Project coding standards:** {from CLAUDE.md}
+   >
+   > Check:
+   > - Does the code follow the project's coding standards?
+   > - Are there unnecessary abstractions, dead code, or over-engineering?
+   > - Is test quality adequate — do tests verify behaviour, not implementation?
+   > - Are there obvious bugs, edge cases, or error handling gaps?
+   >
+   > Report one of:
+   > - `REVIEW: PASS` — code quality is acceptable
+   > - `REVIEW: ISSUES` — list each quality issue with file path and line
+
+   **Handling review results:**
+   - **Both pass**: Proceed to commit (step 8).
+   - **Issues found**: Spawn one more story-implementer agent with the review feedback: "The implementation passed tests but a code review found issues. Fix these: {issues}. Do not change any behaviour — only address the review feedback." Run tests again after fixes. Do NOT re-run the review — one round of feedback is enough.
+
+8. **Handle outcome**:
+   - **Tests pass (and review passed or issues fixed)**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`. If the agent reported DONE_WITH_CONCERNS, append the concerns to the commit body.
    - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
-8. **Extract learnings**: After a story completes successfully, check whether
+9. **Extract learnings**: After a story completes successfully, check whether
    the agent reported any patterns, gotchas, or conventions. If so, save them:
 
    ```bash
