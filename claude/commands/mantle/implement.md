@@ -153,11 +153,10 @@ For each story that is not "completed", follow this sequence:
 3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. Select the model based on story complexity:
 
    **Model selection:**
-   - **`model: "haiku"`** — Mechanical stories: 1 file, clear spec, no design judgment (e.g., "add CLI flag", "write tests for existing function", "update config")
-   - **`model: "sonnet"`** — Standard stories: 1-3 files, moderate integration, follows established patterns (e.g., "add new endpoint following existing pattern", "implement module with clear spec")
-   - **`model: "opus"`** — Complex stories: 3+ files, cross-module integration, design judgment required, ambiguous requirements, or novel patterns not seen in the codebase
+   - **`model: "opus"`** — Default. Use for most stories, especially those involving multiple files, cross-module integration, design judgment, or ambiguous requirements.
+   - **`model: "sonnet"`** — Simple stories only: single file, clear spec, no design judgment, follows an obvious existing pattern (e.g., "add CLI flag mirroring existing one", "add test cases for existing function").
 
-   When in doubt, use sonnet. Upgrade to opus if the story involves architectural decisions or touches unfamiliar territory. Downgrade to haiku only when the task is truly mechanical.
+   When in doubt, use opus. Only downgrade to sonnet when the story is genuinely simple. Never use haiku for implementation.
 
    Provide the agent with:
    - The full story content (from the story file)
