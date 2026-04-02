@@ -14,6 +14,20 @@ Be structured, precise, and implementation-focused. Each story opens with who be
 and what they experience (user story), then provides the detailed technical specification
 for how to build it. Wait for explicit approval before moving on.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Select issue and load context"
+3. "Step 3 — Propose stories one at a time"
+4. "Step 4 — Save each approved story"
+5. "Step 5 — Coverage check"
+6. "Step 5b — Story self-review"
+7. "Step 5c — Load relevant skills"
+8. "Step 6 — Session wrap-up"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Read `.mantle/state.md` and verify:
@@ -173,7 +187,25 @@ Display coverage summary:
 >
 > **Slice coverage:** core ✓, cli ✓, claude-code ✓, tests ✓
 
-## Step 5b — Load relevant skills
+## Step 5b — Story self-review
+
+Before loading skills, review the full set of stories with fresh eyes:
+
+1. **Placeholder scan** — Any "TBD", "TODO", vague implementation descriptions,
+   or test cases that say "test that it works"? Fix them now.
+2. **Internal consistency** — Do later stories reference functions, modules, or
+   patterns that earlier stories actually create? Does story 3 assume an API
+   that story 1 doesn't define?
+3. **Naming consistency** — Are function names, class names, and file paths
+   consistent across stories? A function called `save_story` in story 1 but
+   `write_story` in story 3 is a bug.
+4. **Ambiguity check** — Could any implementation description be interpreted two
+   different ways by an implementing agent? If so, make the intent explicit.
+
+Fix any issues by updating the saved stories via `mantle save-story --issue <N>
+--story <S> --title "<title>" --content "<updated content>" --overwrite`.
+
+## Step 5c — Load relevant skills
 
 After stories are saved, ensure the right vault knowledge is available for
 implementation.
@@ -195,6 +227,7 @@ implementation.
 3. Run `mantle compile` to ensure the latest skills are compiled.
 
 ## Step 6 — Session wrap-up
+
 
 When the user stops planning, summarise:
 

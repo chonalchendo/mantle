@@ -8,6 +8,19 @@ design to `.mantle/product-design.md`.
 Think from first principles, not just list features. Challenge vague answers.
 Reference idea and challenge context to keep the session grounded.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Scope check"
+4. "Step 4 — Interactive design session"
+5. "Step 5 — Confirm and save"
+6. "Step 6 — Design self-review"
+7. "Step 7 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/` and `.mantle/idea.md` exist by reading them.
@@ -55,11 +68,42 @@ any saved output.
 Use `<analysis>` whenever you need to weigh competing evidence or draft a
 synthesis before presenting it.
 
-## Step 3 — Interactive design session
+## Step 3 — Scope check
 
-Guide through seven areas one at a time. Ask each, reflect back, confirm before
-moving on. Challenge vague or generic answers. Reference idea, challenge, and
-research context to keep things concrete and grounded in evidence.
+Before starting the design session, assess whether the idea describes a single
+coherent product or multiple independent subsystems.
+
+**Signs it needs decomposition:**
+- The idea mentions 3+ independent capabilities (e.g., "a platform with chat,
+  billing, analytics, and file storage")
+- Different capabilities serve different user personas
+- Capabilities could ship independently without degrading each other
+
+**If decomposition is needed:**
+1. Flag it immediately — don't spend questions refining details of something
+   that's too large for a single design.
+2. Help the user identify the independent sub-products: what are the pieces,
+   how do they relate, what order should they be built?
+3. Proceed with the design session for the **first sub-product only**. Each
+   sub-product gets its own design → system design → implementation cycle.
+
+**If scope is fine:** Proceed to Step 4.
+
+## Step 4 — Interactive design session
+
+Guide through seven areas one at a time. Challenge vague or generic answers.
+Reference idea, challenge, and research context to keep things concrete and
+grounded in evidence.
+
+### Conversation discipline
+
+- **One question per message.** If a topic needs more exploration, break it into
+  multiple messages. Do not ask two questions in the same message — the user will
+  answer one and forget the other.
+- **Prefer multiple choice.** When possible, present 2-4 concrete options rather
+  than open-ended questions. Open-ended is fine when choices aren't clear yet.
+- **Reflect back, then confirm.** After the user answers, restate what you
+  understood in one sentence and confirm before moving on.
 
 1. **Vision** — One sentence: what this product does and why it matters. Not a
    tagline — a clear statement of purpose. Should connect directly to the
@@ -91,7 +135,7 @@ research context to keep things concrete and grounded in evidence.
    time-bound. Push back on vanity metrics. Ask: "How would you know in 30 days
    whether this is working?"
 
-## Step 4 — Confirm and save
+## Step 5 — Confirm and save
 
 Once all seven areas are collected, show a summary:
 
@@ -136,7 +180,23 @@ mantle save-product-design \
 
 Add `--overwrite` if they confirmed overwriting in Step 1.
 
-## Step 5 — Next steps
+## Step 6 — Design self-review
+
+Before presenting results, review the design with fresh eyes:
+
+1. **Placeholder scan** — Any "TBD", "TODO", vague requirements, or incomplete
+   sections? Fix them now.
+2. **Internal consistency** — Do any sections contradict each other? Do the
+   building blocks actually support the composition? Do the success metrics
+   measure what the vision claims?
+3. **Scope check** — Is this focused enough for a single system design, or does
+   it still need decomposition?
+4. **Ambiguity check** — Could any requirement be interpreted two different ways?
+   If so, pick one interpretation and make it explicit.
+
+Fix any issues inline. No need to re-run the full review — just fix and move on.
+
+## Step 7 — Next steps
 
 After a successful save, briefly assess this session before recommending next steps:
 

@@ -10,6 +10,29 @@ Be collaborative, focused, and pragmatic. Explore the solution space rather than
 jumping to implementation. Surface tradeoffs clearly and push for concrete
 approaches, not abstract ones. The user makes the final call.
 
+## Anti-Pattern: "This issue is too simple to shape"
+
+Every issue goes through shaping. A single-file change, a config tweak, a
+"straightforward" CRUD endpoint — all of them. "Simple" issues are where
+unexamined assumptions cause the most wasted implementation effort. The shaping
+can be brief (one approach with a short write-up for truly simple issues), but
+you MUST explore approaches and get user approval.
+
+If you catch yourself thinking "this is obvious, just implement it" — that is
+the signal to shape more carefully, not less.
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Explore approaches"
+4. "Step 4 — Compare and choose"
+5. "Step 5 — Save shaped issue"
+6. "Step 6 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
@@ -36,6 +59,16 @@ Otherwise, ask the user which issue number they want to shape, or confirm if one
 is already active in state.md.
 
 ## Step 3 — Explore approaches
+
+### Conversation discipline
+
+- **One question per message.** When exploring an approach, ask about one aspect
+  at a time (e.g., appetite, then tradeoffs, then rabbit holes). Do not dump
+  multiple questions in one message.
+- **Prefer multiple choice.** When asking about appetite, scope decisions, or
+  no-gos, present concrete options rather than open-ended questions.
+- **Reflect back, then confirm.** After each answer, restate what you understood
+  and confirm before moving on.
 
 For each approach (aim for 2-3), work through:
 

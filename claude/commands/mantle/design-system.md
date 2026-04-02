@@ -10,6 +10,19 @@ to work, not with frameworks or patterns.
 Be collaborative, precise, and Socratic. Ask probing questions. Surface the real
 constraints. Challenge inherited conventions. The user makes the final calls.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Interactive system design session"
+4. "Step 4 — Log decisions"
+5. "Step 5 — Save system design"
+6. "Step 6 — Design self-review"
+7. "Step 7 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/`, `.mantle/state.md`, and `.mantle/product-design.md`
@@ -66,6 +79,16 @@ synthesis before presenting it.
 This is a collaborative conversation, not a monologue. Work through the following
 phases one at a time, asking questions and making recommendations. Do NOT dump
 everything at once.
+
+### Conversation discipline
+
+- **One question per message.** If a phase needs multiple questions, break them
+  into separate messages. Do not ask two questions in the same message.
+- **Prefer multiple choice.** When presenting technology options, architecture
+  patterns, or build-vs-adapt decisions, present 2-4 concrete options with
+  tradeoffs rather than open-ended questions.
+- **Reflect back, then confirm.** After the user answers, restate the decision
+  in one sentence and confirm before moving on.
 
 ### Phase A — Identify the true constraints
 
@@ -184,7 +207,24 @@ The document should be structured around the building blocks identified, not
 around generic architecture headings. Sections should reflect the actual system
 decomposition, not a template.
 
-## Step 6 — Next steps
+## Step 6 — Design self-review
+
+Before presenting results, review the system design with fresh eyes:
+
+1. **Placeholder scan** — Any "TBD", "TODO", vague decisions, or incomplete
+   sections? Fix them now.
+2. **Internal consistency** — Do the building blocks match the data model? Do
+   the key interactions reference blocks that actually exist? Do the error
+   propagation paths make sense given the boundaries?
+3. **Decision completeness** — Were all significant choices logged with
+   rationale and alternatives? Check that no decision was made implicitly
+   without being recorded.
+4. **Ambiguity check** — Could any interface, boundary, or data flow be
+   interpreted two different ways? If so, pick one and make it explicit.
+
+Fix any issues inline. No need to re-run the full review — just fix and move on.
+
+## Step 7 — Next steps
 
 After a successful save, briefly assess this session before recommending next steps:
 
