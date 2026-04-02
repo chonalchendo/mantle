@@ -1,5 +1,5 @@
 ---
-description: Simplify AI-generated code by removing bloat patterns
+description: Use after implementation when AI-generated code needs bloat removal and quality cleanup
 argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle collect-*), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*), Bash(git add*), Bash(git commit*), Bash(git diff*), Bash(git stash*), Bash(git log*)
 ---
@@ -10,6 +10,18 @@ Identify and remove characteristic AI-generated code bloat while preserving all 
 
 - **Current branch**: !`git branch --show-current`
 - **Working tree status**: !`git status --short`
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Determine scope"
+3. "Step 3 — Run tests (baseline)"
+4. "Step 4 — Simplify each file"
+5. "Step 5 — Run tests (verification)"
+6. "Step 6 — Commit and report"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
 
 **Step 1 — Check prerequisites**
 

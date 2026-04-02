@@ -1,5 +1,5 @@
 ---
-description: Identify the fundamental building blocks needed to implement the idea and research whether each one is viable.
+description: Use when you need to validate whether the building blocks of an idea are technically viable before designing
 context: fork
 allowed-tools: Read, Bash(mantle *), Agent
 ---
@@ -12,6 +12,19 @@ stress-tests the idea and surfaces what must be true for it to work — the
 assumptions, constraints, uncertainties, and weaknesses. Research picks up where
 challenge leaves off: it takes those findings and gathers evidence for or
 against each one.
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load context"
+3. "Step 3 — Derive building blocks"
+4. "Step 4 — Choose focus"
+5. "Step 5 — Launch researcher agent"
+6. "Step 6 — Save report"
+7. "Step 7 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 

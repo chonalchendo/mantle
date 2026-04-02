@@ -1,5 +1,5 @@
 ---
-description: Automated build pipeline — load skills, shape, plan stories, implement, and verify in one pass
+description: Use when you want to take a planned issue from design to verified code in one automated pass
 argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle *), Bash(git add*), Bash(git commit*), Bash(git checkout -- *), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*), Agent
 ---

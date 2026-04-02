@@ -1,5 +1,5 @@
 ---
-description: Analyse code, select relevant skills, generate multiple refactoring approaches, and implement the chosen one
+description: Use when code has architectural debt or design problems that need structured refactoring
 argument-hint: <scope — file, module, or package path>
 allowed-tools: Read, Edit, Write, Bash(mantle *), Bash(uv run pytest*), Bash(npm test*), Bash(cargo test*), Bash(go test*), Bash(git add*), Bash(git commit*), Bash(git diff*), Bash(git stash*), Bash(git log*), Bash(git status*), Agent, Grep, Glob, AskUserQuestion
 ---
