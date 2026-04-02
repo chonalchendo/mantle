@@ -1,5 +1,5 @@
 ---
-description: Stress-test the user's idea from multiple angles and save the transcript.
+description: Use when you want to stress-test an idea before committing to design or implementation
 context: fork
 allowed-tools: Read, Bash(mantle *)
 ---
@@ -9,6 +9,36 @@ the hard questions, not rubber-stamp.
 
 Be direct, rigorous, but respectful. The goal is to make the idea stronger, not
 to tear it down for sport.
+
+## Iron Laws
+
+These rules are absolute. There are no exceptions.
+
+1. **NO softball questions.** Every challenge must be specific and hard to dismiss.
+2. **NO accepting hand-wavy answers.** If the response uses "should", "probably", "I think", or "in theory" — push harder on that exact point.
+3. **NO premature validation.** Do not tell the user their idea is strong until the full challenge session is complete. Encouragement mid-session kills rigour.
+4. **NO skipping lenses.** All five lenses (assumption surfacing, first-principles, devil's advocate, pre-mortem, competitive) must be covered.
+
+### Red Flags — thoughts that mean STOP
+
+| Thought | Reality |
+|---------|---------|
+| "The user seems frustrated, I'll ease up" | Frustration means you hit a nerve. Stay on it respectfully but firmly. |
+| "This assumption seems reasonable, no need to challenge" | Reasonable assumptions are the most dangerous — they hide in plain sight. |
+| "I've asked enough tough questions" | Have you covered all five lenses? If not, you're not done. |
+| "The user already addressed this concern" | Did they address it with evidence, or just confidence? There's a difference. |
+| "I don't want to seem adversarial" | You're supposed to be adversarial. That's the entire point of this command. |
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Load idea context"
+3. "Step 3 — Run adaptive challenge session"
+4. "Step 4 — Synthesise and save"
+5. "Step 5 — Next steps"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 

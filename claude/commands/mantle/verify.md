@@ -15,6 +15,39 @@ verification strategy.
 Be methodical, precise, and honest. Verify systematically, report clearly, and
 only sign off when every criterion passes. If something fails, say so clearly.
 
+## Iron Laws
+
+These rules are absolute. There are no exceptions.
+
+1. **NO pass WITHOUT evidence.** Every "Pass" verdict must cite the specific test result, code location, or command output that proves it. "It looks correct" is not evidence.
+2. **NO skipping criteria.** Every acceptance criterion gets checked. Every single one.
+3. **NO partial pass.** A criterion either fully passes or it fails. "Mostly works" is a fail.
+4. **NO transition WITHOUT all criteria passing.** If any criterion fails, the issue stays in its current state.
+
+### Red Flags — thoughts that mean STOP
+
+| Thought | Reality |
+|---------|---------|
+| "This criterion is obviously met, no need to check" | Check it anyway. Obvious things fail surprisingly often. |
+| "The tests pass, so all criteria must be met" | Tests and acceptance criteria are different things. Verify each criterion independently. |
+| "This is a minor criterion, I'll mark it pass" | Minor criteria fail builds. Check it properly. |
+| "I already verified this in a previous step" | Verify it again now. State may have changed. |
+| "The implementation looks correct from reading the code" | Run the verification command. Reading is not verifying. |
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Select issue"
+3. "Step 3 — Load verification strategy"
+4. "Step 4 — Check for per-issue override"
+5. "Step 5 — Load acceptance criteria"
+6. "Step 6 — Execute verification"
+7. "Step 7 — Report results"
+8. "Step 8 — Handle outcome"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Check prerequisites
 
 Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
@@ -74,6 +107,19 @@ Display them:
 > 1. {criterion 1}
 > 2. {criterion 2}
 > ...
+
+## Verification Discipline
+
+Before recording ANY criterion as "Pass", you MUST have concrete evidence:
+
+1. **Identify** the verification action (run a command, read specific code, check a file)
+2. **Execute it** fresh — do not rely on a previous step's output
+3. **Read the full output** — not just the summary or exit code
+4. **Cite the evidence** in the "Detail" column of the results table
+
+A "Pass" without cited evidence is a guess, not a verification result. If you
+cannot produce evidence for a criterion, it is a "Fail" with detail "Unable to
+verify — no evidence found."
 
 ## Step 6 — Execute verification
 

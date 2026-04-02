@@ -1,10 +1,31 @@
 ---
-description: Implement stories for a Mantle issue using dedicated story agents
+description: Use when stories are planned and ready to be implemented as code
 argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle update-story-status*), Bash(mantle save-learning*), Bash(git add*), Bash(git commit*), Agent
 ---
 
 Implement stories for a given issue by spawning dedicated agents for each story.
+
+## Iron Laws
+
+These rules are absolute. There are no exceptions, no "just this once", no edge cases.
+
+1. **NO completion claim WITHOUT passing tests.** If tests haven't run and passed, the story is not done.
+2. **NO skipping stories.** Every non-completed, non-blocked story runs in order.
+3. **NO silent failure.** If a test fails, the error output must be captured and reported — never summarised as "some tests failed".
+4. **NO continuing past a blocked story.** When a story is blocked after retry, the loop stops. Period.
+
+### Red Flags — thoughts that mean STOP
+
+If you catch yourself thinking any of these, you are about to violate an Iron Law:
+
+| Thought | Reality |
+|---------|---------|
+| "The tests probably pass, I'll skip running them" | You don't know until you run them. Run them. |
+| "This test failure is unrelated, I'll continue" | Unrelated failures still block the story. Fix or report. |
+| "I'll batch the remaining stories since they're simple" | Each story gets its own agent. No batching. |
+| "The retry will just fail again, I'll mark it blocked" | Run the retry. You don't know the outcome in advance. |
+| "I can fix this without spawning a new agent" | The orchestrator doesn't implement. Spawn the agent. |
 
 ## Dynamic Context
 
@@ -13,6 +34,20 @@ Implement stories for a given issue by spawning dedicated agents for each story.
 - **Recent commits**: !`git log --oneline -5`
 
 **Tip:** For best results, start a fresh conversation before running this command. It reads all context it needs from `.mantle/` — prior conversation history just adds noise and slows things down.
+
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Check prerequisites"
+2. "Step 2 — Select issue"
+3. "Step 3 — Load context and stories"
+4. "Step 4 — Select relevant context per story"
+5. "Step 5 — Implement each story"
+6. "Step 6 — Report results"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`. For Step 5, update the
+task description with progress as each story completes (e.g., "Story 1/3
+done").
 
 **Step 1 — Check prerequisites**
 
@@ -93,6 +128,20 @@ last week.
 
 If nothing is relevant (first story, empty project), skip this step.
 
+## Verification Discipline
+
+Before claiming ANY outcome (story completed, tests passed, story blocked), you
+MUST have concrete evidence:
+
+1. **Identify** the verification command (test suite, lint, etc.)
+2. **Run it** fresh — do not rely on a previous run's output
+3. **Read the full output** — not just the exit code or summary line
+4. **Confirm** the output supports your claim before making it
+
+"I ran the tests and they passed" requires showing which command you ran and
+its output. "The implementation is correct" requires citing the test results
+that prove it. Claims without evidence are not claims — they are guesses.
+
 **Step 5 — Implement each story**
 
 For each story that is not "completed", follow this sequence:
@@ -107,18 +156,31 @@ For each story that is not "completed", follow this sequence:
    - The system design (from `.mantle/system-design.md` if it exists)
    - The context brief from Step 4 (selected learnings, decisions, and skills relevant to this specific story)
    - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story. Run tests after implementation and fix any failures. After completing, report any patterns you discovered, gotchas you encountered, or conventions you established that future stories should know about."
+   - Status code instruction: "End your response with exactly one of these status codes on its own line:
+     - `STATUS: DONE` — implementation complete, tests pass, no concerns.
+     - `STATUS: DONE_WITH_CONCERNS` — implementation complete and tests pass, but you have doubts or caveats. List each concern.
+     - `STATUS: NEEDS_CONTEXT` — you cannot proceed without additional information. Describe exactly what you need.
+     - `STATUS: BLOCKED` — you hit an issue you cannot resolve. Describe the blocker in detail."
 
-4. **Verify tests**: After the agent completes, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
+4. **Handle agent status**: Parse the status code from the agent's response and act accordingly:
 
-5. **Retry on failure**: If tests fail, spawn one more story-implementer agent with the test error output:
+   - **DONE**: Proceed to test verification (step 5).
+   - **DONE_WITH_CONCERNS**: Proceed to test verification (step 5), but record the concerns. Include them in the story's commit message and in any extracted learnings (step 8).
+   - **NEEDS_CONTEXT**: Do NOT retry blindly. Read the agent's request, gather the missing context (from project files, the user, or other sources), then re-spawn the story-implementer agent with the original prompt PLUS the additional context. This counts as the first attempt, not a retry.
+   - **BLOCKED**: Skip directly to marking the story blocked (step 7, failure path). Do NOT retry — the agent already determined it cannot proceed. Retrying the same agent without changes is wasted effort.
+
+5. **Verify tests**: After the agent completes with DONE or DONE_WITH_CONCERNS, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
+
+6. **Retry on failure**: If tests fail, spawn one more story-implementer agent with the test error output:
    - "The previous implementation attempt failed tests. Here is the error output: {errors}. Read the existing code, diagnose the failure, fix the issues, and ensure all tests pass."
+   - Include the same status code instruction from step 3.
    - Run tests again after the retry agent completes.
 
-6. **Handle outcome**:
-   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`
+7. **Handle outcome**:
+   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`. If the agent reported DONE_WITH_CONCERNS, append the concerns to the commit body.
    - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
-7. **Extract learnings**: After a story completes successfully, check whether
+8. **Extract learnings**: After a story completes successfully, check whether
    the agent reported any patterns, gotchas, or conventions. If so, save them:
 
    ```bash
