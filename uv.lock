@@ -124,7 +124,7 @@ wheels = [
 
 [[package]]
 name = "mantle-ai"
-version = "0.7.17"
+version = "0.8.0"
 source = { editable = "." }
 dependencies = [
     { name = "cyclopts" },

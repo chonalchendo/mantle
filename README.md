@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.7.17** — Fix update-skills NameError and issue file glob matching.
+**v0.8.0** — Agent quality improvements: anti-rationalization patterns, structured status codes, CSO-fixed descriptions, conversation discipline, design self-review, and task progress tracking across all commands.
 
 ## License
 
