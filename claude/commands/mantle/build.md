@@ -101,67 +101,52 @@ Report:
 > **Skills loaded:** {list of matched skills}
 > **Skills created:** {list of new skills, or "none"}
 
-## Step 4 — Shape (agent)
+## Step 4 — Shape (inline)
 
 Why: shaping evaluates approaches before committing to one, preventing wasted
 implementation effort on suboptimal designs. Skills loaded in Step 3 provide
 domain knowledge that informs approach selection.
+
+**Performance note:** This step runs inline (no agent spawn) to avoid
+unnecessary startup overhead. The build orchestrator already has all the
+context needed.
 
 Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
 
 **If already shaped**, read it and report:
 > **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
 
-**If not shaped**, spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
+**If not shaped**, read `claude/commands/mantle/shape-issue.md` and follow
+Steps 2-5 directly with these build-mode overrides:
+- No user interaction — auto-choose the smallest-appetite approach that
+  satisfies all acceptance criteria
+- Read any compiled skills in `.claude/skills/*/SKILL.md` that are relevant
+  to this issue — they contain domain knowledge that should inform approach
+  evaluation
+- Skip the "next steps" recommendation (Step 6 in that file)
 
-> Before starting, review your project memory for relevant context.
-> Read any compiled skills in `.claude/skills/*/SKILL.md` that are relevant
-> to this issue — they contain domain knowledge that should inform your
-> approach evaluation.
->
-> Read `claude/commands/mantle/shape-issue.md` for detailed instructions.
-> Follow Steps 2-5.
->
-> Build-mode overrides:
-> - No user interaction — auto-choose the smallest-appetite approach that
->   satisfies all acceptance criteria
-> - Skip the "next steps" recommendation (Step 6 in that file)
->
-> Issue number: {NN}
->
-> When done, report: chosen approach name, appetite, and rationale.
-
-Report the agent's result:
+Report the result:
 > **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
 
-## Step 5 — Plan stories (agent)
+## Step 5 — Plan stories (inline)
 
 Why: stories break the issue into session-sized units so each implementation
 agent has focused, completable work with clear test criteria.
+
+**Performance note:** This step runs inline (no agent spawn) to avoid
+unnecessary startup overhead.
 
 Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
 
 **If stories already exist**, read them and report:
 > **Stories:** {count} stories already planned. Proceeding to implementation.
 
-**If no stories exist**, spawn an Agent (`subagent_type: "general-purpose"`) with
-this prompt:
+**If no stories exist**, read `claude/commands/mantle/plan-stories.md` and
+follow Steps 2-5c directly with these build-mode overrides:
+- Auto-approve all stories — don't wait for user input on each story
+- Skip the "next steps" recommendation (Step 6 in that file)
 
-> Before starting, review your project memory for relevant context.
->
-> Read `claude/commands/mantle/plan-stories.md` for detailed instructions.
-> Follow Steps 2-5b.
->
-> Build-mode overrides:
-> - Auto-approve all stories — don't wait for user input on each story
-> - Skip the "next steps" recommendation (Step 6 in that file)
->
-> Issue number: {NN}
->
-> When done, report: story count and acceptance criteria coverage
-> (covered/total).
-
-Report the agent's result:
+Report the result:
 > **Stories planned:** {count}
 > **Acceptance criteria coverage:** {covered}/{total}
 
@@ -181,13 +166,19 @@ Report progress after each story:
 If any story is blocked after retry, stop the pipeline here. Do not continue
 to Step 7.
 
-## Step 7 — Simplify (agent)
+## Step 7 — Simplify (conditional)
 
 Why: AI-generated code accumulates bloat (unnecessary abstractions, defensive
 over-engineering, dead code). Cleaning this up before verification produces
 cleaner code and fewer false verification issues.
 
-Spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
+**Skip condition:** Run `mantle collect-issue-files --issue {NN}` to count
+files changed. If **3 or fewer files** were changed across all stories, skip
+this step — the post-implementation review (in Step 6) already caught quality
+issues, and simplification overhead isn't justified for small changes. Report:
+> **Simplification:** Skipped (≤3 files changed)
+
+**If more than 3 files changed**, spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
 
 > Before starting, review your project memory for relevant context.
 >

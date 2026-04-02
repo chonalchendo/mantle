@@ -11,7 +11,7 @@ Implement stories for a given issue by spawning dedicated agents for each story.
 These rules are absolute. There are no exceptions, no "just this once", no edge cases.
 
 1. **NO completion claim WITHOUT passing tests.** If tests haven't run and passed, the story is not done.
-2. **NO skipping stories.** Every non-completed, non-blocked story runs in order.
+2. **NO skipping stories.** Every non-completed, non-blocked story runs — either in parallel (same wave) or sequentially (across waves).
 3. **NO silent failure.** If a test fails, the error output must be captured and reported — never summarised as "some tests failed".
 4. **NO continuing past a blocked story.** When a story is blocked after retry, the loop stops. Period.
 
@@ -89,7 +89,24 @@ Then read all required context files:
 For each story, note:
 - Story number, title, current status (planned, in-progress, completed, blocked)
 
-Determine the implementation order (ascending story number). Skip stories already marked "completed".
+Determine the implementation order. Skip stories already marked "completed".
+
+**Dependency analysis:** Read each story's `## Depends On` section. Group
+stories into **waves** for parallel execution:
+
+- **Wave 1**: Stories with no dependencies (marked "None — independent") or
+  that depend only on already-completed stories.
+- **Wave 2**: Stories that depend on Wave 1 stories.
+- **Wave 3**: Stories that depend on Wave 2 stories. And so on.
+
+If no `## Depends On` section exists in the stories (older format), fall back
+to sequential execution in ascending story number order.
+
+Display the execution plan:
+> **Execution plan:**
+> - Wave 1 (parallel): Story 1, Story 2
+> - Wave 2 (sequential after Wave 1): Story 3
+> - Wave 3 (sequential after Wave 2): Story 4
 
 **Step 4 — Select relevant context per story**
 
@@ -144,13 +161,20 @@ that prove it. Claims without evidence are not claims — they are guesses.
 
 **Step 5 — Implement each story**
 
-For each story that is not "completed", follow this sequence:
+Process stories wave by wave. Within each wave, launch independent stories in
+parallel using concurrent Agent calls. Between waves, wait for all stories in
+the current wave to complete before starting the next.
+
+**For each wave**, launch all stories in the wave simultaneously. For each
+story in the wave, follow this sequence:
 
 1. **Check for blockers**: If the story is "blocked", stop — do not attempt blocked stories. Tell the user which story is blocked and show the failure_log.
 
 2. **Mark in-progress**: Run `mantle update-story-status --issue {N} --story {S} --status in-progress`
 
-3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. Select the model based on story complexity:
+3. **Spawn a story-implementer agent**: Use the Agent tool with `subagent_type: "story-implementer"`. When a wave has multiple stories, launch all agents in the same message (concurrent tool calls). If the wave has 2+ stories, use `isolation: "worktree"` on each agent so they work on isolated copies of the repo without conflicting. Single-story waves don't need worktree isolation.
+
+   Select the model based on story complexity:
 
    **Model selection:**
    - **`model: "opus"`** — Default. Use for most stories, especially those involving multiple files, cross-module integration, design judgment, or ambiguous requirements.
@@ -184,43 +208,32 @@ For each story that is not "completed", follow this sequence:
    - Include the same status code instruction from step 3.
    - Run tests again after the retry agent completes.
 
-7. **Two-stage review**: After tests pass, run two sequential review agents before committing. Both use `subagent_type: "code-reviewer"` with `model: "sonnet"`.
+7. **Post-implementation review**: After tests pass, spawn a single review agent before committing. Use `subagent_type: "code-reviewer"` with `model: "sonnet"`.
 
-   **Stage 1 — Spec compliance review:**
-
-   > Review the implementation of story {S} against its specification.
+   > Review the implementation of story {S} against both its specification and
+   > the project's coding standards.
    >
    > **Story spec:** {full story content}
    > **Files changed:** {list of files the implementer touched}
+   > **Project coding standards:** {from CLAUDE.md}
    >
-   > Check:
+   > **Part 1 — Spec compliance:**
    > - Does the implementation deliver exactly what the story specifies? Nothing more, nothing less.
    > - Are all test cases from the story spec covered?
    > - Does it match the approach described in the story?
    >
-   > Report one of:
-   > - `REVIEW: PASS` — implementation matches spec
-   > - `REVIEW: ISSUES` — list each discrepancy between spec and implementation
-
-   **Stage 2 — Code quality review** (only if Stage 1 passes):
-
-   > Review the code quality of the implementation for story {S}.
-   >
-   > **Files changed:** {list of files the implementer touched}
-   > **Project coding standards:** {from CLAUDE.md}
-   >
-   > Check:
+   > **Part 2 — Code quality:**
    > - Does the code follow the project's coding standards?
    > - Are there unnecessary abstractions, dead code, or over-engineering?
    > - Is test quality adequate — do tests verify behaviour, not implementation?
    > - Are there obvious bugs, edge cases, or error handling gaps?
    >
    > Report one of:
-   > - `REVIEW: PASS` — code quality is acceptable
-   > - `REVIEW: ISSUES` — list each quality issue with file path and line
+   > - `REVIEW: PASS` — spec compliance and code quality are both acceptable
+   > - `REVIEW: ISSUES` — list each issue with category (spec/quality), file path, and description
 
    **Handling review results:**
-   - **Both pass**: Proceed to commit (step 8).
+   - **Pass**: Proceed to commit (sub-step 8).
    - **Issues found**: Spawn one more story-implementer agent with the review feedback: "The implementation passed tests but a code review found issues. Fix these: {issues}. Do not change any behaviour — only address the review feedback." Run tests again after fixes. Do NOT re-run the review — one round of feedback is enough.
 
 8. **Handle outcome**:
@@ -242,6 +255,17 @@ For each story that is not "completed", follow this sequence:
    Keep extracted learnings concise (under 100 words). Focus on what would
    change how a future story is implemented — not a summary of what was built.
    Skip this step if the agent reported nothing noteworthy.
+
+**Wave completion:** After all stories in a wave finish (sub-steps 1-9 for
+each), check outcomes before proceeding to the next wave:
+
+- If **any story in the wave is blocked**, stop the entire loop. Do not start
+  the next wave.
+- If **all stories completed**, proceed to the next wave.
+- For worktree-based parallel stories: the Agent tool returns the worktree
+  branch and path if changes were made. Merge each completed story's changes
+  into the main branch before starting the next wave to ensure dependent
+  stories see prior work.
 
 **Step 6 — Report results**
 

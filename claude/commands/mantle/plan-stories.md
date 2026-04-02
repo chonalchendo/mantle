@@ -72,15 +72,19 @@ For each story, propose:
    [outcome]."* This grounds the implementing agent in who benefits and what the user
    should experience once the story is built. Derive the role from the parent issue's
    user stories and the capability from the specific slice this story delivers.
-3. **Approach** — 2-3 sentences explaining *how* this story delivers the user story.
+3. **Depends on** — which earlier stories (by number) must complete before this one
+   can start. If this story doesn't depend on any earlier story (e.g., it touches
+   completely different files and modules), say "None — independent". Stories in the
+   same parallel group can be implemented simultaneously.
+4. **Approach** — 2-3 sentences explaining *how* this story delivers the user story.
    Which codebase pattern it follows, which modules it builds on, and how it fits into
    the issue's broader story sequence.
-4. **Implementation** — detailed description of what to build, organized by file:
+5. **Implementation** — detailed description of what to build, organized by file:
    - Which files to create or modify
    - For each file: what functions, classes, or changes to make
    - Design decisions with rationale
    - Import requirements
-5. **Tests** — specific test cases organized by test file:
+6. **Tests** — specific test cases organized by test file:
    - Which test files to create or modify
    - Each test as a one-line description (e.g., "**save_story**: writes file to
      `.mantle/stories/` directory")
@@ -93,8 +97,12 @@ Rules for story sizing:
 - If a story needs to modify more than 3 implementation files, it should be split
 - Tests are part of the same story as the code they test — never separate "write tests"
   stories
-- Stories within an issue should build on each other: story 1 provides the foundation,
+- Stories within an issue often build on each other: story 1 provides the foundation,
   story 2 adds the next layer, story 3 adds the user-facing layer
+- **Mark dependencies explicitly.** If story 3 imports a module created in story 1,
+  it depends on story 1. If two stories touch completely different files and modules,
+  they are independent and can be implemented in parallel — mark them as such.
+  Independent stories save significant build time.
 
 Rules for story content:
 
@@ -141,6 +149,11 @@ The `--content` body should follow this structure:
 ## User Story
 
 As a [role], I want [capability] so that [outcome].
+
+## Depends On
+
+[List story numbers this depends on, or "None — independent" if it can run in
+parallel with other stories.]
 
 ## Approach
 
