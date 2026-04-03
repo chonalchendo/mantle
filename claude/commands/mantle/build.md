@@ -7,6 +7,27 @@ allowed-tools: Read, Bash(mantle *), Bash(git add*), Bash(git commit*), Bash(git
 Orchestrate the full journey from a planned issue to verified code — without
 requiring human confirmation at each intermediate step.
 
+## Iron Laws
+
+These rules are absolute. There are no exceptions, no "just this once", no edge cases.
+
+1. **NO skipping steps.** Every step runs unless its explicit skip condition is met. Each catches different problems.
+2. **NO claiming pipeline success without verification evidence.** Step 8 must run and produce a per-criterion result. "It probably passes" is not a result.
+3. **NO continuing past blocked stories.** If Step 6 blocks, the pipeline stops. Do not optimistically continue to simplification or verification.
+4. **NO silent failures.** If any step produces errors or warnings, they are reported verbatim — never summarised away.
+
+### Red Flags — thoughts that mean STOP
+
+If you catch yourself thinking any of these, you are about to violate an Iron Law:
+
+| Thought | Reality |
+|---------|---------|
+| "Simplification isn't needed, the code looks clean" | You haven't reviewed it yet. Run the step. |
+| "Verification will pass, the tests already passed" | Tests check code correctness. Verification checks acceptance criteria. Different things. |
+| "I'll skip skill loading since we already have skills" | Skills may be stale or missing for new technologies in this issue. |
+| "The story is blocked but the rest are independent, I'll continue" | Blocked stories signal problems that may affect dependent work. Stop. |
+| "I can report the pipeline result without running verification" | A build without verification is an unverified build. Run Step 8. |
+
 The pipeline has 9 steps. Execute them in order. Before starting, use
 TaskCreate to create a task for each step:
 

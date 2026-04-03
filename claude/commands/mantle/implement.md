@@ -187,7 +187,7 @@ story in the wave, follow this sequence:
    - The issue context (from the issue file)
    - The system design (from `.mantle/system-design.md` if it exists)
    - The context brief from Step 4 (selected learnings, decisions, and skills relevant to this specific story)
-   - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story. Run tests after implementation and fix any failures. After completing, report any patterns you discovered, gotchas you encountered, or conventions you established that future stories should know about."
+   - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story using test-driven development: write or update tests FIRST, watch them fail, THEN write the production code to make them pass. Never write production code without a failing test that demands it. Run the full test suite after implementation and fix any failures. Never claim tests pass without running them fresh — show the command and its output as evidence. After completing, report any patterns you discovered, gotchas you encountered, or conventions you established that future stories should know about."
    - Status code instruction: "End your response with exactly one of these status codes on its own line:
      - `STATUS: DONE` — implementation complete, tests pass, no concerns.
      - `STATUS: DONE_WITH_CONCERNS` — implementation complete and tests pass, but you have doubts or caveats. List each concern.

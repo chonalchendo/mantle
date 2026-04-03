@@ -6,6 +6,27 @@ allowed-tools: Read, Bash(mantle collect-*), Bash(uv run pytest*), Bash(npm test
 
 Identify and remove characteristic AI-generated code bloat while preserving all functionality.
 
+## Iron Laws
+
+These rules are absolute. There are no exceptions, no "just this once", no edge cases.
+
+1. **NO behaviour changes.** Simplification changes HOW code works, never WHAT it does. If you're unsure whether a change alters behaviour, don't make it.
+2. **NO claiming "nothing to simplify" without reviewing.** Every file in scope gets read and evaluated against the bloat checklist. "It looks fine" after a glance is not a review.
+3. **NO committing without passing tests.** If tests fail after simplification, all changes are reverted. No exceptions, no "the failure is unrelated."
+4. **NO removing code you haven't traced.** Before deleting a function or import, confirm it's unused — grep for callers, check re-exports, verify test references.
+
+### Red Flags — thoughts that mean STOP
+
+If you catch yourself thinking any of these, you are about to violate an Iron Law:
+
+| Thought | Reality |
+|---------|---------|
+| "This function is probably unused, I'll remove it" | Grep for it first. "Probably" is not "confirmed." |
+| "These tests are testing implementation details, I'll simplify them" | Simplify production code, not test assertions. Tests are the safety net. |
+| "This abstraction is unnecessary but it's tested, so I'll leave it" | If it's unnecessary, remove it and update the tests. That's what simplification is. |
+| "The test failure is from something else, not my changes" | Revert and investigate. You don't know that until you prove it. |
+| "This file is small, no need to review it" | Small files can have bloat too. Every file gets the checklist. |
+
 ## Dynamic Context
 
 - **Current branch**: !`git branch --show-current`
