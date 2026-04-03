@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.3** — Fix --version flag, shape-issue code design step with skill loading.
+**v0.8.4** — Agent discipline enforcement (Iron Laws, Red Flag tables) in build, implement, and simplify prompts.
 
 ## License
 
