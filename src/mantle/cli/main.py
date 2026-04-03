@@ -5,6 +5,7 @@ from typing import Annotated
 
 from cyclopts import App, Parameter
 
+from mantle import __version__
 from mantle.cli import (
     adopt,
     bugs,
@@ -31,7 +32,11 @@ from mantle.cli import (
     compile as compile_cmd,
 )
 
-app = App(name="mantle", help="AI workflow engine with persistent context.")
+app = App(
+    name="mantle",
+    help="AI workflow engine with persistent context.",
+    version=__version__,
+)
 
 
 @app.command(name="init")
