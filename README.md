@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.1** — Pipeline performance: two-stage review (merged into single agent), model selection per story complexity, parallel story implementation via dependency waves, conditional simplify, inline shape/plan in build. Plus v0.8.0 quality improvements.
+**v0.8.2** — Shape-issue now loads vault skills before evaluating approaches and includes a code design step (Strategy, Fits architecture by, Does not) to ground implementation decisions in project conventions.
 
 ## License
 
