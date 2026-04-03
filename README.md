@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.2** — Shape-issue now loads vault skills before evaluating approaches and includes a code design step (Strategy, Fits architecture by, Does not) to ground implementation decisions in project conventions.
+**v0.8.3** — Fix --version flag, shape-issue code design step with skill loading.
 
 ## License
 
