@@ -27,8 +27,9 @@ Before starting, use TaskCreate to create a task for each step:
 2. "Step 2 — Load context"
 3. "Step 3 — Explore approaches"
 4. "Step 4 — Compare and choose"
-5. "Step 5 — Save shaped issue"
-6. "Step 6 — Next steps"
+5. "Step 5 — Code design for chosen approach"
+6. "Step 6 — Save shaped issue"
+7. "Step 7 — Next steps"
 
 As you start each step, use TaskUpdate to set it to `in_progress`. When
 complete, use TaskUpdate to set it to `completed`.
@@ -57,6 +58,22 @@ If past learnings exist, summarise key patterns before starting:
 If the user provided `$ARGUMENTS`, use that as the issue number.
 Otherwise, ask the user which issue number they want to shape, or confirm if one
 is already active in state.md.
+
+### Load skills
+
+Skills give you domain-specific knowledge (patterns, conventions, anti-patterns)
+that grounds approach evaluation in project reality rather than generic advice.
+
+1. Run `mantle list-skills` to see what vault skills exist.
+2. Run `mantle update-skills --issue {NN}` to auto-detect which skills match
+   the issue, updating `skills_required` in `state.md`.
+3. Run `mantle compile` to compile matched skills into `.claude/skills/` so
+   they are available when evaluating approaches and writing code design.
+
+If `mantle list-skills` fails (vault not configured), skip this step and note
+it — approach evaluation will rely on system design and codebase reading only.
+
+> **Skills loaded:** {list of matched skills, or "vault not configured — skipped"}
 
 ## Step 3 — Explore approaches
 
@@ -102,7 +119,47 @@ Use AskUserQuestion to let the user choose:
 
 Then ask (as free text) if there are any open questions to note before planning.
 
-## Step 5 — Save shaped issue
+## Step 5 — Code design for chosen approach
+
+Now that the user has chosen an approach, make it concrete at the code level.
+Draw on loaded vault skills (design patterns, conventions, style guides) to
+ground decisions in project-specific knowledge. Write three sections:
+
+### Strategy
+
+The design approach at the module and responsibility level. Name the modules
+that will be created or modified, the direction data flows, and the pattern
+used (e.g., "new `core/compile.py` module with a pure function pipeline:
+`load → merge → render`", "extend `Manifest` with a `resolve()` method that
+returns `ResolvedManifest`"). Include key type signatures and module paths —
+not full implementations, but enough that an implementer knows what to build
+and where.
+
+### Fits architecture by
+
+How this connects to what already exists. Name the modules it touches, the
+contracts it honours, the data flow it plugs into. Reference `system-design.md`
+sections. If vault skills were loaded, cite relevant conventions (e.g.,
+"follows the core-never-imports-cli boundary from `designing-architecture`").
+
+### Does not
+
+Invert the problem by deriving out-of-scope from two sources:
+
+1. **Acceptance criteria** — anything not covered by an AC is out of scope.
+2. **Architecture boundaries** — responsibilities that belong to adjacent
+   modules stay there.
+
+Be specific: "does not validate user input (CLI layer responsibility)", "does
+not handle migration from old format (separate issue)", "does not persist state
+between calls". This catches scope creep and unnecessary code before
+implementation starts.
+
+Present the code design and **wait for user approval**. The user may adjust
+module placement, challenge the "does not" boundaries, or request changes to
+type signatures before saving.
+
+## Step 6 — Save shaped issue
 
 Compile the full shaping write-up and save using the CLI:
 
@@ -113,11 +170,14 @@ mantle save-shaped-issue \
   --approaches "<approach 1>" --approaches "<approach 2>" \
   --chosen-approach "<selected approach name>" \
   --appetite "<small batch|medium batch|large batch>" \
-  --content "<full shaping write-up with all approaches, tradeoffs, rationale>" \
+  --content "<full shaping write-up with all approaches, tradeoffs, rationale, and code design>" \
   --open-questions "<question 1>" --open-questions "<question 2>"
 ```
 
-## Step 6 — Next steps
+The `--content` body should include the code design sections (Strategy, Fits
+architecture by, Does not) after the chosen approach rationale.
+
+## Step 7 — Next steps
 
 After a successful save, briefly assess this session before recommending next steps:
 
