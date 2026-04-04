@@ -1,11 +1,11 @@
 ---
 issue: 28
 title: Add-issue slash command — interactive single-issue creation
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
