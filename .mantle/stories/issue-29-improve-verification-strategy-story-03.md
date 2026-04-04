@@ -1,11 +1,11 @@
 ---
 issue: 29
 title: Verify prompt — structured first-use, evolution, and build alignment
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
