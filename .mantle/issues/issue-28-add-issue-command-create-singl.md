@@ -4,7 +4,7 @@ status: planned
 slice:
 - claude-code
 - core
-story_count: 0
+story_count: 1
 verification: null
 blocked_by:
 - 27
