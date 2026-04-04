@@ -138,3 +138,75 @@ class TestTransitionIssueVerifiedCLI:
 
         assert result.returncode != 0
         assert "Cannot transition" in result.stdout
+
+
+class TestIntrospectProjectCLI:
+    def test_outputs_json(self, tmp_path: Path) -> None:
+        (tmp_path / "CLAUDE.md").write_text(
+            "- Run tests: `uv run pytest`\n",
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "introspect-project",
+                "--path",
+                str(tmp_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        import json
+
+        data = json.loads(result.stdout)
+        assert "test_command" in data
+
+    def test_empty_project(self, tmp_path: Path) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "introspect-project",
+                "--path",
+                str(tmp_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        import json
+
+        data = json.loads(result.stdout)
+        assert data["test_command"] is None
+
+    def test_outputs_strategy_to_stderr(self, tmp_path: Path) -> None:
+        (tmp_path / "CLAUDE.md").write_text(
+            "- Run tests: `uv run pytest`\n",
+            encoding="utf-8",
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "introspect-project",
+                "--path",
+                str(tmp_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        assert result.returncode == 0
+        assert "Test Command" in result.stderr

@@ -1325,6 +1325,17 @@ def save_verification_strategy_command(
     )
 
 
+@app.command(name="introspect-project")
+def introspect_project_command(
+    path: Annotated[
+        Path | None,
+        Parameter("--path", help="Project directory (default: cwd)"),
+    ] = None,
+) -> None:
+    """Detect test, lint, and check commands from project files."""
+    verify.run_introspect_project(project_dir=path)
+
+
 @app.command(name="transition-issue-verified")
 def transition_issue_verified_command(
     issue: Annotated[

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from pathlib import Path
 
 from rich.console import Console
@@ -30,6 +32,30 @@ def run_save_verification_strategy(
     console.print()
     console.print("[green]Verification strategy saved to config.md[/green]")
     console.print(f"  Strategy: {strategy}")
+
+
+def run_introspect_project(
+    *,
+    project_dir: Path | None = None,
+) -> None:
+    """Detect test/lint/check commands and print introspection.
+
+    Prints the introspection dict as JSON to stdout (for machine
+    consumption) and the generated strategy to stderr (for human
+    readability).
+
+    Args:
+        project_dir: Project directory. Defaults to cwd.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    introspection = verify.introspect_project(project_dir)
+    strategy = verify.generate_structured_strategy(introspection)
+
+    print(json.dumps(introspection))
+    print("=== Detected Verification Strategy ===", file=sys.stderr)
+    print(strategy, file=sys.stderr)
 
 
 def run_transition_to_verified(
