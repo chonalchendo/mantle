@@ -1,11 +1,11 @@
 ---
 issue: 27
 title: Core brainstorm module — BrainstormNote, save, load, list
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story

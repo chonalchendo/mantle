@@ -15,6 +15,7 @@ slices:
 - claude-code
 - tests
 skills_required:
+- cyclopts
 - python
 tags:
 - status/active
