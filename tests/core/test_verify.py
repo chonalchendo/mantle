@@ -199,3 +199,142 @@ class TestTransitionToVerified:
 
         with pytest.raises(InvalidTransitionError):
             issues_mod.transition_to_verified(mantle_project, 11)
+
+
+# ── introspect_project ──────────────────────────────────────────
+
+
+class TestIntrospectProject:
+    def test_detects_pytest_from_claude_md(
+        self, tmp_path: Path
+    ) -> None:
+        """Detects test command from CLAUDE.md."""
+        (tmp_path / "CLAUDE.md").write_text(
+            "## Development\n\n"
+            "- Run tests: `uv run pytest`\n",
+            encoding="utf-8",
+        )
+
+        result = verify.introspect_project(tmp_path)
+
+        assert result["test_command"] == "uv run pytest"
+
+    def test_detects_just_check_from_claude_md(
+        self, tmp_path: Path
+    ) -> None:
+        """Detects check command from CLAUDE.md."""
+        (tmp_path / "CLAUDE.md").write_text(
+            "## Development\n\n"
+            "- Run all checks: `just check`\n",
+            encoding="utf-8",
+        )
+
+        result = verify.introspect_project(tmp_path)
+
+        assert result["check_command"] == "just check"
+
+    def test_detects_from_justfile(self, tmp_path: Path) -> None:
+        """Detects test command from Justfile recipe."""
+        (tmp_path / "Justfile").write_text(
+            "test:\n    uv run pytest\n",
+            encoding="utf-8",
+        )
+
+        result = verify.introspect_project(tmp_path)
+
+        assert result["test_command"] is not None
+
+    def test_detects_ruff_from_pyproject(
+        self, tmp_path: Path
+    ) -> None:
+        """Detects lint command from pyproject.toml [tool.ruff]."""
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 80\n",
+            encoding="utf-8",
+        )
+
+        result = verify.introspect_project(tmp_path)
+
+        assert result["lint_command"] is not None
+
+    def test_no_files_returns_none_values(
+        self, tmp_path: Path
+    ) -> None:
+        """Empty project returns None for all commands."""
+        result = verify.introspect_project(tmp_path)
+
+        assert result["test_command"] is None
+        assert result["lint_command"] is None
+        assert result["check_command"] is None
+        assert result["type_check_command"] is None
+
+    def test_claude_md_takes_priority(
+        self, tmp_path: Path
+    ) -> None:
+        """CLAUDE.md test command wins over Justfile."""
+        (tmp_path / "CLAUDE.md").write_text(
+            "- Run tests: `uv run pytest`\n",
+            encoding="utf-8",
+        )
+        (tmp_path / "Justfile").write_text(
+            "test:\n    make test\n",
+            encoding="utf-8",
+        )
+
+        result = verify.introspect_project(tmp_path)
+
+        assert result["test_command"] == "uv run pytest"
+
+
+# ── generate_structured_strategy ────────────────────────────────
+
+
+class TestGenerateStructuredStrategy:
+    def test_all_detected(self) -> None:
+        """All sections populated when all commands detected."""
+        introspection = {
+            "test_command": "uv run pytest",
+            "lint_command": "ruff check .",
+            "check_command": "just check",
+            "type_check_command": "mypy src/",
+        }
+
+        result = verify.generate_structured_strategy(introspection)
+
+        assert "uv run pytest" in result
+        assert "ruff check ." in result
+        assert "mypy src/" in result
+        assert "## Test Command" in result
+        assert "## Lint/Format Check" in result
+        assert "## Type Check" in result
+        assert "## Acceptance Criteria Verification" in result
+
+    def test_none_values_show_not_detected(self) -> None:
+        """None values produce 'Not detected' in output."""
+        introspection = {
+            "test_command": None,
+            "lint_command": None,
+            "check_command": None,
+            "type_check_command": None,
+        }
+
+        result = verify.generate_structured_strategy(introspection)
+
+        assert "Not detected" in result
+
+    def test_partial_detection(self) -> None:
+        """Partial detection produces correct structure."""
+        introspection = {
+            "test_command": "uv run pytest",
+            "lint_command": None,
+            "check_command": None,
+            "type_check_command": None,
+        }
+
+        result = verify.generate_structured_strategy(introspection)
+
+        assert "uv run pytest" in result
+        assert "## Test Command" in result
+        assert "## Lint/Format Check" in result
+        assert "## Type Check" in result
+        assert "Not detected" in result
