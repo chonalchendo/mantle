@@ -1,6 +1,6 @@
 ---
 title: Add-issue command — create single issues for existing projects
-status: planned
+status: approved
 slice:
 - claude-code
 - core
@@ -10,7 +10,7 @@ blocked_by:
 - 27
 tags:
 - type/issue
-- status/planned
+- status/approved
 ---
 
 ## Parent PRD
