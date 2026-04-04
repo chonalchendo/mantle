@@ -1,11 +1,11 @@
 ---
 issue: 29
 title: Core introspection and structured strategy generation
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

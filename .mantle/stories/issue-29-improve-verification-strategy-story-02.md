@@ -1,11 +1,11 @@
 ---
 issue: 29
 title: CLI introspect-project command
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
