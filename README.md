@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.5** — Add-issue command for creating single issues without re-running the full plan-issues pipeline.
+**v0.8.6** — Improved verification strategy with project introspection, structured first-use, and prompted evolution.
 
 ## License
 
