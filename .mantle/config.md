@@ -1,6 +1,8 @@
 ---
 personal_vault: /Users/conal/test-vault
-verification_strategy: null
+verification_strategy: Run uv run pytest for the full test suite. Then verify each
+  acceptance criterion independently by reading implementation code, checking file
+  existence, and confirming behaviour matches the specification.
 auto_push: false
 tags:
 - type/config
