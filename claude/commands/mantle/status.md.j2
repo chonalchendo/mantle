@@ -18,9 +18,10 @@
 
 {{ blockers }}
 
-## Recent Decisions
+{% if recent_decisions is defined and recent_decisions %}## Recent Decisions
 
 {{ recent_decisions }}
+{% endif %}
 
 ## Next Steps
 
