@@ -43,7 +43,8 @@ Before starting, use TaskCreate to create a task for each step:
 5. "Step 5 — Load acceptance criteria"
 6. "Step 6 — Execute verification"
 7. "Step 7 — Report results"
-8. "Step 8 — Handle outcome"
+8. "Step 7.5 — Strategy evolution"
+9. "Step 8 — Handle outcome"
 
 As you start each step, use TaskUpdate to set it to `in_progress`. When
 complete, use TaskUpdate to set it to `completed`.
@@ -76,15 +77,23 @@ in frontmatter.
 
 **If no strategy is found (first-use flow):**
 1. Tell the user no verification strategy is configured yet.
-2. Explain that the strategy defines how acceptance criteria are checked (e.g.
-   "run pytest and check coverage", "manual walkthrough of each criterion",
-   "run the test suite then smoke-test the CLI").
-3. Ask the user to describe their preferred verification strategy.
-4. Once they provide it, persist via:
+2. Run `mantle introspect-project` to auto-detect the project's test, lint,
+   and check commands from CLAUDE.md, pyproject.toml, Justfile, and Makefile.
+3. Read the stderr output — it contains a proposed structured strategy with
+   sections: Test Command, Lint/Format Check, Type Check, and Acceptance
+   Criteria Verification.
+4. Present the proposed strategy to the user:
+   > Based on your project setup, I detected these commands and propose this
+   > verification strategy:
+   >
+   > {structured strategy from introspect-project stderr}
+   >
+   > Would you like to use this strategy, or adjust it?
+5. After the user confirms or adjusts, persist the final strategy via:
    ```bash
-   mantle save-verification-strategy --strategy "<their strategy text>"
+   mantle save-verification-strategy --strategy "<final strategy text>"
    ```
-5. Confirm it was saved and continue.
+6. Confirm it was saved and continue.
 
 **If a strategy is found**, display it and continue.
 
@@ -148,6 +157,30 @@ Display a formatted verification report:
 > | 2 | ... | ... | ... |
 >
 > **Overall: {PASSED | FAILED}**
+
+## Step 7.5 — Strategy evolution
+
+After reporting results, check whether the user corrected or adjusted the
+verification approach during this session. For example, if the user said
+"run `just ingest` instead" or "check the S3 output too" — any guidance
+that isn't captured in the current verification strategy.
+
+**If corrections were detected:**
+1. Summarise the corrections:
+   > During this verification, you provided guidance not in the current strategy:
+   > - {correction 1}
+   > - {correction 2}
+2. Ask: "Should I update the verification strategy to include these changes?"
+3. If confirmed, construct the updated strategy by appending or refining the
+   relevant section(s) of the existing strategy — do NOT silently overwrite
+   the whole strategy. Preserve existing content and add the new guidance.
+4. Persist via:
+   ```bash
+   mantle save-verification-strategy --strategy "<updated strategy>"
+   ```
+5. Report: "Verification strategy updated."
+
+**If no corrections were detected**, skip this step silently.
 
 ## Step 8 — Handle outcome
 
