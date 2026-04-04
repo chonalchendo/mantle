@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.4** — Agent discipline enforcement (Iron Laws, Red Flag tables) in build, implement, and simplify prompts.
+**v0.8.5** — Add-issue command for creating single issues without re-running the full plan-issues pipeline.
 
 ## License
 
