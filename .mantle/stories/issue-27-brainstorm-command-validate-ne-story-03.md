@@ -1,11 +1,11 @@
 ---
 issue: 27
 title: Claude Code brainstorm.md slash command
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
