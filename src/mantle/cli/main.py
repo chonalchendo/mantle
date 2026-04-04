@@ -8,6 +8,7 @@ from cyclopts import App, Parameter
 from mantle import __version__
 from mantle.cli import (
     adopt,
+    brainstorm,
     bugs,
     challenge,
     decisions,
@@ -143,6 +144,46 @@ def save_challenge_command(
     """Save a challenge session transcript to .mantle/challenges/."""
     challenge.run_save_challenge(
         transcript=transcript,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-brainstorm")
+def save_brainstorm_command(
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="Short title for the brainstormed idea.",
+        ),
+    ],
+    verdict: Annotated[
+        str,
+        Parameter(
+            name="--verdict",
+            help="Outcome: proceed, research, or scrap.",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full brainstorm session content.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a brainstorm session to .mantle/brainstorms/."""
+    brainstorm.run_save_brainstorm(
+        title=title,
+        verdict=verdict,
+        content=content,
         project_dir=path,
     )
 
