@@ -19,6 +19,7 @@
 
 ## Planning
 - `/mantle:plan-issues` — Break work into vertical slice issues
+- `/mantle:add-issue` — Add a single new issue to the backlog
 - `/mantle:shape-issue [issue-number]` — Shape an issue: evaluate approaches before decomposing
 - `/mantle:plan-stories [issue-number]` — Decompose issues into implementable stories
 
