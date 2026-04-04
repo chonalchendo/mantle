@@ -165,58 +165,50 @@ def generate_structured_strategy(
     check_cmd = introspection.get("check_command")
     type_cmd = introspection.get("type_check_command")
 
-    sections: list[str] = []
-
-    # Test Command
-    test_value = test_cmd or "Not detected — configure manually"
-    if check_cmd and not test_cmd:
-        test_value = (
-            f"Not detected — configure manually "
-            f"(covered by `{check_cmd}`?)"
-        )
-    elif check_cmd and test_cmd:
-        test_value = (
-            f"{test_cmd} (also covered by `{check_cmd}`)"
-        )
-    sections.append(f"## Test Command\n{test_value}")
-
-    # Lint/Format Check
-    lint_value = lint_cmd or "Not detected"
-    if check_cmd and not lint_cmd:
-        lint_value = (
-            f"Not detected (covered by `{check_cmd}`?)"
-        )
-    elif check_cmd and lint_cmd:
-        lint_value = (
-            f"{lint_cmd} (also covered by `{check_cmd}`)"
-        )
-    sections.append(f"## Lint/Format Check\n{lint_value}")
-
-    # Type Check
-    type_value = type_cmd or "Not detected"
-    if check_cmd and not type_cmd:
-        type_value = (
-            f"Not detected (covered by `{check_cmd}`?)"
-        )
-    elif check_cmd and type_cmd:
-        type_value = (
-            f"{type_cmd} (also covered by `{check_cmd}`)"
-        )
-    sections.append(f"## Type Check\n{type_value}")
-
-    # Acceptance Criteria Verification
-    sections.append(
+    test_value = _section_value(
+        test_cmd,
+        check_cmd,
+        fallback="Not detected — configure manually",
+    )
+    sections: list[str] = [
+        f"## Test Command\n{test_value}",
+        f"## Lint/Format Check\n{_section_value(lint_cmd, check_cmd)}",
+        f"## Type Check\n{_section_value(type_cmd, check_cmd)}",
         "## Acceptance Criteria Verification\n"
         "Run the test suite, then verify each acceptance "
         "criterion independently by reading implementation "
         "code, checking file existence, and confirming "
-        "behaviour matches the specification."
-    )
+        "behaviour matches the specification.",
+    ]
 
     return "\n\n".join(sections) + "\n"
 
 
 # ── Private helpers ─────────────────────────────────────────────
+
+
+def _section_value(
+    cmd: str | None,
+    check_cmd: str | None,
+    *,
+    fallback: str = "Not detected",
+) -> str:
+    """Compute display value for a strategy section.
+
+    Args:
+        cmd: Detected command for this section, or None.
+        check_cmd: Detected all-in-one check command, or None.
+        fallback: Text to show when cmd is None and check_cmd
+            is also None.
+
+    Returns:
+        Display string for the section.
+    """
+    if cmd and check_cmd:
+        return f"{cmd} (also covered by `{check_cmd}`)"
+    if not cmd and check_cmd:
+        return f"{fallback} (covered by `{check_cmd}`?)"
+    return cmd or fallback
 
 
 def _read_file_text(path: Path) -> str | None:
@@ -258,32 +250,36 @@ def _introspect_claude_md(
             continue
 
         if (
-            "run tests" in lower
-            or ("test" in lower and "pytest" in lower)
-        ) and result["test_command"] is None:
+            (
+                "run tests" in lower
+                or ("test" in lower and "pytest" in lower)
+            )
+            and result["test_command"] is None
+        ):
             result["test_command"] = cmd
 
         if (
-            "run all checks" in lower or "check" in lower
-        ) and "test" not in lower and (
-            result["check_command"] is None
+            ("run all checks" in lower or "check" in lower)
+            and "test" not in lower
+            and result["check_command"] is None
         ):
             result["check_command"] = cmd
 
         if (
-            "lint" in lower
-            or "format" in lower
-            or "fix" in lower
-        ) and result["lint_command"] is None and (
-            "ruff" in cmd or "lint" in lower
+            ("lint" in lower or "format" in lower or "fix" in lower)
+            and ("ruff" in cmd or "lint" in lower)
+            and result["lint_command"] is None
         ):
             result["lint_command"] = cmd
 
         if (
-            ("type" in lower and "check" in lower)
-            or "mypy" in lower
-            or "pyright" in lower
-        ) and result["type_check_command"] is None:
+            (
+                ("type" in lower and "check" in lower)
+                or "mypy" in lower
+                or "pyright" in lower
+            )
+            and result["type_check_command"] is None
+        ):
             result["type_check_command"] = cmd
 
 
@@ -302,10 +298,7 @@ def _introspect_pyproject(
     if "[tool.ruff" in text and result["lint_command"] is None:
         result["lint_command"] = "ruff check ."
 
-    if (
-        "[tool.mypy" in text
-        and result["type_check_command"] is None
-    ):
+    if "[tool.mypy" in text and result["type_check_command"] is None:
         result["type_check_command"] = "mypy"
 
 
@@ -327,13 +320,9 @@ def _introspect_justfile(
             and ":" in stripped
             and result["test_command"] is None
         ):
-            # Use the recipe body if available.
-            if i + 1 < len(lines) and lines[
-                i + 1
-            ].startswith("    "):
-                result["test_command"] = (
-                    lines[i + 1].strip()
-                )
+            next_line = lines[i + 1] if i + 1 < len(lines) else ""
+            if next_line.startswith("    "):
+                result["test_command"] = next_line.strip()
             else:
                 result["test_command"] = "just test"
 
@@ -412,14 +401,13 @@ def build_report(
     Returns:
         A VerificationReport instance.
     """
-    verification_results = tuple(
-        VerificationResult(criterion=criterion, passed=passed, detail=detail)
-        for criterion, passed, detail in results
-    )
     return VerificationReport(
         issue=issue_number,
         title=title,
-        results=verification_results,
+        results=tuple(
+            VerificationResult(criterion=c, passed=p, detail=d)
+            for c, p, d in results
+        ),
         strategy_used=strategy_used,
         is_override=is_override,
     )
