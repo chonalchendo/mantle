@@ -1211,7 +1211,7 @@ def save_inbox_item_command(
         ),
     ] = None,
 ) -> None:
-    """Save an idea to .mantle/inbox/."""
+    """Save an inbox item to .mantle/inbox/."""
     inbox.run_save_inbox_item(
         title=title,
         description=description,

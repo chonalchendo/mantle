@@ -129,12 +129,10 @@ def list_inbox_items(
     if status is None:
         return paths
 
-    filtered = []
-    for path in paths:
-        item, _ = load_inbox_item(path)
-        if item.status == status:
-            filtered.append(path)
-    return filtered
+    return [
+        path for path in paths
+        if load_inbox_item(path)[0].status == status
+    ]
 
 
 def update_inbox_status(
@@ -169,7 +167,6 @@ def update_inbox_status(
 
     current = note.frontmatter
 
-    # Update tags: replace old status tag with new one
     old_status_tag = f"status/{current.status}"
     new_status_tag = f"status/{status}"
     tags = tuple(
@@ -218,10 +215,7 @@ def _resolve_inbox_path(
 
 
 def _slugify(title: str) -> str:
-    """Convert title to filename-safe slug.
-
-    Lowercase, replace spaces with hyphens, strip non-alphanumeric
-    characters (except hyphens), truncate to 30 chars.
+    """Convert title to a filename-safe slug (max 30 chars).
 
     Args:
         title: The inbox item title text.
