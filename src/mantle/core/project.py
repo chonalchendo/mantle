@@ -20,6 +20,7 @@ SUBDIRS: tuple[str, ...] = (
     "bugs",
     "challenges",
     "decisions",
+    "inbox",
     "issues",
     "learnings",
     "research",
