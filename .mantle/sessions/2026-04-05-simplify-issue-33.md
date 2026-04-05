@@ -1,5 +1,7 @@
 ---
 date: 2026-04-05
+project: mantle
+author: 110059232+chonalchendo@users.noreply.github.com
 command: simplify
 issue: 33
 ---

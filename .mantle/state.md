@@ -18,8 +18,14 @@ skills_required:
 - CLI design best practices
 - Design Review
 - Designing Architecture
+- DuckDB Best Practices and Optimisations
+- DuckLake
+- Earnings Transcript Data Sources
+- FRED Data Source
+- Finviz Data Source
 - Lakehouse Architecture
 - Medallion Architecture & Star Schema
+- Mohnish Pabrai Investment Philosophy
 - Production Project Readiness
 - Python Project Conventions
 - Python package structure
@@ -48,7 +54,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Brainstorm completed (scrap) — idea scrapped, context preserved.
+Issue 31 — 3 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 
