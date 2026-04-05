@@ -20,46 +20,55 @@ product-design.md, system-design.md
 
 ## Why
 
-The vault accumulates structured knowledge over time (skills, learnings, decisions, session logs, research) but there is no way to query it, synthesize across it, or maintain its quality. Knowledge that isn't retrievable is knowledge that doesn't exist.
+The vault accumulates structured knowledge over time (skills, learnings, decisions, session logs, research) but there is no way to query it or synthesize across it. Knowledge that isn't retrievable is knowledge that doesn't exist.
 
-Inspired by Karpathy's LLM Knowledge Bases pattern: raw data is collected, compiled by an LLM into a navigable wiki, then operated on via Q&A and linting — all viewable in Obsidian. Mantle already handles data ingest (structured artifacts from normal workflow). The missing layer is compilation, query, distillation, and maintenance.
+Users want to ask "what do I know about X?" and get grounded answers from accumulated vault content. They also want to discover connections between topics they didn't know existed, and distill scattered notes into concise summaries.
 
 ## What to build
 
-This is a milestone-sized feature. The vertical slices within it (in dependency order):
+### 1. Query command (/mantle:query)
 
-### 1. Vault-wide index maintenance
-Auto-maintained summary/index files that the LLM keeps current. When a new learning, decision, or skill is saved, relevant indices update. This is the "compiled wiki" primitive.
+Thin prompt that orchestrates vault search using existing Mantle tools (tags, skills, frontmatter filtering, grep). User asks a natural language question, the prompt searches the vault for relevant notes (skills, learnings, decisions, sessions, research, distillations), then the LLM synthesizes an answer grounded in the retrieved content.
 
-### 2. Query command (/mantle:query)
-Ask natural language questions against the vault. Reads indices + relevant notes, answers grounded in accumulated knowledge. Results optionally filed back into the vault as knowledge notes, enriching future queries.
+- Searches across the personal vault and current project's `.mantle/`
+- Uses existing CLI tools (`mantle list-skills`, tag filtering, file reading)
+- Results optionally filed back into the vault as knowledge notes
 
-### 3. Distillation (/mantle:distill)
-Synthesize everything on a topic into 1-2 concise paragraphs. Cross-project connections surfaced. Output saved to vault as a knowledge note with wikilinks back to sources. Staleness tracking — distillations flag when source material has grown since last synthesis.
+### 2. Distillation command (/mantle:distill)
 
-### 4. Vault linting and health checks
-Periodic quality maintenance: find stale distillations, orphaned notes, inconsistent data, missing connections. Suggest new topics to explore. LLM-powered "health check" over the knowledge graph.
+User-triggered synthesis of everything on a topic into 1-2 concise paragraphs. Output saved as a knowledge note in the vault.
 
-### 5. Vault mounting (future)
-Link .mantle/ directories from multiple projects into the Obsidian personal vault so everything is browsable in one interconnected graph.
+- Source linking — every distillation includes wikilinks to every source note so the user can verify
+- Staleness tracking — metadata records which notes were synthesized and when, flags when new source material exists since last distillation
+- Distillations become queryable — `/mantle:query` reads existing distillations, making future queries on the same topic faster and richer
+- Distillations compound — each re-run incorporates new sources since the last synthesis
 
 ## Design considerations
 
-- At Karpathy's scale (~100 articles, ~400K words), auto-maintained index files + summaries work without RAG or embeddings. Start simple.
-- The LLM should be the primary author of compiled knowledge — users rarely edit it directly.
-- Every query/exploration should "add up" — results filed back enrich the knowledge base.
-- Cross-project queries are the key differentiator vs just reading .mantle/ files.
+- All operations are user-triggered — no background LLM calls that silently consume token budgets
+- No RAG or embeddings needed — Mantle's structured metadata (frontmatter, tags, wikilinks) provides sufficient signal for retrieval at current vault scale
+- Distillation addresses LLM accuracy concerns: source links let users verify, staleness tracking prevents outdated summaries from being trusted blindly
+- Cross-project queries are the key differentiator vs just reading `.mantle/` files
 
 ## Acceptance criteria
 
-- [ ] TBD — this issue needs a brainstorm session to define the right entry point and scope before decomposing into concrete acceptance criteria
+- [ ] `/mantle:query` prompt searches vault content (skills, learnings, decisions, sessions) and answers natural language questions
+- [ ] Query results cite source notes with file paths so users can verify
+- [ ] `/mantle:distill` synthesizes a topic into a knowledge note saved to the vault
+- [ ] Distillation notes include wikilinks to every source note used
+- [ ] Distillation notes include staleness metadata (source count, last updated date)
+- [ ] `/mantle:query` reads existing distillations to enrich answers
+- [ ] All operations are user-triggered — no background token spend
+
+## Brainstorm reference
+
+.mantle/brainstorms/2026-04-05-knowledge-engine-query-and-distill.md
 
 ## Blocked by
 
-None (but should be brainstormed before implementation)
+None
 
 ## User stories addressed
 
 - As a developer, I want to query my accumulated knowledge across projects so that past learnings inform current decisions
 - As a developer, I want topic distillations that synthesize scattered notes into concise summaries so that I can quickly understand what I know about a domain
-- As a developer, I want vault health checks so that my knowledge base stays accurate and well-connected over time
