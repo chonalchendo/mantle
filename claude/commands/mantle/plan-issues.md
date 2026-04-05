@@ -46,6 +46,8 @@ Read and internalise:
 - `.mantle/issues/` — any existing issues (to understand what's already planned,
   dependencies, and numbering)
 - `.mantle/bugs/` — any open bugs (surface these as candidates for new issues)
+- `.mantle/inbox/` — any open inbox items (surface these as candidates for new
+  issues or brainstorms)
 - `.mantle/learnings/` — past retrospective learnings (surface recommendations
   as candidates for new issues)
 
@@ -77,14 +79,21 @@ Summarise what's already planned:
 
 > **Existing issues:** [count] issues planned. Latest: issue-NN "[title]".
 > **Open bugs:** [count] bugs found. [list titles if any]
+> **Inbox items:** [count] open items found. [list titles if any]
 > **Learnings with recommendations:** [count] learnings found. [list any that
 > suggest new work]
 
 ## Step 3 — Propose issues one at a time
 
 When proposing issues, draw from all sources: product/system design features,
-open bugs, and retrospective recommendations. If a learning recommendation
-maps to a new issue, cite it:
+open bugs, open inbox items, and retrospective recommendations. If an inbox
+item maps to a new issue, update its status after the issue is saved:
+
+```bash
+mantle update-inbox-status --item "<filename>" --status promoted
+```
+
+If a learning recommendation maps to a new issue, cite it:
 
 > **Source:** Recommendation from issue {NN} retrospective: "{recommendation}"
 
