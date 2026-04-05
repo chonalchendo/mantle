@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.7** — Tag-based skill filtering, improved skill detection (tags + description matching), and auto-generated vault index notes for Obsidian navigation.
+**v0.8.8** — Tag discovery with `mantle list-tags` command for discovering and filtering vault skills by tag.
 
 ## License
 
