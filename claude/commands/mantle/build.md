@@ -187,6 +187,12 @@ Report progress after each story:
 If any story is blocked after retry, stop the pipeline here. Do not continue
 to Step 7.
 
+**Inbox capture:** During implementation, if you spot patterns, ideas, or
+potential improvements that aren't part of the current issue, silently capture
+them via `mantle save-inbox-item --title "..." --description "..." --source ai`.
+Do not interrupt the pipeline — just save and continue. These will be reported
+in Step 9.
+
 ## Step 7 — Simplify (conditional)
 
 Why: AI-generated code accumulates bloat (unnecessary abstractions, defensive
@@ -258,8 +264,15 @@ Report the full pipeline run:
 > | Implementation | {completed/blocked} stories |
 > | Simplification | {files changed} |
 > | Verification | {PASSED / FAILED} |
+> | Inbox ideas | {count captured, or "none"} |
 >
 > **Total commits:** {count}
+
+If any inbox items were captured during the pipeline (via
+`mantle save-inbox-item --source ai`), list them:
+
+> **Ideas captured:**
+> - {title} — {description}
 
 **If verification passed:**
 
