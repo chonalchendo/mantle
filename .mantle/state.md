@@ -48,7 +48,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Brainstorm completed (proceed) — idea validated, ready for next steps.
+Brainstorm completed (scrap) — idea scrapped, context preserved.
 
 ## Blockers
 
