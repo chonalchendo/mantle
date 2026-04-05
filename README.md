@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.6** — Improved verification strategy with project introspection, structured first-use, and prompted evolution.
+**v0.8.7** — Tag-based skill filtering, improved skill detection (tags + description matching), and auto-generated vault index notes for Obsidian navigation.
 
 ## License
 
