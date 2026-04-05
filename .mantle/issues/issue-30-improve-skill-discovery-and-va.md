@@ -1,6 +1,6 @@
 ---
 title: Improve skill discovery and vault navigation
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -11,7 +11,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
