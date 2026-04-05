@@ -1,6 +1,6 @@
 ---
 title: Simplify command (/mantle:simplify)
-status: planned
+status: completed
 slice:
 - core
 - cli
@@ -11,7 +11,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/completed
 ---
 
 ## Parent PRD
