@@ -13,6 +13,7 @@ from mantle.cli import (
     challenge,
     decisions,
     idea,
+    inbox,
     init,
     init_vault,
     install,
@@ -1175,6 +1176,78 @@ def update_bug_status_command(
         bug=bug,
         status=status,
         fixed_by=fixed_by,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-inbox-item")
+def save_inbox_item_command(
+    title: Annotated[
+        str,
+        Parameter(
+            name="--title",
+            help="One-line item title.",
+        ),
+    ],
+    description: Annotated[
+        str,
+        Parameter(
+            name="--description",
+            help="Optional free-text description (body).",
+        ),
+    ] = "",
+    source: Annotated[
+        str,
+        Parameter(
+            name="--source",
+            help="Origin of the item: user, ai.",
+        ),
+    ] = "user",
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save an idea to .mantle/inbox/."""
+    inbox.run_save_inbox_item(
+        title=title,
+        description=description,
+        source=source,
+        project_dir=path,
+    )
+
+
+@app.command(name="update-inbox-status")
+def update_inbox_status_command(
+    item: Annotated[
+        str,
+        Parameter(
+            name="--item",
+            help="Item filename (e.g. 2026-04-05-slug.md).",
+        ),
+    ],
+    status: Annotated[
+        str,
+        Parameter(
+            name="--status",
+            help="New status: open, promoted, dismissed.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Update an inbox item's status."""
+    inbox.run_update_inbox_status(
+        item=item,
+        status=status,
         project_dir=path,
     )
 
