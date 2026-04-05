@@ -15,8 +15,29 @@ slices:
 - claude-code
 - tests
 skills_required:
+- CLI design best practices
+- Design Review
+- Designing Architecture
+- Lakehouse Architecture
+- Medallion Architecture & Star Schema
+- Production Project Readiness
+- Python Project Conventions
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- Tom Gayner Investment Philosophy
+- beautifulsoup4-web-scraping
 - cyclopts
+- docker-compose-python
+- edgartools
+- fastapi
+- httpx-async
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
 - python
+- streamlit
+- streamlit-aggrid
 tags:
 - status/active
 ---
@@ -27,7 +48,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 33 planned — run /mantle:plan-issues for next issue or /mantle:shape-issue to start shaping.
+Issue 33 — 2 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

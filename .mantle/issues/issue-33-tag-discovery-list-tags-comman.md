@@ -6,7 +6,7 @@ slice:
 - cli
 - claude-code
 - tests
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
 tags:
