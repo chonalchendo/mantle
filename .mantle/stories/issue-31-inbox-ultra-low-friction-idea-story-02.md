@@ -1,11 +1,11 @@
 ---
 issue: 31
 title: CLI commands + main.py wiring
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
