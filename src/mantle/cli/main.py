@@ -1018,6 +1018,47 @@ def list_skills_command(
         print(f"  - {p.stem}")
 
 
+@app.command(name="list-tags")
+def list_tags_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """List all tags from taxonomy and vault skills."""
+    if path is None:
+        path = Path.cwd()
+
+    from mantle.core import tags
+
+    summary = tags.collect_all_tags(path)
+
+    if not summary.by_prefix:
+        print("No tags found.")
+        return
+
+    total = len(summary.taxonomy | summary.vault)
+    print(f"{total} tag(s) found:")
+
+    for group, group_tags in summary.by_prefix.items():
+        print(f"\n  {group}:")
+        for tag in group_tags:
+            if tag in summary.undeclared:
+                print(f"    - {tag}  (undeclared)")
+            else:
+                print(f"    - {tag}")
+
+    if summary.undeclared:
+        n = len(summary.undeclared)
+        print(
+            f"\n{n} undeclared tag(s)"
+            " — consider adding to .mantle/tags.md"
+        )
+
+
 @app.command(name="save-bug")
 def save_bug_command(
     summary: Annotated[

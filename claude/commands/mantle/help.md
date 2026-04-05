@@ -39,5 +39,14 @@
 - `/mantle:resume` — Project briefing and context restore
 - `/mantle:add-skill` — Create or update a skill node
 
+## Skills & Tags
+
+| Command | Purpose |
+|---|---|
+| `mantle list-tags` | Discover available tags grouped by prefix |
+| `mantle list-skills --tag <tag>` | Filter skills by tag |
+
+**Tip:** Run `mantle list-tags` to discover tags, then `mantle list-skills --tag <tag>` to filter.
+
 ## Help
 - `/mantle:help` — This command
