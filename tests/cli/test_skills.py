@@ -216,6 +216,74 @@ class TestRunSaveSkill:
         assert "Skill saved" in captured.out
 
 
+# ── list-skills command ──────────────────────────────────────────
+
+
+class TestListSkillsCommand:
+    """Tests for list-skills command with --tag filtering."""
+
+    def test_tag_flag_filters_output(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _save_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill", "topic/python"),
+        )
+        _save_skill(
+            project,
+            name="Docker compose",
+            description="Docker container orchestration.",
+            tags=("type/skill", "domain/devops"),
+        )
+        # Clear save output before testing list command
+        capsys.readouterr()
+
+        from mantle.cli.main import list_skills_command
+
+        list_skills_command(tag="topic/python", path=project)
+        captured = capsys.readouterr()
+
+        assert "python-asyncio" in captured.out
+        assert "docker-compose" not in captured.out
+
+    def test_tag_flag_empty_prints_message(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _save_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill", "topic/python"),
+        )
+
+        from mantle.cli.main import list_skills_command
+
+        list_skills_command(tag="domain/web", path=project)
+        captured = capsys.readouterr()
+
+        assert "No skills matching tag 'domain/web'" in captured.out
+
+    def test_list_skills_help_mentions_tag(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "list-skills",
+                "--help",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert "--tag" in result.stdout
+
+
 # ── CLI wiring ──────────────────────────────────────────────────
 
 

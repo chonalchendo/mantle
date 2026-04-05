@@ -11,6 +11,7 @@ import pytest
 
 from mantle.core import vault
 from mantle.core.skills import (
+    _GENERATED_MARKER,
     SkillExistsError,
     SkillNote,
     VaultNotConfiguredError,
@@ -22,6 +23,7 @@ from mantle.core.skills import (
     detect_gaps,
     detect_skills_from_content,
     detect_stubs,
+    generate_index_notes,
     list_skills,
     load_relevant_skills,
     load_skill,
@@ -389,6 +391,59 @@ class TestListSkills:
     def test_raises_vault_not_configured(self, project_no_vault: Path) -> None:
         with pytest.raises(VaultNotConfiguredError):
             list_skills(project_no_vault)
+
+    def test_filter_by_tag(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill", "topic/python"),
+        )
+        _create_skill(
+            project,
+            name="Docker compose",
+            tags=("type/skill", "domain/devops"),
+        )
+        _create_skill(
+            project,
+            name="Zsh scripting",
+            tags=("type/skill", "topic/python"),
+        )
+
+        result = list_skills(project, tag="topic/python")
+
+        assert len(result) == 2
+        stems = [p.stem for p in result]
+        assert "python-asyncio" in stems
+        assert "zsh-scripting" in stems
+        assert "docker-compose" not in stems
+
+    def test_filter_no_matches(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill", "topic/python"),
+        )
+
+        result = list_skills(project, tag="domain/web")
+
+        assert result == []
+
+    def test_filter_skips_invalid(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill", "topic/python"),
+        )
+        skills_dir = project / "vault" / "skills"
+        (skills_dir / "broken.md").write_text(
+            "not valid frontmatter at all", encoding="utf-8"
+        )
+
+        result = list_skills(project, tag="topic/python")
+
+        stems = [p.stem for p in result]
+        assert "python-asyncio" in stems
+        assert "broken" not in stems
 
 
 # ── skill_exists ─────────────────────────────────────────────────
@@ -1131,6 +1186,79 @@ class TestDetectSkillsFromContent:
 
         assert len(result) == 2
 
+    def test_detect_skills_matches_by_tag(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Web Development",
+            tags=("domain/web",),
+        )
+        content = "This story involves web development work."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Web Development" in result
+
+    def test_detect_skills_matches_by_description(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Async IO Patterns",
+            description=(
+                "Async Python patterns using asyncio"
+                " for concurrent I/O-bound services"
+            ),
+        )
+        content = (
+            "We need asyncio concurrent services patterns here."
+        )
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Async IO Patterns" in result
+
+    def test_detect_skills_no_match_below_threshold(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Async IO Patterns",
+            description="Async Python patterns using asyncio",
+        )
+        content = "Python is a great language for scripting."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Async IO Patterns" not in result
+
+    def test_detect_skills_ignores_type_tags(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Skill Fundamentals",
+            tags=("type/skill",),
+        )
+        content = "This is about skill building."
+
+        result = detect_skills_from_content(project, content)
+
+        assert "Skill Fundamentals" not in result
+
+    def test_detect_skills_deduplicates(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/asyncio",),
+        )
+        content = "Python asyncio is great for async work."
+
+        result = detect_skills_from_content(project, content)
+
+        assert result.count("Python asyncio") == 1
+
 
 # ── auto_update_skills ─────────────────────────────────────────
 
@@ -1220,3 +1348,154 @@ class TestAutoUpdateSkills:
         result = auto_update_skills(project, 1)
 
         assert "Python asyncio" in result
+
+
+# ── generate_index_notes ────────────────────────────────────────
+
+
+class TestGenerateIndexNotes:
+    """Tests for generate_index_notes()."""
+
+    def test_creates_indexes_for_tags(self, project: Path) -> None:
+        """Two skills with domain/web, one with domain/data."""
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+        _create_skill(
+            project,
+            name="WebSocket protocol",
+            tags=("domain/web",),
+        )
+        _create_skill(
+            project,
+            name="Pandas",
+            tags=("domain/data",),
+        )
+
+        result = generate_index_notes(project)
+
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        assert "domain/web" in result
+        assert "domain/data" in result
+        assert (indexes_dir / "domain-web.md").exists()
+        assert (indexes_dir / "domain-data.md").exists()
+
+    def test_web_index_contains_both_skills(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+        _create_skill(
+            project,
+            name="WebSocket protocol",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        vault_root = project / "vault"
+        content = (
+            vault_root / "indexes" / "domain-web.md"
+        ).read_text()
+        assert "[[python-asyncio]]" in content
+        assert "[[websocket-protocol]]" in content
+
+    def test_preserves_manual_files(self, project: Path) -> None:
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        indexes_dir.mkdir(parents=True, exist_ok=True)
+        manual_content = "# Manual note\n\nKeep this.\n"
+        (indexes_dir / "domain-web.md").write_text(
+            manual_content, encoding="utf-8"
+        )
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        actual = (indexes_dir / "domain-web.md").read_text()
+        assert actual == manual_content
+
+    def test_overwrites_generated_files(
+        self, project: Path
+    ) -> None:
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        indexes_dir.mkdir(parents=True, exist_ok=True)
+        old_content = (
+            f"{_GENERATED_MARKER}\n---\n"
+            f"name: domain/web\n---\n\nold\n"
+        )
+        (indexes_dir / "domain-web.md").write_text(
+            old_content, encoding="utf-8"
+        )
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        new_content = (indexes_dir / "domain-web.md").read_text()
+        assert "old" not in new_content
+        assert "[[python-asyncio]]" in new_content
+
+    def test_includes_generated_marker(
+        self, project: Path
+    ) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        vault_root = project / "vault"
+        content = (
+            vault_root / "indexes" / "domain-web.md"
+        ).read_text()
+        assert _GENERATED_MARKER in content
+
+    def test_skips_type_tags(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("type/skill",),
+        )
+
+        generate_index_notes(project)
+
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        assert not (indexes_dir / "type-skill.md").exists()
+
+    def test_compile_skills_calls_generate_indexes(
+        self, project_with_state: Path
+    ) -> None:
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+        _write_state(
+            project_with_state,
+            skills_required=("Python asyncio",),
+        )
+
+        compile_skills(project_with_state)
+
+        vault_root = project_with_state / "vault"
+        assert (
+            vault_root / "indexes" / "domain-web.md"
+        ).exists()

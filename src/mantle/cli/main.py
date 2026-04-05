@@ -975,6 +975,16 @@ def update_skills_command(
 
 @app.command(name="list-skills")
 def list_skills_command(
+    tag: Annotated[
+        str | None,
+        Parameter(
+            name="--tag",
+            help=(
+                "Filter by tag"
+                " (e.g., domain/web, topic/python)."
+            ),
+        ),
+    ] = None,
     path: Annotated[
         Path | None,
         Parameter(
@@ -990,14 +1000,17 @@ def list_skills_command(
     from mantle.core import skills
 
     try:
-        skill_paths = skills.list_skills(path)
+        skill_paths = skills.list_skills(path, tag=tag)
     except (skills.VaultNotConfiguredError, FileNotFoundError):
         print("No personal vault configured.")
         print("Run `mantle init-vault` to set up your vault.")
         return
 
     if not skill_paths:
-        print("No skills found in vault.")
+        if tag is not None:
+            print(f"No skills matching tag '{tag}'.")
+        else:
+            print("No skills found in vault.")
         return
 
     print(f"{len(skill_paths)} skill(s) in vault:")

@@ -18,6 +18,27 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 _CONTENT_MARKER = "<!-- mantle:content -->"
+_GENERATED_MARKER = "<!-- mantle:generated -->"
+
+_STOPWORDS = frozenset({
+    "a", "an", "the", "is", "are", "was", "were", "be", "been",
+    "in", "on", "at", "to", "for", "of", "with", "and", "or",
+    "not", "this", "that", "it", "by", "from", "as",
+})
+
+
+def _tokenize(text: str) -> set[str]:
+    """Split text into lowercase word tokens.
+
+    Splits on non-alphanumeric characters and filters empty strings.
+
+    Args:
+        text: Input text to tokenize.
+
+    Returns:
+        Set of lowercase word tokens.
+    """
+    return {t for t in re.split(r"[^a-z0-9]+", text.lower()) if t}
 
 
 # ── Data model ───────────────────────────────────────────────────
@@ -314,11 +335,19 @@ def load_skill(path: Path) -> tuple[SkillNote, str]:
     return note.frontmatter, note.body
 
 
-def list_skills(project_dir: Path) -> list[Path]:
+def list_skills(
+    project_dir: Path,
+    *,
+    tag: str | None = None,
+) -> list[Path]:
     """List all skill paths in the personal vault.
 
     Args:
         project_dir: Directory containing .mantle/.
+        tag: Optional tag to filter by (e.g. ``topic/python``).
+            When provided, only skills whose ``tags`` tuple contains
+            this value are returned.  Unparseable skill files are
+            silently skipped.
 
     Returns:
         Alphabetically sorted list of skill file paths.
@@ -329,7 +358,18 @@ def list_skills(project_dir: Path) -> list[Path]:
     skills_dir = _resolve_vault_skills_dir(project_dir)
     if not skills_dir.exists():
         return []
-    return sorted(skills_dir.glob("*.md"))
+    all_paths = sorted(skills_dir.glob("*.md"))
+    if tag is None:
+        return all_paths
+    filtered: list[Path] = []
+    for path in all_paths:
+        try:
+            note, _ = load_skill(path)
+        except (vault.NoteParseError, vault.NoteValidationError):
+            continue
+        if tag in note.tags:
+            filtered.append(path)
+    return filtered
 
 
 def skill_exists(project_dir: Path, name: str) -> bool:
@@ -661,6 +701,23 @@ def detect_skills_from_content(
         # Match by slug (e.g., "python-asyncio" in code blocks)
         if path.stem in content_lower:
             matched.append(note.name)
+            continue
+        # Match by tag suffix (filter out type/ tags)
+        non_type_tags = [
+            t for t in note.tags if not t.startswith("type/")
+        ]
+        tag_suffixes = [t.split("/")[-1] for t in non_type_tags]
+        if any(
+            re.search(rf"\b{re.escape(s)}\b", content_lower)
+            for s in tag_suffixes
+        ):
+            matched.append(note.name)
+            continue
+        # Match by description word overlap (3+ non-stopword tokens)
+        desc_tokens = _tokenize(note.description) - _STOPWORDS
+        content_tokens = _tokenize(content_lower)
+        if len(desc_tokens & content_tokens) >= 3:
+            matched.append(note.name)
 
     return matched
 
@@ -736,6 +793,80 @@ def auto_update_skills(
     return new_skills
 
 
+# ── Index generation ────────────────────────────────────────────
+
+
+def generate_index_notes(project_dir: Path) -> list[str]:
+    """Generate index notes in the vault for each non-type tag.
+
+    Reads all skills from the vault, groups them by tag (excluding
+    tags that start with ``type/``), and writes one index note per
+    tag under ``<vault>/indexes/<tag-slug>.md``.
+
+    Existing files that do not contain the generated marker are left
+    untouched so that manually-maintained index notes are preserved.
+
+    Args:
+        project_dir: Directory containing ``.mantle/``.
+
+    Returns:
+        List of tag strings for which index notes were written.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    skill_paths = list_skills(project_dir)
+    tag_to_slugs: dict[str, list[str]] = {}
+
+    for path in skill_paths:
+        try:
+            note, _ = load_skill(path)
+        except (vault.NoteParseError, vault.NoteValidationError):
+            continue
+        for tag in note.tags:
+            if tag.startswith("type/"):
+                continue
+            tag_to_slugs.setdefault(tag, []).append(path.stem)
+
+    vault_root = _resolve_vault_skills_dir(project_dir).parent
+    indexes_dir = vault_root / "indexes"
+    indexes_dir.mkdir(parents=True, exist_ok=True)
+
+    written: list[str] = []
+    for tag, slugs in sorted(tag_to_slugs.items()):
+        tag_slug = tag.replace("/", "-")
+        index_path = indexes_dir / f"{tag_slug}.md"
+
+        if index_path.exists():
+            existing = index_path.read_text(encoding="utf-8")
+            if _GENERATED_MARKER not in existing:
+                continue
+
+        wikilinks = "\n".join(
+            f"- [[{s}]]" for s in sorted(slugs)
+        )
+        content = (
+            f"---\n"
+            f"name: {tag}\n"
+            f"type: index\n"
+            f"tags:\n"
+            f"- type/index\n"
+            f"---\n"
+            f"\n"
+            f"{_GENERATED_MARKER}\n"
+            f"\n"
+            f"# {tag}\n"
+            f"\n"
+            f"Skills tagged with `{tag}`:\n"
+            f"\n"
+            f"{wikilinks}\n"
+        )
+        index_path.write_text(content, encoding="utf-8")
+        written.append(tag)
+
+    return written
+
+
 # ── Skill compilation ────────────────────────────────────────────
 
 _ESSENTIAL_HEADINGS = frozenset(
@@ -789,6 +920,14 @@ def compile_skills(project_dir: Path) -> list[str]:
     _cleanup_stale_skills(skills_target, compiled_slugs)
     if compiled_slugs:
         _ensure_skills_gitignore(project_dir)
+
+    try:
+        generate_index_notes(project_dir)
+    except (VaultNotConfiguredError, FileNotFoundError, OSError) as exc:
+        warnings.warn(
+            f"Index generation failed: {exc}",
+            stacklevel=2,
+        )
 
     return compiled_slugs
 
