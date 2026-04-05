@@ -28,16 +28,7 @@ _STOPWORDS = frozenset({
 
 
 def _tokenize(text: str) -> set[str]:
-    """Split text into lowercase word tokens.
-
-    Splits on non-alphanumeric characters and filters empty strings.
-
-    Args:
-        text: Input text to tokenize.
-
-    Returns:
-        Set of lowercase word tokens.
-    """
+    """Split text into lowercase word tokens."""
     return {t for t in re.split(r"[^a-z0-9]+", text.lower()) if t}
 
 
@@ -687,6 +678,7 @@ def detect_skills_from_content(
         return []
 
     content_lower = content.lower()
+    content_tokens = _tokenize(content_lower)
     matched: list[str] = []
 
     for path in existing:
@@ -703,10 +695,10 @@ def detect_skills_from_content(
             matched.append(note.name)
             continue
         # Match by tag suffix (filter out type/ tags)
-        non_type_tags = [
-            t for t in note.tags if not t.startswith("type/")
+        tag_suffixes = [
+            t.split("/")[-1] for t in note.tags
+            if not t.startswith("type/")
         ]
-        tag_suffixes = [t.split("/")[-1] for t in non_type_tags]
         if any(
             re.search(rf"\b{re.escape(s)}\b", content_lower)
             for s in tag_suffixes
@@ -715,7 +707,6 @@ def detect_skills_from_content(
             continue
         # Match by description word overlap (3+ non-stopword tokens)
         desc_tokens = _tokenize(note.description) - _STOPWORDS
-        content_tokens = _tokenize(content_lower)
         if len(desc_tokens & content_tokens) >= 3:
             matched.append(note.name)
 
@@ -842,24 +833,11 @@ def generate_index_notes(project_dir: Path) -> list[str]:
             if _GENERATED_MARKER not in existing:
                 continue
 
-        wikilinks = "\n".join(
-            f"- [[{s}]]" for s in sorted(slugs)
-        )
+        wikilinks = "\n".join(f"- [[{s}]]" for s in sorted(slugs))
         content = (
-            f"---\n"
-            f"name: {tag}\n"
-            f"type: index\n"
-            f"tags:\n"
-            f"- type/index\n"
-            f"---\n"
-            f"\n"
-            f"{_GENERATED_MARKER}\n"
-            f"\n"
-            f"# {tag}\n"
-            f"\n"
-            f"Skills tagged with `{tag}`:\n"
-            f"\n"
-            f"{wikilinks}\n"
+            f"---\nname: {tag}\ntype: index\ntags:\n- type/index\n---\n"
+            f"\n{_GENERATED_MARKER}\n\n# {tag}\n\n"
+            f"Skills tagged with `{tag}`:\n\n{wikilinks}\n"
         )
         index_path.write_text(content, encoding="utf-8")
         written.append(tag)
