@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import dataclasses
 import re
 from typing import TYPE_CHECKING
+
+from mantle.core import vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -16,6 +19,24 @@ _PREFIX_TO_SECTION: dict[str, str] = {
     "topic/": "Topic",
     "domain/": "Domain",
 }
+
+
+@dataclasses.dataclass(frozen=True)
+class TagSummary:
+    """Result of collecting tags from all sources.
+
+    Attributes:
+        taxonomy: Tags declared in .mantle/tags.md.
+        vault: Tags found in vault skill frontmatter.
+        undeclared: Tags in vault but not in taxonomy.
+        by_prefix: All tags grouped by prefix
+            (e.g. "Topic" -> ("topic/python",)).
+    """
+
+    taxonomy: frozenset[str]
+    vault: frozenset[str]
+    undeclared: frozenset[str]
+    by_prefix: dict[str, tuple[str, ...]]
 
 
 def load_tags(project_dir: Path) -> set[str]:
@@ -134,3 +155,60 @@ def _append_to_section(text: str, heading: str, line: str) -> str:
         return "\n".join(lines)
 
     return text
+
+
+def collect_all_tags(project_dir: Path) -> TagSummary:
+    """Collect tags from taxonomy file and vault skill frontmatter.
+
+    Merges tags from `.mantle/tags.md` (the declared taxonomy) with
+    tags extracted from all vault skill frontmatter. Computes which
+    vault tags are undeclared (present in skills but not in taxonomy)
+    and groups all tags by prefix.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+
+    Returns:
+        TagSummary with taxonomy, vault, undeclared, and grouped tags.
+    """
+    from mantle.core import skills
+
+    taxonomy_tags: frozenset[str] = frozenset(load_tags(project_dir))
+
+    vault_tags: frozenset[str] = frozenset()
+    try:
+        skill_paths = skills.list_skills(project_dir)
+    except (skills.VaultNotConfiguredError, FileNotFoundError):
+        vault_tags = frozenset()
+    else:
+        collected: set[str] = set()
+        for path in skill_paths:
+            try:
+                note, _ = skills.load_skill(path)
+            except (
+                vault.NoteParseError,
+                vault.NoteValidationError,
+            ):
+                continue
+            collected.update(note.tags)
+        vault_tags = frozenset(collected)
+
+    undeclared = vault_tags - taxonomy_tags
+    all_tags = taxonomy_tags | vault_tags
+
+    groups: dict[str, list[str]] = {}
+    for tag in all_tags:
+        section = _section_for_tag(tag)
+        groups.setdefault(section, []).append(tag)
+
+    by_prefix: dict[str, tuple[str, ...]] = {
+        section: tuple(sorted(tags))
+        for section, tags in sorted(groups.items())
+    }
+
+    return TagSummary(
+        taxonomy=taxonomy_tags,
+        vault=vault_tags,
+        undeclared=undeclared,
+        by_prefix=by_prefix,
+    )
