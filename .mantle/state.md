@@ -27,7 +27,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 30 planned — run /mantle:plan-issues for next issue or /mantle:shape-issue to start shaping.
+Issue 31 planned — run /mantle:plan-issues for next issue or /mantle:shape-issue to start shaping.
 
 ## Blockers
 
