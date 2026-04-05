@@ -175,11 +175,10 @@ def collect_all_tags(project_dir: Path) -> TagSummary:
 
     taxonomy_tags: frozenset[str] = frozenset(load_tags(project_dir))
 
-    vault_tags: frozenset[str] = frozenset()
     try:
         skill_paths = skills.list_skills(project_dir)
     except (skills.VaultNotConfiguredError, FileNotFoundError):
-        vault_tags = frozenset()
+        vault_tags: frozenset[str] = frozenset()
     else:
         collected: set[str] = set()
         for path in skill_paths:
