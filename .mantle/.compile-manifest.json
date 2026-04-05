@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "8e1ff2b11f0e9ef25e454277d9dd84b85818ceeb83b78dfa5543000502c2712a",
+    "/Users/conal/Development/mantle/.mantle/state.md": "96688b82646ebcf1e6df697cfa46f0ecb011211891d896c15015c3fdac044934",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "d91cac9749ebae0470349eddf411b5ef3adc656154822359f89eaa12c3537e26",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-05-1116.md": "dab99b1fb446a097b676b5589691f40f0dbaa79a04d05d8a965532e4f1991236",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-05-1324.md": "8241ec25660802d6bec230abdb8719ec9e72efe583b5a7a81505a143114bef3e",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -25,6 +25,7 @@
     "/Users/conal/test-vault/skills/lakehouse-architecture.md": "88e4a18b1a467d95c10959dc5e28699e4b318b799141dcc906c9cf7d7a4281fb",
     "/Users/conal/test-vault/skills/macrotrends-data-source.md": "7451b21557cc6a41fb05a8b7e63ed68e22d67196f943b80ab20c767f7681e4ee",
     "/Users/conal/test-vault/skills/medallion-architecture--star-schema.md": "0836797ced44073750789d217586117e42cac34f51580fd45b2c7b89fbe02b0a",
+    "/Users/conal/test-vault/skills/mohnish-pabrai-investment-philosophy.md": "abada34dd5dbeb7676252edef1c4af58cbed1b7c1396d600cd790cc3af91ac74",
     "/Users/conal/test-vault/skills/omegaconf.md": "0a4cdcad77894f46c4792ce8ba0b552fedf6b82cbd77e4ac323660d1467e71fc",
     "/Users/conal/test-vault/skills/production-project-readiness.md": "533df297e24a1a88916badabe6078b00948ab1b9ca683ce9f8ae5c9dc3e4c85f",
     "/Users/conal/test-vault/skills/pydantic-discriminated-unions.md": "a46d27b28fce8ccf73589e993e4c415600eb0772ce8b805b22facec822f07ed6",
@@ -34,6 +35,7 @@
     "/Users/conal/test-vault/skills/software-design-principles.md": "0a2aedda2e9ee22a15d49dca71b503b026f1f69bf425788a8166ec117951eace",
     "/Users/conal/test-vault/skills/sqlmesh-best-practices.md": "db5c673b8fad5d382d43862af6867df8d62dea1cdb88b7eeee7d429a53088315",
     "/Users/conal/test-vault/skills/streamlit-aggrid.md": "246ad3ad55480a98e7d84247d04e4554799fec4b288f98aababdad2996c01c3d",
-    "/Users/conal/test-vault/skills/streamlit.md": "b5ce02da86c0a0ca3c17090426461fa1152f5a06124ff482a01e36c4fae717ae"
+    "/Users/conal/test-vault/skills/streamlit.md": "b5ce02da86c0a0ca3c17090426461fa1152f5a06124ff482a01e36c4fae717ae",
+    "/Users/conal/test-vault/skills/tom-gayner-investment-philosophy.md": "4fa632847695e31e3a8514b6ee9bd9b8e56066b4b5d4a3bec1690a86859b3915"
   }
 }
