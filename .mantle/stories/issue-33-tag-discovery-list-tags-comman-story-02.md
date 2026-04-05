@@ -1,11 +1,11 @@
 ---
 issue: 33
 title: CLI list-tags command and claude-code help update
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
