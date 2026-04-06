@@ -56,7 +56,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Brainstorm completed (proceed) — idea validated, ready for next steps.
+Issue 35 planned — run /mantle:plan-issues for next issue or /mantle:shape-issue to start shaping.
 
 ## Blockers
 
