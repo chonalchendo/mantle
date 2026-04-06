@@ -1,6 +1,6 @@
 ---
 title: Auto-transition issue status in build pipeline
-status: verified
+status: approved
 slice:
 - claude-code
 story_count: 2
@@ -8,7 +8,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
