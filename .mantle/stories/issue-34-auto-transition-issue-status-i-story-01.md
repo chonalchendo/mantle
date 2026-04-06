@@ -1,11 +1,11 @@
 ---
 issue: 34
 title: Core + CLI — add implemented status and transition
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
