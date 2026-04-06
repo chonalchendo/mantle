@@ -10,6 +10,17 @@ question.
 All operations are user-triggered — do not run searches or synthesis in the
 background.
 
+Before starting, use TaskCreate to create a task for each step:
+
+1. "Step 1 — Get the question"
+2. "Step 2 — Check for existing distillations"
+3. "Step 3 — Search vault content"
+4. "Step 4 — Synthesize an answer"
+5. "Step 5 — Offer to save as distillation"
+
+As you start each step, use TaskUpdate to set it to `in_progress`. When
+complete, use TaskUpdate to set it to `completed`.
+
 ## Step 1 — Get the question
 
 Use the question from $ARGUMENTS. If no argument was provided, ask the user
