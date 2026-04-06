@@ -1,4 +1,5 @@
 ---
+description: Search your accumulated vault knowledge and synthesize a grounded answer to a question
 argument-hint: [question]
 allowed-tools: Read, Bash(mantle *), Glob, Grep
 ---
@@ -79,3 +80,12 @@ to be queried again, offer:
 > distillation so future queries on this topic can start from it?
 
 If the user agrees, suggest running `/mantle:distill` with the topic.
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "query"
+
+Keep the log under ~200 words following the session log format (Summary, What
+Was Done, Decisions Made, What's Next, Open Questions).

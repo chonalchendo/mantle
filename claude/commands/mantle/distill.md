@@ -1,4 +1,5 @@
 ---
+description: Synthesize accumulated vault knowledge on a topic into a persistent distillation note
 argument-hint: [topic]
 allowed-tools: Read, Bash(mantle *), Glob, Grep
 ---
@@ -77,3 +78,12 @@ After saving, report:
 > ...
 >
 > Saved to: {path returned by CLI}
+
+## Session Logging
+
+Before ending this session, write a session log:
+
+    mantle save-session --content "<body>" --command "distill"
+
+Keep the log under ~200 words following the session log format (Summary, What
+Was Done, Decisions Made, What's Next, Open Questions).
