@@ -24,8 +24,10 @@ skills_required:
 - FRED Data Source
 - Finviz Data Source
 - Lakehouse Architecture
+- Macrotrends Data Source
 - Medallion Architecture & Star Schema
 - Mohnish Pabrai Investment Philosophy
+- Playwright Web Scraping
 - Production Project Readiness
 - Python Project Conventions
 - Python package structure
@@ -54,7 +56,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 31 — review past learnings before next planning cycle.
+Issue 32 — 3 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 
