@@ -480,3 +480,41 @@ class TestTransitionToImplementing:
 
         with pytest.raises(InvalidTransitionError):
             issues_mod.transition_to_implementing(project, 13)
+
+    def test_transition_to_implementing_idempotent(
+        self, project: Path
+    ) -> None:
+        """Implementing issue transitions to implementing (no-op, no error)."""
+        _write_issue_direct(project, 14, status="implementing")
+
+        path = issues_mod.transition_to_implementing(project, 14)
+
+        note, _ = load_issue(path)
+        assert note.status == "implementing"
+        assert "status/implementing" in note.tags
+
+
+# ── transition_to_implemented ────────────────────────────────────
+
+
+class TestTransitionToImplemented:
+    def test_transition_to_implemented_from_implementing(
+        self, project: Path
+    ) -> None:
+        """Implementing issue transitions to implemented, status and tags updated."""
+        _write_issue_direct(project, 20, status="implementing")
+
+        path = issues_mod.transition_to_implemented(project, 20)
+
+        note, _ = load_issue(path)
+        assert note.status == "implemented"
+        assert "status/implemented" in note.tags
+
+    def test_transition_to_implemented_invalid_status(
+        self, project: Path
+    ) -> None:
+        """Planned issue raises InvalidTransitionError."""
+        _write_issue_direct(project, 21, status="planned")
+
+        with pytest.raises(InvalidTransitionError):
+            issues_mod.transition_to_implemented(project, 21)

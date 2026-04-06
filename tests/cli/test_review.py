@@ -94,3 +94,32 @@ class TestTransitionIssueImplementingCLI:
             cli_review.run_transition_to_implementing(
                 issue=1, project_dir=project
             )
+
+
+class TestTransitionIssueImplementedCLI:
+    def test_transition_to_implemented_success(
+        self,
+        project: Path,
+    ) -> None:
+        """Calls core function, prints confirmation."""
+        _write_issue(project, 1, status="implementing")
+
+        cli_review.run_transition_to_implemented(issue=1, project_dir=project)
+
+        issue_path = (
+            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
+        )
+        note, _ = core_issues.load_issue(issue_path)
+        assert note.status == "implemented"
+
+    def test_transition_to_implemented_invalid_status(
+        self,
+        project: Path,
+    ) -> None:
+        """Prints error and exits."""
+        _write_issue(project, 1, status="planned")
+
+        with pytest.raises(SystemExit):
+            cli_review.run_transition_to_implemented(
+                issue=1, project_dir=project
+            )

@@ -1488,6 +1488,30 @@ def transition_issue_verified_command(
     )
 
 
+@app.command(name="transition-issue-implemented")
+def transition_issue_implemented_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to transition to implemented.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Transition an issue from implementing to implemented."""
+    review.run_transition_to_implemented(
+        issue=issue,
+        project_dir=path,
+    )
+
+
 @app.command(name="transition-issue-approved")
 def transition_issue_approved_command(
     issue: Annotated[

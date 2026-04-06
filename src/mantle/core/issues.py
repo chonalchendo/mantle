@@ -213,7 +213,8 @@ def count_issues(project_dir: Path) -> int:
 _ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "verified": frozenset({"implementing", "implemented"}),
     "approved": frozenset({"verified"}),
-    "implementing": frozenset({"planned", "verified"}),
+    "implementing": frozenset({"planned", "verified", "implementing"}),
+    "implemented": frozenset({"implementing"}),
 }
 
 
@@ -318,6 +319,27 @@ def transition_to_implementing(
         FileNotFoundError: If the issue file does not exist.
     """
     return _transition_issue(project_root, issue_number, "implementing")
+
+
+def transition_to_implemented(
+    project_root: Path,
+    issue_number: int,
+) -> Path:
+    """Transition an issue to ``implemented`` status.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue_number: Issue number to transition.
+
+    Returns:
+        Path to the updated issue file.
+
+    Raises:
+        InvalidTransitionError: If current status does not allow
+            transition to ``implemented``.
+        FileNotFoundError: If the issue file does not exist.
+    """
+    return _transition_issue(project_root, issue_number, "implemented")
 
 
 # ── Internal helpers ─────────────────────────────────────────────
