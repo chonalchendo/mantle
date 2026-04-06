@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 
 from rich.console import Console
@@ -9,6 +10,41 @@ from rich.console import Console
 from mantle.core import issues
 
 console = Console()
+
+
+def _transition(
+    issue: int,
+    project_dir: Path,
+    target: str,
+    fn: Callable[[Path, int], Path],
+    note: str,
+) -> None:
+    """Run a transition, print confirmation, or exit on failure.
+
+    Args:
+        issue: Issue number to transition.
+        project_dir: Resolved project directory.
+        target: Target status name (for error messages).
+        fn: Core transition function to call.
+        note: Follow-up message printed after the success line.
+
+    Raises:
+        SystemExit: If the transition is not allowed.
+    """
+    try:
+        path = fn(project_dir, issue)
+    except issues.InvalidTransitionError as exc:
+        console.print(
+            f"[red]Error:[/red] Cannot transition to '{target}'"
+            f" from '{exc.current_status}' status."
+        )
+        raise SystemExit(1) from None
+
+    console.print()
+    console.print(
+        f"[green]Issue {issue} transitioned to {target} ({path.name})[/green]"
+    )
+    console.print(f"  {note}")
 
 
 def run_transition_to_approved(
@@ -25,23 +61,13 @@ def run_transition_to_approved(
     Raises:
         SystemExit: If the transition is not allowed.
     """
-    if project_dir is None:
-        project_dir = Path.cwd()
-
-    try:
-        path = issues.transition_to_approved(project_dir, issue)
-    except issues.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot transition to 'approved'"
-            f" from '{exc.current_status}' status."
-        )
-        raise SystemExit(1) from None
-
-    console.print()
-    console.print(
-        f"[green]Issue {issue} transitioned to approved ({path.name})[/green]"
+    _transition(
+        issue,
+        project_dir or Path.cwd(),
+        "approved",
+        issues.transition_to_approved,
+        "Issue approved — ready for release or deployment.",
     )
-    console.print("  Issue approved — ready for release or deployment.")
 
 
 def run_transition_to_implementing(
@@ -58,24 +84,13 @@ def run_transition_to_implementing(
     Raises:
         SystemExit: If the transition is not allowed.
     """
-    if project_dir is None:
-        project_dir = Path.cwd()
-
-    try:
-        path = issues.transition_to_implementing(project_dir, issue)
-    except issues.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot transition to 'implementing'"
-            f" from '{exc.current_status}' status."
-        )
-        raise SystemExit(1) from None
-
-    console.print()
-    console.print(
-        f"[green]Issue {issue} transitioned to implementing"
-        f" ({path.name})[/green]"
+    _transition(
+        issue,
+        project_dir or Path.cwd(),
+        "implementing",
+        issues.transition_to_implementing,
+        "Review flagged changes — fix and re-verify.",
     )
-    console.print("  Review flagged changes — fix and re-verify.")
 
 
 def run_transition_to_implemented(
@@ -92,24 +107,11 @@ def run_transition_to_implemented(
     Raises:
         SystemExit: If the transition is not allowed.
     """
-    if project_dir is None:
-        project_dir = Path.cwd()
-
-    try:
-        path = issues.transition_to_implemented(project_dir, issue)
-    except issues.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot transition to 'implemented'"
-            f" from '{exc.current_status}' status."
-        )
-        raise SystemExit(1) from None
-
-    console.print()
-    console.print(
-        f"[green]Issue {issue} transitioned to implemented"
-        f" ({path.name})[/green]"
-    )
-    console.print(
-        "  Implementation complete — run [bold]/mantle:verify[/bold]"
-        " to begin verification."
+    _transition(
+        issue,
+        project_dir or Path.cwd(),
+        "implemented",
+        issues.transition_to_implemented,
+        "Implementation complete — run [bold]/mantle:verify[/bold]"
+        " to begin verification.",
     )
