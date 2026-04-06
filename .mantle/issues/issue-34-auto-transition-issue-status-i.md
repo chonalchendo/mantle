@@ -1,14 +1,14 @@
 ---
 title: Auto-transition issue status in build pipeline
-status: planned
+status: implementing
 slice:
 - claude-code
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
