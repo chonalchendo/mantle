@@ -1,6 +1,6 @@
 ---
 title: Knowledge engine — vault compilation, query, distillation, and linting
-status: planned
+status: verified
 slice:
 - core
 - cli
@@ -11,7 +11,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/verified
 ---
 
 ## Parent PRD
