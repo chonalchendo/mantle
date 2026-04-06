@@ -1,11 +1,11 @@
 ---
 issue: 32
 title: CLI knowledge commands — save-distillation, list-distillations, load-distillation
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

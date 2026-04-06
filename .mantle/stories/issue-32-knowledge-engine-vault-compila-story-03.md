@@ -1,11 +1,11 @@
 ---
 issue: 32
 title: Query and distill prompt files
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
