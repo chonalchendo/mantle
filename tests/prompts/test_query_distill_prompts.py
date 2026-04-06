@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-COMMANDS_DIR = Path.home() / ".claude" / "commands" / "mantle"
+COMMANDS_DIR = Path(__file__).resolve().parents[2] / "claude" / "commands" / "mantle"
 QUERY_PROMPT = COMMANDS_DIR / "query.md"
 DISTILL_PROMPT = COMMANDS_DIR / "distill.md"
 
