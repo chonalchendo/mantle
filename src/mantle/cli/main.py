@@ -18,6 +18,7 @@ from mantle.cli import (
     init_vault,
     install,
     issues,
+    knowledge,
     learning,
     product_design,
     research,
@@ -1611,6 +1612,89 @@ def collect_changed_files_command(
     simplify.run_collect_changed_files(
         project_dir=path,
     )
+
+
+@app.command(name="save-distillation")
+def save_distillation_command(
+    topic: Annotated[
+        str,
+        Parameter(
+            name="--topic",
+            help="The distillation subject.",
+        ),
+    ],
+    source_paths: Annotated[
+        list[str],
+        Parameter(
+            name="--source-paths",
+            help=(
+                "Relative path to a source note (repeatable)."
+            ),
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Distillation body content.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a distillation note to .mantle/distillations/."""
+    knowledge.run_save_distillation(
+        topic=topic,
+        source_paths=source_paths,
+        content=content,
+        project_dir=path,
+    )
+
+
+@app.command(name="list-distillations")
+def list_distillations_command(
+    topic: Annotated[
+        str | None,
+        Parameter(
+            name="--topic",
+            help=(
+                "Filter by topic substring"
+                " (case-insensitive)."
+            ),
+        ),
+    ] = None,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """List distillation notes in .mantle/distillations/."""
+    knowledge.run_list_distillations(
+        topic=topic,
+        project_dir=path,
+    )
+
+
+@app.command(name="load-distillation")
+def load_distillation_command(
+    path: Annotated[
+        str,
+        Parameter(
+            name="--path",
+            help="Absolute path to the distillation file.",
+        ),
+    ],
+) -> None:
+    """Load and print a distillation note."""
+    knowledge.run_load_distillation(path=path)
 
 
 if __name__ == "__main__":
