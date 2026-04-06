@@ -1,6 +1,6 @@
 ---
 title: Inbox — ultra-low-friction idea capture for project feature ideas
-status: planned
+status: approved
 slice:
 - core
 - cli
@@ -11,7 +11,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/approved
 ---
 
 ## Parent PRD
