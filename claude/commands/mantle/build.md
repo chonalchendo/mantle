@@ -176,6 +176,10 @@ Report the result:
 Why: each story is implemented by a dedicated agent with focused context,
 then verified with tests before moving to the next.
 
+Before reading implement.md, transition the issue to implementing:
+
+    mantle transition-issue-implementing --issue {NN}
+
 Read `claude/commands/mantle/implement.md` and follow Steps 3-5 with these
 build-mode overrides:
 - Skip user confirmation on issue selection
@@ -186,6 +190,10 @@ Report progress after each story:
 
 If any story is blocked after retry, stop the pipeline here. Do not continue
 to Step 7.
+
+After all stories complete successfully, transition the issue to implemented:
+
+    mantle transition-issue-implemented --issue {NN}
 
 **Inbox capture:** During implementation, if you spot patterns, ideas, or
 potential improvements that aren't part of the current issue, silently capture

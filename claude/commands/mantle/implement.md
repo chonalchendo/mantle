@@ -68,6 +68,10 @@ Display:
 > **Stories**: {story_count} planned
 > **Status**: {issue status}
 
+After confirming the issue, transition it to implementing (idempotent — safe if already implementing):
+
+    mantle transition-issue-implementing --issue {NN}
+
 Confirm with the user before proceeding.
 
 **Step 3 — Load context and stories**
