@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.8** — Tag discovery with `mantle list-tags` command for discovering and filtering vault skills by tag.
+**v0.8.9** — Inbox capture, knowledge engine (query/distill), and auto-transition issue status in build pipeline.
 
 ## License
 
