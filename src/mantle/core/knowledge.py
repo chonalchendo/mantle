@@ -125,12 +125,10 @@ def list_distillations(
     paths = sorted(distillations_dir.glob("*.md"))
     if topic is None:
         return paths
-    filtered = []
-    for path in paths:
-        note, _ = load_distillation(path)
-        if topic.lower() in note.topic.lower():
-            filtered.append(path)
-    return filtered
+    return [
+        p for p in paths
+        if topic.lower() in load_distillation(p)[0].topic.lower()
+    ]
 
 
 def find_distillation_by_topic(
@@ -148,20 +146,12 @@ def find_distillation_by_topic(
     Returns:
         Path to the most recent matching distillation, or None.
     """
-    distillations_dir = (
-        project_dir / ".mantle" / "distillations"
-    )
-    if not distillations_dir.is_dir():
-        return None
-    paths = sorted(distillations_dir.glob("*.md"))
-    matches = []
-    for path in paths:
-        note, _ = load_distillation(path)
-        if note.topic.lower() == topic.lower():
-            matches.append(path)
-    if not matches:
-        return None
-    return matches[-1]
+    paths = list_distillations(project_dir)
+    matches = [
+        p for p in paths
+        if load_distillation(p)[0].topic.lower() == topic.lower()
+    ]
+    return matches[-1] if matches else None
 
 
 # -- Internal helpers ---------------------------------------------
