@@ -114,9 +114,9 @@ skills first ensures the shaping agent can make informed approach choices.
    After each skill is created, run `mantle update-skills --issue {NN}` again
    to pick up the new skill.
 
-4. Run `mantle compile` to compile all matched vault skills into
-   `.claude/skills/` so they are available to shaping, planning, and
-   implementation agents.
+4. Run `mantle compile --issue {NN}` to compile only issue-relevant vault
+   skills into `.claude/skills/` so they are available to shaping, planning,
+   and implementation agents.
 
 Report:
 > **Skills loaded:** {list of matched skills}

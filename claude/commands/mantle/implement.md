@@ -80,7 +80,7 @@ First, ensure skills are up to date for this issue:
 
 ```bash
 mantle update-skills --issue {NN}
-mantle compile
+mantle compile --issue {NN}
 ```
 
 Then read all required context files:
