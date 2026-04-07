@@ -1,6 +1,6 @@
 ---
 title: Allow backward issue status transitions for review workflow
-status: verified
+status: approved
 slice:
 - core
 - tests
@@ -9,7 +9,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
