@@ -220,11 +220,7 @@ def _match_required_skills(
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
-    if skills_filter:
-        required = skills_filter
-    else:
-        current_state = state.load_state(project_dir)
-        required = current_state.skills_required
+    required = skills_filter or state.load_state(project_dir).skills_required
     if not required:
         return []
     existing = list_skills(project_dir)

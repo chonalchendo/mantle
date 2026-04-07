@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from typing import TYPE_CHECKING
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from mantle.cli.compile import run_compile
 
