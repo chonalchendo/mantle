@@ -1568,6 +1568,65 @@ def transition_issue_implementing_command(
     )
 
 
+@app.command(name="save-review-result")
+def save_review_result_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number under review.",
+        ),
+    ],
+    feedback: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--feedback",
+            help=(
+                "Review feedback as"
+                " 'criterion|status|comment'."
+            ),
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a review result to .mantle/reviews/."""
+    review.run_save_review_result(
+        issue=issue,
+        feedback=feedback,
+        project_dir=path,
+    )
+
+
+@app.command(name="load-review-result")
+def load_review_result_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to load review for.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Load and print a review result."""
+    review.run_load_review_result(
+        issue=issue,
+        project_dir=path,
+    )
+
+
 @app.command(name="compile")
 def compile_command(
     if_stale: Annotated[

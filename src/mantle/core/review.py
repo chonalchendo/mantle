@@ -1,12 +1,17 @@
-"""Review — checklist construction, feedback collection."""
+"""Review — checklist construction, feedback collection, persistence."""
 
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING, Literal
 
 import pydantic
 
+from mantle.core import state, vault
+
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from mantle.core import verify
 
 
@@ -167,6 +172,166 @@ def format_checklist(checklist: ReviewChecklist) -> str:
         if item.comment:
             line += f"\n  > {item.comment}"
         lines.append(line)
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+# ── Persistence model ───────────────────────────────────────────
+
+
+class ReviewResultNote(pydantic.BaseModel, frozen=True):
+    """Frontmatter for a persisted review result.
+
+    Attributes:
+        issue: Issue number that was reviewed.
+        title: Issue title.
+        status: Overall review outcome.
+        author: Git email of the reviewer.
+        date: Date the review was saved.
+        tags: Mantle tags for categorization.
+    """
+
+    issue: int
+    title: str
+    status: Literal["approved", "needs-changes"]
+    author: str
+    date: date
+    tags: tuple[str, ...] = ("type/review", "phase/reviewing")
+
+
+# ── Persistence API ─────────────────────────────────────────────
+
+
+def save_review_result(
+    project_root: Path,
+    checklist: ReviewChecklist,
+) -> tuple[ReviewResultNote, Path]:
+    """Persist a review checklist to .mantle/reviews/.
+
+    Computes overall status from the checklist, resolves git
+    identity, and writes a markdown note with YAML frontmatter.
+    Overwrites any existing review for the same issue.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        checklist: The completed review checklist.
+
+    Returns:
+        Tuple of (ReviewResultNote frontmatter, path to file).
+    """
+    review_status: Literal["approved", "needs-changes"] = (
+        "needs-changes"
+        if checklist.has_needs_changes
+        else "approved"
+    )
+    identity = state.resolve_git_identity()
+    today = date.today()
+
+    note = ReviewResultNote(
+        issue=checklist.issue,
+        title=checklist.title,
+        status=review_status,
+        author=identity,
+        date=today,
+    )
+
+    body = _format_review_body(checklist)
+    path = _review_path(project_root, checklist.issue)
+    vault.write_note(path, note, body)
+
+    return note, path
+
+
+def load_review_result(
+    project_root: Path,
+    issue_number: int,
+) -> tuple[ReviewResultNote, str]:
+    """Read a persisted review result.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue_number: Issue number to load the review for.
+
+    Returns:
+        Tuple of (ReviewResultNote frontmatter, body text).
+
+    Raises:
+        FileNotFoundError: If no review exists for the issue.
+    """
+    path = _review_path(project_root, issue_number)
+    result = vault.read_note(path, ReviewResultNote)
+    return result.frontmatter, result.body
+
+
+def list_reviews(project_root: Path) -> list[Path]:
+    """List all review files, sorted oldest-first.
+
+    Args:
+        project_root: Directory containing .mantle/.
+
+    Returns:
+        List of paths to review files. Empty if none exist.
+    """
+    reviews_dir = project_root / ".mantle" / "reviews"
+    if not reviews_dir.is_dir():
+        return []
+    return sorted(reviews_dir.glob("issue-*-review.md"))
+
+
+# ── Internal helpers (persistence) ──────────────────────────────
+
+
+def _review_path(project_root: Path, issue: int) -> Path:
+    """Compute the review file path for an issue.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue: Issue number.
+
+    Returns:
+        Path for the review file.
+    """
+    return (
+        project_root
+        / ".mantle"
+        / "reviews"
+        / f"issue-{issue:02d}-review.md"
+    )
+
+
+def _format_review_body(checklist: ReviewChecklist) -> str:
+    """Format checklist items as the review note body.
+
+    Args:
+        checklist: The review checklist to format.
+
+    Returns:
+        Markdown body with each criterion's details.
+    """
+    lines: list[str] = [
+        f"# Review — Issue {checklist.issue}",
+        "",
+        f"**{checklist.title}**",
+        "",
+        "## Criteria",
+        "",
+    ]
+    for item in checklist.items:
+        mark = "\u2713" if item.passed else "\u2717"
+        line = (
+            f"- {mark} **{item.criterion}**"
+            f" [{item.status}]"
+        )
+        if item.passed:
+            line += " — passed: true"
+        else:
+            line += " — passed: false"
+        if item.detail:
+            line += f", detail: {item.detail}"
+        lines.append(line)
+        if item.comment:
+            lines.append(f"  > {item.comment}")
 
     lines.append("")
     return "\n".join(lines)
