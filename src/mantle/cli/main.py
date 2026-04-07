@@ -28,6 +28,7 @@ from mantle.cli import (
     shaping,
     simplify,
     skills,
+    storage,
     stories,
     system_design,
     verify,
@@ -1829,6 +1830,48 @@ def load_distillation_command(
 ) -> None:
     """Load and print a distillation note."""
     knowledge.run_load_distillation(path=path)
+
+
+@app.command(name="storage")
+def storage_command(
+    mode: Annotated[
+        str,
+        Parameter(
+            name="--mode",
+            help="Storage mode: 'global' or 'local'.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Set the storage mode for the project."""
+    storage.run_storage(mode=mode, project_dir=path)
+
+
+@app.command(name="migrate-storage")
+def migrate_storage_command(
+    direction: Annotated[
+        str,
+        Parameter(
+            name="--direction",
+            help="Migration direction: 'global' or 'local'.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Migrate .mantle/ storage between local and global."""
+    storage.run_migrate_storage(direction=direction, project_dir=path)
 
 
 if __name__ == "__main__":
