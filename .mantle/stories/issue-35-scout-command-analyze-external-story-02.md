@@ -1,11 +1,11 @@
 ---
 issue: 35
 title: CLI scout wiring — save-scout subcommand
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

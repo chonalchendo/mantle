@@ -1,11 +1,11 @@
 ---
 issue: 35
 title: Scout prompt — clone, analyze, synthesize, save
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
