@@ -1,15 +1,15 @@
 ---
 title: Fix collect-issue-files commit detection for story commits
-status: planned
+status: implementing
 slice:
 - core
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
