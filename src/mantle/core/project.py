@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import pathlib
+import re
+import subprocess
 from typing import TYPE_CHECKING, Any
 
 import pydantic
@@ -15,6 +19,7 @@ if TYPE_CHECKING:
 # ── Structure constants ──────────────────────────────────────────
 
 MANTLE_DIR = ".mantle"
+GLOBAL_MANTLE_ROOT = ".mantle/projects"
 
 SUBDIRS: tuple[str, ...] = (
     "bugs",
@@ -39,6 +44,7 @@ class _ConfigFrontmatter(pydantic.BaseModel):
     personal_vault: str | None = None
     verification_strategy: str | None = None
     auto_push: bool = False
+    storage_mode: str | None = None
     tags: tuple[str, ...] = ("type/config",)
 
 
@@ -137,6 +143,68 @@ GITIGNORE_CONTENT = """\
 
 
 # ── Public API ───────────────────────────────────────────────────
+
+
+def project_identity(project_dir: Path) -> str:
+    """Compute a stable identity string for a project directory.
+
+    Uses the git remote origin URL when available, otherwise falls
+    back to the resolved absolute path.  The identity is a slugified
+    repo (or directory) name followed by a 12-char SHA-256 hex prefix.
+
+    Args:
+        project_dir: Root directory of the project.
+
+    Returns:
+        Identity string in the form ``<slug>-<hash12>``.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(project_dir), "remote", "get-url", "origin"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if result.returncode == 0:
+        source = result.stdout.strip()
+    else:
+        source = str(project_dir.resolve())
+
+    hash12 = hashlib.sha256(source.encode()).hexdigest()[:12]
+    slug = _slugify_name(source)
+    return f"{slug}-{hash12}"
+
+
+def resolve_mantle_dir(project_dir: Path) -> Path:
+    """Resolve the .mantle/ storage directory for a project.
+
+    Reads ``.mantle/config.md`` frontmatter for a ``storage_mode``
+    key.  When set to ``"global"``, returns a path under
+    ``~/.mantle/projects/<identity>``.  Otherwise returns the
+    project-local ``.mantle/`` path.
+
+    This function does **not** create any directories.
+
+    Args:
+        project_dir: Root directory of the project.
+
+    Returns:
+        Resolved path to the .mantle directory.
+    """
+    config_path = project_dir / MANTLE_DIR / "config.md"
+
+    try:
+        frontmatter, _ = _read_frontmatter_and_body(config_path)
+    except FileNotFoundError:
+        return project_dir / MANTLE_DIR
+
+    storage_mode = frontmatter.get("storage_mode")
+
+    if storage_mode == "global":
+        identity = project_identity(project_dir)
+        return pathlib.Path.home() / GLOBAL_MANTLE_ROOT / identity
+
+    return project_dir / MANTLE_DIR
 
 
 def init_project(project_dir: Path, project_name: str) -> Path:
@@ -247,6 +315,31 @@ def init_vault(vault_path: Path, project_root: Path) -> None:
 
 
 # ── Internal helpers ─────────────────────────────────────────────
+
+_SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _slugify_name(source: str) -> str:
+    """Extract and slugify a repo or directory name from a source.
+
+    For URLs like ``git@github.com:user/my-repo.git`` extracts
+    ``my-repo``.  For paths like ``/home/user/my-project`` extracts
+    ``my-project``.  Non-alphanumeric characters are replaced with
+    hyphens, and leading/trailing hyphens are stripped.
+
+    Args:
+        source: Git remote URL or absolute path string.
+
+    Returns:
+        Lowercase slug suitable for use in directory names.
+    """
+    # Extract the last path/URL segment, strip .git suffix.
+    basename = source.rstrip("/").rsplit("/", maxsplit=1)[-1]
+    if basename.endswith(".git"):
+        basename = basename[:-4]
+
+    slug = _SLUG_RE.sub("-", basename.lower()).strip("-")
+    return slug or "project"
 
 
 def _read_frontmatter_and_body(path: Path) -> tuple[dict[str, Any], str]:

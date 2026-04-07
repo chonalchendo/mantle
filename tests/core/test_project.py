@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import subprocess
 from typing import TYPE_CHECKING
+from unittest import mock
 
 import pytest
 
@@ -17,7 +20,9 @@ from mantle.core.project import (
     TAGS_BODY,
     init_project,
     init_vault,
+    project_identity,
     read_config,
+    resolve_mantle_dir,
     update_config,
 )
 from mantle.core.vault import read_note
@@ -293,3 +298,101 @@ class TestInitVault:
 
         with pytest.raises(FileNotFoundError):
             init_vault(vault, tmp_path)
+
+
+# ── project_identity ────────────────────────────────────────────
+
+
+class TestProjectIdentity:
+    def test_with_remote(self, tmp_path: Path) -> None:
+        """Remote URL is hashed and prefixed with slugified name."""
+        remote_url = "git@github.com:user/my-repo.git"
+        completed = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=remote_url + "\n",
+        )
+        with mock.patch("subprocess.run", return_value=completed):
+            result = project_identity(tmp_path)
+
+        expected_hash = hashlib.sha256(
+            remote_url.encode(),
+        ).hexdigest()[:12]
+        assert result == f"my-repo-{expected_hash}"
+
+    def test_without_remote(self, tmp_path: Path) -> None:
+        """Falls back to path hash when no remote exists."""
+        completed = subprocess.CompletedProcess(
+            args=[],
+            returncode=128,
+            stdout="",
+            stderr="fatal",
+        )
+        with mock.patch("subprocess.run", return_value=completed):
+            result = project_identity(tmp_path)
+
+        resolved = str(tmp_path.resolve())
+        expected_hash = hashlib.sha256(
+            resolved.encode(),
+        ).hexdigest()[:12]
+        # The slug is derived from the directory name, with
+        # non-alphanumeric characters replaced by hyphens.
+        assert result.endswith(f"-{expected_hash}")
+        # Must have a non-empty slug prefix before the hash.
+        slug_part = result[: -(len(expected_hash) + 1)]
+        assert len(slug_part) > 0
+
+    def test_stable(self, tmp_path: Path) -> None:
+        """Same input produces same output across calls."""
+        remote_url = "https://github.com/org/project.git"
+        completed = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=remote_url + "\n",
+        )
+        with mock.patch("subprocess.run", return_value=completed):
+            first = project_identity(tmp_path)
+            second = project_identity(tmp_path)
+
+        assert first == second
+
+
+# ── resolve_mantle_dir ──────────────────────────────────────────
+
+
+class TestResolveMantleDir:
+    def test_default_local(self, tmp_path: Path) -> None:
+        """No config returns project-local .mantle/."""
+        result = resolve_mantle_dir(tmp_path)
+
+        assert result == tmp_path / MANTLE_DIR
+
+    def test_explicit_local(self, tmp_path: Path) -> None:
+        """Config with storage_mode: local returns local path."""
+        _create_config(tmp_path, storage_mode="local")
+
+        result = resolve_mantle_dir(tmp_path)
+
+        assert result == tmp_path / MANTLE_DIR
+
+    def test_global(self, tmp_path: Path) -> None:
+        """Config with storage_mode: global returns ~/.mantle/..."""
+        _create_config(tmp_path, storage_mode="global")
+        remote_url = "git@github.com:user/my-repo.git"
+        completed = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=remote_url + "\n",
+        )
+        with mock.patch("subprocess.run", return_value=completed):
+            identity = project_identity(tmp_path)
+            result = resolve_mantle_dir(tmp_path)
+
+        expected = tmp_path.home() / ".mantle" / "projects" / identity
+        assert result == expected
+
+    def test_missing_config(self, tmp_path: Path) -> None:
+        """No .mantle/config.md falls back to local (no crash)."""
+        result = resolve_mantle_dir(tmp_path)
+
+        assert result == tmp_path / MANTLE_DIR
