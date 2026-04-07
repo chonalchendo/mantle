@@ -1,6 +1,6 @@
 ---
 title: Issue-scoped skill loading in build pipeline
-status: implemented
+status: approved
 slice:
 - core
 - claude-code
@@ -11,7 +11,7 @@ blocked_by: []
 skills_required: []
 tags:
 - type/issue
-- status/implemented
+- status/approved
 ---
 
 ## Parent PRD
