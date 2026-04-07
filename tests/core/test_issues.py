@@ -142,6 +142,11 @@ class TestIssueNote:
 
         assert note.verification is None
 
+    def test_skills_required_default(self) -> None:
+        note = IssueNote(title="t", slice=("core",))
+
+        assert note.skills_required == ()
+
 
 # ── save_issue ──────────────────────────────────────────────────
 
@@ -294,6 +299,25 @@ class TestSaveIssue:
         assert "Issue 1 planned" in text
         assert "/mantle:plan-issues" in text
         assert "/mantle:shape-issue" in text
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_save_issue_with_skills_required(
+        self, _mock: object, project: Path
+    ) -> None:
+        note, path = save_issue(
+            project,
+            CONTENT,
+            title="Skill test",
+            slice=("core",),
+            skills_required=("cyclopts",),
+        )
+
+        assert note.skills_required == ("cyclopts",)
+        loaded, _ = load_issue(path)
+        assert loaded.skills_required == ("cyclopts",)
 
 
 # ── load_issue ──────────────────────────────────────────────────

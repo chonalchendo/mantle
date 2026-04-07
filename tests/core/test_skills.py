@@ -33,6 +33,7 @@ from mantle.core.skills import (
     update_skill,
     validate_related_skills,
 )
+from mantle.core import issues as issues_mod
 from mantle.core.state import ProjectState, Status, load_state
 
 MOCK_EMAIL = "test@example.com"
@@ -1499,3 +1500,122 @@ class TestGenerateIndexNotes:
         assert (
             vault_root / "indexes" / "domain-web.md"
         ).exists()
+
+
+# ── compile_skills with issue ──────────────────────────────────
+
+
+def _write_issue(
+    project_dir: Path,
+    issue_number: int,
+    *,
+    skills_required: tuple[str, ...] = (),
+) -> Path:
+    """Write an issue file with skills_required."""
+    from mantle.core.issues import IssueNote
+
+    note = IssueNote(
+        title=f"Issue {issue_number}",
+        status="planned",
+        slice=("core",),
+        skills_required=skills_required,
+    )
+    slug = f"issue-{issue_number:02d}"
+    path = (
+        project_dir
+        / ".mantle"
+        / "issues"
+        / f"issue-{issue_number:02d}-issue-{issue_number}.md"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
+    return path
+
+
+class TestCompileSkillsWithIssue:
+    """Tests for compile_skills() with issue parameter."""
+
+    def test_issue_scoped_skills(self, project: Path) -> None:
+        """Only skills listed in the issue are compiled."""
+        _create_skill(project, name="skill-a")
+        _create_skill(project, name="skill-b")
+        _create_skill(project, name="skill-c")
+        _write_state(
+            project,
+            skills_required=("skill-a", "skill-b", "skill-c"),
+        )
+        _write_issue(
+            project, 1,
+            skills_required=("skill-a", "skill-b"),
+        )
+
+        result = compile_skills(project, issue=1)
+
+        assert sorted(result) == ["skill-a", "skill-b"]
+        assert "skill-c" not in result
+
+    def test_issue_empty_falls_back(self, project: Path) -> None:
+        """Issue with no skills_required falls back to state.md."""
+        _create_skill(project, name="skill-a")
+        _write_state(
+            project,
+            skills_required=("skill-a",),
+        )
+        _write_issue(project, 1, skills_required=())
+
+        result = compile_skills(project, issue=1)
+
+        assert result == ["skill-a"]
+
+    def test_no_issue_uses_state(self, project: Path) -> None:
+        """Calling without issue uses state.md (backward compat)."""
+        _create_skill(project, name="skill-a")
+        _write_state(
+            project,
+            skills_required=("skill-a",),
+        )
+
+        result = compile_skills(project)
+
+        assert result == ["skill-a"]
+
+
+# ── auto_update_skills writes to issue ─────────────────────────
+
+
+class TestAutoUpdateSkillsWritesToIssue:
+    """Tests for auto_update_skills() writing to issue file."""
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_writes_skills_to_issue(
+        self, _mock: object, project: Path
+    ) -> None:
+        _write_state(project)
+        _create_skill(project, name="Python asyncio")
+
+        # Write issue with body that references the skill name
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        from mantle.core.issues import IssueNote
+
+        note = IssueNote(
+            title="Issue 1",
+            status="planned",
+            slice=("core",),
+        )
+        issue_path = issues_dir / "issue-01-issue-1.md"
+        vault.write_note(
+            issue_path,
+            note,
+            "Uses Python asyncio for concurrency.\n",
+        )
+
+        auto_update_skills(project, 1)
+
+        loaded_path = issues_mod.find_issue_path(project, 1)
+        assert loaded_path is not None
+        loaded, _ = issues_mod.load_issue(loaded_path)
+        assert "Python asyncio" in loaded.skills_required

@@ -201,14 +201,18 @@ def _match_skill_slug(name: str, existing_paths: Sequence[Path]) -> Path | None:
 
 def _match_required_skills(
     project_dir: Path,
+    skills_filter: tuple[str, ...] = (),
 ) -> list[tuple[str, Path | None]]:
     """Match ``skills_required`` names to vault paths.
 
     Loads state and vault skill list once, then matches each required
-    skill name by slug.
+    skill name by slug.  When ``skills_filter`` is provided, it is
+    used instead of the ``skills_required`` from ``state.md``.
 
     Args:
         project_dir: Directory containing ``.mantle/``.
+        skills_filter: Explicit skill names to match.  When non-empty,
+            overrides the ``skills_required`` from ``state.md``.
 
     Returns:
         List of ``(required name, matched path or None)`` pairs.
@@ -216,8 +220,11 @@ def _match_required_skills(
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
-    current_state = state.load_state(project_dir)
-    required = current_state.skills_required
+    if skills_filter:
+        required = skills_filter
+    else:
+        current_state = state.load_state(project_dir)
+        required = current_state.skills_required
     if not required:
         return []
     existing = list_skills(project_dir)
@@ -781,6 +788,30 @@ def auto_update_skills(
             additive=True,
         )
 
+    # Also update the issue file's skills_required
+    # Local import to avoid circular dependency:
+    # issues -> state <- skills -> issues
+    from mantle.core import issues as issues_mod
+
+    issue_path = issues_mod.find_issue_path(
+        project_dir, issue_number
+    )
+    if issue_path is not None:
+        try:
+            issue_note, issue_body = issues_mod.load_issue(
+                issue_path
+            )
+        except (vault.NoteParseError, vault.NoteValidationError):
+            return new_skills
+        merged = set(issue_note.skills_required) | set(detected)
+        if merged != set(issue_note.skills_required):
+            updated_note = issue_note.model_copy(
+                update={
+                    "skills_required": tuple(sorted(merged)),
+                },
+            )
+            vault.write_note(issue_path, updated_note, issue_body)
+
     return new_skills
 
 
@@ -853,7 +884,10 @@ _ESSENTIAL_HEADINGS = frozenset(
 _PROGRESSIVE_DISCLOSURE_THRESHOLD = 500
 
 
-def compile_skills(project_dir: Path) -> list[str]:
+def compile_skills(
+    project_dir: Path,
+    issue: int | None = None,
+) -> list[str]:
     """Compile vault skills to ``.claude/skills/`` for Claude Code.
 
     Reads ``skills_required`` from ``state.md``, loads matching skills
@@ -861,11 +895,16 @@ def compile_skills(project_dir: Path) -> list[str]:
     ``.claude/skills/<slug>/SKILL.md`` following the Claude Code skill
     specification.
 
+    When ``issue`` is provided, uses the issue's ``skills_required``
+    instead of the project-wide list from ``state.md``.  Falls back to
+    ``state.md`` if the issue has no ``skills_required``.
+
     Removes stale skill directories (skills no longer in
     ``skills_required`` or deleted from vault).
 
     Args:
         project_dir: Directory containing ``.mantle/``.
+        issue: Optional issue number to scope skill compilation.
 
     Returns:
         List of compiled skill slugs.
@@ -873,8 +912,22 @@ def compile_skills(project_dir: Path) -> list[str]:
     skills_target = project_dir / ".claude" / "skills"
     compiled_slugs: list[str] = []
 
+    skills_filter: tuple[str, ...] = ()
+    if issue is not None:
+        # Local import to avoid circular dependency:
+        # issues -> state <- skills -> issues
+        from mantle.core import issues as issues_mod
+
+        issue_path = issues_mod.find_issue_path(project_dir, issue)
+        if issue_path is not None:
+            note, _ = issues_mod.load_issue(issue_path)
+            if note.skills_required:
+                skills_filter = note.skills_required
+
     try:
-        matches = _match_required_skills(project_dir)
+        matches = _match_required_skills(
+            project_dir, skills_filter=skills_filter
+        )
     except (VaultNotConfiguredError, FileNotFoundError):
         _cleanup_stale_skills(skills_target, compiled_slugs)
         return compiled_slugs

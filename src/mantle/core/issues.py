@@ -27,6 +27,7 @@ class IssueNote(pydantic.BaseModel, frozen=True):
         story_count: Number of stories decomposed from this issue.
         verification: Optional per-issue verification override.
         blocked_by: Issue numbers this issue depends on.
+        skills_required: Skills needed for this issue.
         tags: Mantle tags for categorization.
     """
 
@@ -36,6 +37,7 @@ class IssueNote(pydantic.BaseModel, frozen=True):
     story_count: int = 0
     verification: str | None = None
     blocked_by: tuple[int, ...] = ()
+    skills_required: tuple[str, ...] = ()
     tags: tuple[str, ...] = ("type/issue", "status/planned")
 
 
@@ -80,6 +82,7 @@ def save_issue(
     title: str,
     slice: tuple[str, ...],
     blocked_by: tuple[int, ...] = (),
+    skills_required: tuple[str, ...] = (),
     verification: str | None = None,
     issue: int | None = None,
     overwrite: bool = False,
@@ -96,6 +99,7 @@ def save_issue(
         title: Short title for the issue.
         slice: Architectural layers this issue touches.
         blocked_by: Issue numbers this issue depends on.
+        skills_required: Skills needed for this issue.
         verification: Optional per-issue verification override.
         issue: Explicit issue number (for overwrites). Auto-assigns when None.
         overwrite: Replace existing issue file.
@@ -120,6 +124,7 @@ def save_issue(
         title=title,
         slice=slice,
         blocked_by=blocked_by,
+        skills_required=skills_required,
         verification=verification,
     )
 
