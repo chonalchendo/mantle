@@ -136,8 +136,7 @@ def run_save_review_result(
     Raises:
         SystemExit: If issue is not found.
     """
-    if project_dir is None:
-        project_dir = Path.cwd()
+    project_dir = project_dir or Path.cwd()
 
     issue_path = issues.find_issue_path(project_dir, issue)
     if issue_path is None:
@@ -193,8 +192,7 @@ def run_load_review_result(
     Raises:
         SystemExit: If no review exists for the issue.
     """
-    if project_dir is None:
-        project_dir = Path.cwd()
+    project_dir = project_dir or Path.cwd()
 
     try:
         _, body = review.load_review_result(project_dir, issue)

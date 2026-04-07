@@ -64,15 +64,7 @@ class ReviewChecklist(pydantic.BaseModel, frozen=True):
 
 
 class InvalidFeedbackError(Exception):
-    """Raised when feedback contains an invalid index or status.
-
-    Attributes:
-        message: Description of the validation failure.
-    """
-
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(message)
+    """Raised when feedback contains an invalid index or status."""
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -220,10 +212,8 @@ def save_review_result(
     Returns:
         Tuple of (ReviewResultNote frontmatter, path to file).
     """
-    review_status: Literal["approved", "needs-changes"] = (
-        "needs-changes"
-        if checklist.has_needs_changes
-        else "approved"
+    review_status = (
+        "needs-changes" if checklist.has_needs_changes else "approved"
     )
     identity = state.resolve_git_identity()
     today = date.today()
@@ -283,15 +273,6 @@ def list_reviews(project_root: Path) -> list[Path]:
 
 
 def _review_path(project_root: Path, issue: int) -> Path:
-    """Compute the review file path for an issue.
-
-    Args:
-        project_root: Directory containing .mantle/.
-        issue: Issue number.
-
-    Returns:
-        Path for the review file.
-    """
     return (
         project_root
         / ".mantle"
@@ -301,14 +282,6 @@ def _review_path(project_root: Path, issue: int) -> Path:
 
 
 def _format_review_body(checklist: ReviewChecklist) -> str:
-    """Format checklist items as the review note body.
-
-    Args:
-        checklist: The review checklist to format.
-
-    Returns:
-        Markdown body with each criterion's details.
-    """
     lines: list[str] = [
         f"# Review — Issue {checklist.issue}",
         "",
@@ -323,10 +296,7 @@ def _format_review_body(checklist: ReviewChecklist) -> str:
             f"- {mark} **{item.criterion}**"
             f" [{item.status}]"
         )
-        if item.passed:
-            line += " — passed: true"
-        else:
-            line += " — passed: false"
+        line += f" — passed: {str(item.passed).lower()}"
         if item.detail:
             line += f", detail: {item.detail}"
         lines.append(line)
