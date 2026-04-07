@@ -23,6 +23,7 @@ from mantle.cli import (
     product_design,
     research,
     review,
+    scout,
     session,
     shaping,
     simplify,
@@ -1305,6 +1306,54 @@ def save_learning_command(
         confidence_delta=confidence_delta,
         content=content,
         overwrite=overwrite,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-scout")
+def save_scout_command(
+    repo_url: Annotated[
+        str,
+        Parameter(
+            name="--repo-url",
+            help="URL of the analyzed repository.",
+        ),
+    ],
+    repo_name: Annotated[
+        str,
+        Parameter(
+            name="--repo-name",
+            help="Short name of the repository.",
+        ),
+    ],
+    dimensions: Annotated[
+        list[str],
+        Parameter(
+            name="--dimensions",
+            help="Analysis dimensions covered.",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full scout report content.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a scout report to .mantle/scouts/."""
+    scout.run_save_scout(
+        repo_url=repo_url,
+        repo_name=repo_name,
+        dimensions=dimensions,
+        content=content,
         project_dir=path,
     )
 
