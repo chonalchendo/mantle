@@ -122,14 +122,7 @@ def list_scouts(project_dir: Path) -> list[Path]:
 
 
 def _slugify(name: str) -> str:
-    """Lowercase, replace non-alphanumeric with hyphens, truncate.
-
-    Args:
-        name: Human-readable name string.
-
-    Returns:
-        URL-safe slug, max 40 characters.
-    """
+    """Return a URL-safe slug, max 40 characters."""
     slug = name.lower()
     slug = re.sub(r"[^a-z0-9]+", "-", slug)
     slug = slug.strip("-")
