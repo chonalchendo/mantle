@@ -11,6 +11,7 @@ import pytest
 import yaml
 
 from mantle.core import migration, project
+from mantle.core.project import _slugify_name
 
 # Deterministic identity for tests: fake git remote URL.
 FAKE_REMOTE = "https://github.com/user/my-project.git"
@@ -48,10 +49,8 @@ def _create_mantle_dir(project_dir: Path) -> Path:
     return mantle
 
 
-def _expected_identity(project_dir: Path) -> str:
+def _expected_identity() -> str:
     """Compute the expected identity string for the fake remote."""
-    from mantle.core.project import _slugify_name
-
     slug = _slugify_name(FAKE_REMOTE)
     return f"{slug}-{FAKE_HASH}"
 
@@ -79,7 +78,7 @@ class TestMigrateToGlobal:
         with patch.object(Path, "home", return_value=fake_home):
             target = migration.migrate_to_global(proj)
 
-        identity = _expected_identity(proj)
+        identity = _expected_identity()
         expected = fake_home / ".mantle" / "projects" / identity
         assert target == expected
         assert target.is_dir()
@@ -176,7 +175,7 @@ class TestMigrateToGlobal:
         fake_home = tmp_path / "home"
         fake_home.mkdir()
 
-        identity = _expected_identity(proj)
+        identity = _expected_identity()
         target = fake_home / ".mantle" / "projects" / identity
         target.mkdir(parents=True)
 

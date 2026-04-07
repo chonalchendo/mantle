@@ -6,8 +6,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 from mantle.core import project
 
 
@@ -52,7 +50,11 @@ def migrate_to_global(
         # a stub config.md.
         shutil.rmtree(source)
         source.mkdir()
-        _write_stub_config(source, storage_mode="global")
+        project._write_frontmatter_and_body(
+            source / "config.md",
+            {"storage_mode": "global"},
+            project.CONFIG_BODY,
+        )
 
     return target
 
@@ -115,25 +117,3 @@ def _update_config_at(
     fm, body = project._read_frontmatter_and_body(config_path)
     fm.update(kwargs)
     project._write_frontmatter_and_body(config_path, fm, body)
-
-
-def _write_stub_config(
-    mantle_dir: Path,
-    *,
-    storage_mode: str,
-) -> None:
-    """Write a minimal config.md stub with the given storage mode.
-
-    Args:
-        mantle_dir: The .mantle/ directory to write into.
-        storage_mode: Value for the ``storage_mode`` field.
-    """
-    fm: dict[str, Any] = {"storage_mode": storage_mode}
-    yaml_str = yaml.dump(
-        fm,
-        default_flow_style=False,
-        sort_keys=False,
-        allow_unicode=True,
-    )
-    text = f"---\n{yaml_str}---\n\n{project.CONFIG_BODY}"
-    (mantle_dir / "config.md").write_text(text, encoding="utf-8")
