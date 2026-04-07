@@ -1,6 +1,6 @@
 ---
 title: Global .mantle/ storage — per-project folders under ~/.mantle/ instead of in-repo
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -39,7 +39,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
