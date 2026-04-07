@@ -1,6 +1,6 @@
 ---
 title: Fix collect-issue-files commit detection for story commits
-status: verified
+status: approved
 slice:
 - core
 - tests
@@ -9,7 +9,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
