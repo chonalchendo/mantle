@@ -1,6 +1,6 @@
 ---
 title: Review feedback loop — automated fix and re-verify after review
-status: implementing
+status: verified
 slice:
 - claude-code
 - core
@@ -10,7 +10,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD

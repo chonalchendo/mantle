@@ -1,11 +1,11 @@
 ---
 issue: 40
 title: Prompt updates — review.md save + fix.md command
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
