@@ -11,21 +11,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-# ── Exception ────────────────────────────────────────────────────
-
-
-class NoCommitsFoundError(Exception):
-    """Raised when no commits match the issue pattern.
-
-    Attributes:
-        issue_number: The issue number that had no matching commits.
-    """
-
-    def __init__(self, issue_number: int) -> None:
-        self.issue_number = issue_number
-        super().__init__(f"No commits found matching issue {issue_number}")
-
-
 # ── Constants ────────────────────────────────────────────────────
 
 
@@ -64,15 +49,19 @@ def collect_issue_files(
     matching the conventional commit pattern ``feat(issue-N):``
     and collects all files changed across those commits.
 
+    For single-digit issues (N < 10), also searches for
+    zero-padded forms like ``(issue-01)`` to catch early
+    project history.
+
     Args:
         project_root: Directory containing .mantle/.
         issue: Issue number to collect files for.
 
     Returns:
-        Tuple of file paths relative to project root.
+        Tuple of file paths relative to project root,
+        or empty tuple if no matching commits exist.
 
     Raises:
-        NoCommitsFoundError: If no matching commits exist.
         FileNotFoundError: If the issue file does not exist.
     """
     issue_path = issues.find_issue_path(project_root, issue)
@@ -81,23 +70,34 @@ def collect_issue_files(
         raise FileNotFoundError(msg)
     issues.load_issue(issue_path)
 
-    result = subprocess.run(
-        [
-            "git",
-            "log",
-            "--oneline",
-            f"--grep=issue-{issue}",
-            "--format=%H",
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-        cwd=project_root,
-    )
+    def _grep_commits(pattern: str) -> list[str]:
+        result = subprocess.run(
+            [
+                "git",
+                "log",
+                "--oneline",
+                f"--grep={pattern}",
+                "--format=%H",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=project_root,
+        )
+        return result.stdout.strip().splitlines()
 
-    commit_hashes = result.stdout.strip().splitlines()
+    commit_hashes = _grep_commits(f"(issue-{issue})")
+
+    if issue < 10:
+        padded = _grep_commits(f"(issue-0{issue})")
+        seen = set(commit_hashes)
+        for h in padded:
+            if h not in seen:
+                commit_hashes.append(h)
+                seen.add(h)
+
     if not commit_hashes:
-        raise NoCommitsFoundError(issue)
+        return ()
 
     first_commit = commit_hashes[-1]
     last_commit = commit_hashes[0]

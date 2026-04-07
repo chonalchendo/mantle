@@ -25,14 +25,15 @@ def run_collect_issue_files(
     if project_dir is None:
         project_dir = Path.cwd()
 
-    try:
-        files = simplify.collect_issue_files(project_dir, issue)
-    except simplify.NoCommitsFoundError:
-        console.print(f"[red]Error:[/red] No commits found for issue {issue}.")
-        raise SystemExit(1) from None
+    files = simplify.collect_issue_files(project_dir, issue)
+
+    if not files:
+        console.print(f"No commits found for issue {issue}.")
+        return
 
     for f in files:
         console.print(f)
+    console.print(f"{len(files)} file(s) changed.")
 
 
 def run_collect_changed_files(

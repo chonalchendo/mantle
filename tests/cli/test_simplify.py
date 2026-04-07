@@ -103,8 +103,8 @@ class TestCollectIssueFilesCLI:
         assert result.returncode == 0
         assert "foo.py" in result.stdout
 
-    def test_no_commits_exits(self, tmp_path: Path) -> None:
-        """Exits with code 1 when no commits match."""
+    def test_no_commits_prints_message(self, tmp_path: Path) -> None:
+        """Prints message and exits 0 when no commits match."""
         project = _init_git_repo(tmp_path)
         _write_issue_file(project, 1)
         _commit_file(project, "initial.txt", "chore: initial")
@@ -125,7 +125,7 @@ class TestCollectIssueFilesCLI:
             check=False,
         )
 
-        assert result.returncode == 1
+        assert result.returncode == 0
         assert "No commits found" in result.stdout
 
 

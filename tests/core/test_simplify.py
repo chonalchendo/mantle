@@ -5,10 +5,7 @@ from __future__ import annotations
 import subprocess
 from typing import TYPE_CHECKING
 
-import pytest
-
 from mantle.core import simplify
-from mantle.core.simplify import NoCommitsFoundError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -98,16 +95,43 @@ class TestCollectIssueFiles:
         assert "foo.py" in files
         assert "bar.py" in files
 
-    def test_no_commits_raises(self, tmp_path: Path) -> None:
-        """Raises NoCommitsFoundError for issue with no commits."""
+    def test_no_commits_returns_empty(self, tmp_path: Path) -> None:
+        """Returns empty tuple for issue with no commits."""
         project = _init_git_repo(tmp_path)
         _write_issue_file(project, 1)
 
         # Need at least one commit for git log to work
         _commit_file(project, "initial.txt", "chore: initial")
 
-        with pytest.raises(NoCommitsFoundError):
-            simplify.collect_issue_files(project, 1)
+        result = simplify.collect_issue_files(project, 1)
+
+        assert result == ()
+
+    def test_excludes_partial_number_match(self, tmp_path: Path) -> None:
+        """Collecting issue-3 does not include commits for issue-30."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 3)
+
+        _commit_file(project, "initial.txt", "chore: initial")
+        _commit_file(project, "issue3.py", "feat(issue-3): add issue-3 file")
+        _commit_file(project, "issue30.py", "feat(issue-30): add issue-30 file")
+
+        files = simplify.collect_issue_files(project, 3)
+
+        assert "issue3.py" in files
+        assert "issue30.py" not in files
+
+    def test_finds_zero_padded_commits(self, tmp_path: Path) -> None:
+        """Commits with zero-padded scope like (issue-01) are found."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 1)
+
+        _commit_file(project, "initial.txt", "chore: initial")
+        _commit_file(project, "padded.py", "feat(issue-01): add padded file")
+
+        files = simplify.collect_issue_files(project, 1)
+
+        assert "padded.py" in files
 
     def test_excludes_other_issues(self, tmp_path: Path) -> None:
         """Commits for issue-2 not included when collecting issue-1."""
