@@ -218,7 +218,7 @@ def count_issues(project_dir: Path) -> int:
 _ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "verified": frozenset({"implementing", "implemented"}),
     "approved": frozenset({"verified"}),
-    "implementing": frozenset({"planned", "verified", "implementing"}),
+    "implementing": frozenset({"planned", "verified", "implementing", "implemented"}),
     "implemented": frozenset({"implementing"}),
 }
 

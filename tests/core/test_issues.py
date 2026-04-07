@@ -517,6 +517,18 @@ class TestTransitionToImplementing:
         assert note.status == "implementing"
         assert "status/implementing" in note.tags
 
+    def test_transition_to_implementing_from_implemented(
+        self, project: Path
+    ) -> None:
+        """Implemented issue transitions back to implementing."""
+        _write_issue_direct(project, 15, status="implemented")
+
+        path = issues_mod.transition_to_implementing(project, 15)
+
+        note, _ = load_issue(path)
+        assert note.status == "implementing"
+        assert "status/implementing" in note.tags
+
 
 # ── transition_to_implemented ────────────────────────────────────
 
