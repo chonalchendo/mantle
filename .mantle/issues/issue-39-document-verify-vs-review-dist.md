@@ -1,15 +1,15 @@
 ---
 title: Document verify vs review distinction and add convention checking to verify
-status: planned
+status: verified
 slice:
 - claude-code
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/verified
 ---
 
 ## Parent PRD
