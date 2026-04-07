@@ -5,7 +5,7 @@ status: planning
 confidence: 0/10
 created: '2026-02-22'
 created_by: conal@conalnicholson.com
-updated: '2026-04-06'
+updated: '2026-04-07'
 updated_by: 110059232+chonalchendo@users.noreply.github.com
 current_issue: null
 current_story: null
@@ -21,12 +21,15 @@ skills_required:
 - DuckDB Best Practices and Optimisations
 - DuckLake
 - Earnings Transcript Data Sources
+- EarningsCall.biz Scraping
 - FRED Data Source
+- Finnhub Data Source
 - Finviz Data Source
 - Lakehouse Architecture
 - Macrotrends Data Source
 - Medallion Architecture & Star Schema
 - Mohnish Pabrai Investment Philosophy
+- OpenRouter LLM Gateway
 - Playwright Web Scraping
 - Production Project Readiness
 - Python Project Conventions
@@ -35,6 +38,7 @@ skills_required:
 - Software Design Principles
 - Tom Gayner Investment Philosophy
 - beautifulsoup4-web-scraping
+- claude-sdk-structured-analysis-pipelines
 - cyclopts
 - docker-compose-python
 - edgartools
@@ -56,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 35 planned — run /mantle:plan-issues for next issue or /mantle:shape-issue to start shaping.
+Issue 35 — 3 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

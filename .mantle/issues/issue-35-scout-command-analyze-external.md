@@ -1,17 +1,17 @@
 ---
 title: Scout command — analyze external repos through project context lens
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - claude-code
 - tests
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
