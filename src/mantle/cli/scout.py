@@ -47,18 +47,13 @@ def run_save_scout(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Scout report saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Scout report saved to {path.name}[/green]")
     console.print()
     console.print(f"  Repo:       {note.repo_name}")
     console.print(f"  Date:       {note.date}")
     console.print(f"  Author:     {note.author}")
-    console.print(
-        f"  Dimensions: {len(note.dimensions)} covered"
-    )
+    console.print(f"  Dimensions: {len(note.dimensions)} covered")
     console.print()
     console.print(
-        "  Next: run [bold]/mantle:query[/bold]"
-        " to search scout findings"
+        "  Next: run [bold]/mantle:query[/bold] to search scout findings"
     )

@@ -108,9 +108,7 @@ class TestTransitionIssueVerifiedCLI:
         assert "verified" in result.stdout.lower()
 
         # Verify the issue file was updated.
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "verified"
 

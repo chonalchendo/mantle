@@ -2,7 +2,9 @@
 
 from pathlib import Path
 
-COMMANDS_DIR = Path(__file__).resolve().parents[2] / "claude" / "commands" / "mantle"
+COMMANDS_DIR = (
+    Path(__file__).resolve().parents[2] / "claude" / "commands" / "mantle"
+)
 QUERY_PROMPT = COMMANDS_DIR / "query.md"
 DISTILL_PROMPT = COMMANDS_DIR / "distill.md"
 
@@ -52,7 +54,11 @@ def test_distill_prompt_mentions_wikilinks():
 def test_distill_prompt_mentions_staleness():
     """distill.md references staleness or source tracking."""
     content = DISTILL_PROMPT.read_text().lower()
-    assert "stale" in content or "source_count" in content or "source_paths" in content
+    assert (
+        "stale" in content
+        or "source_count" in content
+        or "source_paths" in content
+    )
 
 
 def test_distill_prompt_invokes_save():

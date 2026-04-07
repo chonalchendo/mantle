@@ -194,9 +194,7 @@ class TestAddTags:
 class TestCollectAllTags:
     """Tests for collect_all_tags()."""
 
-    def test_collect_all_tags_merges_sources(
-        self, vault_project: Path
-    ) -> None:
+    def test_collect_all_tags_merges_sources(self, vault_project: Path) -> None:
         """Taxonomy and vault tags are both present in the result."""
         result = tags.collect_all_tags(vault_project)
 
@@ -253,9 +251,7 @@ tags:
         assert result.vault == frozenset()
         assert result.undeclared == frozenset()
 
-    def test_collect_all_tags_no_taxonomy_file(
-        self, tmp_path: Path
-    ) -> None:
+    def test_collect_all_tags_no_taxonomy_file(self, tmp_path: Path) -> None:
         """No tags.md — all vault tags are undeclared."""
         mantle = tmp_path / ".mantle"
         mantle.mkdir()
@@ -276,9 +272,7 @@ tags:
         # All vault tags are undeclared when no taxonomy exists
         assert result.undeclared == result.vault
 
-    def test_collect_all_tags_no_config_file(
-        self, tmp_path: Path
-    ) -> None:
+    def test_collect_all_tags_no_config_file(self, tmp_path: Path) -> None:
         """No tags.md and no vault — returns empty TagSummary."""
         mantle = tmp_path / ".mantle"
         mantle.mkdir()

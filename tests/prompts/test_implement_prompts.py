@@ -2,7 +2,9 @@
 
 from pathlib import Path
 
-COMMANDS_DIR = Path(__file__).resolve().parents[2] / "claude" / "commands" / "mantle"
+COMMANDS_DIR = (
+    Path(__file__).resolve().parents[2] / "claude" / "commands" / "mantle"
+)
 IMPLEMENT_PROMPT = COMMANDS_DIR / "implement.md"
 
 

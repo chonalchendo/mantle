@@ -338,7 +338,9 @@ class TestUpdateStoryStatus:
         _save(project)
         update_story_status(project, issue=1, story=1, status="in-progress")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 
@@ -346,7 +348,9 @@ class TestUpdateStoryStatus:
         _save(project)
         update_story_status(project, issue=1, story=1, status="completed")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.status == "completed"
 
@@ -360,7 +364,9 @@ class TestUpdateStoryStatus:
             failure_log="tests failed: AssertionError",
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.failure_log == ("tests failed: AssertionError")
 
@@ -368,7 +374,9 @@ class TestUpdateStoryStatus:
         _save(project)
         update_story_status(project, issue=1, story=1, status="in-progress")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.failure_log is None
 
@@ -376,7 +384,9 @@ class TestUpdateStoryStatus:
         _save(project)
         update_story_status(project, issue=1, story=1, status="in-progress")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert "status/in-progress" in note.frontmatter.tags
         assert "status/planned" not in note.frontmatter.tags
@@ -385,7 +395,9 @@ class TestUpdateStoryStatus:
         _save(project)
         update_story_status(project, issue=1, story=1, status="in-progress")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 
@@ -394,7 +406,9 @@ class TestUpdateStoryStatus:
         update_story_status(project, issue=1, story=1, status="in-progress")
         update_story_status(project, issue=1, story=1, status="completed")
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.status == "completed"
         assert "status/completed" in note.frontmatter.tags
@@ -412,7 +426,9 @@ class TestUpdateStoryStatus:
             failure_log="test_foo FAILED",
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = vault.read_note(path, StoryNote)
         assert note.frontmatter.status == "blocked"
         assert note.frontmatter.failure_log == "test_foo FAILED"

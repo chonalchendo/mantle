@@ -49,7 +49,7 @@ def collect_context(project_dir: Path) -> dict[str, Any]:
     try:
         stub_results = skills.detect_stubs(project_dir)
         context["skill_stubs"] = [name for name, _ in stub_results]
-    except (skills.VaultNotConfiguredError, FileNotFoundError):
+    except skills.VaultNotConfiguredError, FileNotFoundError:
         context["skill_stubs"] = []
 
     return context
@@ -89,7 +89,7 @@ def source_paths(project_dir: Path) -> list[Path]:
     try:
         skill_paths = skills.list_skills(project_dir)
         paths.extend(skill_paths)
-    except (skills.VaultNotConfiguredError, FileNotFoundError):
+    except skills.VaultNotConfiguredError, FileNotFoundError:
         pass
 
     return paths

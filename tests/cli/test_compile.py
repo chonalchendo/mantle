@@ -151,7 +151,6 @@ class TestRunCompile:
 
         assert (target / "status.md").exists()
 
-
     def test_passes_issue_to_compiler_compile(self, tmp_path: Path) -> None:
         _write_state_md(tmp_path / ".mantle")
         tpl_dir = _make_template_dir(tmp_path)

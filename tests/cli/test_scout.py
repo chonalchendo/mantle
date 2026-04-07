@@ -84,9 +84,7 @@ class TestRunSaveScout:
 
         assert "Scout report saved" in captured.out
 
-        scouts = list(
-            (project / ".mantle" / "scouts").glob("*.md")
-        )
+        scouts = list((project / ".mantle" / "scouts").glob("*.md"))
         assert len(scouts) == 1
 
     def test_run_save_scout_prints_confirmation(
@@ -128,9 +126,7 @@ class TestRunSaveScout:
 
         assert "Scout report saved" in captured.out
 
-        scouts = list(
-            (project / ".mantle" / "scouts").glob("*.md")
-        )
+        scouts = list((project / ".mantle" / "scouts").glob("*.md"))
         assert len(scouts) == 1
 
     def test_run_save_scout_invalid_raises_exit(
@@ -142,9 +138,7 @@ class TestRunSaveScout:
 
         monkeypatch.setattr(
             "mantle.core.scout.save_scout",
-            lambda *a, **kw: (_ for _ in ()).throw(
-                ValueError("bad input")
-            ),
+            lambda *a, **kw: (_ for _ in ()).throw(ValueError("bad input")),
         )
         with pytest.raises(SystemExit) as exc_info:
             run_save_scout(

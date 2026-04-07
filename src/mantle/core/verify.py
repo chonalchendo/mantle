@@ -250,12 +250,8 @@ def _introspect_claude_md(
             continue
 
         if (
-            (
-                "run tests" in lower
-                or ("test" in lower and "pytest" in lower)
-            )
-            and result["test_command"] is None
-        ):
+            "run tests" in lower or ("test" in lower and "pytest" in lower)
+        ) and result["test_command"] is None:
             result["test_command"] = cmd
 
         if (
@@ -273,13 +269,10 @@ def _introspect_claude_md(
             result["lint_command"] = cmd
 
         if (
-            (
-                ("type" in lower and "check" in lower)
-                or "mypy" in lower
-                or "pyright" in lower
-            )
-            and result["type_check_command"] is None
-        ):
+            ("type" in lower and "check" in lower)
+            or "mypy" in lower
+            or "pyright" in lower
+        ) and result["type_check_command"] is None:
             result["type_check_command"] = cmd
 
 

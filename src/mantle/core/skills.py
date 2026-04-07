@@ -20,11 +20,35 @@ if TYPE_CHECKING:
 _CONTENT_MARKER = "<!-- mantle:content -->"
 _GENERATED_MARKER = "<!-- mantle:generated -->"
 
-_STOPWORDS = frozenset({
-    "a", "an", "the", "is", "are", "was", "were", "be", "been",
-    "in", "on", "at", "to", "for", "of", "with", "and", "or",
-    "not", "this", "that", "it", "by", "from", "as",
-})
+_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "with",
+        "and",
+        "or",
+        "not",
+        "this",
+        "that",
+        "it",
+        "by",
+        "from",
+        "as",
+    }
+)
 
 
 def _tokenize(text: str) -> set[str]:
@@ -359,7 +383,7 @@ def list_skills(
     for path in all_paths:
         try:
             note, _ = load_skill(path)
-        except (vault.NoteParseError, vault.NoteValidationError):
+        except vault.NoteParseError, vault.NoteValidationError:
             continue
         if tag in note.tags:
             filtered.append(path)
@@ -687,7 +711,7 @@ def detect_skills_from_content(
     for path in existing:
         try:
             note, _ = load_skill(path)
-        except (vault.NoteParseError, vault.NoteValidationError):
+        except vault.NoteParseError, vault.NoteValidationError:
             continue
         # Match by name (case-insensitive)
         if note.name.lower() in content_lower:
@@ -699,8 +723,7 @@ def detect_skills_from_content(
             continue
         # Match by tag suffix (filter out type/ tags)
         tag_suffixes = [
-            t.split("/")[-1] for t in note.tags
-            if not t.startswith("type/")
+            t.split("/")[-1] for t in note.tags if not t.startswith("type/")
         ]
         if any(
             re.search(rf"\b{re.escape(s)}\b", content_lower)
@@ -753,9 +776,7 @@ def auto_update_skills(
     if stories_dir.exists():
         for story_path in sorted(stories_dir.glob("*.md")):
             if story_path.stem.startswith(f"issue-{issue_number:02d}"):
-                content_parts.append(
-                    story_path.read_text(encoding="utf-8")
-                )
+                content_parts.append(story_path.read_text(encoding="utf-8"))
 
     shaped_dir = mantle_dir / "shaped"
     if shaped_dir.exists():
@@ -789,15 +810,11 @@ def auto_update_skills(
     # issues -> state <- skills -> issues
     from mantle.core import issues as issues_mod
 
-    issue_path = issues_mod.find_issue_path(
-        project_dir, issue_number
-    )
+    issue_path = issues_mod.find_issue_path(project_dir, issue_number)
     if issue_path is not None:
         try:
-            issue_note, issue_body = issues_mod.load_issue(
-                issue_path
-            )
-        except (vault.NoteParseError, vault.NoteValidationError):
+            issue_note, issue_body = issues_mod.load_issue(issue_path)
+        except vault.NoteParseError, vault.NoteValidationError:
             return new_skills
         merged = set(issue_note.skills_required) | set(detected)
         if merged != set(issue_note.skills_required):
@@ -839,7 +856,7 @@ def generate_index_notes(project_dir: Path) -> list[str]:
     for path in skill_paths:
         try:
             note, _ = load_skill(path)
-        except (vault.NoteParseError, vault.NoteValidationError):
+        except vault.NoteParseError, vault.NoteValidationError:
             continue
         for tag in note.tags:
             if tag.startswith("type/"):
@@ -924,7 +941,7 @@ def compile_skills(
         matches = _match_required_skills(
             project_dir, skills_filter=skills_filter
         )
-    except (VaultNotConfiguredError, FileNotFoundError):
+    except VaultNotConfiguredError, FileNotFoundError:
         _cleanup_stale_skills(skills_target, compiled_slugs)
         return compiled_slugs
 
@@ -996,14 +1013,18 @@ def _write_compiled_skill(
 
     frontmatter = _build_compiled_frontmatter(slug, description)
     pointer = (
-        "For detailed knowledge, "
-        "see [references/core.md](references/core.md)\n"
+        "For detailed knowledge, see [references/core.md](references/core.md)\n"
     )
 
     lines = content.split("\n")
     if len(lines) > _PROGRESSIVE_DISCLOSURE_THRESHOLD:
         essential, reference = _split_content_for_disclosure(content)
-        skill_md = frontmatter + essential + "\n\n## Additional resources\n\n- " + pointer
+        skill_md = (
+            frontmatter
+            + essential
+            + "\n\n## Additional resources\n\n- "
+            + pointer
+        )
         (refs_dir / "core.md").write_text(reference, encoding="utf-8")
     else:
         skill_md = frontmatter + pointer

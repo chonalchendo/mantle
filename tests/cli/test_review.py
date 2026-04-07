@@ -53,9 +53,7 @@ class TestTransitionIssueApprovedCLI:
 
         cli_review.run_transition_to_approved(issue=1, project_dir=project)
 
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "approved"
 
@@ -78,9 +76,7 @@ class TestTransitionIssueImplementingCLI:
 
         cli_review.run_transition_to_implementing(issue=1, project_dir=project)
 
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "implementing"
 
@@ -106,9 +102,7 @@ class TestTransitionIssueImplementedCLI:
 
         cli_review.run_transition_to_implemented(issue=1, project_dir=project)
 
-        issue_path = (
-            project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
-        )
+        issue_path = project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
         note, _ = core_issues.load_issue(issue_path)
         assert note.status == "implemented"
 

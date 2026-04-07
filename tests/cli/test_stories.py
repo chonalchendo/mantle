@@ -195,7 +195,9 @@ class TestRunUpdateStoryStatus:
             project_dir=project,
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 
@@ -236,7 +238,9 @@ class TestRunUpdateStoryStatus:
             status="in-progress",
         )
 
-        path = project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        path = (
+            project / ".mantle" / "stories" / "issue-01-test-issue-story-01.md"
+        )
         note = read_note(path, StoryNote)
         assert note.frontmatter.status == "in-progress"
 

@@ -48,9 +48,7 @@ def run_save_distillation(
         raise SystemExit(1) from None
 
     console.print()
-    console.print(
-        f"[green]Distillation saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Distillation saved to {path.name}[/green]")
     console.print()
     console.print(f"  Topic:        {note.topic}")
     console.print(f"  Source count: {note.source_count}")

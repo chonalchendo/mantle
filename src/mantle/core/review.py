@@ -273,12 +273,7 @@ def list_reviews(project_root: Path) -> list[Path]:
 
 
 def _review_path(project_root: Path, issue: int) -> Path:
-    return (
-        project_root
-        / ".mantle"
-        / "reviews"
-        / f"issue-{issue:02d}-review.md"
-    )
+    return project_root / ".mantle" / "reviews" / f"issue-{issue:02d}-review.md"
 
 
 def _format_review_body(checklist: ReviewChecklist) -> str:
@@ -292,10 +287,7 @@ def _format_review_body(checklist: ReviewChecklist) -> str:
     ]
     for item in checklist.items:
         mark = "\u2713" if item.passed else "\u2717"
-        line = (
-            f"- {mark} **{item.criterion}**"
-            f" [{item.status}]"
-        )
+        line = f"- {mark} **{item.criterion}** [{item.status}]"
         line += f" — passed: {str(item.passed).lower()}"
         if item.detail:
             line += f", detail: {item.detail}"

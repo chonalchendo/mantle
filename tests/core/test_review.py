@@ -188,9 +188,7 @@ def _make_checklist(
     *,
     issue: int = 1,
     title: str = "Feature A",
-    statuses: list[
-        tuple[str, bool, str | None, str, str | None]
-    ] | None = None,
+    statuses: list[tuple[str, bool, str | None, str, str | None]] | None = None,
 ) -> review.ReviewChecklist:
     """Build a ReviewChecklist for persistence tests.
 
@@ -219,7 +217,9 @@ def _make_checklist(
         for criterion, passed, detail, status, comment in statuses
     )
     return review.ReviewChecklist(
-        issue=issue, title=title, items=items,
+        issue=issue,
+        title=title,
+        items=items,
     )
 
 
@@ -239,7 +239,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_creates_file(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """save_review_result creates the review file."""
         checklist = _make_checklist()
@@ -253,7 +255,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_frontmatter(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """Saved file has correct ReviewResultNote frontmatter."""
         checklist = _make_checklist()
@@ -271,7 +275,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_body_contains_criteria(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """Body contains each criterion with status and comment."""
         checklist = _make_checklist()
@@ -289,7 +295,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_needs_changes_status(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """Checklist with needs-changes items => status needs-changes."""
         checklist = _make_checklist()
@@ -302,7 +310,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_approved_status(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """Checklist with all approved items => status approved."""
         checklist = _make_checklist(
@@ -320,7 +330,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_overwrites(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """Saving twice for same issue overwrites the file."""
         checklist_v1 = _make_checklist()
@@ -333,7 +345,8 @@ class TestSaveReviewResult:
             ],
         )
         note2, path2 = review.save_review_result(
-            project, checklist_v2,
+            project,
+            checklist_v2,
         )
 
         assert path1 == path2
@@ -344,7 +357,9 @@ class TestSaveReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_creates_directory(
-        self, _mock: object, tmp_path: Path,
+        self,
+        _mock: object,
+        tmp_path: Path,
     ) -> None:
         """Saves correctly when .mantle/reviews/ doesn't exist."""
         (tmp_path / ".mantle").mkdir()
@@ -364,12 +379,15 @@ class TestLoadReviewResult:
         side_effect=_mock_git_identity,
     )
     def test_load_review_result(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """load_review_result reads back saved review correctly."""
         checklist = _make_checklist()
         saved_note, _ = review.save_review_result(
-            project, checklist,
+            project,
+            checklist,
         )
 
         loaded_note, body = review.load_review_result(project, 1)
@@ -395,14 +413,18 @@ class TestListReviews:
         side_effect=_mock_git_identity,
     )
     def test_list_reviews(
-        self, _mock: object, project: Path,
+        self,
+        _mock: object,
+        project: Path,
     ) -> None:
         """list_reviews returns paths sorted oldest-first."""
         review.save_review_result(
-            project, _make_checklist(issue=3),
+            project,
+            _make_checklist(issue=3),
         )
         review.save_review_result(
-            project, _make_checklist(issue=1),
+            project,
+            _make_checklist(issue=1),
         )
         paths = review.list_reviews(project)
 

@@ -1,6 +1,6 @@
 """Mantle CLI entry point."""
 
-from pathlib import Path  # noqa: TC003 — needed at runtime for cyclopts
+from pathlib import Path
 from typing import Annotated
 
 from cyclopts import App, Parameter
@@ -23,6 +23,7 @@ from mantle.cli import (
     product_design,
     research,
     review,
+    scout,
     session,
     shaping,
     simplify,
@@ -989,10 +990,7 @@ def list_skills_command(
         str | None,
         Parameter(
             name="--tag",
-            help=(
-                "Filter by tag"
-                " (e.g., domain/web, topic/python)."
-            ),
+            help=("Filter by tag (e.g., domain/web, topic/python)."),
         ),
     ] = None,
     path: Annotated[
@@ -1011,7 +1009,7 @@ def list_skills_command(
 
     try:
         skill_paths = skills.list_skills(path, tag=tag)
-    except (skills.VaultNotConfiguredError, FileNotFoundError):
+    except skills.VaultNotConfiguredError, FileNotFoundError:
         print("No personal vault configured.")
         print("Run `mantle init-vault` to set up your vault.")
         return
@@ -1063,10 +1061,7 @@ def list_tags_command(
 
     if summary.undeclared:
         n = len(summary.undeclared)
-        print(
-            f"\n{n} undeclared tag(s)"
-            " — consider adding to .mantle/tags.md"
-        )
+        print(f"\n{n} undeclared tag(s) — consider adding to .mantle/tags.md")
 
 
 @app.command(name="save-bug")
@@ -1581,10 +1576,7 @@ def save_review_result_command(
         tuple[str, ...],
         Parameter(
             name="--feedback",
-            help=(
-                "Review feedback as"
-                " 'criterion|status|comment'."
-            ),
+            help=("Review feedback as 'criterion|status|comment'."),
         ),
     ],
     path: Annotated[
@@ -1623,6 +1615,54 @@ def load_review_result_command(
     """Load and print a review result."""
     review.run_load_review_result(
         issue=issue,
+        project_dir=path,
+    )
+
+
+@app.command(name="save-scout")
+def save_scout_command(
+    repo_url: Annotated[
+        str,
+        Parameter(
+            name="--repo-url",
+            help="Full URL of the scouted repository.",
+        ),
+    ],
+    repo_name: Annotated[
+        str,
+        Parameter(
+            name="--repo-name",
+            help="Short name of the scouted repository.",
+        ),
+    ],
+    dimensions: Annotated[
+        list[str],
+        Parameter(
+            name="--dimension",
+            help="Analysis dimensions covered in the report.",
+        ),
+    ],
+    content: Annotated[
+        str,
+        Parameter(
+            name="--content",
+            help="Full scout report content.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Save a scout report to .mantle/scouts/."""
+    scout.run_save_scout(
+        repo_url=repo_url,
+        repo_name=repo_name,
+        dimensions=dimensions,
+        content=content,
         project_dir=path,
     )
 
@@ -1726,9 +1766,7 @@ def save_distillation_command(
         list[str],
         Parameter(
             name="--source-paths",
-            help=(
-                "Relative path to a source note (repeatable)."
-            ),
+            help=("Relative path to a source note (repeatable)."),
         ),
     ],
     content: Annotated[
@@ -1761,10 +1799,7 @@ def list_distillations_command(
         str | None,
         Parameter(
             name="--topic",
-            help=(
-                "Filter by topic substring"
-                " (case-insensitive)."
-            ),
+            help=("Filter by topic substring (case-insensitive)."),
         ),
     ] = None,
     path: Annotated[

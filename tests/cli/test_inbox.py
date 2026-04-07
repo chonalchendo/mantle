@@ -82,7 +82,10 @@ class TestRunUpdateInboxStatus:
         project: Path,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        from mantle.cli.inbox import run_save_inbox_item, run_update_inbox_status
+        from mantle.cli.inbox import (
+            run_save_inbox_item,
+            run_update_inbox_status,
+        )
 
         run_save_inbox_item(
             title="Add dark mode support",
@@ -129,7 +132,10 @@ class TestRunUpdateInboxStatus:
         project: Path,
         capsys: pytest.CaptureFixture[str],
     ) -> None:
-        from mantle.cli.inbox import run_save_inbox_item, run_update_inbox_status
+        from mantle.cli.inbox import (
+            run_save_inbox_item,
+            run_update_inbox_status,
+        )
 
         run_save_inbox_item(
             title="Add dark mode support",

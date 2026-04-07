@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 # ── Constants ───────────────────────────────────────────────────
 
 VALID_SOURCES: frozenset[str] = frozenset({"user", "ai"})
-VALID_STATUSES: frozenset[str] = frozenset(
-    {"open", "promoted", "dismissed"}
-)
+VALID_STATUSES: frozenset[str] = frozenset({"open", "promoted", "dismissed"})
 
 
 # ── Data model ──────────────────────────────────────────────────
@@ -129,10 +127,7 @@ def list_inbox_items(
     if status is None:
         return paths
 
-    return [
-        path for path in paths
-        if load_inbox_item(path)[0].status == status
-    ]
+    return [path for path in paths if load_inbox_item(path)[0].status == status]
 
 
 def update_inbox_status(
@@ -170,8 +165,7 @@ def update_inbox_status(
     old_status_tag = f"status/{current.status}"
     new_status_tag = f"status/{status}"
     tags = tuple(
-        new_status_tag if t == old_status_tag else t
-        for t in current.tags
+        new_status_tag if t == old_status_tag else t for t in current.tags
     )
 
     old_status = current.status

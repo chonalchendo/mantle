@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 
 # -- Constants ----------------------------------------------------
 
-VALID_VERDICTS: frozenset[str] = frozenset(
-    {"proceed", "research", "scrap"}
-)
+VALID_VERDICTS: frozenset[str] = frozenset({"proceed", "research", "scrap"})
 
 
 # -- Data model ---------------------------------------------------
@@ -160,9 +158,7 @@ def _slugify(title: str) -> str:
     return slug[:40]
 
 
-def _resolve_brainstorm_path(
-    project_dir: Path, title: str
-) -> Path:
+def _resolve_brainstorm_path(project_dir: Path, title: str) -> Path:
     """Compute non-colliding brainstorm file path with auto-increment.
 
     Args:
@@ -198,8 +194,7 @@ _VERDICT_MESSAGES: dict[str, str] = {
         " — needs more research before proceeding.\n"
     ),
     "scrap": (
-        "Brainstorm completed (scrap)"
-        " — idea scrapped, context preserved.\n"
+        "Brainstorm completed (scrap) — idea scrapped, context preserved.\n"
     ),
 }
 

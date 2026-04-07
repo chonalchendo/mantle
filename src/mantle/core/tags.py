@@ -177,7 +177,7 @@ def collect_all_tags(project_dir: Path) -> TagSummary:
 
     try:
         skill_paths = skills.list_skills(project_dir)
-    except (skills.VaultNotConfiguredError, FileNotFoundError):
+    except skills.VaultNotConfiguredError, FileNotFoundError:
         vault_tags: frozenset[str] = frozenset()
     else:
         collected: set[str] = set()
@@ -201,8 +201,7 @@ def collect_all_tags(project_dir: Path) -> TagSummary:
         groups.setdefault(section, []).append(tag)
 
     by_prefix: dict[str, tuple[str, ...]] = {
-        section: tuple(sorted(tags))
-        for section, tags in sorted(groups.items())
+        section: tuple(sorted(tags)) for section, tags in sorted(groups.items())
     }
 
     return TagSummary(

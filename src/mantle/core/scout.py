@@ -129,9 +129,7 @@ def _slugify(name: str) -> str:
     return slug[:40]
 
 
-def _resolve_scout_path(
-    project_dir: Path, repo_name: str
-) -> Path:
+def _resolve_scout_path(project_dir: Path, repo_name: str) -> Path:
     """Compute non-colliding scout file path with auto-increment.
 
     Args:

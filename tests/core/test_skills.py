@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pydantic
 import pytest
 
+from mantle.core import issues as issues_mod
 from mantle.core import vault
 from mantle.core.skills import (
     _GENERATED_MARKER,
@@ -33,7 +34,6 @@ from mantle.core.skills import (
     update_skill,
     validate_related_skills,
 )
-from mantle.core import issues as issues_mod
 from mantle.core.state import ProjectState, Status, load_state
 
 MOCK_EMAIL = "test@example.com"
@@ -216,7 +216,9 @@ class TestCreateSkill:
         loaded, _ = load_skill(path)
 
         assert loaded.when_to_use == created.when_to_use
-        assert loaded.when_to_use == "Use when building concurrent I/O services."
+        assert (
+            loaded.when_to_use == "Use when building concurrent I/O services."
+        )
 
     def test_round_trip_preserves_content(self, project: Path) -> None:
         _, path = _create_skill(project)
@@ -961,9 +963,7 @@ class TestCompileSkills:
 
         result = compile_skills(project_with_state)
 
-        skill_dir = (
-            project_with_state / ".claude" / "skills" / result[0]
-        )
+        skill_dir = project_with_state / ".claude" / "skills" / result[0]
         skill_text = (skill_dir / "SKILL.md").read_text()
         ref_text = (skill_dir / "references" / "core.md").read_text()
         combined = skill_text + ref_text
@@ -1199,9 +1199,7 @@ class TestDetectSkillsFromContent:
 
         assert "Web Development" in result
 
-    def test_detect_skills_matches_by_description(
-        self, project: Path
-    ) -> None:
+    def test_detect_skills_matches_by_description(self, project: Path) -> None:
         _create_skill(
             project,
             name="Async IO Patterns",
@@ -1210,9 +1208,7 @@ class TestDetectSkillsFromContent:
                 " for concurrent I/O-bound services"
             ),
         )
-        content = (
-            "We need asyncio concurrent services patterns here."
-        )
+        content = "We need asyncio concurrent services patterns here."
 
         result = detect_skills_from_content(project, content)
 
@@ -1232,9 +1228,7 @@ class TestDetectSkillsFromContent:
 
         assert "Async IO Patterns" not in result
 
-    def test_detect_skills_ignores_type_tags(
-        self, project: Path
-    ) -> None:
+    def test_detect_skills_ignores_type_tags(self, project: Path) -> None:
         _create_skill(
             project,
             name="Skill Fundamentals",
@@ -1246,9 +1240,7 @@ class TestDetectSkillsFromContent:
 
         assert "Skill Fundamentals" not in result
 
-    def test_detect_skills_deduplicates(
-        self, project: Path
-    ) -> None:
+    def test_detect_skills_deduplicates(self, project: Path) -> None:
         _create_skill(
             project,
             name="Python asyncio",
@@ -1304,8 +1296,7 @@ class TestAutoUpdateSkills:
         issues_dir = project / ".mantle" / "issues"
         issues_dir.mkdir(parents=True, exist_ok=True)
         (issues_dir / "issue-01-test.md").write_text(
-            "---\ntitle: Test\nstatus: planned\n---\n"
-            "Uses Python asyncio.\n"
+            "---\ntitle: Test\nstatus: planned\n---\nUses Python asyncio.\n"
         )
 
         auto_update_skills(project, 1)
@@ -1325,9 +1316,7 @@ class TestAutoUpdateSkills:
         "mantle.core.state.resolve_git_identity",
         return_value=MOCK_EMAIL,
     )
-    def test_scans_stories_too(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_scans_stories_too(self, _mock: object, project: Path) -> None:
         _write_state(project)
         _create_skill(project, name="Python asyncio")
 
@@ -1384,9 +1373,7 @@ class TestGenerateIndexNotes:
         assert (indexes_dir / "domain-web.md").exists()
         assert (indexes_dir / "domain-data.md").exists()
 
-    def test_web_index_contains_both_skills(
-        self, project: Path
-    ) -> None:
+    def test_web_index_contains_both_skills(self, project: Path) -> None:
         _create_skill(
             project,
             name="Python asyncio",
@@ -1401,9 +1388,7 @@ class TestGenerateIndexNotes:
         generate_index_notes(project)
 
         vault_root = project / "vault"
-        content = (
-            vault_root / "indexes" / "domain-web.md"
-        ).read_text()
+        content = (vault_root / "indexes" / "domain-web.md").read_text()
         assert "[[python-asyncio]]" in content
         assert "[[websocket-protocol]]" in content
 
@@ -1426,15 +1411,12 @@ class TestGenerateIndexNotes:
         actual = (indexes_dir / "domain-web.md").read_text()
         assert actual == manual_content
 
-    def test_overwrites_generated_files(
-        self, project: Path
-    ) -> None:
+    def test_overwrites_generated_files(self, project: Path) -> None:
         vault_root = project / "vault"
         indexes_dir = vault_root / "indexes"
         indexes_dir.mkdir(parents=True, exist_ok=True)
         old_content = (
-            f"{_GENERATED_MARKER}\n---\n"
-            f"name: domain/web\n---\n\nold\n"
+            f"{_GENERATED_MARKER}\n---\nname: domain/web\n---\n\nold\n"
         )
         (indexes_dir / "domain-web.md").write_text(
             old_content, encoding="utf-8"
@@ -1451,9 +1433,7 @@ class TestGenerateIndexNotes:
         assert "old" not in new_content
         assert "[[python-asyncio]]" in new_content
 
-    def test_includes_generated_marker(
-        self, project: Path
-    ) -> None:
+    def test_includes_generated_marker(self, project: Path) -> None:
         _create_skill(
             project,
             name="Python asyncio",
@@ -1463,9 +1443,7 @@ class TestGenerateIndexNotes:
         generate_index_notes(project)
 
         vault_root = project / "vault"
-        content = (
-            vault_root / "indexes" / "domain-web.md"
-        ).read_text()
+        content = (vault_root / "indexes" / "domain-web.md").read_text()
         assert _GENERATED_MARKER in content
 
     def test_skips_type_tags(self, project: Path) -> None:
@@ -1497,9 +1475,7 @@ class TestGenerateIndexNotes:
         compile_skills(project_with_state)
 
         vault_root = project_with_state / "vault"
-        assert (
-            vault_root / "indexes" / "domain-web.md"
-        ).exists()
+        assert (vault_root / "indexes" / "domain-web.md").exists()
 
 
 # ── compile_skills with issue ──────────────────────────────────
@@ -1520,7 +1496,6 @@ def _write_issue(
         slice=("core",),
         skills_required=skills_required,
     )
-    slug = f"issue-{issue_number:02d}"
     path = (
         project_dir
         / ".mantle"
@@ -1545,7 +1520,8 @@ class TestCompileSkillsWithIssue:
             skills_required=("skill-a", "skill-b", "skill-c"),
         )
         _write_issue(
-            project, 1,
+            project,
+            1,
             skills_required=("skill-a", "skill-b"),
         )
 
@@ -1590,9 +1566,7 @@ class TestAutoUpdateSkillsWritesToIssue:
         "mantle.core.state.resolve_git_identity",
         return_value=MOCK_EMAIL,
     )
-    def test_writes_skills_to_issue(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_writes_skills_to_issue(self, _mock: object, project: Path) -> None:
         _write_state(project)
         _create_skill(project, name="Python asyncio")
 

@@ -72,9 +72,7 @@ def save_distillation(
         source_paths=source_paths,
     )
 
-    distillation_path = _resolve_distillation_path(
-        project_dir, topic
-    )
+    distillation_path = _resolve_distillation_path(project_dir, topic)
     vault.write_note(
         distillation_path,
         note,
@@ -117,16 +115,15 @@ def list_distillations(
     Returns:
         List of paths to distillation files. Empty if none.
     """
-    distillations_dir = (
-        project_dir / ".mantle" / "distillations"
-    )
+    distillations_dir = project_dir / ".mantle" / "distillations"
     if not distillations_dir.is_dir():
         return []
     paths = sorted(distillations_dir.glob("*.md"))
     if topic is None:
         return paths
     return [
-        p for p in paths
+        p
+        for p in paths
         if topic.lower() in load_distillation(p)[0].topic.lower()
     ]
 
@@ -148,7 +145,8 @@ def find_distillation_by_topic(
     """
     paths = list_distillations(project_dir)
     matches = [
-        p for p in paths
+        p
+        for p in paths
         if load_distillation(p)[0].topic.lower() == topic.lower()
     ]
     return matches[-1] if matches else None
@@ -172,9 +170,7 @@ def _slugify(title: str) -> str:
     return slug[:40]
 
 
-def _resolve_distillation_path(
-    project_dir: Path, topic: str
-) -> Path:
+def _resolve_distillation_path(project_dir: Path, topic: str) -> Path:
     """Compute non-colliding distillation file path.
 
     Auto-increments suffix on same-day same-slug collision
@@ -187,9 +183,7 @@ def _resolve_distillation_path(
     Returns:
         Path for the new distillation file.
     """
-    distillations_dir = (
-        project_dir / ".mantle" / "distillations"
-    )
+    distillations_dir = project_dir / ".mantle" / "distillations"
     today = date.today().isoformat()
     slug = _slugify(topic)
     base = distillations_dir / f"{today}-{slug}.md"
@@ -199,9 +193,7 @@ def _resolve_distillation_path(
 
     counter = 2
     while True:
-        path = (
-            distillations_dir / f"{today}-{slug}-{counter}.md"
-        )
+        path = distillations_dir / f"{today}-{slug}-{counter}.md"
         if not path.exists():
             return path
         counter += 1

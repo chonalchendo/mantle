@@ -218,7 +218,9 @@ def count_issues(project_dir: Path) -> int:
 _ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
     "verified": frozenset({"implementing", "implemented"}),
     "approved": frozenset({"verified"}),
-    "implementing": frozenset({"planned", "verified", "implementing", "implemented"}),
+    "implementing": frozenset(
+        {"planned", "verified", "implementing", "implemented"}
+    ),
     "implemented": frozenset({"implementing"}),
 }
 
@@ -380,9 +382,7 @@ def _issue_path(project_dir: Path, issue: int, title: str) -> Path:
         Path for the issue file.
     """
     slug = _slugify_title(title)
-    return (
-        project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
-    )
+    return project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
 
 
 def find_issue_path(project_dir: Path, issue: int) -> Path | None:

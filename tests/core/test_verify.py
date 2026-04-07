@@ -51,7 +51,12 @@ def _write_issue(
     )
     title = f"Issue {issue_number}"
     slug = title.lower().replace(" ", "-")
-    path = project_root / ".mantle" / "issues" / f"issue-{issue_number:02d}-{slug}.md"
+    path = (
+        project_root
+        / ".mantle"
+        / "issues"
+        / f"issue-{issue_number:02d}-{slug}.md"
+    )
     vault.write_note(path, note, "## Acceptance Criteria\n\n- Done\n")
     return path
 
@@ -205,13 +210,10 @@ class TestTransitionToVerified:
 
 
 class TestIntrospectProject:
-    def test_detects_pytest_from_claude_md(
-        self, tmp_path: Path
-    ) -> None:
+    def test_detects_pytest_from_claude_md(self, tmp_path: Path) -> None:
         """Detects test command from CLAUDE.md."""
         (tmp_path / "CLAUDE.md").write_text(
-            "## Development\n\n"
-            "- Run tests: `uv run pytest`\n",
+            "## Development\n\n- Run tests: `uv run pytest`\n",
             encoding="utf-8",
         )
 
@@ -219,13 +221,10 @@ class TestIntrospectProject:
 
         assert result["test_command"] == "uv run pytest"
 
-    def test_detects_just_check_from_claude_md(
-        self, tmp_path: Path
-    ) -> None:
+    def test_detects_just_check_from_claude_md(self, tmp_path: Path) -> None:
         """Detects check command from CLAUDE.md."""
         (tmp_path / "CLAUDE.md").write_text(
-            "## Development\n\n"
-            "- Run all checks: `just check`\n",
+            "## Development\n\n- Run all checks: `just check`\n",
             encoding="utf-8",
         )
 
@@ -244,9 +243,7 @@ class TestIntrospectProject:
 
         assert result["test_command"] is not None
 
-    def test_detects_ruff_from_pyproject(
-        self, tmp_path: Path
-    ) -> None:
+    def test_detects_ruff_from_pyproject(self, tmp_path: Path) -> None:
         """Detects lint command from pyproject.toml [tool.ruff]."""
         (tmp_path / "pyproject.toml").write_text(
             "[tool.ruff]\nline-length = 80\n",
@@ -257,9 +254,7 @@ class TestIntrospectProject:
 
         assert result["lint_command"] is not None
 
-    def test_no_files_returns_none_values(
-        self, tmp_path: Path
-    ) -> None:
+    def test_no_files_returns_none_values(self, tmp_path: Path) -> None:
         """Empty project returns None for all commands."""
         result = verify.introspect_project(tmp_path)
 
@@ -268,9 +263,7 @@ class TestIntrospectProject:
         assert result["check_command"] is None
         assert result["type_check_command"] is None
 
-    def test_claude_md_takes_priority(
-        self, tmp_path: Path
-    ) -> None:
+    def test_claude_md_takes_priority(self, tmp_path: Path) -> None:
         """CLAUDE.md test command wins over Justfile."""
         (tmp_path / "CLAUDE.md").write_text(
             "- Run tests: `uv run pytest`\n",

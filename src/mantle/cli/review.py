@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 from pathlib import Path
 
 from rich.console import Console
@@ -140,9 +144,7 @@ def run_save_review_result(
 
     issue_path = issues.find_issue_path(project_dir, issue)
     if issue_path is None:
-        console.print(
-            f"[red]Error:[/red] Issue {issue} not found."
-        )
+        console.print(f"[red]Error:[/red] Issue {issue} not found.")
         raise SystemExit(1)
 
     issue_note, _ = issues.load_issue(issue_path)
@@ -157,7 +159,7 @@ def run_save_review_result(
             review.ReviewItem(
                 criterion=criterion,
                 passed=status == "approved",
-                status=status,
+                status=status,  # type: ignore[arg-type]  # validated by Pydantic
                 comment=comment,
             )
         )
@@ -169,12 +171,11 @@ def run_save_review_result(
     )
 
     note, path = review.save_review_result(
-        project_dir, checklist,
+        project_dir,
+        checklist,
     )
     console.print()
-    console.print(
-        f"[green]Review saved to {path.name}[/green]"
-    )
+    console.print(f"[green]Review saved to {path.name}[/green]")
     console.print(f"  Status: {note.status}")
 
 
@@ -197,10 +198,7 @@ def run_load_review_result(
     try:
         _, body = review.load_review_result(project_dir, issue)
     except FileNotFoundError:
-        console.print(
-            f"[red]Error:[/red] No review found"
-            f" for issue {issue}."
-        )
+        console.print(f"[red]Error:[/red] No review found for issue {issue}.")
         raise SystemExit(1) from None
 
     console.print(body)

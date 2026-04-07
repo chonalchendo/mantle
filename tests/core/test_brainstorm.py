@@ -74,9 +74,7 @@ def _save(
     verdict: str = "proceed",
 ) -> tuple[BrainstormNote, Path]:
     """Save a brainstorm with sensible defaults."""
-    return save_brainstorm(
-        project_dir, content, title=title, verdict=verdict
-    )
+    return save_brainstorm(project_dir, content, title=title, verdict=verdict)
 
 
 # -- save_brainstorm ------------------------------------------------
@@ -118,8 +116,7 @@ class TestSaveBrainstorm:
         self, _mock: object, project: Path
     ) -> None:
         raw = (
-            "<analysis>thinking...</analysis>\n\n"
-            "## Real Content\n\nKeep this."
+            "<analysis>thinking...</analysis>\n\n## Real Content\n\nKeep this."
         )
         _, path = _save(project, raw)
         _, body = load_brainstorm(path)
@@ -140,13 +137,9 @@ class TestSaveBrainstorm:
         assert path1 != path2
         today = date.today().isoformat()
         assert path1.name == f"{today}-motherdduck-interactive-queries.md"
-        assert path2.name == (
-            f"{today}-motherdduck-interactive-queries-2.md"
-        )
+        assert path2.name == (f"{today}-motherdduck-interactive-queries-2.md")
 
-    def test_save_brainstorm_invalid_verdict(
-        self, project: Path
-    ) -> None:
+    def test_save_brainstorm_invalid_verdict(self, project: Path) -> None:
         with pytest.raises(ValueError, match="Invalid verdict"):
             _save(project, verdict="maybe")
 
@@ -172,9 +165,7 @@ class TestLoadBrainstorm:
         "mantle.core.brainstorm.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_load_brainstorm(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_load_brainstorm(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_brainstorm(path)
 
@@ -216,9 +207,7 @@ class TestBrainstormExists:
         "mantle.core.brainstorm.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_brainstorm_exists_true(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_brainstorm_exists_true(self, _mock: object, project: Path) -> None:
         _save(project)
 
         assert brainstorm_exists(project) is True

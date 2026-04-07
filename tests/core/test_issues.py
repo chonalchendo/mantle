@@ -505,9 +505,7 @@ class TestTransitionToImplementing:
         with pytest.raises(InvalidTransitionError):
             issues_mod.transition_to_implementing(project, 13)
 
-    def test_transition_to_implementing_idempotent(
-        self, project: Path
-    ) -> None:
+    def test_transition_to_implementing_idempotent(self, project: Path) -> None:
         """Implementing issue transitions to implementing (no-op, no error)."""
         _write_issue_direct(project, 14, status="implementing")
 

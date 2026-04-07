@@ -590,9 +590,7 @@ class TestUpdateSkillsRequired:
         self, _mock: object, project: Path
     ) -> None:
         _write_state(project, skills_required=("python",))
-        result = update_skills_required(
-            project, ("react",), additive=True
-        )
+        result = update_skills_required(project, ("react",), additive=True)
 
         assert "python" in result.skills_required
         assert "react" in result.skills_required
@@ -601,9 +599,7 @@ class TestUpdateSkillsRequired:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_additive_deduplicates(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_additive_deduplicates(self, _mock: object, project: Path) -> None:
         _write_state(project, skills_required=("python",))
         result = update_skills_required(
             project, ("python", "react"), additive=True
@@ -619,9 +615,7 @@ class TestUpdateSkillsRequired:
         self, _mock: object, project: Path
     ) -> None:
         _write_state(project, skills_required=("python", "react"))
-        result = update_skills_required(
-            project, ("go",), additive=False
-        )
+        result = update_skills_required(project, ("go",), additive=False)
 
         assert result.skills_required == ("go",)
 
@@ -643,9 +637,7 @@ class TestUpdateSkillsRequired:
         "mantle.core.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_updates_timestamp(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_updates_timestamp(self, _mock: object, project: Path) -> None:
         _write_state(
             project,
             updated=date(2020, 1, 1),

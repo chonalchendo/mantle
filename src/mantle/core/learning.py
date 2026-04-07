@@ -177,7 +177,9 @@ def _validate_confidence_delta(confidence_delta: str) -> None:
 
 
 def _learning_path(
-    project_dir: Path, issue: int, title: str = "",
+    project_dir: Path,
+    issue: int,
+    title: str = "",
 ) -> Path:
     """Compute learning file path with slug.
 

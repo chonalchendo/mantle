@@ -54,7 +54,7 @@ class TestSaveInboxItem:
         assert path.parent.name == "inbox"
 
     def test_correct_frontmatter(self, project_dir: Path) -> None:
-        item, path = _save_item(project_dir)
+        item, _path = _save_item(project_dir)
 
         assert item.date == date.today()
         assert item.author == MOCK_EMAIL
@@ -153,9 +153,7 @@ class TestListInboxItems:
         )
 
         open_items = inbox.list_inbox_items(project_dir, status="open")
-        promoted_items = inbox.list_inbox_items(
-            project_dir, status="promoted"
-        )
+        promoted_items = inbox.list_inbox_items(project_dir, status="promoted")
 
         assert len(open_items) == 1
         assert len(promoted_items) == 1
@@ -187,9 +185,7 @@ class TestUpdateInboxStatus:
         _, path = _save_item(project_dir)
 
         with pytest.raises(ValueError, match="Invalid status"):
-            inbox.update_inbox_status(
-                project_dir, path.name, status="invalid"
-            )
+            inbox.update_inbox_status(project_dir, path.name, status="invalid")
 
     def test_updates_tag(self, project_dir: Path) -> None:
         _, path = _save_item(project_dir)
@@ -205,17 +201,15 @@ class TestUpdateInboxStatus:
 
 
 class TestSlugBehavior:
-    def test_spaces_to_hyphens_in_filename(
-        self, project_dir: Path
-    ) -> None:
+    def test_spaces_to_hyphens_in_filename(self, project_dir: Path) -> None:
         _, path = _save_item(project_dir, title="My Cool Idea!")
 
         assert "my-cool-idea" in path.name
 
-    def test_long_title_slug_truncated(
-        self, project_dir: Path
-    ) -> None:
-        long_title = "This is a very long title that exceeds thirty chars easily"
+    def test_long_title_slug_truncated(self, project_dir: Path) -> None:
+        long_title = (
+            "This is a very long title that exceeds thirty chars easily"
+        )
         _, path = _save_item(project_dir, title=long_title)
 
         # Date prefix is 10 chars plus hyphen = 11 chars total

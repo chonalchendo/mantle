@@ -81,9 +81,7 @@ class TestRunSaveBrainstorm:
         assert "Brainstorm saved" in captured.out
 
         # Verify file exists.
-        brainstorms = list(
-            (project / ".mantle" / "brainstorms").glob("*.md")
-        )
+        brainstorms = list((project / ".mantle" / "brainstorms").glob("*.md"))
         assert len(brainstorms) == 1
 
     def test_save_brainstorm_cli_invalid_verdict(
@@ -123,9 +121,7 @@ class TestRunSaveBrainstorm:
 
         assert "Brainstorm saved" in captured.out
 
-        brainstorms = list(
-            (project / ".mantle" / "brainstorms").glob("*.md")
-        )
+        brainstorms = list((project / ".mantle" / "brainstorms").glob("*.md"))
         assert len(brainstorms) == 1
 
     def test_prints_filename(

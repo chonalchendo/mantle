@@ -179,9 +179,7 @@ def story_exists(project_dir: Path, *, issue: int, story: int) -> bool:
         True if the story file exists.
     """
     stories_dir = project_dir / ".mantle" / "stories"
-    matches = list(
-        stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md")
-    )
+    matches = list(stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md"))
     return len(matches) > 0
 
 
@@ -272,7 +270,10 @@ def extract_story_number(story_path: Path) -> int:
 
 
 def _story_path(
-    project_dir: Path, issue: int, story: int, title: str = "",
+    project_dir: Path,
+    issue: int,
+    story: int,
+    title: str = "",
 ) -> Path:
     """Compute story file path with issue slug.
 

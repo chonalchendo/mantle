@@ -132,9 +132,7 @@ def _print_summary(
     )
 
 
-_SETTINGS_SCHEMA = (
-    "https://json.schemastore.org/claude-code-settings.json"
-)
+_SETTINGS_SCHEMA = "https://json.schemastore.org/claude-code-settings.json"
 _DEFAULT_AUTOCOMPACT = "80"
 _DEFAULT_DENY = [
     "Bash(rm -rf *)",
@@ -237,9 +235,7 @@ def _register_hooks(target_dir: Path) -> bool:
     )
 
     # Stop hook — session-log nudge
-    changed |= _ensure_hook(
-        hooks, "Stop", "stop.sh", _STOP_HOOK_COMMAND
-    )
+    changed |= _ensure_hook(hooks, "Stop", "stop.sh", _STOP_HOOK_COMMAND)
 
     if changed:
         settings_path.write_text(

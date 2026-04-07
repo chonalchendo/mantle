@@ -12,16 +12,12 @@ console = Console()
 
 _NEXT_STEPS: dict[str, str] = {
     "proceed": (
-        "  Next: run [bold]/mantle:add-issue[/bold]"
-        " to create the issue"
+        "  Next: run [bold]/mantle:add-issue[/bold] to create the issue"
     ),
     "research": (
-        "  Next: run [bold]/mantle:research[/bold]"
-        " to gather evidence"
+        "  Next: run [bold]/mantle:research[/bold] to gather evidence"
     ),
-    "scrap": (
-        "  Idea scrapped — focus on existing backlog"
-    ),
+    "scrap": ("  Idea scrapped — focus on existing backlog"),
 }
 
 

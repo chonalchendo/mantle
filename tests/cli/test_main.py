@@ -48,9 +48,7 @@ tags:
 """
 
 
-def _write_skill(
-    skills_dir: Path, slug: str, skill_tags: list[str]
-) -> None:
+def _write_skill(skills_dir: Path, slug: str, skill_tags: list[str]) -> None:
     """Write a minimal skill file with given tags."""
     tag_lines = "\n".join(f"- {t}" for t in skill_tags)
     content = _SKILL_FRONTMATTER.format(name=slug, tags=tag_lines)

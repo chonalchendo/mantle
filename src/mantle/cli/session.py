@@ -134,7 +134,7 @@ def _auto_commit(
     )
     if result.returncode == 0:
         console.print()
-        console.print(f"[green]Auto-committed .mantle/ changes[/green]")
+        console.print("[green]Auto-committed .mantle/ changes[/green]")
     else:
         console.print()
         console.print(
@@ -156,7 +156,7 @@ def _auto_push(project_dir: Path) -> None:
         text=True,
     )
     if result.returncode == 0:
-        console.print(f"[green]Auto-pushed to remote[/green]")
+        console.print("[green]Auto-pushed to remote[/green]")
     else:
         console.print(
             f"[yellow]Warning:[/yellow] Auto-push failed: "

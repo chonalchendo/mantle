@@ -167,9 +167,7 @@ class TestAutoCommit:
     @pytest.fixture
     def git_project(self, tmp_path: Path) -> Path:
         """Create a project with a git repo."""
-        subprocess.run(
-            ["git", "init"], cwd=tmp_path, capture_output=True
-        )
+        subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True)
         subprocess.run(
             ["git", "config", "user.email", MOCK_EMAIL],
             cwd=tmp_path,
@@ -184,9 +182,7 @@ class TestAutoCommit:
         (tmp_path / ".mantle" / "sessions").mkdir()
         _write_state(tmp_path)
         # Initial commit so we can make further commits
-        subprocess.run(
-            ["git", "add", "."], cwd=tmp_path, capture_output=True
-        )
+        subprocess.run(["git", "add", "."], cwd=tmp_path, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", "init"],
             cwd=tmp_path,
@@ -199,9 +195,9 @@ class TestAutoCommit:
 
         # Create an uncommitted file
         (git_project / ".mantle" / "issues").mkdir(exist_ok=True)
-        (git_project / ".mantle" / "issues" / "issue-01-test-issue.md").write_text(
-            "test"
-        )
+        (
+            git_project / ".mantle" / "issues" / "issue-01-test-issue.md"
+        ).write_text("test")
 
         _auto_commit(git_project, "plan-issues", "planned 3 issues")
 

@@ -182,7 +182,9 @@ def shaped_issue_exists(project_dir: Path, issue: int) -> bool:
 
 
 def _shaped_issue_path(
-    project_dir: Path, issue: int, title: str = "",
+    project_dir: Path,
+    issue: int,
+    title: str = "",
 ) -> Path:
     """Compute shaped issue file path with slug.
 
@@ -202,9 +204,7 @@ def _shaped_issue_path(
             / "shaped"
             / f"issue-{issue:02d}-{slug}-shaped.md"
         )
-    return (
-        project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
-    )
+    return project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
 
 
 def find_shaped_issue_path(project_dir: Path, issue: int) -> Path | None:

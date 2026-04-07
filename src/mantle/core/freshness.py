@@ -11,8 +11,11 @@ reasoning better than a raw ISO timestamp.
 from __future__ import annotations
 
 import math
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def age_days(path: Path) -> int:
@@ -27,8 +30,8 @@ def age_days(path: Path) -> int:
     Returns:
         Non-negative integer day count.
     """
-    mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
-    now = datetime.now(tz=timezone.utc)
+    mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
+    now = datetime.now(tz=UTC)
     delta = (now - mtime).total_seconds()
     return max(0, math.floor(delta / 86_400))
 

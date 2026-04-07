@@ -124,7 +124,9 @@ class TestSaveShapedIssue:
     def test_file_at_expected_path(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
 
-        expected = project / ".mantle" / "shaped" / "issue-21-shaping-phase-shaped.md"
+        expected = (
+            project / ".mantle" / "shaped" / "issue-21-shaping-phase-shaped.md"
+        )
         assert path == expected
         assert path.exists()
 

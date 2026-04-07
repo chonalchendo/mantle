@@ -107,9 +107,7 @@ class TestSaveScout:
         "mantle.core.scout.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_save_scout_frontmatter(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_save_scout_frontmatter(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
         loaded_note, _ = load_scout(path)
 
@@ -157,8 +155,7 @@ class TestSaveScout:
         self, _mock: object, project: Path
     ) -> None:
         raw = (
-            "<analysis>thinking...</analysis>\n\n"
-            "## Real Content\n\nKeep this."
+            "<analysis>thinking...</analysis>\n\n## Real Content\n\nKeep this."
         )
         _, path = _save(project, raw)
         _, body = load_scout(path)
@@ -175,9 +172,7 @@ class TestLoadScout:
         "mantle.core.scout.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_load_scout_roundtrip(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_load_scout_roundtrip(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_scout(path)
 
@@ -202,9 +197,7 @@ class TestListScouts:
         "mantle.core.scout.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_list_scouts_sorted(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_list_scouts_sorted(self, _mock: object, project: Path) -> None:
         _save(project, repo_name="alpha-repo")
         _save(project, repo_name="beta-repo")
         paths = list_scouts(project)
@@ -223,19 +216,13 @@ class TestSlugify:
         "mantle.core.scout.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_slugify_special_chars(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_slugify_special_chars(self, _mock: object, project: Path) -> None:
         today = date.today().isoformat()
 
-        _, path = _save(
-            project, repo_name="Hello World!!!"
-        )
+        _, path = _save(project, repo_name="Hello World!!!")
         assert path.name == f"{today}-hello-world.md"
 
-        _, path2 = _save(
-            project, repo_name="my-repo_v2.0"
-        )
+        _, path2 = _save(project, repo_name="my-repo_v2.0")
         assert path2.name == f"{today}-my-repo-v2-0.md"
 
         _, path3 = _save(project, repo_name="A" * 60)

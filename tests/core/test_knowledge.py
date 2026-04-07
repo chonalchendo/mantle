@@ -121,9 +121,7 @@ class TestLoadDistillation:
         "mantle.core.knowledge.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_load_distillation(
-        self, _mock: object, project: Path
-    ) -> None:
+    def test_load_distillation(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
         note, body = load_distillation(path)
 
@@ -180,16 +178,12 @@ class TestFindDistillationByTopic:
         self, _mock: object, project: Path
     ) -> None:
         _save(project, topic="Testing Best Practices")
-        result = find_distillation_by_topic(
-            project, "Testing Best Practices"
-        )
+        result = find_distillation_by_topic(project, "Testing Best Practices")
 
         assert result is not None
         assert result.exists()
 
-    def test_find_distillation_by_topic_not_found(
-        self, project: Path
-    ) -> None:
+    def test_find_distillation_by_topic_not_found(self, project: Path) -> None:
         result = find_distillation_by_topic(project, "Nonexistent")
 
         assert result is None
@@ -200,9 +194,7 @@ class TestFindDistillationByTopic:
 
 class TestSlugify:
     def test_slugify(self) -> None:
-        assert _slugify("Testing Best Practices") == (
-            "testing-best-practices"
-        )
+        assert _slugify("Testing Best Practices") == ("testing-best-practices")
         assert _slugify("A" * 60) == "a" * 40
         assert _slugify("Hello World!!!") == "hello-world"
 

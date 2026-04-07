@@ -92,7 +92,7 @@ All state lives in plain markdown files with YAML frontmatter — versioned in g
 
 ## Status
 
-**v0.8.9** — Inbox capture, knowledge engine (query/distill), and auto-transition issue status in build pipeline.
+**v0.9.0** — Scout command, review feedback loop, issue-scoped skill loading, and build pipeline reliability fixes.
 
 ## License
 
