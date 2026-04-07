@@ -1,6 +1,6 @@
 ---
 title: Auto-detect skills_required from issue and story content
-status: planned
+status: completed
 slice:
 - core
 - claude-code

@@ -1,6 +1,6 @@
 ---
 title: Skill usability fixes (validation, tagging, Claude Code loading)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
 story_count: 4
 verification: null

@@ -1,6 +1,6 @@
 ---
 title: Automated build pipeline — /mantle:build command
-status: planned
+status: completed
 slice:
 - claude-code
 - core

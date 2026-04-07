@@ -1,6 +1,6 @@
 ---
 title: Bug capture (/mantle:bug)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
 story_count: 3
 verification: null

@@ -1,6 +1,6 @@
 ---
 title: Issue planning (/mantle:plan-issues)
-status: planned
+status: completed
 slice: [core, claude-code, vault, tests]
 story_count: 3
 verification: null
