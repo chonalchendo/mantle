@@ -91,10 +91,7 @@ def collect_issue_files(
     if issue < 10:
         padded = _grep_commits(f"(issue-0{issue})")
         seen = set(commit_hashes)
-        for h in padded:
-            if h not in seen:
-                commit_hashes.append(h)
-                seen.add(h)
+        commit_hashes += [h for h in padded if h not in seen]
 
     if not commit_hashes:
         return ()
@@ -149,12 +146,11 @@ def collect_changed_files(
         cwd=project_root,
     )
 
-    all_files: set[str] = set()
-    for line in diff_result.stdout.strip().splitlines():
-        if line:
-            all_files.add(line)
-    for line in untracked_result.stdout.strip().splitlines():
-        if line:
-            all_files.add(line)
+    all_files = {
+        line
+        for output in (diff_result.stdout, untracked_result.stdout)
+        for line in output.strip().splitlines()
+        if line
+    }
 
     return tuple(sorted(all_files))
