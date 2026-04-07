@@ -1,6 +1,6 @@
 ---
 title: Improve verification strategy — structured first-use and prompted evolution
-status: verified
+status: approved
 slice:
 - claude-code
 - core
@@ -9,7 +9,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
