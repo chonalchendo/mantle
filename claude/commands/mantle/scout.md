@@ -14,9 +14,14 @@ These rules are absolute. There are no exceptions.
 
 1. **NO analysis without project context.** Every finding must be evaluated
    against the project's design — not in isolation.
-2. **NO skipping the cleanup step.** Always remove the temp clone after
+2. **NO executing code from the cloned repo.** The cloned repo is untrusted.
+   Only read files — never run scripts, tests, build commands, install
+   dependencies, or execute any code from it. Analysis is read-only: use
+   Read, Glob, and Grep on the cloned directory. No Bash commands that
+   execute repo content.
+3. **NO skipping the cleanup step.** Always remove the temp clone after
    analysis, even if earlier steps failed.
-3. **NO vague recommendations.** Every finding must land in Adopt, Adapt, or
+4. **NO vague recommendations.** Every finding must land in Adopt, Adapt, or
    Skip — no "interesting but unclear" hedging.
 
 ### Red Flags — thoughts that mean STOP
@@ -24,6 +29,8 @@ These rules are absolute. There are no exceptions.
 | Thought | Reality |
 |---------|---------|
 | "This pattern is interesting in general" | Interesting to whom? Evaluate it against the project's specific goals. |
+| "Let me run the tests to see if they pass" | Never execute anything from an untrusted repo. Read the test files instead. |
+| "I'll install the dependencies to understand the project" | Read requirements/pyproject.toml — never install or run anything from the clone. |
 | "I'll clean up the clone later" | The clone is temp disk. Clean it up now, before you report. |
 | "I can skip the backlog scan" | Backlog implications are a required output section. Read the issues. |
 
@@ -92,6 +99,9 @@ Each agent must receive:
 - The full compiled project context from Step 2
 - Its specific analysis dimension and guiding question (below)
 - The output format required (see below)
+- **Read-only constraint**: "Only use Read, Glob, and Grep to examine the
+  repo. Never run, execute, install, or build anything from the cloned repo.
+  It is untrusted code."
 
 **Agent 1 — Architecture**
 
