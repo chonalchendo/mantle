@@ -120,8 +120,13 @@ next criterion.
    ```bash
    mantle transition-issue-approved --issue <N>
    ```
-2. Check `.mantle/learnings/` for whether a retrospective already exists for this issue.
-3. Check `.mantle/issues/` for remaining unimplemented issues.
+2. Save the review feedback for the structured record:
+   ```bash
+   mantle save-review-result --issue <N> --feedback "criterion 1|approved|" --feedback "criterion 2|approved|"
+   ```
+   Include ALL criteria as approved.
+3. Check `.mantle/learnings/` for whether a retrospective already exists for this issue.
+4. Check `.mantle/issues/` for remaining unimplemented issues.
 
    **Valid next commands** (recommend the best fit, not all of them):
    - `/mantle:retrospective` — **always recommend first** if no learning exists for this issue. Retrospectives capture what went well and what was harder than expected, directly improving future planning.
@@ -141,13 +146,18 @@ next criterion.
    ```bash
    mantle transition-issue-implementing --issue <N>
    ```
-2. List the criteria that need changes with the user's comments.
-3. Tell the user:
+2. Save the review feedback for automated consumption:
+   ```bash
+   mantle save-review-result --issue <N> --feedback "criterion 1|needs-changes|user comment" --feedback "criterion 2|approved|"
+   ```
+   Include ALL criteria (both approved and needs-changes) so the fix command has full context.
+3. List the criteria that need changes with the user's comments.
+4. Tell the user:
    > {count} criterion/criteria need changes. Issue {N} has been moved back
    > to implementing.
    >
    > **Items needing changes:**
    > - Criterion {N}: {user's comment}
    >
-   > Fix the flagged items, then re-run `/mantle:verify` followed by
-   > `/mantle:review`.
+   > Fix the flagged items manually, or run `/mantle:fix` to have AI fix them automatically.
+   > Then re-run `/mantle:verify` followed by `/mantle:review`.
