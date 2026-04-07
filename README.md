@@ -107,6 +107,35 @@ Every phase is a `/mantle:*` slash command inside Claude Code. Run them individu
 | `/mantle:distill` | Synthesize accumulated vault knowledge on a topic into a persistent note. |
 | `/mantle:help` | List all commands grouped by phase. |
 
+## Knowledge Engine
+
+Every AI context window is expensive. Mantle makes each one smarter by injecting the right knowledge at the right time — domain expertise, past learnings, and project decisions that would otherwise be lost between sessions.
+
+### How it works
+
+Your personal vault (`~/vault/`) is a knowledge graph of interconnected skill nodes, each containing domain-specific patterns, conventions, anti-patterns, and lessons learned. When you start working on an issue, Mantle auto-detects which skills are relevant, compiles them into `.claude/skills/`, and Claude Code natively loads them. Every agent — whether it's shaping an approach, implementing a story, or reviewing code — gets pre-loaded domain knowledge without burning context on file searches.
+
+The compounding effect: learnings from Issue 5 improve how Issue 12 is shaped. A skill you built while working on Project A informs implementation on Project B. The knowledge graph grows with you, not per-project.
+
+### Knowledge commands
+
+| Command | What It Does |
+|---|---|
+| `/mantle:add-skill` | Create a skill node in your personal vault — proficiency level, patterns, anti-patterns, related skills. Builds the graph. |
+| `/mantle:query` | Search your accumulated vault knowledge and synthesize a grounded answer. Like asking your past self for advice. |
+| `/mantle:distill` | Synthesize scattered vault knowledge on a topic into a single, dense reference note. Turns experience into reusable context. |
+| `/mantle:retrospective` | After completing an issue, capture what went well and what was harder than expected. These learnings auto-surface in future `/mantle:shape-issue` sessions. |
+| `/mantle:scout` | Analyze an external repo through your project's design lens. Extract patterns and ideas grounded in your existing architecture. |
+
+### What gets injected into each context window
+
+- **Session briefing** — project state, last session log, blockers, next actions (auto-loaded on session start)
+- **Compiled skills** — domain-specific patterns matched to the current issue's technologies
+- **Past learnings** — gotchas, recommendations, and wrong assumptions from previous issues
+- **Decision log** — architectural choices with rationale, so agents honour past decisions instead of re-debating them
+
+The result: agents that know your project's conventions, remember past mistakes, and make informed tradeoff decisions — every session, automatically.
+
 ## How It Works
 
 Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude Code (`/mantle:*`). The core library handles all state and vault operations. The CLI is a thin wrapper. Claude Code commands compile context from your vault and orchestrate AI-assisted workflows.
