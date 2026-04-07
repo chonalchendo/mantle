@@ -12,13 +12,17 @@ Mantle fixes this by giving your AI agent a memory, a structured workflow, and t
 
 Mantle manages the full lifecycle of AI-assisted development:
 
-**Idea to implementation** — structured phases from idea capture and challenge through product design, system design, planning, implementation, verification, and review.
+**Idea to verified code in one command** — `/mantle:build` runs the full pipeline automatically: shape the issue, plan stories, implement with per-story agents, simplify, and verify against acceptance criteria.
 
-**Persistent context** — project state, decisions, session logs, and a personal knowledge vault stored as markdown with YAML frontmatter. Everything is git-tracked and human-readable.
+**Persistent context** — project state, decisions, session logs, and a personal knowledge vault stored as markdown with YAML frontmatter. Everything is human-readable and lives in `.mantle/`.
+
+**Auto-briefing** — every Claude Code session starts with a compiled briefing: project state, last session log, open blockers, next actions. You never start from zero.
 
 **Compiled knowledge** — vault state is pre-compiled into Claude Code commands so your AI gets instant context, not expensive runtime file queries.
 
-**Cross-project learning** — a personal vault links skills, patterns, and lessons learned across projects via Obsidian wikilinks.
+**Cross-project learning** — a personal vault links skills, patterns, and lessons learned across projects via Obsidian wikilinks. Learnings from past issues auto-surface in future planning.
+
+**Global storage** — store `.mantle/` context at `~/.mantle/` instead of in-repo for workplace environments where modifying `.gitignore` isn't desirable. Project identity is derived from git remote URL, so context survives re-clones.
 
 ## Quick Start
 
@@ -43,9 +47,18 @@ Once initialized, `.mantle/` is created in your project. Start a Claude Code ses
 
 **Already have an existing project?** Run `mantle init` then `/mantle:adopt` — AI agents analyze your codebase and domain, then interactively generate product and system design documents from what already exists.
 
+**Using this at work?** Store context outside the repo so it never shows up in git diffs:
+
+```bash
+mantle storage --mode global
+mantle migrate-storage --direction global
+```
+
+Context moves to `~/.mantle/projects/<repo-identity>/`. All commands work identically — the path resolution is transparent.
+
 ## Workflow
 
-Every phase is a `/mantle:*` slash command inside Claude Code. The flow runs top-to-bottom, but you can skip optional phases, revise designs at any point, and re-run implementation after fixing blocked stories.
+Every phase is a `/mantle:*` slash command inside Claude Code. Run them individually for control, or use `/mantle:build` to automate the full pipeline from shaped issue to verified code.
 
 ### Project Setup (once)
 
@@ -66,29 +79,43 @@ Every phase is a `/mantle:*` slash command inside Claude Code. The flow runs top
 | **Plan Issues** | `/mantle:plan-issues` | Break work into vertical slices. AI proposes one issue at a time — you approve or adjust each before the next. |
 | **Shape Issue** | `/mantle:shape-issue` | Evaluate 2-3 approaches with tradeoffs before committing to a direction. Past learnings are loaded automatically. |
 | **Plan Stories** | `/mantle:plan-stories` | Decompose the issue into implementable stories sized for a single AI context window. Each story includes test expectations (TDD). |
-| **Implement** | `/mantle:implement` | Automated build loop — spawns an Agent per story, runs tests, retries once on failure, creates atomic git commits. |
-| **Simplify** | `/mantle:simplify` | _Optional._ Post-implementation quality gate. Spawns per-file agents to identify and remove AI-generated code bloat (unnecessary abstractions, defensive over-engineering, dead code, comment noise). Test-gated — changes only committed if tests pass. |
-| **Verify** | `/mantle:verify` | Project-specific verification strategy. On first use, prompts you to define how this project should be verified. Per-issue overrides supported. |
+| **Implement** | `/mantle:implement` | Automated build loop — spawns an Agent per story with dependency-aware wave execution, runs tests, retries once on failure, post-implementation code review, atomic git commits. |
+| **Simplify** | `/mantle:simplify` | Post-implementation quality gate. Per-file agents identify and remove AI-generated code bloat. Test-gated — changes only committed if tests pass. |
+| **Verify** | `/mantle:verify` | Project-specific verification against acceptance criteria. Auto-detects test/lint/check commands on first use. Per-issue overrides supported. |
 | **Review** | `/mantle:review` | Human review with acceptance criteria checklist. AI presents pass/fail status from verification. You approve or request changes per criterion. |
 | **Retrospective** | `/mantle:retrospective` | Capture what went well, what was harder than expected, and wrong assumptions. Learnings auto-surface in future shaping sessions. |
+
+**Or run it all at once:** `/mantle:build` executes the full pipeline — shape, plan stories, implement, simplify, and verify — without requiring confirmation at each step.
 
 ### Available Any Time
 
 | Command | What It Does |
 |---|---|
-| `/mantle:bug` | Quick structured bug capture. Open bugs surface during `/mantle:plan-issues`. |
+| `/mantle:bug` | Quick structured bug capture. Open bugs surface during planning. |
+| `/mantle:inbox` | Ultra-low-friction idea capture for feature ideas. |
+| `/mantle:add-issue` | Add a single new issue to the backlog. |
+| `/mantle:brainstorm` | Explore and validate a feature idea against your product vision. |
+| `/mantle:scout` | Analyze an external repo through your project's design lens. |
+| `/mantle:refactor` | Structured refactoring for architectural debt and design problems. |
+| `/mantle:fix` | Read saved review feedback and fix flagged criteria. |
 | `/mantle:revise-product` | Update the product design. Creates a decision log entry. |
 | `/mantle:revise-system` | Update the system design. Creates a decision log entry. |
 | `/mantle:status` | Show current project state compiled from vault data. |
 | `/mantle:resume` | Re-display the project briefing mid-session. |
 | `/mantle:add-skill` | Add a skill node to your personal vault for cross-project knowledge. |
+| `/mantle:query` | Search your vault knowledge and synthesize a grounded answer. |
+| `/mantle:distill` | Synthesize accumulated vault knowledge on a topic into a persistent note. |
 | `/mantle:help` | List all commands grouped by phase. |
 
 ## How It Works
 
 Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude Code (`/mantle:*`). The core library handles all state and vault operations. The CLI is a thin wrapper. Claude Code commands compile context from your vault and orchestrate AI-assisted workflows.
 
-All state lives in plain markdown files with YAML frontmatter — versioned in git, readable by any tool, editable by hand.
+**Architecture:** `core/` (all business logic) → `cli/` (thin routing layer) → Claude Code commands (prompt-based orchestration). Core never imports from CLI. Each implementation story gets a fresh 200k context window via native Agent subagents.
+
+**Storage:** All state lives in plain markdown files with YAML frontmatter — human-readable and editable by hand. By default, `.mantle/` lives in your project root (git-tracked for collaboration). For workplace environments, switch to global storage at `~/.mantle/` with `mantle storage --mode global`.
+
+**Session continuity:** A SessionStart hook auto-compiles context and displays a project briefing. Session logs are written automatically at the end of every session, so you never lose context between conversations.
 
 ## Status
 
