@@ -8,6 +8,24 @@ results from the most recent `/mantle:verify` run as a starting point. Present
 each criterion, share the verification result, and let the human make the final
 call.
 
+## Scope
+
+**review checks architectural quality** — does the implementation follow
+project conventions, design principles, and structural patterns?
+
+review is the authoritative quality gate. `/mantle:verify` checks functional
+correctness against acceptance criteria; review checks everything else:
+
+- **Convention adherence**: import style, docstring format, line length, type
+  hints, naming — the rules in CLAUDE.md
+- **Architectural consistency**: layer boundaries, module responsibilities,
+  patterns established in system-design.md
+- **Code quality patterns**: unnecessary abstractions, premature complexity,
+  clarity and readability
+
+When reviewing, look beyond "does it pass the criteria" to "does it belong in
+this codebase."
+
 ## Dynamic Context
 
 - **Current branch**: !`git branch --show-current`

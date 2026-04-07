@@ -6,6 +6,22 @@ allowed-tools: Read, Bash(mantle *), Bash(uv run pytest*), Bash(npm test*), Bash
 Verify that an implemented issue meets its acceptance criteria using the project's
 verification strategy.
 
+## Scope
+
+**verify checks functional correctness** — does the implementation satisfy the
+acceptance criteria as written?
+
+verify does NOT check:
+- Architectural quality or design consistency
+- Convention adherence (e.g. import style, docstring format, line length)
+- Code quality patterns or structural decisions
+
+Those concerns belong to `/mantle:review`. Run review after verify to catch
+issues that acceptance criteria don't cover.
+
+Convention deviations detected during verify are surfaced as **warnings only**
+and do not affect the PASSED/FAILED verdict.
+
 ## Dynamic Context
 
 - **Current branch**: !`git branch --show-current`
@@ -42,9 +58,10 @@ Before starting, use TaskCreate to create a task for each step:
 4. "Step 4 — Check for per-issue override"
 5. "Step 5 — Load acceptance criteria"
 6. "Step 6 — Execute verification"
-7. "Step 7 — Report results"
-8. "Step 7.5 — Strategy evolution"
-9. "Step 8 — Handle outcome"
+7. "Step 6.5 — Convention check"
+8. "Step 7 — Report results"
+9. "Step 7.5 — Strategy evolution"
+10. "Step 8 — Handle outcome"
 
 As you start each step, use TaskUpdate to set it to `in_progress`. When
 complete, use TaskUpdate to set it to `completed`.
@@ -142,6 +159,34 @@ For each criterion, record:
 - **Pass** or **Fail**
 - Brief detail explaining the result
 
+## Step 6.5 — Convention check
+
+Run a convention check against the changed files. This step produces warnings
+only — deviations do not affect the PASSED/FAILED verdict.
+
+1. Read `CLAUDE.md` from the project root.
+2. Read `.mantle/system-design.md` if it exists (look for architecture
+   conventions, naming rules, or structural constraints).
+3. Run `mantle collect-issue-files --issue {NN}` to get the list of files
+   changed for this issue.
+4. Read each changed file.
+5. Compare each file against the conventions from CLAUDE.md and
+   system-design.md. Look for deviations such as:
+   - Line length violations (>80 characters)
+   - Missing type hints on public functions
+   - Missing or malformed Google-style docstrings
+   - Relative imports or importing individual names instead of modules
+   - Bare `except:` clauses
+   - Mutable default arguments
+   - Any architecture constraints from system-design.md
+6. Collect all deviations. Each deviation should note: file, line (if
+   identifiable), and the convention it violates.
+
+If no deviations are found, record: "No convention deviations detected."
+
+These results feed into the Convention Warnings section of the report in
+Step 7. They are informational only.
+
 ## Step 7 — Report results
 
 Display a formatted verification report:
@@ -157,6 +202,21 @@ Display a formatted verification report:
 > | 2 | ... | ... | ... |
 >
 > **Overall: {PASSED | FAILED}**
+>
+> ---
+>
+> ### Convention Warnings
+>
+> *These are informational only. They do not affect the verdict above.*
+>
+> {If deviations were found, list them:}
+> - `{file}` line {N}: {convention violated}
+>
+> {If no deviations were found:}
+> No convention deviations detected.
+>
+> *For architectural quality, convention enforcement, and design review, run
+> `/mantle:review`.*
 
 ## Step 7.5 — Strategy evolution
 
