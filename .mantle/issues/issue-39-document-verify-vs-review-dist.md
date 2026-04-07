@@ -1,6 +1,6 @@
 ---
 title: Document verify vs review distinction and add convention checking to verify
-status: verified
+status: approved
 slice:
 - claude-code
 - tests
@@ -9,7 +9,7 @@ verification: null
 blocked_by: []
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
