@@ -1,12 +1,12 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "ed0c518d1d6e48b16c68b4e4a47a5b7a055b28112ae7f68296fd5e1390837e28",
+    "/Users/conal/Development/mantle/.mantle/state.md": "4aee9a361e367ea2cf563c86422ac22d21c277fbbb14ff27f42bfdf04b57b230",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "d91cac9749ebae0470349eddf411b5ef3adc656154822359f89eaa12c3537e26",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-07-0952.md": "aaa37e52c6b78c63aacfee3cb73c933ce3e86d183b1be8f1c5ccc34f3bcf6e93",
-    "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
-    "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-07-1053.md": "47e59315e447437c74e46855f87c9a678f6aa3cff73f6be84667edcfb3795202",
+    "/Users/conal/Development/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
+    "/Users/conal/Development/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
     "/Users/conal/test-vault/skills/beautifulsoup4-web-scraping.md": "220fd8f91cba106a7716026d9a6def001862f54d23f9099fc9a9b530a77d7def",
     "/Users/conal/test-vault/skills/claude-sdk-structured-analysis-pipelines.md": "66c6b9da9ecee238c6204b9ca4fb55b0cdbe84cbd30fc2d8c572e4d0a23a7fe2",
