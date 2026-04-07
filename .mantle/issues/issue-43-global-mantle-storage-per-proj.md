@@ -1,17 +1,45 @@
 ---
 title: Global .mantle/ storage — per-project folders under ~/.mantle/ instead of in-repo
-status: planned
+status: verified
 slice:
 - core
 - cli
 - tests
-story_count: 0
+story_count: 4
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Designing Architecture
+- DuckDB Best Practices and Optimisations
+- DuckLake
+- Earnings Transcript Data Sources
+- FRED Data Source
+- Finviz Data Source
+- Lakehouse Architecture
+- Macrotrends Data Source
+- Medallion Architecture & Star Schema
+- Production Project Readiness
+- Python Project Conventions
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- Tom Gayner Investment Philosophy
+- beautifulsoup4-web-scraping
+- claude-sdk-structured-analysis-pipelines
+- cyclopts
+- docker-compose-python
+- edgartools
+- fastapi
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/verified
 ---
 
 ## Parent PRD
