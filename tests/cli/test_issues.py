@@ -146,6 +146,27 @@ class TestRunSaveIssue:
 
         assert "Blocked by:" not in captured.out
 
+    def test_passes_skills_required_to_save_issue(
+        self,
+        project: Path,
+    ) -> None:
+        from mantle.cli.issues import run_save_issue
+        from mantle.core import issues as core_issues
+
+        run_save_issue(
+            title="Context engine",
+            slice=("core",),
+            content="Build it.\n",
+            skills_required=("google-python-style", "pytest"),
+            project_dir=project,
+        )
+
+        issue_path = (
+            project / ".mantle" / "issues" / "issue-01-context-engine.md"
+        )
+        note, _ = core_issues.load_issue(issue_path)
+        assert note.skills_required == ("google-python-style", "pytest")
+
     def test_defaults_to_cwd(
         self,
         project: Path,
@@ -300,6 +321,22 @@ class TestCLIWiring:
         assert result.returncode == 0
         assert "title" in result.stdout.lower()
         assert "slice" in result.stdout.lower()
+
+    def test_save_issue_help_mentions_skills_required(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "save-issue",
+                "--help",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert "skills-required" in result.stdout
 
     def test_set_slices_help(self) -> None:
         result = subprocess.run(

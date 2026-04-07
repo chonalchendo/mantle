@@ -17,6 +17,7 @@ def run_save_issue(
     slice: tuple[str, ...],
     content: str,
     blocked_by: tuple[int, ...] = (),
+    skills_required: tuple[str, ...] = (),
     verification: str | None = None,
     issue: int | None = None,
     overwrite: bool = False,
@@ -29,6 +30,7 @@ def run_save_issue(
         slice: Architectural layers this issue touches.
         content: Full issue body (markdown).
         blocked_by: Issue numbers this issue depends on.
+        skills_required: Skill names required to work on this issue.
         verification: Optional per-issue verification override.
         issue: Explicit issue number (for overwrites).
         overwrite: Replace existing issue file.
@@ -47,6 +49,7 @@ def run_save_issue(
             title=title,
             slice=slice,
             blocked_by=blocked_by,
+            skills_required=skills_required,
             verification=verification,
             issue=issue,
             overwrite=overwrite,

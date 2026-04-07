@@ -124,6 +124,7 @@ def template_dir() -> Path:
 def compile(
     project_dir: Path,
     target_dir: Path | None = None,
+    issue: int | None = None,
 ) -> list[str]:
     """Compile vault context into concrete markdown commands.
 
@@ -134,6 +135,8 @@ def compile(
         project_dir: Directory containing ``.mantle/``.
         target_dir: Output directory for compiled commands.
             Defaults to ``~/.claude/commands/mantle/``.
+        issue: Compile only skills relevant to this issue number.
+            When ``None``, all ``skills_required`` are compiled.
 
     Returns:
         List of compiled template names (without ``.j2`` extension).
@@ -159,7 +162,7 @@ def compile(
         compiled.append(out_name)
 
     # Compile vault skills to .claude/skills/
-    skills.compile_skills(project_dir)
+    skills.compile_skills(project_dir, issue=issue)
 
     paths = source_paths(project_dir)
     hashes = manifest.hash_paths(paths)
@@ -171,12 +174,15 @@ def compile(
 def compile_if_stale(
     project_dir: Path,
     target_dir: Path | None = None,
+    issue: int | None = None,
 ) -> list[str] | None:
     """Compile only when source files have changed.
 
     Args:
         project_dir: Directory containing ``.mantle/``.
         target_dir: Output directory for compiled commands.
+        issue: Compile only skills relevant to this issue number.
+            When ``None``, all ``skills_required`` are compiled.
 
     Returns:
         List of compiled template names if compilation ran,
@@ -189,7 +195,7 @@ def compile_if_stale(
     if not manifest.is_compilation_stale(mpath, current_hashes):
         return None
 
-    return compile(project_dir, target_dir)
+    return compile(project_dir, target_dir, issue=issue)
 
 
 # ── Internal helpers ─────────────────────────────────────────────

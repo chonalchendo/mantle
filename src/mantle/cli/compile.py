@@ -16,6 +16,7 @@ def run_compile(
     if_stale: bool = False,
     project_dir: Path | None = None,
     target_dir: Path | None = None,
+    issue: int | None = None,
 ) -> None:
     """Compile vault context into Claude Code commands.
 
@@ -24,6 +25,7 @@ def run_compile(
         project_dir: Project directory. Defaults to cwd.
         target_dir: Output directory. Defaults to
             ``~/.claude/commands/mantle/``.
+        issue: Compile only skills relevant to this issue number.
     """
     if project_dir is None:
         project_dir = Path.cwd()
@@ -31,14 +33,16 @@ def run_compile(
     try:
         if if_stale:
             result = compiler.compile_if_stale(
-                project_dir, target_dir=target_dir
+                project_dir, target_dir=target_dir, issue=issue
             )
             if result is None:
                 console.print("Already up to date — no recompilation needed.")
                 return
             compiled = result
         else:
-            compiled = compiler.compile(project_dir, target_dir=target_dir)
+            compiled = compiler.compile(
+                project_dir, target_dir=target_dir, issue=issue
+            )
     except FileNotFoundError:
         console.print(
             "[red]Error:[/red] no .mantle/ directory found. "

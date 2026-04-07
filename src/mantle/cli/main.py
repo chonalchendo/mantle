@@ -23,7 +23,6 @@ from mantle.cli import (
     product_design,
     research,
     review,
-    scout,
     session,
     shaping,
     simplify,
@@ -877,6 +876,13 @@ def save_issue_command(
             help="Blocking issue number (repeatable).",
         ),
     ] = (),
+    skills_required: Annotated[
+        tuple[str, ...],
+        Parameter(
+            name="--skills-required",
+            help="Required skill name (repeatable).",
+        ),
+    ] = (),
     verification: Annotated[
         str | None,
         Parameter(
@@ -912,6 +918,7 @@ def save_issue_command(
         slice=slice,
         content=content,
         blocked_by=blocked_by,
+        skills_required=skills_required,
         verification=verification,
         issue=issue,
         overwrite=overwrite,
@@ -1310,54 +1317,6 @@ def save_learning_command(
     )
 
 
-@app.command(name="save-scout")
-def save_scout_command(
-    repo_url: Annotated[
-        str,
-        Parameter(
-            name="--repo-url",
-            help="URL of the analyzed repository.",
-        ),
-    ],
-    repo_name: Annotated[
-        str,
-        Parameter(
-            name="--repo-name",
-            help="Short name of the repository.",
-        ),
-    ],
-    dimensions: Annotated[
-        list[str],
-        Parameter(
-            name="--dimensions",
-            help="Analysis dimensions covered.",
-        ),
-    ],
-    content: Annotated[
-        str,
-        Parameter(
-            name="--content",
-            help="Full scout report content.",
-        ),
-    ],
-    path: Annotated[
-        Path | None,
-        Parameter(
-            name="--path",
-            help="Project directory. Defaults to cwd.",
-        ),
-    ] = None,
-) -> None:
-    """Save a scout report to .mantle/scouts/."""
-    scout.run_save_scout(
-        repo_url=repo_url,
-        repo_name=repo_name,
-        dimensions=dimensions,
-        content=content,
-        project_dir=path,
-    )
-
-
 @app.command(name="save-session")
 def save_session_command(
     content: Annotated[
@@ -1632,12 +1591,20 @@ def compile_command(
             help="Output directory. Defaults to ~/.claude/commands/mantle/.",
         ),
     ] = None,
+    issue: Annotated[
+        int | None,
+        Parameter(
+            name="--issue",
+            help="Compile only skills relevant to this issue number.",
+        ),
+    ] = None,
 ) -> None:
     """Compile vault context into Claude Code commands."""
     compile_cmd.run_compile(
         if_stale=if_stale,
         project_dir=path,
         target_dir=target,
+        issue=issue,
     )
 
 

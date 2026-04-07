@@ -5,7 +5,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from typing import TYPE_CHECKING
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from mantle.cli.compile import run_compile
 
@@ -152,6 +152,54 @@ class TestRunCompile:
         assert (target / "status.md").exists()
 
 
+    def test_passes_issue_to_compiler_compile(self, tmp_path: Path) -> None:
+        _write_state_md(tmp_path / ".mantle")
+        tpl_dir = _make_template_dir(tmp_path)
+        target = tmp_path / "output"
+
+        with (
+            patch(
+                "mantle.core.compiler.template_dir",
+                return_value=tpl_dir,
+            ),
+            patch(
+                "mantle.core.compiler.skills.compile_skills",
+            ) as mock_compile_skills,
+        ):
+            run_compile(project_dir=tmp_path, target_dir=target, issue=42)
+
+        mock_compile_skills.assert_called_once_with(tmp_path, issue=42)
+
+    def test_passes_issue_to_compiler_compile_if_stale(
+        self, tmp_path: Path
+    ) -> None:
+        _write_state_md(tmp_path / ".mantle")
+        tpl_dir = _make_template_dir(tmp_path)
+        target = tmp_path / "output"
+
+        with (
+            patch(
+                "mantle.core.compiler.template_dir",
+                return_value=tpl_dir,
+            ),
+            patch(
+                "mantle.core.compiler.skills.compile_skills",
+            ) as mock_compile_skills,
+            patch(
+                "mantle.core.compiler.manifest.is_compilation_stale",
+                return_value=True,
+            ),
+        ):
+            run_compile(
+                if_stale=True,
+                project_dir=tmp_path,
+                target_dir=target,
+                issue=7,
+            )
+
+        mock_compile_skills.assert_called_once_with(tmp_path, issue=7)
+
+
 # ── CLI wiring ──────────────────────────────────────────────────
 
 
@@ -164,3 +212,12 @@ class TestCompileCLI:
         )
         assert result.returncode == 0
         assert "if-stale" in result.stdout
+
+    def test_help_mentions_issue(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "mantle.cli.main", "compile", "--help"],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert "issue" in result.stdout
