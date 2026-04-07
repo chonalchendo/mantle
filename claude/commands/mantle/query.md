@@ -58,6 +58,7 @@ Search across these locations:
 - `.mantle/sessions/` — session logs
 - `.mantle/brainstorms/` — brainstorm outputs
 - `.mantle/research/` — research reports
+- `.mantle/scouts/` — scout reports from external repo analysis
 - `.mantle/shaped/` — shaped issue documents
 - Personal vault skills via `mantle list-skills`
 
