@@ -298,7 +298,7 @@ class TestSaveIssue:
 
         assert "Issue 1 planned" in text
         assert "/mantle:plan-issues" in text
-        assert "/mantle:shape-issue" in text
+        assert "/mantle:build" in text
 
     @patch(
         "mantle.core.issues.state.resolve_git_identity",

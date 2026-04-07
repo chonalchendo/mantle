@@ -6,7 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from mantle.core import learning
+from mantle.core import archive, learning
 
 console = Console()
 
@@ -65,5 +65,15 @@ def run_save_learning(
     console.print()
     console.print(
         "  Learnings auto-surface in future"
+        " [bold]/mantle:build[/bold] and"
         " [bold]/mantle:shape-issue[/bold] sessions"
     )
+
+    # Auto-archive the issue and its artifacts
+    moved = archive.archive_issue(project_dir, issue)
+    if moved:
+        console.print()
+        console.print(
+            f"[dim]Archived {len(moved)} file(s) for issue"
+            f" {issue} to .mantle/archive/[/dim]"
+        )

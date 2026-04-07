@@ -187,8 +187,12 @@ Briefly assess what was captured before recommending next steps:
 **Default recommendation:** `/mantle:shape-issue {NN}` — explore approaches
 before decomposing into stories.
 
-**Alternative:** `/mantle:plan-stories {NN}` — if the issue is simple and
-the approach is already clear.
+**Alternatives:**
+
+- `/mantle:build {NN}` — if the user wants to move fast. Automates shaping,
+  story planning, implementation, and verification in one pass.
+- `/mantle:plan-stories {NN}` — if the issue is simple and the approach is
+  already clear.
 
 Present one clear recommendation with a reason, then mention alternatives
 briefly:

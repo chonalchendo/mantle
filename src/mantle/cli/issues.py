@@ -78,8 +78,9 @@ def run_save_issue(
         refs = ", ".join(f"issue-{n:02d}" for n in note.blocked_by)
         console.print(f"  Blocked by: {refs}")
     console.print(
-        "  Next: run [bold]/mantle:plan-issues[/bold] for the next"
-        " issue or [bold]/mantle:shape-issue[/bold] to start shaping"
+        "  Next: run [bold]/mantle:build[/bold] to automate the full"
+        " pipeline, [bold]/mantle:shape-issue[/bold] for manual control,"
+        " or [bold]/mantle:plan-issues[/bold] for the next issue"
     )
 
 

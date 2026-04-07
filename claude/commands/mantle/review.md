@@ -130,7 +130,8 @@ next criterion.
 
    **Valid next commands** (recommend the best fit, not all of them):
    - `/mantle:retrospective` — **always recommend first** if no learning exists for this issue. Retrospectives capture what went well and what was harder than expected, directly improving future planning.
-   - `/mantle:shape-issue` — recommend after retrospective, when more unimplemented issues remain.
+   - `/mantle:build` — recommend after retrospective when the user wants to move fast. Automates shaping, story planning, implementation, and verification in one pass.
+   - `/mantle:shape-issue` — recommend after retrospective when the user wants fine-grained control over approach selection.
    - `/mantle:plan-issues` — recommend when all current issues are done but the project needs more work.
 
    **Default:** `/mantle:retrospective` — always do this before moving on.
@@ -139,7 +140,7 @@ next criterion.
 
    > **Recommended next step:** `/mantle:retrospective` — capture learnings from this issue before moving on. This takes 5 minutes and directly improves future planning.
    >
-   > After that: `/mantle:shape-issue` to pick up the next issue (or `/mantle:plan-issues` if all current issues are done).
+   > After that: `/mantle:build` to pick up the next issue (or `/mantle:shape-issue` for more control, `/mantle:plan-issues` if all current issues are done).
 
 **If any criteria need changes:**
 1. Transition the issue back to implementing:

@@ -109,11 +109,12 @@ After a successful save, check `.mantle/issues/` for remaining unimplemented iss
 
 **Valid next commands** (recommend the best fit, not all of them):
 
-- `/mantle:shape-issue` — recommend when unimplemented issues remain. These learnings will automatically surface in that session to inform planning.
+- `/mantle:build` — recommend when the user wants to move fast. Automates shaping, story planning, implementation, and verification in one pass.
+- `/mantle:shape-issue` — recommend when unimplemented issues remain and the user wants fine-grained control over approach selection. Learnings auto-surface in that session.
 - `/mantle:plan-issues` — recommend when all current issues are done but the project needs more work planned.
 - `/mantle:status` — recommend when the user might want to see overall project state before deciding what's next.
 
-**Default:** `/mantle:shape-issue` if unimplemented issues remain.
+**Default:** `/mantle:build` if unimplemented issues remain.
 
 Present one clear recommendation with a reason, then mention alternatives briefly:
 

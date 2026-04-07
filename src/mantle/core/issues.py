@@ -433,8 +433,9 @@ def _update_state_body(
     body = re.sub(
         r"(## Current Focus\n\n).*?(?=\n##|\Z)",
         rf"\1Issue {issue} planned"
-        r" — run /mantle:plan-issues for next issue"
-        r" or /mantle:shape-issue to start shaping."
+        r" — run /mantle:build to automate the full pipeline,"
+        r" /mantle:shape-issue for manual control,"
+        r" or /mantle:plan-issues for next issue."
         "\n",
         note.body,
         count=1,
