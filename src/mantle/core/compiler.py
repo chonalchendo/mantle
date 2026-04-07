@@ -7,7 +7,15 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
-from mantle.core import manifest, session, skills, state, templates, vault
+from mantle.core import (
+    manifest,
+    project,
+    session,
+    skills,
+    state,
+    templates,
+    vault,
+)
 
 # ── Public API ───────────────────────────────────────────────────
 
@@ -27,7 +35,7 @@ def collect_context(project_dir: Path) -> dict[str, Any]:
     Raises:
         FileNotFoundError: If ``state.md`` does not exist.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     fm = note.frontmatter
@@ -67,7 +75,7 @@ def source_paths(project_dir: Path) -> list[Path]:
     Returns:
         List of absolute paths to source files.
     """
-    mantle_dir = project_dir / ".mantle"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
     paths: list[Path] = [mantle_dir / "state.md"]
 
     for name in ("idea.md", "product-design.md", "system-design.md"):
@@ -273,4 +281,4 @@ def _default_target_dir() -> Path:
 
 def _manifest_path(project_dir: Path) -> Path:
     """Return the path to the compilation manifest."""
-    return project_dir / ".mantle" / ".compile-manifest.json"
+    return project.resolve_mantle_dir(project_dir) / ".compile-manifest.json"

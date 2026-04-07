@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import sanitize, state, vault
+from mantle.core import project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -115,7 +115,9 @@ def list_distillations(
     Returns:
         List of paths to distillation files. Empty if none.
     """
-    distillations_dir = project_dir / ".mantle" / "distillations"
+    distillations_dir = (
+        project.resolve_mantle_dir(project_dir) / "distillations"
+    )
     if not distillations_dir.is_dir():
         return []
     paths = sorted(distillations_dir.glob("*.md"))
@@ -183,7 +185,9 @@ def _resolve_distillation_path(project_dir: Path, topic: str) -> Path:
     Returns:
         Path for the new distillation file.
     """
-    distillations_dir = project_dir / ".mantle" / "distillations"
+    distillations_dir = (
+        project.resolve_mantle_dir(project_dir) / "distillations"
+    )
     today = date.today().isoformat()
     slug = _slugify(topic)
     base = distillations_dir / f"{today}-{slug}.md"

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import decisions, state, vault
+from mantle.core import decisions, project, state, vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -133,7 +133,7 @@ def create_product_design(
         ProductDesignExistsError: If product-design.md exists
             and overwrite is False.
     """
-    design_path = project_dir / ".mantle" / "product-design.md"
+    design_path = project.resolve_mantle_dir(project_dir) / "product-design.md"
 
     if design_path.exists() and not overwrite:
         raise ProductDesignExistsError(design_path)
@@ -177,7 +177,7 @@ def load_product_design(project_dir: Path) -> ProductDesignNote:
     Raises:
         FileNotFoundError: If product-design.md does not exist.
     """
-    path = project_dir / ".mantle" / "product-design.md"
+    path = project.resolve_mantle_dir(project_dir) / "product-design.md"
     note = vault.read_note(path, ProductDesignNote)
     return note.frontmatter
 
@@ -191,7 +191,9 @@ def product_design_exists(project_dir: Path) -> bool:
     Returns:
         True if product-design.md exists, False otherwise.
     """
-    return (project_dir / ".mantle" / "product-design.md").exists()
+    return (
+        project.resolve_mantle_dir(project_dir) / "product-design.md"
+    ).exists()
 
 
 def update_product_design(
@@ -254,7 +256,7 @@ def update_product_design(
         updated_by=identity,
     )
 
-    design_path = project_dir / ".mantle" / "product-design.md"
+    design_path = project.resolve_mantle_dir(project_dir) / "product-design.md"
     vault.write_note(design_path, note, _build_product_design_body(note))
 
     _, decision_path = decisions.save_decision(
@@ -285,7 +287,7 @@ def _update_state_body(project_dir: Path, identity: str) -> None:
         project_dir: Directory containing .mantle/.
         identity: Git email for the updated_by field.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

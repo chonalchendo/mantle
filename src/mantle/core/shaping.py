@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import issues, state, vault
+from mantle.core import issues, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -159,7 +159,7 @@ def list_shaped_issues(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to shaped issue files. Empty if none.
     """
-    shaped_dir = project_dir / ".mantle" / "shaped"
+    shaped_dir = project.resolve_mantle_dir(project_dir) / "shaped"
     if not shaped_dir.is_dir():
         return []
     return sorted(shaped_dir.glob("issue-*-shaped.md"))
@@ -199,12 +199,15 @@ def _shaped_issue_path(
     slug = issues._slugify_title(title) if title else ""
     if slug:
         return (
-            project_dir
-            / ".mantle"
+            project.resolve_mantle_dir(project_dir)
             / "shaped"
             / f"issue-{issue:02d}-{slug}-shaped.md"
         )
-    return project_dir / ".mantle" / "shaped" / f"issue-{issue:02d}-shaped.md"
+    return (
+        project.resolve_mantle_dir(project_dir)
+        / "shaped"
+        / f"issue-{issue:02d}-shaped.md"
+    )
 
 
 def find_shaped_issue_path(project_dir: Path, issue: int) -> Path | None:
@@ -217,7 +220,7 @@ def find_shaped_issue_path(project_dir: Path, issue: int) -> Path | None:
     Returns:
         Path to the shaped issue file, or None if not found.
     """
-    shaped_dir = project_dir / ".mantle" / "shaped"
+    shaped_dir = project.resolve_mantle_dir(project_dir) / "shaped"
     matches = sorted(shaped_dir.glob(f"issue-{issue:02d}-*-shaped.md"))
     if matches:
         return matches[0]
@@ -241,7 +244,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         issue: Issue number that was shaped.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

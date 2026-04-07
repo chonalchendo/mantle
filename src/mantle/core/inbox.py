@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -118,7 +118,7 @@ def list_inbox_items(
     Returns:
         List of paths to inbox item files. Empty if none.
     """
-    inbox_dir = project_dir / ".mantle" / "inbox"
+    inbox_dir = project.resolve_mantle_dir(project_dir) / "inbox"
     if not inbox_dir.is_dir():
         return []
 
@@ -152,7 +152,9 @@ def update_inbox_status(
     """
     _validate_choice(status, VALID_STATUSES, "status")
 
-    item_path = project_dir / ".mantle" / "inbox" / item_filename
+    item_path = (
+        project.resolve_mantle_dir(project_dir) / "inbox" / item_filename
+    )
 
     try:
         note = vault.read_note(item_path, InboxItem)
@@ -195,7 +197,7 @@ def _resolve_inbox_path(
     Returns:
         Path for the new inbox item file.
     """
-    inbox_dir = project_dir / ".mantle" / "inbox"
+    inbox_dir = project.resolve_mantle_dir(project_dir) / "inbox"
     base = inbox_dir / f"{date_str}-{slug}.md"
     if not base.exists():
         return base

@@ -184,7 +184,9 @@ def create_initial_state(
         updated_by=identity,
     )
 
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     vault.write_note(path, state, _INITIAL_BODY)
     return state
 
@@ -201,7 +203,9 @@ def load_state(project_dir: Path) -> ProjectState:
     Raises:
         FileNotFoundError: If state.md does not exist.
     """
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(path, ProjectState)
     return note.frontmatter
 
@@ -219,7 +223,9 @@ def transition(project_dir: Path, target: Status) -> ProjectState:
     Raises:
         InvalidTransitionError: If the transition is not allowed.
     """
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(path, ProjectState)
     current = note.frontmatter
 
@@ -256,7 +262,9 @@ def update_tracking(
     Returns:
         The updated ProjectState.
     """
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(path, ProjectState)
     current = note.frontmatter
 
@@ -287,7 +295,9 @@ def update_slices(
     Returns:
         The updated ProjectState.
     """
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(path, ProjectState)
 
     identity = resolve_git_identity()
@@ -320,7 +330,9 @@ def update_skills_required(
     Returns:
         The updated ProjectState.
     """
-    path = project_dir / ".mantle" / "state.md"
+    from mantle.core import project
+
+    path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(path, ProjectState)
 
     if additive:

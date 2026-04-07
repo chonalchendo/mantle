@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import sanitize, state, vault
+from mantle.core import project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -122,7 +122,7 @@ def list_brainstorms(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to brainstorm files. Empty if none.
     """
-    brainstorms_dir = project_dir / ".mantle" / "brainstorms"
+    brainstorms_dir = project.resolve_mantle_dir(project_dir) / "brainstorms"
     if not brainstorms_dir.is_dir():
         return []
     return sorted(brainstorms_dir.glob("*.md"))
@@ -168,7 +168,7 @@ def _resolve_brainstorm_path(project_dir: Path, title: str) -> Path:
     Returns:
         Path for the new brainstorm file.
     """
-    brainstorms_dir = project_dir / ".mantle" / "brainstorms"
+    brainstorms_dir = project.resolve_mantle_dir(project_dir) / "brainstorms"
     today = date.today().isoformat()
     slug = _slugify(title)
     base = brainstorms_dir / f"{today}-{slug}.md"
@@ -214,7 +214,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         verdict: Brainstorm verdict for the message.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     message = _VERDICT_MESSAGES[verdict]

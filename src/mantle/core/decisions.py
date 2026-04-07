@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -128,7 +128,7 @@ def list_decisions(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to decision files. Empty if none.
     """
-    decisions_dir = project_dir / ".mantle" / "decisions"
+    decisions_dir = project.resolve_mantle_dir(project_dir) / "decisions"
     if not decisions_dir.is_dir():
         return []
     return sorted(decisions_dir.glob("*.md"))
@@ -203,7 +203,7 @@ def _resolve_decision_path(
     Returns:
         Path for the new decision file.
     """
-    decisions_dir = project_dir / ".mantle" / "decisions"
+    decisions_dir = project.resolve_mantle_dir(project_dir) / "decisions"
     today = date.today().isoformat()
     base = decisions_dir / f"{today}-{slug}.md"
 

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -127,7 +127,7 @@ def list_sessions(
     Returns:
         List of paths to session log files. Empty if none.
     """
-    sessions_dir = project_dir / ".mantle" / "sessions"
+    sessions_dir = project.resolve_mantle_dir(project_dir) / "sessions"
     if not sessions_dir.is_dir():
         return []
 
@@ -206,7 +206,7 @@ def _resolve_session_path(
     Returns:
         Tuple of (resolved path, datetime used).
     """
-    sessions_dir = project_dir / ".mantle" / "sessions"
+    sessions_dir = project.resolve_mantle_dir(project_dir) / "sessions"
     sessions_dir.mkdir(parents=True, exist_ok=True)
 
     now = datetime.now()

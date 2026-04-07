@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Literal
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -263,7 +263,7 @@ def list_reviews(project_root: Path) -> list[Path]:
     Returns:
         List of paths to review files. Empty if none exist.
     """
-    reviews_dir = project_root / ".mantle" / "reviews"
+    reviews_dir = project.resolve_mantle_dir(project_root) / "reviews"
     if not reviews_dir.is_dir():
         return []
     return sorted(reviews_dir.glob("issue-*-review.md"))
@@ -273,7 +273,11 @@ def list_reviews(project_root: Path) -> list[Path]:
 
 
 def _review_path(project_root: Path, issue: int) -> Path:
-    return project_root / ".mantle" / "reviews" / f"issue-{issue:02d}-review.md"
+    return (
+        project.resolve_mantle_dir(project_root)
+        / "reviews"
+        / f"issue-{issue:02d}-review.md"
+    )
 
 
 def _format_review_body(checklist: ReviewChecklist) -> str:

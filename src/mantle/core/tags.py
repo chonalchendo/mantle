@@ -6,13 +6,11 @@ import dataclasses
 import re
 from typing import TYPE_CHECKING
 
-from mantle.core import vault
+from mantle.core import project, vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
-
-_TAGS_PATH = ".mantle/tags.md"
 
 # Map tag prefix to the section heading in tags.md.
 _PREFIX_TO_SECTION: dict[str, str] = {
@@ -52,7 +50,7 @@ def load_tags(project_dir: Path) -> set[str]:
         Set of tag strings found in the file. Empty if the file
         has no tags or does not exist.
     """
-    tags_path = project_dir / _TAGS_PATH
+    tags_path = project.resolve_mantle_dir(project_dir) / "tags.md"
     if not tags_path.exists():
         return set()
 
@@ -78,7 +76,7 @@ def add_tags(
     Returns:
         List of tags that were actually new (not already present).
     """
-    tags_path = project_dir / _TAGS_PATH
+    tags_path = project.resolve_mantle_dir(project_dir) / "tags.md"
     existing = load_tags(project_dir)
 
     actually_new = [t for t in new_tags if t not in existing]

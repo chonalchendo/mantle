@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -109,7 +109,7 @@ def create_idea(
     Raises:
         IdeaExistsError: If idea.md exists and overwrite is False.
     """
-    idea_path = project_dir / ".mantle" / "idea.md"
+    idea_path = project.resolve_mantle_dir(project_dir) / "idea.md"
 
     if idea_path.exists() and not overwrite:
         raise IdeaExistsError(idea_path)
@@ -146,7 +146,7 @@ def load_idea(project_dir: Path) -> IdeaNote:
     Raises:
         FileNotFoundError: If idea.md does not exist.
     """
-    path = project_dir / ".mantle" / "idea.md"
+    path = project.resolve_mantle_dir(project_dir) / "idea.md"
     note = vault.read_note(path, IdeaNote)
     return note.frontmatter
 
@@ -174,7 +174,7 @@ def update_idea(
     Raises:
         FileNotFoundError: If idea.md does not exist.
     """
-    idea_path = project_dir / ".mantle" / "idea.md"
+    idea_path = project.resolve_mantle_dir(project_dir) / "idea.md"
     note = vault.read_note(idea_path, IdeaNote)
     current = note.frontmatter
 
@@ -206,7 +206,7 @@ def idea_exists(project_dir: Path) -> bool:
     Returns:
         True if idea.md exists, False otherwise.
     """
-    return (project_dir / ".mantle" / "idea.md").exists()
+    return (project.resolve_mantle_dir(project_dir) / "idea.md").exists()
 
 
 # ── Internal helpers ─────────────────────────────────────────────
@@ -229,7 +229,7 @@ def _update_state_body(
         insight: The non-obvious truth that makes a new solution possible.
         identity: Git email for the updated_by field.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = note.body

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import sanitize, state, vault
+from mantle.core import project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -110,7 +110,8 @@ def save_research(
         )
         raise ValueError(msg)
 
-    idea_path = project_dir / ".mantle" / "idea.md"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
+    idea_path = mantle_dir / "idea.md"
     if not idea_path.exists():
         raise IdeaNotFoundError(idea_path)
 
@@ -165,7 +166,7 @@ def list_research(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to research files. Empty if none.
     """
-    research_dir = project_dir / ".mantle" / "research"
+    research_dir = project.resolve_mantle_dir(project_dir) / "research"
     if not research_dir.is_dir():
         return []
     return sorted(research_dir.glob("*.md"))
@@ -196,7 +197,7 @@ def _resolve_research_path(project_dir: Path, focus: str) -> Path:
     Returns:
         Path for the new research file.
     """
-    research_dir = project_dir / ".mantle" / "research"
+    research_dir = project.resolve_mantle_dir(project_dir) / "research"
     today = date.today().isoformat()
     base = research_dir / f"{today}-{focus}.md"
 
@@ -226,7 +227,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         focus: Research focus angle for the message.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

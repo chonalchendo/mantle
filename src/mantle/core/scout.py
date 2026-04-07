@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import sanitize, state, vault
+from mantle.core import project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -112,7 +112,7 @@ def list_scouts(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to scout report files. Empty if none.
     """
-    scouts_dir = project_dir / ".mantle" / "scouts"
+    scouts_dir = project.resolve_mantle_dir(project_dir) / "scouts"
     if not scouts_dir.is_dir():
         return []
     return sorted(scouts_dir.glob("*.md"))
@@ -139,7 +139,7 @@ def _resolve_scout_path(project_dir: Path, repo_name: str) -> Path:
     Returns:
         Path for the new scout report file.
     """
-    scouts_dir = project_dir / ".mantle" / "scouts"
+    scouts_dir = project.resolve_mantle_dir(project_dir) / "scouts"
     today = date.today().isoformat()
     slug = _slugify(repo_name)
     base = scouts_dir / f"{today}-{slug}.md"
@@ -169,7 +169,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         repo_name: Name of the scouted repository.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     message = (

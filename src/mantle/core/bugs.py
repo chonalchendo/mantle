@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -160,7 +160,7 @@ def list_bugs(
     Returns:
         List of paths to bug files. Empty if none.
     """
-    bugs_dir = project_dir / ".mantle" / "bugs"
+    bugs_dir = project.resolve_mantle_dir(project_dir) / "bugs"
     if not bugs_dir.is_dir():
         return []
 
@@ -201,7 +201,7 @@ def update_bug_status(
     """
     _validate_choice(status, VALID_STATUSES, "status")
 
-    bug_path = project_dir / ".mantle" / "bugs" / bug_filename
+    bug_path = project.resolve_mantle_dir(project_dir) / "bugs" / bug_filename
 
     try:
         note = vault.read_note(bug_path, BugNote)
@@ -246,7 +246,11 @@ def _bug_path(project_dir: Path, date_str: str, slug: str) -> Path:
     Returns:
         Path for the bug file.
     """
-    return project_dir / ".mantle" / "bugs" / f"{date_str}-{slug}.md"
+    return (
+        project.resolve_mantle_dir(project_dir)
+        / "bugs"
+        / f"{date_str}-{slug}.md"
+    )
 
 
 def _slugify(summary: str) -> str:

@@ -759,7 +759,7 @@ def auto_update_skills(
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
-    mantle_dir = project_dir / ".mantle"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
 
     # Collect all content from issue and its stories
     content_parts: list[str] = []

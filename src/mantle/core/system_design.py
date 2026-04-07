@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import decisions, state, vault
+from mantle.core import decisions, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -80,7 +80,8 @@ def save_system_design(
             is False.
         InvalidTransitionError: If state is not product-design.
     """
-    design_path = project_dir / ".mantle" / "system-design.md"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
+    design_path = mantle_dir / "system-design.md"
 
     if design_path.exists() and not overwrite:
         raise SystemDesignExistsError(design_path)
@@ -118,7 +119,7 @@ def load_system_design(
     Raises:
         FileNotFoundError: If system-design.md does not exist.
     """
-    path = project_dir / ".mantle" / "system-design.md"
+    path = project.resolve_mantle_dir(project_dir) / "system-design.md"
     note = vault.read_note(path, SystemDesignNote)
     return note.frontmatter, note.body
 
@@ -132,7 +133,9 @@ def system_design_exists(project_dir: Path) -> bool:
     Returns:
         True if system-design.md exists, False otherwise.
     """
-    return (project_dir / ".mantle" / "system-design.md").exists()
+    return (
+        project.resolve_mantle_dir(project_dir) / "system-design.md"
+    ).exists()
 
 
 def update_system_design(
@@ -176,7 +179,7 @@ def update_system_design(
         updated_by=identity,
     )
 
-    design_path = project_dir / ".mantle" / "system-design.md"
+    design_path = project.resolve_mantle_dir(project_dir) / "system-design.md"
     vault.write_note(design_path, note, content)
 
     _, decision_path = decisions.save_decision(
@@ -207,7 +210,7 @@ def _update_state_body(
         project_dir: Directory containing .mantle/.
         identity: Git email for the updated_by field.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

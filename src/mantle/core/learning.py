@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import issues, sanitize, state, vault
+from mantle.core import issues, project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -137,7 +137,7 @@ def list_learnings(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to learning files. Empty if none.
     """
-    learnings_dir = project_dir / ".mantle" / "learnings"
+    learnings_dir = project.resolve_mantle_dir(project_dir) / "learnings"
     if not learnings_dir.is_dir():
         return []
     return sorted(learnings_dir.glob("issue-*.md"))
@@ -192,14 +192,10 @@ def _learning_path(
         Path for the learning file.
     """
     slug = issues._slugify_title(title) if title else ""
+    learnings_dir = project.resolve_mantle_dir(project_dir) / "learnings"
     if slug:
-        return (
-            project_dir
-            / ".mantle"
-            / "learnings"
-            / f"issue-{issue:02d}-{slug}.md"
-        )
-    return project_dir / ".mantle" / "learnings" / f"issue-{issue:02d}.md"
+        return learnings_dir / f"issue-{issue:02d}-{slug}.md"
+    return learnings_dir / f"issue-{issue:02d}.md"
 
 
 def find_learning_path(project_dir: Path, issue: int) -> Path | None:
@@ -212,7 +208,7 @@ def find_learning_path(project_dir: Path, issue: int) -> Path | None:
     Returns:
         Path to the learning file, or None if not found.
     """
-    learnings_dir = project_dir / ".mantle" / "learnings"
+    learnings_dir = project.resolve_mantle_dir(project_dir) / "learnings"
     matches = sorted(learnings_dir.glob(f"issue-{issue:02d}-*.md"))
     if matches:
         return matches[0]
@@ -236,7 +232,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         issue: Issue number the learning was captured for.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

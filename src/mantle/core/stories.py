@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import issues, state, vault
+from mantle.core import issues, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -139,7 +139,7 @@ def list_stories(project_dir: Path, *, issue: int) -> list[Path]:
     Returns:
         List of paths to story files. Empty if none.
     """
-    stories_dir = project_dir / ".mantle" / "stories"
+    stories_dir = project.resolve_mantle_dir(project_dir) / "stories"
     if not stories_dir.is_dir():
         return []
     # Match both old (issue-NN-story-SS) and new (issue-NN-slug-story-SS) formats
@@ -178,7 +178,7 @@ def story_exists(project_dir: Path, *, issue: int, story: int) -> bool:
     Returns:
         True if the story file exists.
     """
-    stories_dir = project_dir / ".mantle" / "stories"
+    stories_dir = project.resolve_mantle_dir(project_dir) / "stories"
     matches = list(stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md"))
     return len(matches) > 0
 
@@ -219,7 +219,7 @@ def update_story_status(
         failure_log: Error details when marking ``"blocked"``.
     """
     # Find story by glob to support both old and new naming
-    stories_dir = project_dir / ".mantle" / "stories"
+    stories_dir = project.resolve_mantle_dir(project_dir) / "stories"
     matches = sorted(
         stories_dir.glob(f"issue-{issue:02d}-*story-{story:02d}.md")
     )
@@ -289,14 +289,12 @@ def _story_path(
     slug = issues._slugify_title(title) if title else ""
     if slug:
         return (
-            project_dir
-            / ".mantle"
+            project.resolve_mantle_dir(project_dir)
             / "stories"
             / f"issue-{issue:02d}-{slug}-story-{story:02d}.md"
         )
     return (
-        project_dir
-        / ".mantle"
+        project.resolve_mantle_dir(project_dir)
         / "stories"
         / f"issue-{issue:02d}-story-{story:02d}.md"
     )
@@ -341,7 +339,7 @@ def _update_state_body(
         issue: Issue number stories were planned for.
         story_count: Number of stories planned for the issue.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

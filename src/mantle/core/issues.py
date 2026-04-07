@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import state, vault
+from mantle.core import project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -163,7 +163,7 @@ def list_issues(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to issue files. Empty if none.
     """
-    issues_dir = project_dir / ".mantle" / "issues"
+    issues_dir = project.resolve_mantle_dir(project_dir) / "issues"
     if not issues_dir.is_dir():
         return []
     return sorted(issues_dir.glob("issue-*.md"))
@@ -382,7 +382,8 @@ def _issue_path(project_dir: Path, issue: int, title: str) -> Path:
         Path for the issue file.
     """
     slug = _slugify_title(title)
-    return project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
+    return mantle_dir / "issues" / f"issue-{issue:02d}-{slug}.md"
 
 
 def find_issue_path(project_dir: Path, issue: int) -> Path | None:
@@ -395,7 +396,7 @@ def find_issue_path(project_dir: Path, issue: int) -> Path | None:
     Returns:
         Path to the issue file, or None if not found.
     """
-    issues_dir = project_dir / ".mantle" / "issues"
+    issues_dir = project.resolve_mantle_dir(project_dir) / "issues"
     matches = sorted(issues_dir.glob(f"issue-{issue:02d}-*.md"))
     if matches:
         return matches[0]
@@ -416,7 +417,7 @@ def _update_state_body(
         identity: Git email for the updated_by field.
         issue: Issue number that was planned.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     current_status = note.frontmatter.status

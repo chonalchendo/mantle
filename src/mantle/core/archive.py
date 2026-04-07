@@ -5,7 +5,7 @@ from __future__ import annotations
 import shutil
 from typing import TYPE_CHECKING
 
-from mantle.core import issues, learning, stories
+from mantle.core import issues, learning, project, stories
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -24,7 +24,7 @@ def archive_issue(project_dir: Path, issue: int) -> list[Path]:
     Returns:
         List of destination paths for all moved files.
     """
-    mantle_dir = project_dir / ".mantle"
+    mantle_dir = project.resolve_mantle_dir(project_dir)
     archive_dir = mantle_dir / "archive"
     moved: list[Path] = []
 

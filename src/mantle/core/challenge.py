@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import sanitize, state, vault
+from mantle.core import project, sanitize, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -73,7 +73,7 @@ def save_challenge(
     Raises:
         IdeaNotFoundError: If idea.md does not exist.
     """
-    idea_path = project_dir / ".mantle" / "idea.md"
+    idea_path = project.resolve_mantle_dir(project_dir) / "idea.md"
     if not idea_path.exists():
         raise IdeaNotFoundError(idea_path)
 
@@ -126,7 +126,7 @@ def list_challenges(project_dir: Path) -> list[Path]:
     Returns:
         List of paths to challenge files. Empty if none.
     """
-    challenges_dir = project_dir / ".mantle" / "challenges"
+    challenges_dir = project.resolve_mantle_dir(project_dir) / "challenges"
     if not challenges_dir.is_dir():
         return []
     return sorted(challenges_dir.glob("*-challenge*.md"))
@@ -156,7 +156,7 @@ def _resolve_challenge_path(project_dir: Path) -> Path:
     Returns:
         Path for the new challenge file.
     """
-    challenges_dir = project_dir / ".mantle" / "challenges"
+    challenges_dir = project.resolve_mantle_dir(project_dir) / "challenges"
     today = date.today().isoformat()
     base = challenges_dir / f"{today}-challenge.md"
 
@@ -181,7 +181,7 @@ def _update_state_body(project_dir: Path, identity: str) -> None:
         project_dir: Directory containing .mantle/.
         identity: Git email for the updated_by field.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(

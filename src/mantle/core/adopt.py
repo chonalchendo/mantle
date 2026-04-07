@@ -6,7 +6,7 @@ import re
 from datetime import date
 from typing import TYPE_CHECKING
 
-from mantle.core import product_design, state, vault
+from mantle.core import product_design, project, state, vault
 from mantle.core.product_design import ProductDesignNote
 from mantle.core.system_design import SystemDesignNote
 
@@ -72,8 +72,8 @@ def save_adoption(
             is False.
         InvalidTransitionError: If state is not IDEA.
     """
-    pd_path = project_dir / ".mantle" / "product-design.md"
-    sd_path = project_dir / ".mantle" / "system-design.md"
+    pd_path = project.resolve_mantle_dir(project_dir) / "product-design.md"
+    sd_path = project.resolve_mantle_dir(project_dir) / "system-design.md"
 
     if not overwrite:
         if pd_path.exists():
@@ -129,8 +129,8 @@ def adoption_exists(project_dir: Path) -> bool:
         True if either product-design.md or system-design.md
         exists.
     """
-    pd = project_dir / ".mantle" / "product-design.md"
-    sd = project_dir / ".mantle" / "system-design.md"
+    pd = project.resolve_mantle_dir(project_dir) / "product-design.md"
+    sd = project.resolve_mantle_dir(project_dir) / "system-design.md"
     return pd.exists() or sd.exists()
 
 
@@ -147,7 +147,7 @@ def _update_state_body(
         project_dir: Directory containing .mantle/.
         identity: Git email for the updated_by field.
     """
-    state_path = project_dir / ".mantle" / "state.md"
+    state_path = project.resolve_mantle_dir(project_dir) / "state.md"
     note = vault.read_note(state_path, state.ProjectState)
 
     body = re.sub(
