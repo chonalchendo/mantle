@@ -123,15 +123,18 @@ next criterion.
 ## Step 6 — Handle outcome
 
 **If all criteria are approved:**
-1. Transition the issue to approved:
-   ```bash
-   mantle transition-issue-approved --issue <N>
-   ```
-2. Save the review feedback for the structured record:
+1. Save the review feedback for the structured record:
    ```bash
    mantle save-review-result --issue <N> --feedback "criterion 1|approved|" --feedback "criterion 2|approved|"
    ```
-   Include ALL criteria as approved.
+   Include ALL criteria as approved. This MUST run before the approval
+   transition — `transition-issue-approved` archives the issue file, and
+   `save-review-result` only reads from live `.mantle/issues/`.
+2. Transition the issue to approved (this also archives the issue and its
+   artifacts to `.mantle/archive/`):
+   ```bash
+   mantle transition-issue-approved --issue <N>
+   ```
 3. Check `$MANTLE_DIR/learnings/` for whether a retrospective already exists for this issue.
 4. Check `$MANTLE_DIR/issues/` for remaining unimplemented issues.
 
