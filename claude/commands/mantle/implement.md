@@ -51,7 +51,14 @@ done").
 
 **Step 1 — Check prerequisites**
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 - `.mantle/` exists (if not, tell the user to run `mantle init`)
 - Status is `planning` or `implementing` (valid states for implementation)
 - If status is earlier, tell the user the current status and suggest the appropriate next command
@@ -61,7 +68,7 @@ If git working tree is dirty (from the dynamic context above), warn the user and
 **Step 2 — Select issue**
 
 If the user provided `$ARGUMENTS`, use that as the issue number.
-Otherwise, read `.mantle/issues/` to show available issues and ask the user which to implement.
+Otherwise, read `$MANTLE_DIR/issues/` to show available issues and ask the user which to implement.
 
 Display:
 > **Issue {NN}**: {title}
@@ -84,10 +91,10 @@ mantle compile --issue {NN}
 ```
 
 Then read all required context files:
-- `.mantle/issues/issue-{NN}.md` — the issue specification
-- `.mantle/system-design.md` — system architecture (if it exists)
-- `.mantle/product-design.md` — product context (if it exists)
-- `.mantle/stories/issue-{NN}-story-*.md` — all stories for this issue
+- `$MANTLE_DIR/issues/issue-{NN}.md` — the issue specification
+- `$MANTLE_DIR/system-design.md` — system architecture (if it exists)
+- `$MANTLE_DIR/product-design.md` — product context (if it exists)
+- `$MANTLE_DIR/stories/issue-{NN}-story-*.md` — all stories for this issue
 - `.claude/skills/*/SKILL.md` — compiled vault skills (these provide domain-specific knowledge to story agents)
 
 For each story, note:
@@ -121,12 +128,12 @@ is signal, not volume.
 For each story, review these sources and select only what's directly relevant
 to that story's implementation:
 
-- `.mantle/learnings/` — scan all learning files. Pick learnings whose
+- `$MANTLE_DIR/learnings/` — scan all learning files. Pick learnings whose
   recommendations, gotchas, or patterns apply to the specific technology,
   module, or pattern this story touches. Skip learnings about unrelated areas.
-- `.mantle/decisions/` — scan decision files. Pick decisions about architecture
-  or technology choices that constrain how this story should be implemented.
-  Skip decisions about unrelated subsystems.
+- `$MANTLE_DIR/decisions/` — scan decision files. Pick decisions about
+  architecture or technology choices that constrain how this story should be
+  implemented. Skip decisions about unrelated subsystems.
 - `.claude/skills/*/SKILL.md` — scan compiled skill summaries. Pick skills
   whose domain matches this story's work. A story about database migrations
   doesn't need the WebSocket skill.
@@ -209,7 +216,7 @@ story in the wave, follow this sequence:
    Provide the agent with:
    - The full story content (from the story file)
    - The issue context (from the issue file)
-   - The system design (from `.mantle/system-design.md` if it exists)
+   - The system design (from `$MANTLE_DIR/system-design.md` if it exists)
    - The context brief from Step 4 (selected learnings, decisions, and skills relevant to this specific story)
    - Clear instruction: "Before starting, review your project memory for relevant patterns, conventions, or learnings from previous stories. Implement this story using test-driven development: write or update tests FIRST, watch them fail, THEN write the production code to make them pass. Never write production code without a failing test that demands it. Run the full test suite after implementation and fix any failures. Never claim tests pass without running them fresh — show the command and its output as evidence. After completing, report any patterns you discovered, gotchas you encountered, or conventions you established that future stories should know about."
    - Status code instruction: "End your response with exactly one of these status codes on its own line:

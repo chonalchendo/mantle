@@ -41,14 +41,21 @@ prior synthesis.
 
 ## Step 3 — Search vault for related content
 
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
 Search across these locations:
 
-- `.mantle/learnings/` — past issue learnings
-- `.mantle/decisions.md` — recorded project decisions
-- `.mantle/sessions/` — session logs
-- `.mantle/brainstorms/` — brainstorm outputs
-- `.mantle/research/` — research reports
-- `.mantle/shaped/` — shaped issue documents
+- `$MANTLE_DIR/learnings/` — past issue learnings
+- `$MANTLE_DIR/decisions.md` — recorded project decisions
+- `$MANTLE_DIR/sessions/` — session logs
+- `$MANTLE_DIR/brainstorms/` — brainstorm outputs
+- `$MANTLE_DIR/research/` — research reports
+- `$MANTLE_DIR/shaped/` — shaped issue documents
 - Personal vault skills via `mantle list-skills`
 
 Use Grep to find files that mention the topic. Read up to 10-15 of the most

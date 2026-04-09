@@ -25,8 +25,15 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/state.md`, and `.mantle/product-design.md`
-exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/`, `$MANTLE_DIR/state.md`, and
+`$MANTLE_DIR/product-design.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - If `product-design.md` does not exist, tell them to run `/mantle:design-product`
@@ -37,10 +44,10 @@ exist by reading them.
 ## Step 2 — Load context
 
 Read and internalise:
-- `.mantle/idea.md` — the core problem and insight
-- `.mantle/product-design.md` — the product definition
-- Any files in `.mantle/challenges/` — stress-test results
-- Any files in `.mantle/research/` — research findings on available tools,
+- `$MANTLE_DIR/idea.md` — the core problem and insight
+- `$MANTLE_DIR/product-design.md` — the product definition
+- Any files in `$MANTLE_DIR/challenges/` — stress-test results
+- Any files in `$MANTLE_DIR/research/` — research findings on available tools,
   libraries, patterns, and prior art
 
 The product design defines the constraints. The research provides the inventory

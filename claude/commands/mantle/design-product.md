@@ -23,31 +23,39 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/` and `.mantle/idea.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` and `$MANTLE_DIR/idea.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - If `idea.md` does not exist, tell them to run `/mantle:idea` first.
-- If `.mantle/product-design.md` already exists, warn the user and ask whether
-  they want to overwrite it. If they decline, stop here.
+- If `$MANTLE_DIR/product-design.md` already exists, warn the user and ask
+  whether they want to overwrite it. If they decline, stop here.
 
 ## Step 2 — Load context
 
-Read `.mantle/idea.md` and extract:
+Read `$MANTLE_DIR/idea.md` and extract:
 - **Problem** — the specific pain or friction
 - **Insight** — the non-obvious truth that enables a new solution
 - **Target user** — who it's for
 - **Success criteria** — how they'll know it worked
 
-Check for challenge files in `.mantle/challenges/`. If any exist, read the most
-recent one and extract key findings (assumptions surfaced, verdict, weaknesses).
-Use these as fuel for the design session — especially when discussing principles
-and building blocks.
+Check for challenge files in `$MANTLE_DIR/challenges/`. If any exist, read the
+most recent one and extract key findings (assumptions surfaced, verdict,
+weaknesses). Use these as fuel for the design session — especially when
+discussing principles and building blocks.
 
-Check for research files in `.mantle/research/`. If any exist, read them all and
-extract key findings — technical feasibility, existing solutions, competitive
-landscape, technology options, and risks. Research findings should directly inform
-the prior art, building blocks, and principles discussions. Reference specific
-research conclusions rather than making the user repeat what was already explored.
+Check for research files in `$MANTLE_DIR/research/`. If any exist, read them
+all and extract key findings — technical feasibility, existing solutions,
+competitive landscape, technology options, and risks. Research findings should
+directly inform the prior art, building blocks, and principles discussions.
+Reference specific research conclusions rather than making the user repeat what
+was already explored.
 
 ## Analysis scratchpad
 

@@ -38,7 +38,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 - `.mantle/` exists (if not, tell the user to run `mantle init`)
 - Status is `planning` or `implementing` (valid states for fixing)
 - If status is earlier, tell the user the current status and suggest the
@@ -47,8 +54,8 @@ Read `.mantle/state.md` and verify:
 ## Step 2 — Select issue
 
 If the user provided `$ARGUMENTS`, use that as the issue number.
-Otherwise, read `.mantle/issues/` to show available issues and ask the user
-which issue to fix. Prefer issues with `implementing` status.
+Otherwise, read `$MANTLE_DIR/issues/` to show available issues and ask the
+user which issue to fix. Prefer issues with `implementing` status.
 
 Display:
 > **Issue {NN}**: {title}
@@ -134,7 +141,7 @@ mantle transition-issue-implemented --issue <N>
 
 Run verification inline to keep the feedback loop tight.
 
-1. Read `.mantle/config.md` for the verification strategy (look for the
+1. Read `$MANTLE_DIR/config.md` for the verification strategy (look for the
    `verification_strategy` field in frontmatter).
 2. Execute the strategy — run tests, lint, and type checks as configured:
    ```bash

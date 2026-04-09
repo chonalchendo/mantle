@@ -43,3 +43,35 @@ def test_batch_1_includes_resolve_prelude() -> None:
         if "MANTLE_DIR=$(mantle where)" not in text:
             missing.append(name)
     assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
+
+
+BATCH_2_FILES = (
+    "design-product.md",
+    "design-system.md",
+    "distill.md",
+    "fix.md",
+    "idea.md",
+    "implement.md",
+    "plan-issues.md",
+)
+
+
+def test_batch_2_no_hardcoded_mantle_reads() -> None:
+    """Story 3 sweep: batch 2 prompts have no Read .mantle/ targets."""
+    offenders = []
+    for name in BATCH_2_FILES:
+        text = (PROMPTS_DIR / name).read_text()
+        for match in HARDCODED_READ_RE.finditer(text):
+            line_num = text[: match.start()].count("\n") + 1
+            offenders.append(f"{name}:{line_num}: {match.group(0)}")
+    assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
+
+
+def test_batch_2_includes_resolve_prelude() -> None:
+    """Each batch-2 prompt declares MANTLE_DIR=$(mantle where)."""
+    missing = []
+    for name in BATCH_2_FILES:
+        text = (PROMPTS_DIR / name).read_text()
+        if "MANTLE_DIR=$(mantle where)" not in text:
+            missing.append(name)
+    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)

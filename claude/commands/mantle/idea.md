@@ -16,8 +16,15 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check for existing idea
 
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
 Run `mantle save-idea --help` to confirm the CLI is available, then check
-whether `.mantle/idea.md` already exists by reading the file.
+whether `$MANTLE_DIR/idea.md` already exists by reading the file.
 
 - If it exists, warn the user and ask whether they want to overwrite it.
 - If they decline, stop here.

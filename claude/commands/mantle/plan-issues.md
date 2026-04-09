@@ -26,7 +26,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 
 - `.mantle/` exists. If not, tell the user to run `mantle init` first.
 - Status is one of: `system-design`, `adopted`, or `planning`. These are the
@@ -39,17 +46,18 @@ Read `.mantle/state.md` and verify:
 
 Read and internalise:
 
-- `.mantle/product-design.md` — the product definition (features, user stories,
-  milestones)
-- `.mantle/system-design.md` — the system architecture (modules, API contracts,
-  data model)
-- `.mantle/issues/` — any existing issues (to understand what's already planned,
-  dependencies, and numbering)
-- `.mantle/bugs/` — any open bugs (surface these as candidates for new issues)
-- `.mantle/inbox/` — any open inbox items (surface these as candidates for new
-  issues or brainstorms)
-- `.mantle/learnings/` — past retrospective learnings (surface recommendations
-  as candidates for new issues)
+- `$MANTLE_DIR/product-design.md` — the product definition (features, user
+  stories, milestones)
+- `$MANTLE_DIR/system-design.md` — the system architecture (modules, API
+  contracts, data model)
+- `$MANTLE_DIR/issues/` — any existing issues (to understand what's already
+  planned, dependencies, and numbering)
+- `$MANTLE_DIR/bugs/` — any open bugs (surface these as candidates for new
+  issues)
+- `$MANTLE_DIR/inbox/` — any open inbox items (surface these as candidates for
+  new issues or brainstorms)
+- `$MANTLE_DIR/learnings/` — past retrospective learnings (surface
+  recommendations as candidates for new issues)
 
 Check `state.md` for the `slices` field. If slices are already defined, display
 them:
