@@ -189,9 +189,7 @@ def next_issue_number(project_dir: Path) -> int:
         match = pattern.match(path.name)
         if match:
             highest = max(highest, int(match.group(1)))
-    archive_dir = (
-        project.resolve_mantle_dir(project_dir) / "archive" / "issues"
-    )
+    archive_dir = project.resolve_mantle_dir(project_dir) / "archive" / "issues"
     if archive_dir.is_dir():
         for path in archive_dir.glob("issue-*.md"):
             match = pattern.match(path.name)

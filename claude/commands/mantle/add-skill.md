@@ -26,14 +26,21 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/config.md` and check for `personal_vault`.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/config.md` and check for `personal_vault`.
 
 - If not configured, tell the user to run `mantle init-vault <path>` first.
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 
 ## Step 2 — Check for gaps and stubs
 
-Read `.mantle/state.md` for `skills_required`. List existing skills in
+Read `$MANTLE_DIR/state.md` for `skills_required`. List existing skills in
 `<vault>/skills/`. If there are required skills without matching nodes, show
 them:
 
@@ -201,7 +208,7 @@ Review the final draft with the user and iterate once before saving.
 
 Before saving, suggest content-based tags for the skill:
 
-1. Read `.mantle/tags.md` to see the existing tag taxonomy
+1. Read `$MANTLE_DIR/tags.md` to see the existing tag taxonomy
 2. Based on the skill's name, description, and authored content, suggest
    `topic/` and `domain/` tags:
    - **`topic/<slug>`** — one tag matching the skill's subject (e.g.,

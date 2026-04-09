@@ -42,14 +42,21 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/` and `.mantle/idea.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `$MANTLE_DIR/` and `$MANTLE_DIR/idea.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - If `idea.md` does not exist, tell them to run `/mantle:idea` first.
 
 ## Step 2 — Load idea context
 
-Read `.mantle/idea.md` and extract:
+Read `$MANTLE_DIR/idea.md` and extract:
 - **Problem** — the specific pain or friction
 - **Insight** — the non-obvious truth that enables a new solution
 - **Target user** — who it's for

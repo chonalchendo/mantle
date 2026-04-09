@@ -60,14 +60,21 @@ history just adds noise and slows things down.
 
 ## Step 1 — Prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 - `.mantle/` exists (if not, tell the user to run `mantle init`)
 - Status is `planning` or `implementing`
 - If status is earlier, tell the user the current status and suggest the
   appropriate next command
 
-Read `.mantle/product-design.md` and `.mantle/system-design.md`. If neither
-exists, stop:
+Read `$MANTLE_DIR/product-design.md` and `$MANTLE_DIR/system-design.md`. If
+neither exists, stop:
 
 > The build pipeline automates from design to verified code. You need at least
 > a product design first. Run `claude/commands/mantle/design-product.md` to get started.
@@ -78,7 +85,7 @@ proceed or commit/stash first.
 ## Step 2 — Select issue
 
 If the user provided `$ARGUMENTS`, use that as the issue number.
-Otherwise, read `.mantle/issues/` to find issues with status `planned` or
+Otherwise, read `$MANTLE_DIR/issues/` to find issues with status `planned` or
 `implementing`. If multiple exist, show the list and ask the user which to
 build. If only one exists, confirm it.
 
@@ -132,7 +139,7 @@ domain knowledge that informs approach selection.
 unnecessary startup overhead. The build orchestrator already has all the
 context needed.
 
-Check if `.mantle/shaped/issue-{NN}-shaped.md` exists.
+Check if `$MANTLE_DIR/shaped/issue-{NN}-shaped.md` exists.
 
 **If already shaped**, read it and report:
 > **Shape:** Already shaped — approach: {chosen_approach}, appetite: {appetite}
@@ -157,7 +164,7 @@ agent has focused, completable work with clear test criteria.
 **Performance note:** This step runs inline (no agent spawn) to avoid
 unnecessary startup overhead.
 
-Check if stories exist in `.mantle/stories/issue-{NN}-story-*.md`.
+Check if stories exist in `$MANTLE_DIR/stories/issue-{NN}-story-*.md`.
 
 **If stories already exist**, read them and report:
 > **Stories:** {count} stories already planned. Proceeding to implementation.

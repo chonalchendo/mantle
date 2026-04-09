@@ -10,8 +10,15 @@ acknowledge it briefly and move on.
 
 ## Step 1 — Check prerequisites
 
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
 Run `mantle save-bug --help` to confirm the CLI is available, then check
-whether `.mantle/bugs/` exists by reading `.mantle/state.md`.
+whether `$MANTLE_DIR/bugs/` exists by reading `$MANTLE_DIR/state.md`.
 
 - If `.mantle/` does not exist, tell the user to run `mantle init` first.
 - If `.mantle/bugs/` does not exist, tell the user to create it: `mkdir .mantle/bugs/`

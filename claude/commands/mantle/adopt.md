@@ -42,14 +42,21 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/` and `.mantle/state.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `$MANTLE_DIR/` and `$MANTLE_DIR/state.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - If state is not `idea`, tell the user the current status and explain that
   adoption is for freshly-initialized projects.
-- If `.mantle/product-design.md` or `.mantle/system-design.md` already exists,
-  warn the user that adoption will overwrite them. Ask for confirmation before
-  proceeding. If they decline, stop.
+- If `$MANTLE_DIR/product-design.md` or `$MANTLE_DIR/system-design.md` already
+  exists, warn the user that adoption will overwrite them. Ask for confirmation
+  before proceeding. If they decline, stop.
 
 ## Step 2 — Phase 1: Concurrent agent analysis
 

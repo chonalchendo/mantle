@@ -25,7 +25,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 
 - `.mantle/` exists. If not, tell the user to run `mantle init` first.
 - Status is `planning`. If not, tell the user the current status and suggest
@@ -35,12 +42,12 @@ Read `.mantle/state.md` and verify:
 
 Read and internalise:
 
-- `.mantle/issues/` — all existing issues (for numbering and deduplication).
+- `$MANTLE_DIR/issues/` — all existing issues (for numbering and deduplication).
   Read all issue files.
-- `.mantle/system-design.md` — the system architecture (for architecture
+- `$MANTLE_DIR/system-design.md` — the system architecture (for architecture
   checks).
-- `.mantle/brainstorms/` — past brainstorms (for brainstorm file linking). Read
-  all brainstorm files if the directory exists.
+- `$MANTLE_DIR/brainstorms/` — past brainstorms (for brainstorm file linking).
+  Read all brainstorm files if the directory exists.
 
 Display a context summary:
 

@@ -43,10 +43,17 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 
 - `.mantle/` exists. If not, tell the user to run `mantle init` first.
-- `.mantle/product-design.md` exists. If not, tell the user to run
+- `$MANTLE_DIR/product-design.md` exists. If not, tell the user to run
   `/mantle:design-product` first — brainstorm requires a vision to evaluate
   against.
 
@@ -54,16 +61,16 @@ Read `.mantle/state.md` and verify:
 
 Read and internalise:
 
-- `.mantle/product-design.md` — the stubborn vision (what and why). Extract:
-  vision statement, target user, success metrics, design principles.
-- `.mantle/system-design.md` — the flexible details (how). Note architecture
-  boundaries.
-- `.mantle/issues/` — existing backlog (for overlap and conflict detection).
-  Read all issue files.
-- `.mantle/brainstorms/` — past brainstorms including scrapped ideas (avoid
-  retreading rejected ideas without new evidence). Read all brainstorm files
-  if the directory exists.
-- `.mantle/learnings/` — past learnings that may inform this brainstorm.
+- `$MANTLE_DIR/product-design.md` — the stubborn vision (what and why).
+  Extract: vision statement, target user, success metrics, design principles.
+- `$MANTLE_DIR/system-design.md` — the flexible details (how). Note
+  architecture boundaries.
+- `$MANTLE_DIR/issues/` — existing backlog (for overlap and conflict
+  detection). Read all issue files.
+- `$MANTLE_DIR/brainstorms/` — past brainstorms including scrapped ideas
+  (avoid retreading rejected ideas without new evidence). Read all brainstorm
+  files if the directory exists.
+- `$MANTLE_DIR/learnings/` — past learnings that may inform this brainstorm.
 
 Display context summary:
 
