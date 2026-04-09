@@ -60,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 45 — review past learnings before next planning cycle.
+Issue 44 shaped — run /mantle:plan-stories next.
 
 ## Blockers
 

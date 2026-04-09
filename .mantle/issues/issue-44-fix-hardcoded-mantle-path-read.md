@@ -7,7 +7,21 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- cyclopts
+- docker-compose-python
+- edgartools
+- fastapi
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
 - status/planned
