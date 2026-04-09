@@ -60,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 44 — review past learnings before next planning cycle.
+Issue 44 approved and learning captured — ready to pick up next issue.
 
 ## Blockers
 
@@ -68,10 +68,11 @@ _None_
 
 ## Next Steps
 
-- Implement issue 24 (simplify command)
+- Build issue 41 — query .mantle/ for recurring patterns from learnings/retrospectives
+- Or build issue 42 — report-to-GitHub command
 
 ## Recently Completed
 
-- Issue 15 — Verification (/mantle:verify)
-- Issue 16 — Review (/mantle:review)
-- Issue 23 — Retrospective (/mantle:retrospective)
+- Issue 44 — Fix hardcoded .mantle/ path reads in Claude Code prompts (approved 2026-04-09)
+- Issue 45 — Archive scan in next_issue_number
+- Issue 40 — Review feedback loop CLI availability
