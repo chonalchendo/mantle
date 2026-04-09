@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from unittest import mock
 
 import pytest
+import yaml
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -154,8 +155,6 @@ def _create_config(root: Path, body: str = "## Config\n", **fm: object) -> None:
     mantle.mkdir(exist_ok=True)
     defaults = {"personal_vault": None, "tags": ["type/config"]}
     defaults.update(fm)
-
-    import yaml
 
     yaml_str = yaml.dump(defaults, default_flow_style=False, sort_keys=False)
     (mantle / "config.md").write_text(f"---\n{yaml_str}---\n\n{body}")
