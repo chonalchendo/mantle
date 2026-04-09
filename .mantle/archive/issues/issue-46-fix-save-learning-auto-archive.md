@@ -1,6 +1,6 @@
 ---
 title: Fix save-learning auto-archive breaking /mantle:build pipeline
-status: verified
+status: approved
 slice:
 - core
 - tests
@@ -36,7 +36,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
