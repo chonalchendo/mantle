@@ -107,3 +107,66 @@ def test_batch_3_includes_resolve_prelude() -> None:
         if "MANTLE_DIR=$(mantle where)" not in text:
             missing.append(name)
     assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
+
+
+BATCH_4_FILES = (
+    "scout.md",
+    "shape-issue.md",
+    "simplify.md",
+    "verify.md",
+)
+
+# Files in claude/commands/mantle/ that are NOT swept by issue 44:
+# - help.md: pure help text, no Read tool usage
+# - resume.md.j2 / status.md.j2: compiled templates run through jinja
+#   and substituted at install time; literal `.mantle/` mentions in
+#   their bodies are documentation, not Read targets
+EXCLUDED_FROM_FULL_AUDIT = frozenset(
+    {
+        "help.md",
+        "resume.md.j2",
+        "status.md.j2",
+    }
+)
+
+
+def test_batch_4_no_hardcoded_mantle_reads() -> None:
+    """Story 5 sweep: batch 4 prompts have no Read .mantle/ targets."""
+    offenders = []
+    for name in BATCH_4_FILES:
+        text = (PROMPTS_DIR / name).read_text()
+        for match in HARDCODED_READ_RE.finditer(text):
+            line_num = text[: match.start()].count("\n") + 1
+            offenders.append(f"{name}:{line_num}: {match.group(0)}")
+    assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
+
+
+def test_batch_4_includes_resolve_prelude() -> None:
+    """Each batch-4 prompt declares MANTLE_DIR=$(mantle where)."""
+    missing = []
+    for name in BATCH_4_FILES:
+        text = (PROMPTS_DIR / name).read_text()
+        if "MANTLE_DIR=$(mantle where)" not in text:
+            missing.append(name)
+    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
+
+
+def test_full_tree_no_hardcoded_mantle_reads() -> None:
+    """Regression guard: no `Read .mantle/` anywhere under claude/commands/mantle/.
+
+    Walks every prompt file (excluding pure help text and compiled
+    jinja templates) and asserts the HARDCODED_READ_RE finds nothing.
+    """
+    offenders = []
+    for path in sorted(PROMPTS_DIR.iterdir()):
+        if not path.is_file():
+            continue
+        if path.name in EXCLUDED_FROM_FULL_AUDIT:
+            continue
+        text = path.read_text()
+        for match in HARDCODED_READ_RE.finditer(text):
+            line_num = text[: match.start()].count("\n") + 1
+            offenders.append(f"{path.name}:{line_num}: {match.group(0)}")
+    assert not offenders, (
+        "Hardcoded `Read .mantle/` references found:\n" + "\n".join(offenders)
+    )

@@ -67,15 +67,22 @@ and stop.
 
 ## Step 2 — Compile project context
 
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
 Read the following files to build a project context summary. This context is
 the lens through which the external repo will be analyzed — include only what
 shapes evaluation.
 
-- `.mantle/product-design.md` — vision, target user, features, differentiators
-- `.mantle/system-design.md` — architecture, modules, patterns, conventions
-- `.mantle/issues/` — current backlog: read all issue files, extract titles and
+- `$MANTLE_DIR/product-design.md` — vision, target user, features, differentiators
+- `$MANTLE_DIR/system-design.md` — architecture, modules, patterns, conventions
+- `$MANTLE_DIR/issues/` — current backlog: read all issue files, extract titles and
   statuses only
-- `.mantle/learnings/` — past implementation learnings: read all learning files
+- `$MANTLE_DIR/learnings/` — past implementation learnings: read all learning files
 - `.claude/skills/*/SKILL.md` — compiled skill summaries: read all that exist
 
 Synthesise into a compact context block (under 500 words) covering:

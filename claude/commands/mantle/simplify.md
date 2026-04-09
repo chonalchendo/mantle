@@ -46,7 +46,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 **Step 1 — Check prerequisites**
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 - `.mantle/` exists (if not, tell the user to run `mantle init`)
 
 If the working tree is dirty (from the dynamic context above) and in issue-scoped mode (arguments provided), warn the user and ask whether to proceed or commit/stash first.

@@ -36,19 +36,26 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` exists and read `$MANTLE_DIR/state.md`.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
-- Read `state.md` and verify status is `planning`. If not, tell them the current
-  status and what step to run next.
+- Read `$MANTLE_DIR/state.md` and verify status is `planning`. If not, tell them
+  the current status and what step to run next.
 
 ## Step 2 — Load context
 
 Read and internalise:
-- `.mantle/product-design.md` — the product definition
-- `.mantle/system-design.md` — the system architecture
-- Any files in `.mantle/issues/` — the issue breakdown
-- Any files in `.mantle/learnings/` — past learnings from previous issues
+- `$MANTLE_DIR/product-design.md` — the product definition
+- `$MANTLE_DIR/system-design.md` — the system architecture
+- Any files in `$MANTLE_DIR/issues/` — the issue breakdown
+- Any files in `$MANTLE_DIR/learnings/` — past learnings from previous issues
 
 If past learnings exist, summarise key patterns before starting:
 

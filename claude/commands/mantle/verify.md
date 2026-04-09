@@ -68,17 +68,24 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` exists and read `$MANTLE_DIR/state.md`.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
-- Read `state.md` and verify status is `implementing` or later. If the project
-  is in an earlier phase, tell the user the current status and what step to run
-  next.
+- Read `$MANTLE_DIR/state.md` and verify status is `implementing` or later. If
+  the project is in an earlier phase, tell the user the current status and what
+  step to run next.
 
 ## Step 2 — Select issue
 
 If the user provided `$ARGUMENTS`, use that as the issue number.
-Otherwise, read `.mantle/issues/` to show available issues and ask the user
+Otherwise, read `$MANTLE_DIR/issues/` to show available issues and ask the user
 which issue to verify. Prefer issues with `implementing` or `implemented` status.
 
 Display:
@@ -89,7 +96,7 @@ Confirm with the user before proceeding.
 
 ## Step 3 — Load verification strategy
 
-Read `.mantle/config.md` directly and look for the `verification_strategy` field
+Read `$MANTLE_DIR/config.md` directly and look for the `verification_strategy` field
 in frontmatter.
 
 **If no strategy is found (first-use flow):**
@@ -116,7 +123,7 @@ in frontmatter.
 
 ## Step 4 — Check for per-issue override
 
-Read the issue file (`.mantle/issues/issue-{NN}.md`). Check if the `verification`
+Read the issue file (`$MANTLE_DIR/issues/issue-{NN}.md`). Check if the `verification`
 field is set in frontmatter.
 
 - If set, use that instead of the project default. Tell the user:
@@ -165,7 +172,7 @@ Run a convention check against the changed files. This step produces warnings
 only — deviations do not affect the PASSED/FAILED verdict.
 
 1. Read `CLAUDE.md` from the project root.
-2. Read `.mantle/system-design.md` if it exists (look for architecture
+2. Read `$MANTLE_DIR/system-design.md` if it exists (look for architecture
    conventions, naming rules, or structural constraints).
 3. Run `mantle collect-issue-files --issue {NN}` to get the list of files
    changed for this issue.
