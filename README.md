@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.10.0** — Global .mantle/ storage with per-project folders under ~/.mantle/, migration tooling, and centralized path resolution.
+**v0.11.0** — Global-mode support across Claude Code prompts: all 25 prompts now resolve `.mantle/` reads through `$MANTLE_DIR`, plus a new `mantle where` CLI command and robust issue-number allocation across the archive.
 
 ## License
 
