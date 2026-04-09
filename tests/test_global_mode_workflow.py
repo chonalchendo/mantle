@@ -28,7 +28,6 @@ def global_project(
     project_dir = tmp_path / "workrepo"
     project_dir.mkdir()
     project.init_project(project_dir, project_name="workrepo")
-    project.update_config(project_dir, storage_mode="global")
     migration.migrate_to_global(project_dir)
 
     return project_dir
@@ -60,23 +59,10 @@ def test_global_project_state_md_readable_via_resolved_path(
     assert "workrepo" in state_md.read_text()
 
 
-def test_global_project_local_mantle_is_stub_only(
+def test_global_project_local_mantle_is_absent(
     global_project: Path,
 ) -> None:
-    """After migration, the local .mantle/ contains only a stub config.md.
-
-    ``migrate_to_global`` with its default ``remove_local=True`` removes
-    the local contents and rewrites a minimal stub ``config.md`` so
-    ``resolve_mantle_dir`` can still look up ``storage_mode: global``.
-    The stub directory must contain *only* that single file — no
-    state.md, no subdirectories — otherwise the global-mode contract
-    (all real artifacts live under ``~/.mantle/``) is violated.
-    """
+    """After migration, the project dir contains no .mantle/ folder
+    at all."""
     local_mantle = global_project / ".mantle"
-    assert local_mantle.is_dir()
-
-    entries = sorted(p.name for p in local_mantle.iterdir())
-    assert entries == ["config.md"]
-
-    config = project.read_config(global_project)
-    assert config.get("storage_mode") == "global"
+    assert not local_mantle.exists()

@@ -178,10 +178,10 @@ def project_identity(project_dir: Path) -> str:
 def resolve_mantle_dir(project_dir: Path) -> Path:
     """Resolve the .mantle/ storage directory for a project.
 
-    Reads ``.mantle/config.md`` frontmatter for a ``storage_mode``
-    key.  When set to ``"global"``, returns a path under
-    ``~/.mantle/projects/<identity>``.  Otherwise returns the
-    project-local ``.mantle/`` path.
+    Uses the existence of ``~/.mantle/projects/<identity>/`` as the
+    global-mode signal — no in-repo marker required.  A git worktree
+    created from a migrated project inherits the same global context
+    automatically because it shares the same ``project_identity()``.
 
     This function does **not** create any directories.
 
@@ -191,19 +191,10 @@ def resolve_mantle_dir(project_dir: Path) -> Path:
     Returns:
         Resolved path to the .mantle directory.
     """
-    config_path = project_dir / MANTLE_DIR / "config.md"
-
-    try:
-        frontmatter, _ = _read_frontmatter_and_body(config_path)
-    except FileNotFoundError:
-        return project_dir / MANTLE_DIR
-
-    storage_mode = frontmatter.get("storage_mode")
-
-    if storage_mode == "global":
-        identity = project_identity(project_dir)
-        return pathlib.Path.home() / GLOBAL_MANTLE_ROOT / identity
-
+    identity = project_identity(project_dir)
+    global_dir = pathlib.Path.home() / GLOBAL_MANTLE_ROOT / identity
+    if global_dir.exists():
+        return global_dir
     return project_dir / MANTLE_DIR
 
 

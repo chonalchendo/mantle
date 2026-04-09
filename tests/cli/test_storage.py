@@ -160,15 +160,12 @@ class TestMigrateStorage:
 
         from mantle.cli.storage import run_migrate_storage
 
-        # First migration succeeds
+        # First migration succeeds — afterwards .mantle/ is gone.
         run_migrate_storage(direction="global", project_dir=tmp_path)
 
-        # Rebuild local .mantle/ with full content so second
-        # migration finds the global target already exists.
-        import shutil
-
-        stub = tmp_path / project.MANTLE_DIR
-        shutil.rmtree(stub)
+        # Simulate a re-init in a repo that already has a global
+        # dir: rebuild .mantle/ locally and attempt migration again.
+        # The global target still exists, so it must raise.
         _create_project(tmp_path)
 
         with pytest.raises(SystemExit):
@@ -214,10 +211,14 @@ class TestWhere:
         capsys: pytest.CaptureFixture[str],
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        _create_project(tmp_path, storage_mode="global")
+        _create_project(tmp_path)
         fake_home = tmp_path / "fakehome"
         fake_home.mkdir()
         monkeypatch.setattr("pathlib.Path.home", lambda: fake_home)
+
+        identity = project.project_identity(tmp_path)
+        global_dir = fake_home / ".mantle" / "projects" / identity
+        global_dir.mkdir(parents=True)
 
         from mantle.cli.storage import run_where
 

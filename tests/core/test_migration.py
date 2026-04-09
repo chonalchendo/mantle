@@ -89,37 +89,12 @@ class TestMigrateToGlobal:
         "subprocess.run",
         side_effect=_mock_subprocess_run,
     )
-    def test_updates_config(
+    def test_removes_local_dir_entirely(
         self,
         _mock: object,
         tmp_path: Path,
     ) -> None:
-        """Verify config at global path has storage_mode: global."""
-        proj = tmp_path / "myproject"
-        proj.mkdir()
-        _create_mantle_dir(proj)
-        fake_home = tmp_path / "home"
-        fake_home.mkdir()
-
-        with patch.object(Path, "home", return_value=fake_home):
-            target = migration.migrate_to_global(proj)
-
-        # Read config from the global target (treat target
-        # as if it were `project_root / .mantle`)
-        config_text = (target / "config.md").read_text()
-        assert "storage_mode: global" in config_text
-
-    @patch(
-        "subprocess.run",
-        side_effect=_mock_subprocess_run,
-    )
-    def test_leaves_stub(
-        self,
-        _mock: object,
-        tmp_path: Path,
-    ) -> None:
-        """Verify local .mantle/config.md remains with
-        storage_mode: global."""
+        """Verify local .mantle/ is gone entirely after migration."""
         proj = tmp_path / "myproject"
         proj.mkdir()
         _create_mantle_dir(proj)
@@ -129,35 +104,7 @@ class TestMigrateToGlobal:
         with patch.object(Path, "home", return_value=fake_home):
             migration.migrate_to_global(proj)
 
-        stub = proj / ".mantle" / "config.md"
-        assert stub.exists()
-        text = stub.read_text()
-        assert "storage_mode: global" in text
-
-    @patch(
-        "subprocess.run",
-        side_effect=_mock_subprocess_run,
-    )
-    def test_removes_local_contents(
-        self,
-        _mock: object,
-        tmp_path: Path,
-    ) -> None:
-        """Verify local .mantle/ only has config.md after
-        migration."""
-        proj = tmp_path / "myproject"
-        proj.mkdir()
-        _create_mantle_dir(proj)
-        fake_home = tmp_path / "home"
-        fake_home.mkdir()
-
-        with patch.object(Path, "home", return_value=fake_home):
-            migration.migrate_to_global(proj)
-
-        local = proj / ".mantle"
-        contents = list(local.iterdir())
-        assert len(contents) == 1
-        assert contents[0].name == "config.md"
+        assert not (proj / ".mantle").exists()
 
     @patch(
         "subprocess.run",
@@ -213,29 +160,6 @@ class TestMigrateToLocal:
         assert result == proj / ".mantle"
         assert (result / "issues" / "issue-01-test.md").exists()
         assert (result / "state.md").exists()
-
-    @patch(
-        "subprocess.run",
-        side_effect=_mock_subprocess_run,
-    )
-    def test_updates_config(
-        self,
-        _mock: object,
-        tmp_path: Path,
-    ) -> None:
-        """Verify config has storage_mode: local after migration."""
-        proj = tmp_path / "myproject"
-        proj.mkdir()
-        _create_mantle_dir(proj)
-        fake_home = tmp_path / "home"
-        fake_home.mkdir()
-
-        with patch.object(Path, "home", return_value=fake_home):
-            migration.migrate_to_global(proj)
-            migration.migrate_to_local(proj)
-
-        config_text = (proj / ".mantle" / "config.md").read_text()
-        assert "storage_mode: local" in config_text
 
     @patch(
         "subprocess.run",

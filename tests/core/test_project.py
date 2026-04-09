@@ -367,32 +367,48 @@ class TestResolveMantleDir:
 
         assert result == tmp_path / MANTLE_DIR
 
-    def test_explicit_local(self, tmp_path: Path) -> None:
-        """Config with storage_mode: local returns local path."""
-        _create_config(tmp_path, storage_mode="local")
+    def test_global_dir_exists_returns_global(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Existence of ~/.mantle/projects/<identity>/ makes resolver
+        return it."""
+        fake_home = tmp_path / "home"
+        fake_home.mkdir()
+        monkeypatch.setattr("pathlib.Path.home", lambda: fake_home)
 
-        result = resolve_mantle_dir(tmp_path)
-
-        assert result == tmp_path / MANTLE_DIR
-
-    def test_global(self, tmp_path: Path) -> None:
-        """Config with storage_mode: global returns ~/.mantle/..."""
-        _create_config(tmp_path, storage_mode="global")
-        remote_url = "git@github.com:user/my-repo.git"
-        completed = subprocess.CompletedProcess(
-            args=[],
-            returncode=0,
-            stdout=remote_url + "\n",
+        identity = "fixed-identity-test"
+        monkeypatch.setattr(
+            "mantle.core.project.project_identity", lambda _pd: identity
         )
-        with mock.patch("subprocess.run", return_value=completed):
-            identity = project_identity(tmp_path)
-            result = resolve_mantle_dir(tmp_path)
 
-        expected = tmp_path.home() / ".mantle" / "projects" / identity
-        assert result == expected
+        global_dir = fake_home / ".mantle" / "projects" / identity
+        global_dir.mkdir(parents=True)
 
-    def test_missing_config(self, tmp_path: Path) -> None:
-        """No .mantle/config.md falls back to local (no crash)."""
         result = resolve_mantle_dir(tmp_path)
+        assert result == global_dir
 
-        assert result == tmp_path / MANTLE_DIR
+    def test_worktree_scenario_shares_global_dir(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Two project dirs sharing the same identity resolve to the
+        same global dir."""
+        fake_home = tmp_path / "home"
+        fake_home.mkdir()
+        monkeypatch.setattr("pathlib.Path.home", lambda: fake_home)
+
+        shared_identity = "worktree-shared-abc123"
+        monkeypatch.setattr(
+            "mantle.core.project.project_identity",
+            lambda _pd: shared_identity,
+        )
+
+        global_dir = fake_home / ".mantle" / "projects" / shared_identity
+        global_dir.mkdir(parents=True)
+
+        primary = tmp_path / "primary-repo"
+        worktree = tmp_path / "worktree"
+        primary.mkdir()
+        worktree.mkdir()
+
+        assert resolve_mantle_dir(primary) == global_dir
+        assert resolve_mantle_dir(worktree) == global_dir
