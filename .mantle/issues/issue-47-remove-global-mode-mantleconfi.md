@@ -1,16 +1,23 @@
 ---
 title: Remove global-mode .mantle/config.md stub — detect by global dir existence
-status: planned
+status: implementing
 slice:
 - core
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Production Project Readiness
+- Python package structure
+- cyclopts
+- omegaconf
+- pydantic-discriminated-unions
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
