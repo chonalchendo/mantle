@@ -2,11 +2,11 @@
 issue: 44
 title: Sweep prompts batch 2 (design-product, design-system, distill, fix, idea, implement,
   plan-issues)
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

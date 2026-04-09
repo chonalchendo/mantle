@@ -2,11 +2,11 @@
 issue: 44
 title: Sweep prompts batch 1 (adopt, add-issue, add-skill, brainstorm, bug, build,
   challenge)
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

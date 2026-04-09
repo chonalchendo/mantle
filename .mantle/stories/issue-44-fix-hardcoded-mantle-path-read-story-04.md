@@ -2,11 +2,11 @@
 issue: 44
 title: Sweep prompts batch 3 (plan-stories, query, research, retrospective, review,
   revise-product, revise-system)
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
