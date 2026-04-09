@@ -2,11 +2,11 @@
 issue: 44
 title: Sweep batch 4 (scout, shape-issue, simplify, verify) plus integration test
   and full grep audit
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

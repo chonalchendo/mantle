@@ -1,6 +1,6 @@
 ---
 title: Fix hardcoded .mantle/ path reads in Claude Code prompts
-status: implementing
+status: implemented
 slice:
 - claude-code
 - cli
@@ -34,7 +34,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/implemented
 ---
 
 ## Parent PRD
