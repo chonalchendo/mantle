@@ -53,8 +53,14 @@ class TestTransitionIssueApprovedCLI:
 
         cli_review.run_transition_to_approved(issue=1, project_dir=project)
 
-        issue_path = project / ".mantle" / "issues" / "issue-01-test-issue-1.md"
-        note, _ = core_issues.load_issue(issue_path)
+        archived_path = (
+            project
+            / ".mantle"
+            / "archive"
+            / "issues"
+            / "issue-01-test-issue-1.md"
+        )
+        note, _ = core_issues.load_issue(archived_path)
         assert note.status == "approved"
 
     def test_transition_to_approved_invalid_status(
@@ -65,6 +71,77 @@ class TestTransitionIssueApprovedCLI:
 
         with pytest.raises(SystemExit):
             cli_review.run_transition_to_approved(issue=1, project_dir=project)
+
+    def test_transition_to_approved_archives_issue_artifacts(
+        self,
+        project: Path,
+    ) -> None:
+        _write_issue(project, 1, status="verified")
+        mantle = project / ".mantle"
+        (mantle / "shaped").mkdir()
+        (mantle / "stories").mkdir()
+        shaped = mantle / "shaped" / "issue-01-test-issue-1-shaped.md"
+        shaped.write_text("---\ntitle: Shaped\n---\nApproach\n")
+        story_one = mantle / "stories" / "issue-01-test-issue-1-story-01.md"
+        story_one.write_text(
+            "---\nissue: 1\ntitle: Story 1\nstatus: completed\n"
+            "tags: [type/story]\n---\nBody\n"
+        )
+        story_two = mantle / "stories" / "issue-01-test-issue-1-story-02.md"
+        story_two.write_text(
+            "---\nissue: 1\ntitle: Story 2\nstatus: completed\n"
+            "tags: [type/story]\n---\nBody\n"
+        )
+
+        cli_review.run_transition_to_approved(issue=1, project_dir=project)
+
+        archive_dir = mantle / "archive"
+        assert (archive_dir / "issues" / "issue-01-test-issue-1.md").exists()
+        assert (
+            archive_dir / "shaped" / "issue-01-test-issue-1-shaped.md"
+        ).exists()
+        assert (
+            archive_dir / "stories" / "issue-01-test-issue-1-story-01.md"
+        ).exists()
+        assert (
+            archive_dir / "stories" / "issue-01-test-issue-1-story-02.md"
+        ).exists()
+
+        assert not (mantle / "issues" / "issue-01-test-issue-1.md").exists()
+        assert not shaped.exists()
+        assert not story_one.exists()
+        assert not story_two.exists()
+
+    def test_transition_to_approved_archives_learning_if_present(
+        self,
+        project: Path,
+    ) -> None:
+        _write_issue(project, 1, status="verified")
+        mantle = project / ".mantle"
+        (mantle / "learnings").mkdir()
+        learning_path = mantle / "learnings" / "issue-01-test-issue-1.md"
+        learning_path.write_text(
+            "---\nissue: 1\ntitle: Test\nauthor: a@b.com\n"
+            "date: 2026-01-01\nconfidence_delta: '+1'\n"
+            "tags: [type/learning]\n---\nLearning\n"
+        )
+
+        cli_review.run_transition_to_approved(issue=1, project_dir=project)
+
+        archived = mantle / "archive" / "learnings" / "issue-01-test-issue-1.md"
+        assert archived.exists()
+        assert not learning_path.exists()
+
+    def test_transition_to_approved_archive_noop_when_nothing_to_archive(
+        self,
+        project: Path,
+    ) -> None:
+        _write_issue(project, 1, status="verified")
+
+        cli_review.run_transition_to_approved(issue=1, project_dir=project)
+
+        archive_dir = project / ".mantle" / "archive"
+        assert (archive_dir / "issues" / "issue-01-test-issue-1.md").exists()
 
 
 class TestTransitionIssueImplementingCLI:

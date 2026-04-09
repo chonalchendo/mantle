@@ -11,7 +11,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from mantle.core import issues, review
+from mantle.core import archive, issues, review
 
 console = Console()
 
@@ -56,7 +56,12 @@ def run_transition_to_approved(
     issue: int,
     project_dir: Path | None = None,
 ) -> None:
-    """Transition issue to approved, print confirmation.
+    """Transition issue to approved and archive its artifacts.
+
+    Archives the issue file, shaped doc, story files, and learning
+    (if present) to ``.mantle/archive/`` after the transition
+    succeeds. This is the single documented point where archival
+    happens — no other command moves these files.
 
     Args:
         issue: Issue number to transition.
@@ -65,13 +70,23 @@ def run_transition_to_approved(
     Raises:
         SystemExit: If the transition is not allowed.
     """
+    project_dir = project_dir or Path.cwd()
+
     _transition(
         issue,
-        project_dir or Path.cwd(),
+        project_dir,
         "approved",
         issues.transition_to_approved,
         "Issue approved — ready for release or deployment.",
     )
+
+    moved = archive.archive_issue(project_dir, issue)
+    if moved:
+        console.print()
+        console.print(
+            f"[dim]Archived {len(moved)} file(s) for issue"
+            f" {issue} to .mantle/archive/[/dim]"
+        )
 
 
 def run_transition_to_implementing(
