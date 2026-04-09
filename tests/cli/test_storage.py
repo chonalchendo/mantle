@@ -226,9 +226,6 @@ class TestWhere:
 
         prefix = str(fake_home / ".mantle" / "projects") + "/"
         assert captured.out.strip().startswith(prefix)
-        from pathlib import Path as _Path
-
-        assert _Path(captured.out.strip()).is_absolute()
 
     def test_where_default_cwd(
         self,

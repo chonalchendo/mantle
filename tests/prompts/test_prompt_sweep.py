@@ -23,28 +23,6 @@ BATCH_1_FILES = (
     "challenge.md",
 )
 
-
-def test_batch_1_no_hardcoded_mantle_reads() -> None:
-    """Story 2 sweep: batch 1 prompts have no Read .mantle/ targets."""
-    offenders = []
-    for name in BATCH_1_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        for match in HARDCODED_READ_RE.finditer(text):
-            line_num = text[: match.start()].count("\n") + 1
-            offenders.append(f"{name}:{line_num}: {match.group(0)}")
-    assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
-
-
-def test_batch_1_includes_resolve_prelude() -> None:
-    """Each batch-1 prompt declares MANTLE_DIR=$(mantle where)."""
-    missing = []
-    for name in BATCH_1_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        if "MANTLE_DIR=$(mantle where)" not in text:
-            missing.append(name)
-    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
-
-
 BATCH_2_FILES = (
     "design-product.md",
     "design-system.md",
@@ -55,28 +33,6 @@ BATCH_2_FILES = (
     "plan-issues.md",
 )
 
-
-def test_batch_2_no_hardcoded_mantle_reads() -> None:
-    """Story 3 sweep: batch 2 prompts have no Read .mantle/ targets."""
-    offenders = []
-    for name in BATCH_2_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        for match in HARDCODED_READ_RE.finditer(text):
-            line_num = text[: match.start()].count("\n") + 1
-            offenders.append(f"{name}:{line_num}: {match.group(0)}")
-    assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
-
-
-def test_batch_2_includes_resolve_prelude() -> None:
-    """Each batch-2 prompt declares MANTLE_DIR=$(mantle where)."""
-    missing = []
-    for name in BATCH_2_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        if "MANTLE_DIR=$(mantle where)" not in text:
-            missing.append(name)
-    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
-
-
 BATCH_3_FILES = (
     "plan-stories.md",
     "query.md",
@@ -86,28 +42,6 @@ BATCH_3_FILES = (
     "revise-product.md",
     "revise-system.md",
 )
-
-
-def test_batch_3_no_hardcoded_mantle_reads() -> None:
-    """Story 4 sweep: batch 3 prompts have no Read .mantle/ targets."""
-    offenders = []
-    for name in BATCH_3_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        for match in HARDCODED_READ_RE.finditer(text):
-            line_num = text[: match.start()].count("\n") + 1
-            offenders.append(f"{name}:{line_num}: {match.group(0)}")
-    assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
-
-
-def test_batch_3_includes_resolve_prelude() -> None:
-    """Each batch-3 prompt declares MANTLE_DIR=$(mantle where)."""
-    missing = []
-    for name in BATCH_3_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        if "MANTLE_DIR=$(mantle where)" not in text:
-            missing.append(name)
-    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
-
 
 BATCH_4_FILES = (
     "scout.md",
@@ -130,10 +64,9 @@ EXCLUDED_FROM_FULL_AUDIT = frozenset(
 )
 
 
-def test_batch_4_no_hardcoded_mantle_reads() -> None:
-    """Story 5 sweep: batch 4 prompts have no Read .mantle/ targets."""
+def _assert_no_hardcoded_reads(files: tuple[str, ...]) -> None:
     offenders = []
-    for name in BATCH_4_FILES:
+    for name in files:
         text = (PROMPTS_DIR / name).read_text()
         for match in HARDCODED_READ_RE.finditer(text):
             line_num = text[: match.start()].count("\n") + 1
@@ -141,14 +74,53 @@ def test_batch_4_no_hardcoded_mantle_reads() -> None:
     assert not offenders, "Hardcoded reads found:\n" + "\n".join(offenders)
 
 
+def _assert_includes_resolve_prelude(files: tuple[str, ...]) -> None:
+    missing = [
+        name
+        for name in files
+        if "MANTLE_DIR=$(mantle where)" not in (PROMPTS_DIR / name).read_text()
+    ]
+    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
+
+
+def test_batch_1_no_hardcoded_mantle_reads() -> None:
+    """Story 2 sweep: batch 1 prompts have no Read .mantle/ targets."""
+    _assert_no_hardcoded_reads(BATCH_1_FILES)
+
+
+def test_batch_1_includes_resolve_prelude() -> None:
+    """Each batch-1 prompt declares MANTLE_DIR=$(mantle where)."""
+    _assert_includes_resolve_prelude(BATCH_1_FILES)
+
+
+def test_batch_2_no_hardcoded_mantle_reads() -> None:
+    """Story 3 sweep: batch 2 prompts have no Read .mantle/ targets."""
+    _assert_no_hardcoded_reads(BATCH_2_FILES)
+
+
+def test_batch_2_includes_resolve_prelude() -> None:
+    """Each batch-2 prompt declares MANTLE_DIR=$(mantle where)."""
+    _assert_includes_resolve_prelude(BATCH_2_FILES)
+
+
+def test_batch_3_no_hardcoded_mantle_reads() -> None:
+    """Story 4 sweep: batch 3 prompts have no Read .mantle/ targets."""
+    _assert_no_hardcoded_reads(BATCH_3_FILES)
+
+
+def test_batch_3_includes_resolve_prelude() -> None:
+    """Each batch-3 prompt declares MANTLE_DIR=$(mantle where)."""
+    _assert_includes_resolve_prelude(BATCH_3_FILES)
+
+
+def test_batch_4_no_hardcoded_mantle_reads() -> None:
+    """Story 5 sweep: batch 4 prompts have no Read .mantle/ targets."""
+    _assert_no_hardcoded_reads(BATCH_4_FILES)
+
+
 def test_batch_4_includes_resolve_prelude() -> None:
     """Each batch-4 prompt declares MANTLE_DIR=$(mantle where)."""
-    missing = []
-    for name in BATCH_4_FILES:
-        text = (PROMPTS_DIR / name).read_text()
-        if "MANTLE_DIR=$(mantle where)" not in text:
-            missing.append(name)
-    assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
+    _assert_includes_resolve_prelude(BATCH_4_FILES)
 
 
 def test_full_tree_no_hardcoded_mantle_reads() -> None:
