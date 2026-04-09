@@ -189,6 +189,93 @@ class TestMigrateStorage:
             run_migrate_storage(direction="invalid", project_dir=tmp_path)
 
 
+# ── run_where ──────────────────────────────────────────────────
+
+
+class TestWhere:
+    def test_where_local_mode(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _create_project(tmp_path)
+
+        from mantle.cli.storage import run_where
+
+        run_where(project_dir=tmp_path)
+        captured = capsys.readouterr()
+
+        expected = str((tmp_path / project.MANTLE_DIR).resolve())
+        assert captured.out.strip() == expected
+
+    def test_where_global_mode(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        _create_project(tmp_path, storage_mode="global")
+        fake_home = tmp_path / "fakehome"
+        fake_home.mkdir()
+        monkeypatch.setattr("pathlib.Path.home", lambda: fake_home)
+
+        from mantle.cli.storage import run_where
+
+        run_where(project_dir=tmp_path)
+        captured = capsys.readouterr()
+
+        prefix = str(fake_home / ".mantle" / "projects") + "/"
+        assert captured.out.strip().startswith(prefix)
+        from pathlib import Path as _Path
+
+        assert _Path(captured.out.strip()).is_absolute()
+
+    def test_where_default_cwd(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        _create_project(tmp_path)
+        monkeypatch.setattr("pathlib.Path.cwd", lambda: tmp_path)
+
+        from mantle.cli.storage import run_where
+
+        run_where()
+        captured = capsys.readouterr()
+
+        expected = str((tmp_path / project.MANTLE_DIR).resolve())
+        assert captured.out.strip() == expected
+
+    def test_where_output_is_clean(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _create_project(tmp_path)
+
+        from mantle.cli.storage import run_where
+
+        run_where(project_dir=tmp_path)
+        captured = capsys.readouterr()
+
+        assert "\x1b" not in captured.out
+        assert captured.out.count("\n") == 1
+
+    def test_where_no_config(
+        self,
+        tmp_path: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.storage import run_where
+
+        run_where(project_dir=tmp_path)
+        captured = capsys.readouterr()
+
+        expected = str((tmp_path / project.MANTLE_DIR).resolve())
+        assert captured.out.strip() == expected
+
+
 # ── CLI wiring ─────────────────────────────────────────────────
 
 
@@ -224,3 +311,22 @@ class TestCLIWiring:
         )
         assert result.returncode == 0
         assert "migrate" in result.stdout.lower()
+
+    def test_where_help(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "mantle.cli.main",
+                "where",
+                "--help",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0
+        assert (
+            "where" in result.stdout.lower()
+            or "resolved" in result.stdout.lower()
+        )

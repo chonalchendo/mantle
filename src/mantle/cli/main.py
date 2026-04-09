@@ -1874,5 +1874,19 @@ def migrate_storage_command(
     storage.run_migrate_storage(direction=direction, project_dir=path)
 
 
+@app.command(name="where")
+def where_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Print the resolved .mantle/ directory absolute path."""
+    storage.run_where(project_dir=path)
+
+
 if __name__ == "__main__":
     app()

@@ -84,3 +84,16 @@ def run_migrate_storage(
         raise SystemExit(1) from None
 
     console.print(f"Migrated to {direction} storage: {result_path}")
+
+
+def run_where(*, project_dir: Path | None = None) -> None:
+    """Print the resolved .mantle/ absolute path to stdout.
+
+    Args:
+        project_dir: Project directory. Defaults to cwd.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    resolved = project.resolve_mantle_dir(project_dir).resolve()
+    print(resolved)
