@@ -172,8 +172,10 @@ def list_issues(project_dir: Path) -> list[Path]:
 def next_issue_number(project_dir: Path) -> int:
     """Return the next issue number (highest existing + 1).
 
-    Scans .mantle/issues/ for issue-NN.md files and returns max(NN) + 1.
-    Returns 1 if no issues exist.
+    Scans both .mantle/issues/ and .mantle/archive/issues/ for issue-NN.md
+    files and returns max(NN) + 1. Returns 1 if no issues exist in either
+    location. The archive scan is skipped silently if the archive directory
+    does not exist.
 
     Args:
         project_dir: Directory containing .mantle/.
@@ -187,6 +189,14 @@ def next_issue_number(project_dir: Path) -> int:
         match = pattern.match(path.name)
         if match:
             highest = max(highest, int(match.group(1)))
+    archive_dir = (
+        project.resolve_mantle_dir(project_dir) / "archive" / "issues"
+    )
+    if archive_dir.is_dir():
+        for path in archive_dir.glob("issue-*.md"):
+            match = pattern.match(path.name)
+            if match:
+                highest = max(highest, int(match.group(1)))
     return highest + 1
 
 

@@ -104,6 +104,17 @@ def _save(
     )
 
 
+def _create_archived_issue(
+    project_dir: Path, number: int, slug: str = "archived-work"
+) -> None:
+    """Create a fake archived issue file directly for test setup."""
+    archive_dir = project_dir / ".mantle" / "archive" / "issues"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    (archive_dir / f"issue-{number:02d}-{slug}.md").write_text(
+        "---\ntitle: x\n---\n"
+    )
+
+
 # ── IssueNote model ─────────────────────────────────────────────
 
 
@@ -396,6 +407,40 @@ class TestNextIssueNumber:
         _save(project, issue=3, title="Third")
 
         assert next_issue_number(project) == 4
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_scans_archive_when_computing_max(
+        self, _mock: object, project: Path
+    ) -> None:
+        _save(project, issue=40, title="Fortieth")
+        _save(project, issue=41, title="Forty-first")
+        _create_archived_issue(project, 43)
+
+        assert next_issue_number(project) == 44
+
+    def test_returns_max_plus_1_when_only_archive_has_issues(
+        self, project: Path
+    ) -> None:
+        _create_archived_issue(project, 1, slug="first-archived")
+        _create_archived_issue(project, 2, slug="second-archived")
+        _create_archived_issue(project, 3, slug="third-archived")
+
+        assert next_issue_number(project) == 4
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_works_when_archive_dir_missing(
+        self, _mock: object, project: Path
+    ) -> None:
+        _save(project, issue=1, title="First")
+        _save(project, issue=2, title="Second")
+
+        assert next_issue_number(project) == 3
 
 
 # ── issue_exists ────────────────────────────────────────────────
