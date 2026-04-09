@@ -1,6 +1,6 @@
 ---
 title: Fix issue numbering to include archive — prevent reused numbers
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -15,7 +15,7 @@ skills_required:
 - cyclopts
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
