@@ -1,11 +1,11 @@
 ---
 issue: 46
 title: Move archive side effect from save-learning to transition-to-approved
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
