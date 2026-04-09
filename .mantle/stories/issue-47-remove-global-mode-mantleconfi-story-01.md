@@ -1,11 +1,11 @@
 ---
 issue: 47
 title: Replace config-stub global-mode detection with global directory existence
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
