@@ -30,7 +30,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Read `.mantle/state.md` and verify:
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Read `$MANTLE_DIR/state.md` and verify:
 
 - `.mantle/` exists. If not, tell the user to run `mantle init` first.
 - Status is `planning`. This is the valid state for story planning.
@@ -42,16 +49,16 @@ Read `.mantle/state.md` and verify:
 If the user provided `$ARGUMENTS`, use that as the issue number.
 Otherwise, ask the user which issue to decompose. Then read and internalise:
 
-- `.mantle/issues/issue-<NN>.md` — the selected issue (acceptance criteria, what to
+- `$MANTLE_DIR/issues/issue-<NN>.md` — the selected issue (acceptance criteria, what to
   build, slice)
-- `.mantle/shaped/issue-<NN>-shaped.md` — the shaped issue if it exists (chosen
+- `$MANTLE_DIR/shaped/issue-<NN>-shaped.md` — the shaped issue if it exists (chosen
   approach, appetite, open questions)
-- `.mantle/product-design.md` — for user stories referenced by the issue
-- `.mantle/system-design.md` — for module structure, API contracts, data model relevant
+- `$MANTLE_DIR/product-design.md` — for user stories referenced by the issue
+- `$MANTLE_DIR/system-design.md` — for module structure, API contracts, data model relevant
   to the issue's slice
-- `.mantle/stories/issue-<NN>-story-*.md` — any existing stories for this issue (to
+- `$MANTLE_DIR/stories/issue-<NN>-story-*.md` — any existing stories for this issue (to
   understand what's already decomposed)
-- `.mantle/learnings/` — any learnings from previous issues (to avoid repeating
+- `$MANTLE_DIR/learnings/` — any learnings from previous issues (to avoid repeating
   mistakes)
 
 Display context summary:

@@ -48,18 +48,25 @@ sources since it was created.
 
 ## Step 3 — Search vault content
 
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
 Search broadly, then narrow. Start with directory listings and keyword grep,
 then read the most relevant files.
 
 Search across these locations:
 
-- `.mantle/learnings/` — past issue learnings
-- `.mantle/decisions.md` — recorded project decisions
-- `.mantle/sessions/` — session logs
-- `.mantle/brainstorms/` — brainstorm outputs
-- `.mantle/research/` — research reports
-- `.mantle/scouts/` — scout reports from external repo analysis
-- `.mantle/shaped/` — shaped issue documents
+- `$MANTLE_DIR/learnings/` — past issue learnings
+- `$MANTLE_DIR/decisions.md` — recorded project decisions
+- `$MANTLE_DIR/sessions/` — session logs
+- `$MANTLE_DIR/brainstorms/` — brainstorm outputs
+- `$MANTLE_DIR/research/` — research reports
+- `$MANTLE_DIR/scouts/` — scout reports from external repo analysis
+- `$MANTLE_DIR/shaped/` — shaped issue documents
 - Personal vault skills via `mantle list-skills`
 
 Use Grep to search within matched files for keywords from the question. Read

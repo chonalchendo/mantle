@@ -29,7 +29,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` and `$MANTLE_DIR/state.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - Read `state.md` and verify status is `verifying`, `reviewing`, or `completed`.
@@ -39,9 +46,9 @@ Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
 ## Step 2 — Load context
 
 Read and internalise:
-- The shaped issue file from `.mantle/shaped/` for the current issue (if exists)
-- Any existing files in `.mantle/learnings/` — past learnings for patterns
-- `.mantle/state.md` — to identify the current issue number
+- The shaped issue file from `$MANTLE_DIR/shaped/` for the current issue (if exists)
+- Any existing files in `$MANTLE_DIR/learnings/` — past learnings for patterns
+- `$MANTLE_DIR/state.md` — to identify the current issue number
 
 If a shaped issue exists, use it as the baseline for reflection — what was
 planned vs what actually happened.
@@ -105,7 +112,7 @@ mantle save-learning \
 
 ## Step 6 — Next steps
 
-After a successful save, check `.mantle/issues/` for remaining unimplemented issues before recommending next steps.
+After a successful save, check `$MANTLE_DIR/issues/` for remaining unimplemented issues before recommending next steps.
 
 **Valid next commands** (recommend the best fit, not all of them):
 

@@ -48,7 +48,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` and `$MANTLE_DIR/state.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - Read `state.md` and verify the project exists. If the project is in an early
@@ -58,7 +65,7 @@ Check whether `.mantle/`, `.mantle/state.md` exist by reading them.
 ## Step 2 — Select issue
 
 If the user provided `$ARGUMENTS`, use that as the issue number.
-Otherwise, read `.mantle/issues/` to show available issues and ask the user
+Otherwise, read `$MANTLE_DIR/issues/` to show available issues and ask the user
 which issue to review. Prefer issues with `verified` status.
 
 Display:
@@ -69,7 +76,7 @@ Confirm with the user before proceeding.
 
 ## Step 3 — Load verification results
 
-Read the issue file (`.mantle/issues/issue-{NN}.md`). Extract:
+Read the issue file (`$MANTLE_DIR/issues/issue-{NN}.md`). Extract:
 
 1. **Status** — confirm it is `verified` (or at least `implemented`). If the
    issue has not been verified yet, recommend running `/mantle:verify` first.
@@ -125,8 +132,8 @@ next criterion.
    mantle save-review-result --issue <N> --feedback "criterion 1|approved|" --feedback "criterion 2|approved|"
    ```
    Include ALL criteria as approved.
-3. Check `.mantle/learnings/` for whether a retrospective already exists for this issue.
-4. Check `.mantle/issues/` for remaining unimplemented issues.
+3. Check `$MANTLE_DIR/learnings/` for whether a retrospective already exists for this issue.
+4. Check `$MANTLE_DIR/issues/` for remaining unimplemented issues.
 
    **Valid next commands** (recommend the best fit, not all of them):
    - `/mantle:retrospective` — **always recommend first** if no learning exists for this issue. Retrospectives capture what went well and what was harder than expected, directly improving future planning.

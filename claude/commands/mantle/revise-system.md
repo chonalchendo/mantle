@@ -24,8 +24,15 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/`, `.mantle/system-design.md`, and
-`.mantle/product-design.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/`, `$MANTLE_DIR/system-design.md`, and
+`$MANTLE_DIR/product-design.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first and stop.
 - If `system-design.md` does not exist, tell them to run `/mantle:design-system`
@@ -34,10 +41,10 @@ Check whether `.mantle/`, `.mantle/system-design.md`, and
 ## Step 2 — Load context
 
 Read and internalise:
-- `.mantle/system-design.md` — the current system design (primary focus)
-- `.mantle/product-design.md` — for alignment context
-- `.mantle/idea.md` — the core problem and insight
-- Any files in `.mantle/decisions/` — prior decisions for context
+- `$MANTLE_DIR/system-design.md` — the current system design (primary focus)
+- `$MANTLE_DIR/product-design.md` — for alignment context
+- `$MANTLE_DIR/idea.md` — the core problem and insight
+- Any files in `$MANTLE_DIR/decisions/` — prior decisions for context
 
 Display a summary of the current system design to the user, highlighting the key
 architectural decisions and structure.
@@ -48,7 +55,7 @@ Ask the user what they want to change and why. This is a conversation, not a
 form fill. Discuss the technical tradeoffs of proposed changes:
 
 - Does this change affect system boundaries or data flow?
-- Does it invalidate any prior decisions in `.mantle/decisions/`?
+- Does it invalidate any prior decisions in `$MANTLE_DIR/decisions/`?
 - Does it introduce new dependencies or constraints?
 - Does it still satisfy the product design requirements?
 - What are the risks of this change?

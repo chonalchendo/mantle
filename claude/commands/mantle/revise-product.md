@@ -22,7 +22,14 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/` and `.mantle/product-design.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` and `$MANTLE_DIR/product-design.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first and stop.
 - If `product-design.md` does not exist, tell them to run `/mantle:design-product`
@@ -30,7 +37,7 @@ Check whether `.mantle/` and `.mantle/product-design.md` exist by reading them.
 
 ## Step 2 — Load context
 
-Read `.mantle/product-design.md` in full. Display a summary of the current design:
+Read `$MANTLE_DIR/product-design.md` in full. Display a summary of the current design:
 
 ```
 Current product design:
@@ -41,7 +48,7 @@ Current product design:
   Success metrics: <count> defined
 ```
 
-Also read `.mantle/idea.md` and the most recent challenge file (if any) for
+Also read `$MANTLE_DIR/idea.md` and the most recent challenge file (if any) for
 grounding context.
 
 ## Step 3 — Interactive revision session

@@ -28,23 +28,30 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-Check whether `.mantle/` and `.mantle/idea.md` exist by reading them.
+First, resolve the project's .mantle/ directory:
+
+    MANTLE_DIR=$(mantle where)
+
+All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
+`$MANTLE_DIR/...` in place of `.mantle/...`.
+
+Check whether `.mantle/` and `$MANTLE_DIR/idea.md` exist by reading them.
 
 - If `.mantle/` does not exist, tell them to run `mantle init` first.
 - If `idea.md` does not exist, tell them to run `/mantle:idea` first.
-- If no challenge transcript exists in `.mantle/challenges/`, recommend running
+- If no challenge transcript exists in `$MANTLE_DIR/challenges/`, recommend running
   `/mantle:challenge` first — the challenge output is the primary input for
   deriving building blocks. Proceed if the user wants to skip.
 
 ## Step 2 — Load context
 
-Read `.mantle/idea.md` and extract:
+Read `$MANTLE_DIR/idea.md` and extract:
 - **Problem** — the specific pain or friction
 - **Insight** — the non-obvious truth that enables a new solution
 - **Target user** — who it's for
 - **Success criteria** — how they'll know it worked
 
-Read all challenge transcripts in `.mantle/challenges/`. Extract:
+Read all challenge transcripts in `$MANTLE_DIR/challenges/`. Extract:
 - **Assumptions surfaced** — what must be true (with confidence levels)
 - **First-principles analysis** — the true constraints, stripped of convention
 - **What survived** — aspects that held up under scrutiny
@@ -52,7 +59,7 @@ Read all challenge transcripts in `.mantle/challenges/`. Extract:
 - **Key uncertainties** — what remains unknown
 - **"Would change my mind if"** — specific evidence that would flip the verdict
 
-Read any existing research notes in `.mantle/research/` (to build on, not repeat).
+Read any existing research notes in `$MANTLE_DIR/research/` (to build on, not repeat).
 
 ## Analysis scratchpad
 
