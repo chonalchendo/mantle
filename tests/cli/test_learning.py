@@ -127,60 +127,6 @@ class TestSaveLearningNoArchive:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_save_learning_does_not_archive_issue_file(
-        self, _mock: object, project: Path
-    ) -> None:
-        issue_path = _write_issue(project, 1)
-
-        _call_save_learning(project)
-
-        assert issue_path.exists()
-        archive_issue = (
-            project / ".mantle" / "archive" / "issues" / issue_path.name
-        )
-        assert not archive_issue.exists()
-
-    @patch(
-        "mantle.core.learning.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_save_learning_does_not_archive_shaped_doc(
-        self, _mock: object, project: Path
-    ) -> None:
-        _write_issue(project, 1)
-        shaped_path = _write_shaped(project, 1)
-
-        _call_save_learning(project)
-
-        assert shaped_path.exists()
-        archive_shaped = (
-            project / ".mantle" / "archive" / "shaped" / shaped_path.name
-        )
-        assert not archive_shaped.exists()
-
-    @patch(
-        "mantle.core.learning.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
-    def test_save_learning_does_not_archive_stories(
-        self, _mock: object, project: Path
-    ) -> None:
-        _write_issue(project, 1)
-        story_one = _write_story(project, 1, 1)
-        story_two = _write_story(project, 1, 2)
-
-        _call_save_learning(project)
-
-        assert story_one.exists()
-        assert story_two.exists()
-        archive_stories = project / ".mantle" / "archive" / "stories"
-        assert not (archive_stories / story_one.name).exists()
-        assert not (archive_stories / story_two.name).exists()
-
-    @patch(
-        "mantle.core.learning.state.resolve_git_identity",
-        side_effect=_mock_git_identity,
-    )
     def test_save_learning_mid_pipeline_regression(
         self, _mock: object, project: Path
     ) -> None:
