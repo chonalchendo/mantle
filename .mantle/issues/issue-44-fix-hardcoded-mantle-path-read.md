@@ -1,18 +1,28 @@
 ---
 title: Fix hardcoded .mantle/ path reads in Claude Code prompts
-status: planned
+status: implementing
 slice:
 - claude-code
 - cli
-story_count: 0
+story_count: 5
 verification: null
 blocked_by: []
 skills_required:
 - CLI design best practices
 - Design Review
+- Designing Architecture
+- DuckDB Best Practices and Optimisations
+- EarningsCall.biz Scraping
+- FRED Data Source
+- Lakehouse Architecture
+- OpenRouter LLM Gateway
+- Production Project Readiness
+- Python Project Conventions
 - Python package structure
 - SQLMesh Best Practices
 - Software Design Principles
+- beautifulsoup4-web-scraping
+- claude-sdk-structured-analysis-pipelines
 - cyclopts
 - docker-compose-python
 - edgartools
@@ -24,7 +34,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
