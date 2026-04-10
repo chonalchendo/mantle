@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.12.1** — Taxonomy-aware tag guidance in skill authoring. Vault tags now use coarse-grained names that cluster related skills; orphaned index files are auto-cleaned during compile.
+**v0.12.2** — Fix non-existent `--global` flag in README install instructions.
 
 ## License
 

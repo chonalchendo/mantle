@@ -2,6 +2,11 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.12.2] — 2026-04-10
+
+### Fixed
+- Remove non-existent `--global` flag from `mantle install` example in README.
+
 ## [0.12.1] — 2026-04-10
 
 ### Changed
@@ -160,6 +165,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.12.2]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.2
 [0.12.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.1
 [0.12.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.0
 [0.11.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.11.1
