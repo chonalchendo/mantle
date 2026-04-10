@@ -1,8 +1,12 @@
 ---
 personal_vault: /Users/conal/test-vault
-verification_strategy: Run uv run pytest for the full test suite. Then verify each
+verification_strategy: 'Run uv run pytest for the full test suite. Then verify each
   acceptance criterion independently by reading implementation code, checking file
-  existence, and confirming behaviour matches the specification.
+  existence, and confirming behaviour matches the specification. For any criterion
+  involving CLI behaviour changes, also run a live E2E test: build a throwaway fixture
+  in /tmp/, invoke the real mantle CLI via uv run mantle against it, and inspect the
+  filesystem to confirm the expected outcome — this catches prompt-flow regressions
+  and ordering bugs that unit tests cannot see.'
 auto_push: false
 tags:
 - type/config
