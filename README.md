@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.11.1** — Bug fix: `mantle save-learning` no longer archives the issue as a side effect, which was silently destroying mid-pipeline `/mantle:build` runs. Archival now happens exclusively on `transition-issue-approved` (the terminal state), and the `/mantle:review` prompt saves the structured review result before approval so the issue file is still addressable.
+**v0.12.0** — Global-mode projects now leave zero `.mantle/` footprint in work repos. Detection uses `~/.mantle/projects/<identity>/` directory existence instead of an in-repo config stub, so git worktrees inherit global context automatically.
 
 ## License
 

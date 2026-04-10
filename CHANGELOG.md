@@ -2,6 +2,16 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.12.0] — 2026-04-10
+
+### Changed
+- **Global-mode detection by directory existence** (#47). `resolve_mantle_dir` now checks whether `~/.mantle/projects/<identity>/` exists instead of reading a `storage_mode` field from `.mantle/config.md`. After `migrate-to-global`, the project directory contains no `.mantle/` folder at all — honouring the zero-footprint contract. Git worktrees inherit global context automatically via shared `project_identity()`.
+- `migrate_to_global` no longer rebuilds a stub `.mantle/config.md`; it simply removes the local directory entirely.
+- Removed orphaned `_update_config_at` helper and dead `storage_mode` config writes from `core/migration.py`.
+
+### Fixed
+- Build pipeline verify agent now calls `transition-issue-verified` before reporting, so the issue reaches `verified` status without manual intervention during review.
+
 ## [0.11.1] — 2026-04-09
 
 ### Fixed
@@ -142,6 +152,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.12.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.0
 [0.11.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.11.1
 [0.11.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.11.0
 [0.10.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.10.0
