@@ -287,6 +287,12 @@ story in the wave, follow this sequence:
    change how a future story is implemented — not a summary of what was built.
    Skip this step if the agent reported nothing noteworthy.
 
+   **CLI divergence caveat:** If the current issue changes `mantle` CLI
+   behaviour, the globally installed `mantle` may still run the pre-fix
+   code. Skip this `save-learning` call if invoking it would re-trigger the
+   bug being fixed. Capture learnings via `/mantle:retrospective` after
+   releasing instead.
+
 **Wave completion:** After all stories in a wave finish (sub-steps 1-9 for
 each), check outcomes before proceeding to the next wave:
 

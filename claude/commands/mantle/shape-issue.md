@@ -103,6 +103,11 @@ For each approach (aim for 2-3), work through:
 4. **Tradeoffs** — what you gain, what you give up
 5. **Rabbit holes** — what could go wrong or take longer than expected
 6. **No-gos** — what this approach explicitly does NOT include
+7. **Side-effect impact scan** — if this approach moves or adds a side effect
+   (e.g., archival, state transition, file mutation), list every command and
+   prompt that runs after the new call site. Ordering dependencies between
+   CLI commands are a common source of regressions that shaping can catch
+   early.
 
 Work through approaches interactively. Ask the user questions. Don't dump all
 approaches at once — explore one, discuss, then move to the next.
