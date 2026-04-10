@@ -260,8 +260,10 @@ Spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
 >
 > Issue number: {NN}
 >
-> When done, report: per-criterion pass/fail table and overall result
-> (PASSED/FAILED).
+> When done:
+> 1. If all criteria pass, call `mantle transition-issue-verified --issue {NN}`
+>    (verify.md Step 8 requires this — do not skip it).
+> 2. Report: per-criterion pass/fail table and overall result (PASSED/FAILED).
 
 Report the agent's verification table and overall result.
 
