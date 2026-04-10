@@ -1,11 +1,11 @@
 ---
 issue: 49
 title: Migrate existing vault skill tags to coarser conventions
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
