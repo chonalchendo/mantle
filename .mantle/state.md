@@ -60,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 52 planned — run /mantle:build to automate the full pipeline, /mantle:shape-issue for manual control, or /mantle:plan-issues for next issue.
+Scout report completed for oh-my-claudecode — findings captured for planning.
 
 ## Blockers
 
