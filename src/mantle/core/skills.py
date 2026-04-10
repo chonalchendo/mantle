@@ -886,6 +886,17 @@ def generate_index_notes(project_dir: Path) -> list[str]:
         index_path.write_text(content, encoding="utf-8")
         written.append(tag)
 
+    # Remove orphaned index files for tags that no longer exist.
+    active_slugs = {tag.replace("/", "-") for tag in tag_to_slugs}
+    for index_file in indexes_dir.iterdir():
+        if index_file.suffix != ".md":
+            continue
+        if index_file.stem in active_slugs:
+            continue
+        existing = index_file.read_text(encoding="utf-8")
+        if _GENERATED_MARKER in existing:
+            index_file.unlink()
+
     return written
 
 

@@ -1459,6 +1459,48 @@ class TestGenerateIndexNotes:
         indexes_dir = vault_root / "indexes"
         assert not (indexes_dir / "type-skill.md").exists()
 
+    def test_removes_orphaned_generated_indexes(
+        self, project: Path
+    ) -> None:
+        """Generated index files for tags that no longer exist are deleted."""
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        indexes_dir.mkdir(parents=True, exist_ok=True)
+        orphan = indexes_dir / "topic-old-tag.md"
+        orphan.write_text(
+            f"{_GENERATED_MARKER}\n# topic/old-tag\n",
+            encoding="utf-8",
+        )
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        assert not orphan.exists()
+        assert (indexes_dir / "domain-web.md").exists()
+
+    def test_preserves_orphaned_manual_indexes(
+        self, project: Path
+    ) -> None:
+        """Manual index files are kept even if no skill uses the tag."""
+        vault_root = project / "vault"
+        indexes_dir = vault_root / "indexes"
+        indexes_dir.mkdir(parents=True, exist_ok=True)
+        manual = indexes_dir / "topic-custom.md"
+        manual.write_text("# My manual index\n", encoding="utf-8")
+        _create_skill(
+            project,
+            name="Python asyncio",
+            tags=("domain/web",),
+        )
+
+        generate_index_notes(project)
+
+        assert manual.exists()
+
     def test_compile_skills_calls_generate_indexes(
         self, project_with_state: Path
     ) -> None:
