@@ -1,6 +1,6 @@
 ---
 title: Rethink tag naming conventions for meaningful vault indexes
-status: verified
+status: approved
 slice:
 - claude-code
 - core
@@ -46,7 +46,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
