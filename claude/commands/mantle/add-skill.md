@@ -206,20 +206,48 @@ Review the final draft with the user and iterate once before saving.
 
 ## Step 6 — Suggest content tags
 
-Before saving, suggest content-based tags for the skill:
+Before suggesting tags, read the existing taxonomy:
 
-1. Read `$MANTLE_DIR/tags.md` to see the existing tag taxonomy
-2. Based on the skill's name, description, and authored content, suggest
-   `topic/` and `domain/` tags:
-   - **`topic/<slug>`** — one tag matching the skill's subject (e.g.,
-     `topic/python-asyncio`, `topic/docker-compose`)
-   - **`domain/<area>`** — the broad domain (e.g., `domain/web`,
-     `domain/concurrency`, `domain/database`)
-3. Reuse existing tags from `tags.md` where they fit (e.g., if
-   `domain/web` already exists, use it rather than creating `domain/web-dev`)
-4. If proposing a new tag not in `tags.md`, note it as "(new)"
-5. Present the suggested tags to the user for confirmation — they can add,
-   remove, or edit tags before proceeding
+1. Read `$MANTLE_DIR/tags.md`
+2. Run `mantle list-tags` to see every tag currently in use
+
+Then apply these rules when selecting tags:
+
+### Reuse rule
+
+If an existing tag covers the skill's subject area, reuse it. Do not create
+a new tag that is a more specific variant of an existing one.
+
+### topic/ — coarse-grained subject areas
+
+Topic tags represent broad subjects that cluster multiple related skills.
+Choose a tag broad enough that other skills could share it.
+
+- Good: `topic/scraping`, `topic/pydantic`, `topic/streamlit`,
+  `topic/duckdb`
+- Bad: `topic/playwright-web-scraping`,
+  `topic/pydantic-discriminated-unions`, `topic/streamlit-aggrid`,
+  `topic/macrotrends-scraping`
+
+Rule of thumb: if the tag would only ever apply to one skill, it is too
+specific.
+
+### domain/ — high-level disciplines
+
+Domain tags represent high-level disciplines, not techniques or
+sub-specialties. A domain should be broad enough to contain 3+ skills
+naturally.
+
+- Good: `domain/data-engineering`, `domain/finance`, `domain/web`,
+  `domain/devops`, `domain/python`, `domain/ai`
+- Bad: `domain/scraping`, `domain/config-management`,
+  `domain/qualitative-analysis`, `domain/financial-data`
+
+### After selecting tags
+
+If proposing a tag not already in `tags.md`, note it as "(new)". Present
+the suggested tags to the user for confirmation — they can add, remove, or
+edit tags before proceeding.
 
 After the user confirms, these tags will be passed to the save command via
 `--tag` options. New tags are automatically appended to `tags.md`.
