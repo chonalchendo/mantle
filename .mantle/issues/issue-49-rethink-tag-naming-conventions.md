@@ -9,7 +9,18 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- EarningsCall.biz Scraping
+- Mohnish Pabrai Investment Philosophy
+- Playwright Web Scraping
+- Python Project Conventions
+- Python package structure
+- Software Design Principles
+- Tom Gayner Investment Philosophy
+- cyclopts
+- pydantic-project-conventions
+- streamlit-aggrid
 tags:
 - type/issue
 - status/planned
