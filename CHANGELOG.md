@@ -2,6 +2,14 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.12.1] — 2026-04-10
+
+### Changed
+- **Taxonomy-aware tag guidance** (#49). Rewrote add-skill Step 6 to check existing tags first, prefer coarse-grained names, and include good/bad examples. Migrated existing vault tags — 49 down to 41 with meaningful clusters (`topic/scraping` shared by 3 skills, `domain/finance` by 8).
+
+### Fixed
+- `generate_index_notes` now auto-removes orphaned generated index files for tags that no longer exist on any skill. Manual index files are preserved.
+
 ## [0.12.0] — 2026-04-10
 
 ### Changed
@@ -152,6 +160,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.12.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.1
 [0.12.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.0
 [0.11.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.11.1
 [0.11.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.11.0

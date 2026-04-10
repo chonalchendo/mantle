@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.12.0** — Global-mode projects now leave zero `.mantle/` footprint in work repos. Detection uses `~/.mantle/projects/<identity>/` directory existence instead of an in-repo config stub, so git worktrees inherit global context automatically.
+**v0.12.1** — Taxonomy-aware tag guidance in skill authoring. Vault tags now use coarse-grained names that cluster related skills; orphaned index files are auto-cleaned during compile.
 
 ## License
 
