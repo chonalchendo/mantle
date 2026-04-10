@@ -33,7 +33,7 @@ Requires Python 3.14+.
 uv tool install mantle-ai
 
 # Mount commands into Claude Code
-mantle install --global
+mantle install
 
 # Initialize a project
 cd your-project
