@@ -35,16 +35,19 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: 28 top-level packages with strict directional dependencies; only cli/ and mcp/ import from core, never the reverse.
   - **Why it's relevant**: Validates Mantle's core-as-library pattern at 10x our scale.
   - **Recommendation**: Adopt — confirms our architecture is sound; keep shared/types minimal (<200 lines).
+  - **Example**: Their `src/index.ts` (405 lines) curates exports — not a pass-through. Mantle's `core/__init__.py` should similarly expose only public API, not every internal helper.
 
 - **Pattern name**: Feature-driven decomposition
   - **What they do**: 14+ self-contained feature directories (boulder-state, context-injector, model-routing, etc.) each with own index.ts, types, handlers.
   - **Why it's relevant**: Mantle organizes by domain (stories, vault); this shows an alternative by cross-cutting capability.
   - **Recommendation**: Adapt — consider extracting reusable capabilities (context-injection, memory-sync) as first-class feature modules as the system grows.
+  - **Example**: Their `src/features/context-injector/` bundles types, config, and injection logic in one directory. If Mantle's context compilation grows, `core/features/context_injection/` could bundle compiler, manifest, and templates together rather than spreading across `compiler.py`, `manifest.py`, `templates.py`.
 
 - **Pattern name**: Configuration composition with env var layering
   - **What they do**: Config computed from env → defaults → user → project hierarchy via deepMerge; never serialized to disk.
   - **Why it's relevant**: Mantle uses static markdown commands; env var overrides would let users tune behavior without re-running setup.
   - **Recommendation**: Adapt — add env var overrides for key parameters (timeouts, context limits) layered over existing config.
+  - **Example**: `MANTLE_AGENT_MODEL=haiku mantle implement` could override the default model for a single run without editing config files.
 
 - **Pattern name**: Tool registry as pluggable provider
   - **What they do**: Tools organized by capability (lsp, ast, memory, state); MCP server wraps them as thin transport layer.
@@ -57,21 +60,25 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: Errors use format code_name:context1:context2 — machine-parseable and human-readable without custom exception classes.
   - **Why it's relevant**: Mantle's errors bubble as exceptions; structured codes enable retry logic and better diagnostics.
   - **Recommendation**: Adopt — use ErrorCode:context format for domain errors, especially in compilation and state management.
+  - **Example**: Instead of `raise ValueError("Template not found")`, use `raise MantleError("compile_template_missing:resume.md.j2:~/.claude/commands/mantle/")` — the implement loop can catch and retry on specific codes.
 
 - **Pattern name**: Metadata envelope pattern
   - **What they do**: State files wrapped with _meta envelope (timestamp, session, version) on write; stripped on read so callers see only domain data.
   - **Why it's relevant**: Cleaner than embedding metadata in YAML frontmatter; decouples metadata concerns from domain schema.
   - **Recommendation**: Adapt — consider for new state files; existing YAML frontmatter pattern works well enough for current artifacts.
+  - **Example**: `.compile-manifest.json` could wrap its hash data in `{ "hashes": {...}, "_meta": { "compiled_at": "...", "mantle_version": "0.12.2" } }` — readers ignore `_meta`, but debugging gets free context.
 
 - **Pattern name**: Result envelopes for operations
   - **What they do**: Operations return { success, data, error, timing } objects instead of throwing; callers branch on success.
   - **Why it's relevant**: Enables graceful degradation and retry logic for long-running operations like compilation.
   - **Recommendation**: Adapt — use for compilation and template rendering; keep exceptions for programmer errors.
+  - **Example**: `compiler.compile()` could return `CompileResult(ok=True, changed=["resume.md", "status.md"], duration_ms=142)` or `CompileResult(ok=False, error="template_syntax:resume.md.j2:line 12")` — the SessionStart hook can log failures without crashing.
 
 - **Pattern name**: Validation-first at entry points
   - **What they do**: Centralized validators (validateNamespace, validateKey, validatePath) called before any operation with clear error messages.
   - **Why it's relevant**: Mantle's validation is scattered; centralizing improves error messages and reduces defensive coding.
   - **Recommendation**: Adopt — create validation.py with reusable validators called at CLI entry points.
+  - **Example**: `validate_issue_id(52)` called once in the CLI layer, not re-checked in core. Error: `"Invalid issue ID '999': no file matching issue-999-*.md in .mantle/issues/. Run 'mantle list-issues' to see available issues."`
 
 ### Testing
 
@@ -84,16 +91,19 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: Dedicated validation suites checking state coherence, backward compatibility, known failure modes. Uses it.each() for cross-product testing.
   - **Why it's relevant**: Directly addresses Mantle's gap: no regression tests for compile-modify-recompile cycles (issue #50).
   - **Recommendation**: Adopt — build coherence tests for compilation state transitions using pytest.mark.parametrize.
+  - **Example**: `@pytest.mark.parametrize("mutation", ["add_issue", "edit_template", "delete_session"])` testing that compile → mutate → recompile produces correct output for each mutation type.
 
 - **Pattern name**: Concurrent safety testing
   - **What they do**: File-lock tests (295 LoC) verify concurrent writes, lock reaping, timeout behavior, atomicity.
   - **Why it's relevant**: Mantle's staleness detection (issue #50) involves state consistency under concurrent operations.
   - **Recommendation**: Adopt — test concurrent compilation scenarios; use tmp_path + cleanup for isolated workspaces.
+  - **Example**: Two threads both call `compile()` on the same `.mantle/` — assert the manifest is consistent (no partial writes) and the final output matches a single-threaded compile.
 
 - **Pattern name**: Environment variable save-restore
   - **What they do**: Tests save 18+ env keys in beforeEach, clear them, restore in afterEach for complete isolation.
   - **Why it's relevant**: Prevents test pollution; critical for isolated pytest tests.
   - **Recommendation**: Adopt — formalize an env isolation fixture if not already present.
+  - **Example**: A `@pytest.fixture` that snapshots `MANTLE_VAULT_PATH`, `MANTLE_AGENT_MODEL`, etc. before each test and restores them in teardown — or use `monkeypatch.delenv()`/`monkeypatch.setenv()` consistently.
 
 ### CLI Design
 
@@ -101,11 +111,13 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: Commands detect blockers (missing files, wrong flags, incompatible versions) and emit actionable suggestions as gray hint text near errors.
   - **Why it's relevant**: Directly addresses Mantle's issue #51 (contextual CLI errors with recovery suggestions).
   - **Recommendation**: Adopt — pair every error with a suggested recovery action; format as red problem + gray hint.
+  - **Example**: `mantle compile` in a non-initialized project: `Error: No .mantle/ directory found.` → `Hint: Run 'mantle init' to set up this project, or 'mantle adopt' for an existing codebase.`
 
 - **Pattern name**: Visual status dashboards
   - **What they do**: Color-coded output with checkmarks, warnings, separators, and visual hierarchy for multi-part status displays.
   - **Why it's relevant**: Mantle's CLI outputs plain text; users can't quickly scan status.
   - **Recommendation**: Adopt — use rich/click styling for structured output with color and symbols.
+  - **Example**: `mantle list-issues` output: `✓ #48 Group CLI help panels [planned]` / `● #50 Staleness tests [in_progress]` / `✗ #14 Worktree parallel [dropped]` — scannable at a glance with status symbols.
 
 - **Pattern name**: Nested subcommand hierarchies
   - **What they do**: Multi-level nesting with unified help.
@@ -116,11 +128,13 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: All structured commands support --json flag for machine-readable output.
   - **Why it's relevant**: Enables scripting, CI integration, and downstream tool parsing.
   - **Recommendation**: Adopt — add --json to commands returning structured data.
+  - **Example**: `mantle list-issues --json` outputs `[{"id": 50, "title": "Staleness detection...", "status": "planned"}]` — pipeable to `jq` or consumed by CI scripts.
 
 - **Pattern name**: Zero-learning-curve defaults
   - **What they do**: Bare invocation routes to the most common operation.
   - **Why it's relevant**: Mantle lacks a clear default for bare invocation.
-  - **Recommendation**: Adapt — define bare mantle to show project status.
+  - **Recommendation**: Adapt — define bare `mantle` to show project status.
+  - **Example**: Typing just `mantle` in a project directory shows the compiled status (phase, current issue, last session) — same as `mantle status` but zero friction.
 
 ### Domain-Specific Features
 
@@ -128,31 +142,37 @@ Oh-my-claudecode is a large-scale TypeScript/Node.js Claude Code enhancement too
   - **What they do**: Detects reusable patterns during sessions; assigns confidence scores; suggests skills when confidence exceeds threshold.
   - **Why it's relevant**: Directly addresses issue #41 (querying learnings for patterns).
   - **Recommendation**: Adapt — use their confidence scoring but leverage Claude for semantic validation.
+  - **Example**: Three learnings mention "YAML frontmatter parsing edge cases" → confidence 85% → suggest: "Consider a `frontmatter_patterns` skill node." Below threshold (e.g., one mention) → stay silent.
 
 - **Pattern name**: Hook-driven skill injection
   - **What they do**: 8 lifecycle hooks with keyword-matched skill injection, timeout enforcement, and parallel execution.
   - **Why it's relevant**: Directly addresses issue #52 (inject skills as agent-selected context).
   - **Recommendation**: Adopt — production-proven pattern for skill injection.
+  - **Example**: Story mentions "pydantic validation" → SubagentStart hook runs `mantle list-skills --match "pydantic"` → injects `pydantic-project-conventions` skill into the agent's context, with a 3s timeout to avoid blocking.
 
 - **Pattern name**: Artifact-driven stage transitions
   - **What they do**: 5-stage pipeline where each stage must emit completion artifacts; verification decides next transition; bounded retry loops.
   - **Why it's relevant**: Mantle's implement → verify → review flow could use artifact-driven gating.
   - **Recommendation**: Adopt — use artifact existence checks to gate stage transitions.
+  - **Example**: `/mantle:review` refuses to start unless `.mantle/issues/issue-50-*/` contains all story files with `status: completed` or `status: blocked`. `/mantle:verify` won't run unless implementation artifacts (commits) exist. No manual "are you sure?" — the artifacts prove readiness.
 
 - **Pattern name**: Ambiguity-gated Socratic interview
   - **What they do**: Iterative questioning scoring ambiguity across dimensions; refuses to proceed until ambiguity ≤ 20%.
   - **Why it's relevant**: Mantle's challenge sessions could benefit from structured ambiguity measurement.
   - **Recommendation**: Adapt — integrate ambiguity scoring into challenge phase.
+  - **Example**: Challenge session scores: scope 90%, acceptance criteria 40%, tech stack 80%, dependencies 60%. AI focuses next question on acceptance criteria (weakest). Session won't suggest "proceed" until all dimensions hit ≥ 80%.
 
 - **Pattern name**: Complexity-based model routing
   - **What they do**: Routes tasks to Haiku/Sonnet/Opus based on complexity signals; 30-50% token cost savings.
   - **Why it's relevant**: Mantle spawns agents per story but doesn't implement model routing.
   - **Recommendation**: Adopt — apply model routing at story level.
+  - **Example**: Story touches 1 file + adds tests → Sonnet. Story redesigns module boundaries across 5+ files → Opus. Story updates a version string → Haiku. Signals: file count, "refactor"/"redesign" keywords, test-only flag.
 
 - **Pattern name**: Event-driven external notifications
   - **What they do**: Session events forward to webhooks with template variables and rate limiting.
   - **Why it's relevant**: Issue #42 (report to GitHub) requires external integration.
   - **Recommendation**: Adapt — use template variable approach for GitHub reporting.
+  - **Example**: `mantle report-github --issue 50` renders a template: `"Issue: {{title}}\nStatus: {{status}}\nStories: {{completed}}/{{total}}"` → creates a GitHub issue with the rendered body. Rate-limited to 1 report per issue per hour.
 
 ---
 

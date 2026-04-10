@@ -45,21 +45,48 @@ Agent-skills is a collection of production-grade engineering skills for AI codin
   - **What they do**: Each skill includes a "Common Rationalizations" table pairing agent excuses with factual rebuttals, preventing agents from skipping required steps.
   - **Why it's relevant**: Mantle has no explicit mechanism to prevent agents from rationalizing away structured workflows.
   - **Recommendation**: Adopt — Add "Common Rationalizations" sections to Mantle's skill format and story templates.
+  - **Example** (from their TDD skill):
+    ```
+    | Rationalization | Reality |
+    | "I'll add tests later" | You won't. Tests written after the fact test implementation, not behavior. |
+    | "This is too simple to test" | Simple code breaks. A 2-line test catches a 2-minute bug. |
+    ```
+    Mantle equivalent for `implement.md`: `"I can implement all stories in one pass" → "Each story gets a fresh context window for a reason — monolithic passes degrade with context length."`
 
 - **Pattern name**: Hierarchical Context Injection
   - **What they do**: Define context loading as five layers (Rules → Specs → Source → Errors → Conversation) with explicit guidance on what loads when.
   - **Why it's relevant**: Mantle's vault is relatively flat; layering context by persistence/scope would improve agent focus and reduce context bloat.
   - **Recommendation**: Adapt — Layer Mantle knowledge by persistence: project-level rules, feature-level specs, task-level patterns, transient outputs.
+  - **Example** (their 5-layer hierarchy mapped to Mantle):
+    ```
+    Layer 1 (always loaded):  CLAUDE.md, .mantle/state.md
+    Layer 2 (per-issue):      .mantle/shaped/<issue>.md, acceptance criteria
+    Layer 3 (per-story):      relevant skills from .claude/skills/
+    Layer 4 (per-iteration):  test failures, lint errors
+    Layer 5 (transient):      conversation history
+    ```
 
 - **Pattern name**: Phase-Mapped Skill Sets
   - **What they do**: Explicitly group skills by lifecycle phase and wire commands to the skill set for that phase, enabling auto-selection.
   - **Why it's relevant**: Mantle doesn't formally map skills to workflow phases — this would improve skill injection (issue 52).
   - **Recommendation**: Adopt — Create phase-to-skill mappings so agents discover applicable skills by workflow phase.
+  - **Example** (how agent-skills maps `/build` → skills):
+    ```
+    /build → incremental-implementation + test-driven-development
+    /review → code-review-and-quality + security-and-hardening
+    ```
+    Mantle equivalent: `/mantle:shape-issue` → `software-design-principles` + `designing-architecture`; `/mantle:implement` → `python-project-conventions` + issue-specific skills from `skills_required`.
 
 - **Pattern name**: Specialized Agent Personas
   - **What they do**: Define reusable agent personas (code-reviewer, security-auditor, test-engineer) with explicit frameworks and output schemas.
   - **Why it's relevant**: Mantle spawns subagents but doesn't formalize their personas or review frameworks.
   - **Recommendation**: Adopt — Define Mantle's subagent personas with explicit review frameworks and output schemas.
+  - **Example** (their code-reviewer persona uses a 5-axis framework):
+    ```
+    Review axes: correctness, readability, architecture, security, performance
+    Severity: Critical (request changes) | Important (should fix) | Suggestion (nice-to-have)
+    ```
+    Mantle equivalent: story-implementer persona could have axes like `correctness, test coverage, convention compliance, commit atomicity` with the same severity grading.
 
 ### Coding Patterns
 
@@ -72,16 +99,32 @@ Agent-skills is a collection of production-grade engineering skills for AI codin
   - **What they do**: Keep SKILL.md files minimal (~150 lines) with supporting reference files loaded on-demand via links.
   - **Why it's relevant**: Reduces context bloat during skill discovery while preserving full detail when needed.
   - **Recommendation**: Adopt — Separate triggering metadata from detailed process flows in Mantle skills.
+  - **Example** (their structure): `skills/security-and-hardening/SKILL.md` (~120 lines, overview + workflow) references `references/security-checklist.md` (~200 lines, detailed checklist) loaded only when the agent reaches the security verification step. Mantle equivalent: `cyclopts/SKILL.md` keeps trigger + key patterns; a separate `cyclopts/reference-api.md` holds the full Cyclopts API surface.
 
 - **Pattern name**: Process Over Prose
   - **What they do**: Structure skills as numbered, verifiable workflow steps with exit criteria, not advisory prose.
   - **Why it's relevant**: AI agents follow process more reliably than principles — steps have checkpoints, principles have loopholes.
   - **Recommendation**: Adopt — Audit Mantle skills and replace narrative guidance with numbered, sequenced steps.
+  - **Example** (their spec-driven-development skill):
+    ```
+    1. SPECIFY: Write functional spec with acceptance criteria → human approves
+    2. PLAN: Break spec into tasks ≤100 lines each → human approves
+    3. TASKS: Create task list with dependencies → human approves
+    4. IMPLEMENT: Build one task at a time, test after each
+    ```
+    vs. prose approach: "Make sure you have a good spec before building." The numbered version has four checkpoints an agent can't skip; the prose version has zero.
 
 - **Pattern name**: Always/Ask-First/Never Boundaries
   - **What they do**: Use a three-tier decision system for agent autonomy: always-allowed, requires-approval, and forbidden actions.
   - **Why it's relevant**: Provides governance structure for skill injection (issue 52) and contextual errors (issue 51).
   - **Recommendation**: Adopt — Introduce boundary system in skill frontmatter with CLI enforcement.
+  - **Example** (from their security skill):
+    ```
+    Always: validate input, use parameterized queries, hash passwords
+    Ask First: change auth logic, store PII, modify access controls
+    Never: commit secrets, disable security headers, log credentials
+    ```
+    Mantle equivalent for implementation skill: `Always: run tests after each story, commit atomically` / `Ask First: skip a blocked story, modify shared fixtures` / `Never: amend previous story commits, skip test retries`.
 
 - **Pattern name**: Change Sizing Discipline
   - **What they do**: Enforce ~100-line change targets with vertical slicing and explicit splitting strategies for oversized changes.
@@ -92,6 +135,15 @@ Agent-skills is a collection of production-grade engineering skills for AI codin
   - **What they do**: Every skill ends with a verification checklist requiring observable evidence (test output, build logs), not assertions.
   - **Why it's relevant**: Makes verification non-negotiable and gives contextual errors (issue 51) concrete hooks.
   - **Recommendation**: Adopt — Extend Mantle's skill system to include mandatory verification sections with evidence types.
+  - **Example** (from their TDD skill verification section):
+    ```
+    ## Verification
+    - [ ] All tests pass (paste test output)
+    - [ ] No skipped or pending tests
+    - [ ] Coverage ≥ threshold (paste coverage report)
+    - [ ] Edge cases have dedicated tests
+    ```
+    "Seems right" is explicitly banned — every checkbox requires pasted evidence. Mantle equivalent for `/mantle:verify`: require `just check` output, not a self-assessment.
 
 ### Testing
 
@@ -153,6 +205,17 @@ Agent-skills is a collection of production-grade engineering skills for AI codin
   - **What they do**: Skills are structured as step-by-step workflows with gated phases (SPECIFY→PLAN→TASKS→IMPLEMENT), each requiring human review before advancing.
   - **Why it's relevant**: Directly applicable to issue 52 (skill injection into planning) — skills become execution flows, not reference docs.
   - **Recommendation**: Adopt — Reframe Mantle skills as execution flows with explicit gates.
+  - **Example** (their standardized SKILL.md anatomy):
+    ```markdown
+    # Skill Name
+    description: "TRIGGER when <condition>..."   ← agent discovery
+    ## When to Use / When NOT to Use              ← scoping
+    ## Process (numbered steps with gates)        ← executable workflow
+    ## Common Rationalizations (table)            ← anti-skip guardrails
+    ## Red Flags (checklist)                      ← early warning signs
+    ## Verification (evidence checklist)          ← exit criteria
+    ```
+    Every section serves a specific function in the agent's decision loop. Compare to Mantle's current skills which are dense knowledge dumps without this structure.
 
 - **Pattern name**: Specialist Agent Personas with Review Frameworks
   - **What they do**: Three agent personas (code-reviewer, test-engineer, security-auditor) with role-specific five-axis review frameworks and severity labeling.
