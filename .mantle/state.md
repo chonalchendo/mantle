@@ -60,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Scout report completed for oh-my-claudecode — findings captured for planning.
+Scout report completed for rowboat — findings captured for planning.
 
 ## Blockers
 
