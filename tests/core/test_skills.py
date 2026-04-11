@@ -13,11 +13,13 @@ from mantle.core import issues as issues_mod
 from mantle.core import vault
 from mantle.core.skills import (
     _GENERATED_MARKER,
+    _REFERENCE_MARKER,
     SkillExistsError,
     SkillNote,
     SkillSummary,
     VaultNotConfiguredError,
     _match_skill_slug,
+    _split_on_reference_marker,
     auto_update_skills,
     compile_skills,
     create_skill,
@@ -1209,6 +1211,125 @@ class TestCompileSkills:
         text = skill_md.read_text()
         assert "TRIGGER when" in text
         assert "Async Python patterns" in text
+
+
+# ── _split_on_reference_marker ─────────────────────────────────
+
+
+class TestSplitOnReferenceMarker:
+    """Tests for _split_on_reference_marker()."""
+
+    def test_with_marker(self) -> None:
+        content = (
+            "## Workflow\n\nStep 1.\n\n"
+            f"{_REFERENCE_MARKER}\n\n"
+            "## Deep Dive\n\nDetails here."
+        )
+
+        above, below = _split_on_reference_marker(content)
+
+        assert above == "## Workflow\n\nStep 1."
+        assert below == "## Deep Dive\n\nDetails here."
+
+    def test_without_marker(self) -> None:
+        content = "## Workflow\n\nStep 1.\n\n## More\n\nDetails."
+
+        above, below = _split_on_reference_marker(content)
+
+        assert above == content
+        assert below is None
+
+    def test_empty_below(self) -> None:
+        content = "## Workflow\n\nStep 1.\n\n" + _REFERENCE_MARKER
+
+        above, below = _split_on_reference_marker(content)
+
+        assert above == "## Workflow\n\nStep 1."
+        assert below == ""
+
+
+# ── _write_compiled_skill with reference marker ────────────────
+
+
+class TestWriteCompiledSkillWithReferenceMarker:
+    """Tests for _write_compiled_skill() with reference marker."""
+
+    def test_with_reference_marker(self, project_with_state: Path) -> None:
+        """Content with marker: SKILL.md has above-marker inline."""
+        workflow = "## Workflow\n\nStep 1. Do this.\nStep 2. Do that."
+        reference = "## Deep Dive\n\nLong reference material."
+        content_with_marker = (
+            f"{workflow}\n\n{_REFERENCE_MARKER}\n\n{reference}"
+        )
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+            content=content_with_marker,
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_dir = project_with_state / ".claude" / "skills" / result[0]
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
+
+        # SKILL.md should contain the above-marker content inline
+        assert "## Workflow" in skill_text
+        assert "Step 1. Do this." in skill_text
+        # references/core.md should contain the below-marker content
+        assert "## Deep Dive" in ref_text
+        assert "Long reference material." in ref_text
+        # The marker itself should not appear in either file
+        assert _REFERENCE_MARKER not in skill_text
+        assert _REFERENCE_MARKER not in ref_text
+
+    def test_without_marker_falls_back(self, project_with_state: Path) -> None:
+        """No marker: short content uses pointer + references/core.md."""
+        _create_skill(
+            project_with_state,
+            name="Python asyncio",
+        )
+
+        result = compile_skills(project_with_state)
+
+        skill_dir = project_with_state / ".claude" / "skills" / result[0]
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
+
+        # Short content: SKILL.md has pointer, core.md has content
+        assert "references/core.md" in skill_text
+        assert "## Context" in ref_text
+
+    def test_end_to_end_compile_with_marker(self, project: Path) -> None:
+        """Full compile_skills() with a vault skill containing the
+        marker produces the expected output structure."""
+        workflow = "## Workflow\n\nExecutable steps here."
+        reference = "## References\n\nBackground reading."
+        content = f"{workflow}\n\n{_REFERENCE_MARKER}\n\n{reference}"
+        _write_state(project, skills_required=("Python asyncio",))
+        _create_skill(
+            project,
+            name="Python asyncio",
+            content=content,
+        )
+
+        result = compile_skills(project)
+
+        assert result == ["python-asyncio"]
+        skill_dir = project / ".claude" / "skills" / "python-asyncio"
+        assert (skill_dir / "SKILL.md").exists()
+        assert (skill_dir / "references" / "core.md").exists()
+
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
+
+        # Frontmatter present
+        assert "name: python-asyncio" in skill_text
+        assert "TRIGGER when" in skill_text
+        # Workflow content inline in SKILL.md
+        assert "Executable steps here." in skill_text
+        # Reference material in references/core.md
+        assert "Background reading." in ref_text
 
 
 # ── detect_skills_from_content ─────────────────────────────────

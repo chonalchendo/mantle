@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 _CONTENT_MARKER = "<!-- mantle:content -->"
 _GENERATED_MARKER = "<!-- mantle:generated -->"
+_REFERENCE_MARKER = "<!-- mantle:reference -->"
 
 _STOPWORDS = frozenset(
     {
@@ -948,6 +949,28 @@ _ESSENTIAL_HEADINGS = frozenset(
 _PROGRESSIVE_DISCLOSURE_THRESHOLD = 500
 
 
+def _split_on_reference_marker(
+    content: str,
+) -> tuple[str, str | None]:
+    """Split content on the ``<!-- mantle:reference -->`` marker.
+
+    When the marker is present, content above becomes the executable
+    workflow (SKILL.md body) and content below becomes deep reference
+    material (references/core.md).
+
+    Args:
+        content: Authored skill content.
+
+    Returns:
+        ``(above, below)`` if marker found; ``(content, None)`` if
+        not.  Both parts are stripped of leading/trailing whitespace.
+    """
+    if _REFERENCE_MARKER not in content:
+        return content, None
+    above, below = content.split(_REFERENCE_MARKER, maxsplit=1)
+    return above.strip(), below.strip()
+
+
 def compile_skills(
     project_dir: Path,
     issue: int | None = None,
@@ -1038,14 +1061,18 @@ def _write_compiled_skill(
     Always produces a folder with progressive disclosure::
 
         <slug>/
-        ├── SKILL.md          # Lean summary + pointers
+        ├── SKILL.md          # Executable workflow or lean summary
         └── references/
-            └── core.md       # Full skill content
+            └── core.md       # Deep reference material
 
-    For long content (>500 lines), SKILL.md contains only essential
-    sections; reference sections go into ``references/core.md``.
-    For short content, SKILL.md has a summary and pointer;
-    ``references/core.md`` holds the full content.
+    When content contains the ``<!-- mantle:reference -->`` marker,
+    content above the marker becomes the SKILL.md body and content
+    below becomes ``references/core.md``.
+
+    When no marker is present, falls back to the line-count
+    heuristic: long content (>500 lines) splits essential sections
+    into SKILL.md with a pointer; short content uses a pointer-only
+    SKILL.md with full content in ``references/core.md``.
 
     Args:
         skills_target: Root ``.claude/skills/`` directory.
@@ -1063,20 +1090,30 @@ def _write_compiled_skill(
         legacy_ref.unlink()
 
     frontmatter = _build_compiled_frontmatter(slug, description)
+
+    # Marker-first: explicit author split takes priority.
+    main_content, reference = _split_on_reference_marker(content)
+    if reference is not None:
+        skill_md = frontmatter + main_content + "\n"
+        (refs_dir / "core.md").write_text(reference, encoding="utf-8")
+        (skill_dir / "SKILL.md").write_text(skill_md, encoding="utf-8")
+        return
+
+    # Heuristic fallback for unmarked content.
     pointer = (
         "For detailed knowledge, see [references/core.md](references/core.md)\n"
     )
 
     lines = content.split("\n")
     if len(lines) > _PROGRESSIVE_DISCLOSURE_THRESHOLD:
-        essential, reference = _split_content_for_disclosure(content)
+        essential, ref_content = _split_content_for_disclosure(content)
         skill_md = (
             frontmatter
             + essential
             + "\n\n## Additional resources\n\n- "
             + pointer
         )
-        (refs_dir / "core.md").write_text(reference, encoding="utf-8")
+        (refs_dir / "core.md").write_text(ref_content, encoding="utf-8")
     else:
         skill_md = frontmatter + pointer
         (refs_dir / "core.md").write_text(content, encoding="utf-8")
