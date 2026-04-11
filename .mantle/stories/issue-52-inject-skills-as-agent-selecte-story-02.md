@@ -1,11 +1,11 @@
 ---
 issue: 52
 title: Update shape-issue prompt with agent-curated skill selection
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

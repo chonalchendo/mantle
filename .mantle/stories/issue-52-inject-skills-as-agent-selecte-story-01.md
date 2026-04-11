@@ -1,11 +1,11 @@
 ---
 issue: 52
 title: Core SkillSummary model and enriched list-skills CLI output
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

@@ -1,6 +1,6 @@
 ---
 title: Inject skills as agent-selected context into shaping and story planning
-status: planned
+status: implemented
 slice:
 - claude-code
 - tests
@@ -43,7 +43,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implemented
 ---
 
 ## Parent PRD
