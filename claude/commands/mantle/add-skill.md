@@ -169,24 +169,66 @@ user's real-world experience on top.
 
 ## Step 5 — Author skill content
 
-Take the merged research + user knowledge and compose the final content. Use
-this structure as a framework (not every section is required — some skills are
-simple):
+Take the merged research + user knowledge and compose the final content using
+the standard skill anatomy. Every skill must follow this structure (sections
+marked "required" are mandatory; others are strongly recommended):
 
-- **Context** (1–3 sentences) — What problem does this skill address? Why does
-  it exist? Orients Claude immediately.
-- **Core knowledge** — The patterns, conventions, and domain knowledge. Written
-  in imperative form ("Use X for Y", not "You should use X"). Only include what
-  Claude wouldn't already know — don't explain standard libraries or well-known
-  concepts.
-- **Examples** (if applicable) — Concrete code snippets or input/output pairs.
-  2–3 examples is the sweet spot. Show the actual pattern, not a toy version.
-- **Decision criteria** (if applicable) — When to use approach A vs B. "Use
-  asyncio for I/O-bound concurrency. Use multiprocessing for CPU-bound work.
-  Use threading only for legacy code that blocks on I/O."
-- **Anti-patterns** (if applicable) — What to avoid, framed as what to do
-  instead. 3–5 bullets max. "Use `asyncio.TaskGroup` instead of `gather()` for
-  structured concurrency."
+```
+## What (required)
+1–3 sentences grounding the skill. What problem does it address? Why does it
+exist? Orients the agent immediately.
+
+## Why (required)
+What goes wrong without this skill — motivates the agent to follow it rather
+than skip steps. Frame as consequences, not abstractions.
+
+## When to Use (required)
+Bullet list of trigger conditions — the situations where this skill applies.
+
+## When NOT to Use (required)
+Bullet list of exclusions — prevents over-application. "Don't use this for X
+because Y."
+
+## How (required)
+
+Choose format based on skill type:
+
+For PROCESS skills (reviews, design workflows, deployment checklists):
+Numbered steps with gates. Each step has a clear entry condition and exit
+criterion. Example: "1. Read the module interface first (gate: can you
+describe the public API in one sentence?)"
+
+For REFERENCE skills (frameworks, conventions, API patterns):
+Pattern catalogue with decision criteria. Group by concern (naming, imports,
+error handling). Use tables for quick reference.
+
+## Common Rationalizations (recommended)
+
+| Rationalization | Why It's Wrong | What to Do Instead |
+|---|---|---|
+| "This case is different" | [specific reason] | [specific action] |
+
+3–5 rows. These are the excuses agents use to skip steps or cut corners.
+
+## Red Flags (recommended)
+
+- Early warning signs that the skill is being misapplied
+- 3–5 bullets
+
+## Verification (required)
+
+Evidence-based exit criteria. What must be true when you're done? What
+concrete evidence should you check before considering the skill applied?
+```
+
+### Progressive disclosure
+
+If the skill has deep reference material (full API tables, extended examples,
+exhaustive checklists), place it below a `<!-- mantle:reference -->` marker.
+This content compiles into `references/core.md` for on-demand loading.
+
+Target: main content above the marker should be under ~150 lines. Not every
+skill needs a reference section — short skills can omit the marker entirely.
 
 ### Coaching principles
 
@@ -198,8 +240,13 @@ simple):
   *your* hard-won knowledge.
 - Explain the why, not just the what. "Use UTC timestamps consistently
   (timezone bugs are the #1 support issue)" beats "Use UTC timestamps."
-- Aim for 50–150 lines. Under 50 probably isn't worth a separate node. Over
-  150, consider splitting into multiple skills.
+- Aim for ~150 lines above the reference marker. Under 50 probably isn't worth
+  a separate node. Over 150, move deep material below `<!-- mantle:reference -->`.
+- Every skill needs What, Why, When to Use, How, and Verification at minimum.
+  Common Rationalizations and Red Flags are strongly recommended.
+- Choose process (numbered steps) or reference (pattern catalogue) format for
+  the How section based on whether the skill describes a sequential workflow
+  or a knowledge domain.
 - Concrete over abstract. Show code, show the exact pattern. Avoid hand-waving.
 
 Review the final draft with the user and iterate once before saving.
