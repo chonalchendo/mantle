@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "e163d0c9892e2ddd94e8387681d9ec34ebcbd91f9c721e3ddc248f1403d61f68",
+    "/Users/conal/Development/mantle/.mantle/state.md": "4488d2181f66435b2f0050aa8b36bfe539830064703cbc25a8c98c1990082e44",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "d91cac9749ebae0470349eddf411b5ef3adc656154822359f89eaa12c3537e26",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-11-1336.md": "fbcefb36eeb668bc6ed56c4acace215e4528f0120307c829684b5fe121350b13",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-11-1422.md": "4d15be11ba9d1751a96cec93cd2a283f1fdfef695165caa085340a84314230c9",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -35,6 +35,7 @@
     "/Users/conal/test-vault/skills/production-project-readiness.md": "533df297e24a1a88916badabe6078b00948ab1b9ca683ce9f8ae5c9dc3e4c85f",
     "/Users/conal/test-vault/skills/pydantic-discriminated-unions.md": "ee8e5f3110c97e779ea7c8bb574651a9eee4e44ee13ac6424956182b5dca78cc",
     "/Users/conal/test-vault/skills/pydantic-project-conventions.md": "ee1142ae3acbd5e06109e92813ade76a603fd29db4f33af212e107c3016a19bc",
+    "/Users/conal/test-vault/skills/python-314.md": "451b370d8015bf8eb0a97db452f7cb019ac8c60426f4c8b42fde8c45021cee00",
     "/Users/conal/test-vault/skills/python-package-structure.md": "239dd7d01dc89ba009c5d20f411fa4591f8dfcc38cb8fcf4f0b9c7fdab314286",
     "/Users/conal/test-vault/skills/python-project-conventions.md": "80beb4f0fd356938ccd395730091579707536ed0ff9514fc1d7c45acdb95b145",
     "/Users/conal/test-vault/skills/software-design-principles.md": "0a2aedda2e9ee22a15d49dca71b503b026f1f69bf425788a8166ec117951eace",
