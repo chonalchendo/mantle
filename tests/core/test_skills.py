@@ -1830,3 +1830,157 @@ class TestAutoUpdateSkillsWritesToIssue:
         assert loaded_path is not None
         loaded, _ = issues_mod.load_issue(loaded_path)
         assert "Python asyncio" in loaded.skills_required
+
+
+# ── Migrated skill anatomy tests ────────────────────────────────
+
+
+_MIGRATED_SKILL_CONTENT = """\
+## What
+
+Design review turns principles into diagnostic questions.
+
+## Why
+
+Without a structured review process, reviews become subjective.
+
+## When to Use
+
+- Pre-merge review pass
+- Evaluating design decisions
+
+## When NOT to Use
+
+- Trivial formatting changes
+
+## How
+
+### Step 1 — Read the code
+
+Understand the change before applying any checklist.
+
+### Step 2 — Apply the checklist
+
+Run through each principle as a question.
+
+## Common Rationalizations
+
+| Rationalization | Why It's Wrong | What to Do Instead |
+|---|---|---|
+| "It works" | Working isn't enough | Check maintainability |
+
+## Red Flags
+
+- Shallow modules wrapping without adding abstraction
+- Information leakage across module boundaries
+
+## Verification
+
+- Every checklist item has a pass/fail verdict
+- Red flags are addressed or justified"""
+
+_MIGRATED_REFERENCE_CONTENT = """\
+## Full Red Flag Severity Matrix
+
+| # | Red Flag | Severity | Action | Root Cause |
+|---|----------|----------|--------|------------|
+| 1 | Shallow Module | Warning | Inline it | Wrong boundary |
+| 2 | Information Leakage | Critical | Centralise | Missing abstraction |
+
+## Extended Examples
+
+Detailed worked examples for each red flag category."""
+
+
+class TestMigratedSkillCompilation:
+    """Tests for compiling migrated skills with reference marker."""
+
+    def test_compile_migrated_skill_with_reference_marker(
+        self, project: Path
+    ) -> None:
+        """Migrated skill compiles workflow into SKILL.md and deep
+        material into references/core.md."""
+        content = (
+            f"{_MIGRATED_SKILL_CONTENT}\n\n"
+            f"{_REFERENCE_MARKER}\n\n"
+            f"{_MIGRATED_REFERENCE_CONTENT}"
+        )
+        _write_state(project, skills_required=("Design Review",))
+        _create_skill(
+            project,
+            name="Design Review",
+            content=content,
+        )
+
+        result = compile_skills(project)
+
+        assert result == ["design-review"]
+        skill_dir = project / ".claude" / "skills" / "design-review"
+        skill_text = (skill_dir / "SKILL.md").read_text()
+        ref_text = (skill_dir / "references" / "core.md").read_text()
+
+        # Workflow sections are in SKILL.md
+        for heading in (
+            "## What",
+            "## Why",
+            "## When to Use",
+            "## When NOT to Use",
+            "## How",
+            "## Common Rationalizations",
+            "## Red Flags",
+            "## Verification",
+        ):
+            assert heading in skill_text, f"{heading!r} missing from SKILL.md"
+
+        # Deep reference material is in references/core.md
+        assert "## Full Red Flag Severity Matrix" in ref_text
+        assert "## Extended Examples" in ref_text
+
+        # Marker itself must not appear in output
+        assert _REFERENCE_MARKER not in skill_text
+        assert _REFERENCE_MARKER not in ref_text
+
+
+_MIGRATED_SLUGS = (
+    "design-review",
+    "software-design-principles",
+    "python-project-conventions",
+    "cli-design-best-practices",
+    "cyclopts",
+)
+
+
+class TestMigratedSkillLineCount:
+    """Verify migrated vault skills stay within budget."""
+
+    @pytest.mark.parametrize("slug", _MIGRATED_SLUGS)
+    def test_migrated_skill_main_section_under_150_lines(
+        self, slug: str
+    ) -> None:
+        """Above-marker content of each migrated skill must be
+        under 150 lines."""
+        vault_path = Path.home() / "test-vault" / "skills"
+        skill_file = vault_path / f"{slug}.md"
+        if not skill_file.exists():
+            pytest.skip(f"Vault skill {slug} not found")
+
+        text = skill_file.read_text(encoding="utf-8")
+
+        # Extract content after <!-- mantle:content -->
+        content_marker = "<!-- mantle:content -->"
+        if content_marker not in text:
+            pytest.fail(f"{slug}: missing {content_marker}")
+
+        content = text.split(content_marker, maxsplit=1)[1]
+
+        # Split on reference marker
+        ref_marker = "<!-- mantle:reference -->"
+        if ref_marker in content:
+            above = content.split(ref_marker, maxsplit=1)[0]
+        else:
+            above = content
+
+        line_count = len(above.strip().splitlines())
+        assert line_count <= 150, (
+            f"{slug}: main section is {line_count} lines (limit 150)"
+        )
