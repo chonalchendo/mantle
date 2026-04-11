@@ -15,6 +15,7 @@ from mantle.core.skills import (
     _GENERATED_MARKER,
     SkillExistsError,
     SkillNote,
+    SkillSummary,
     VaultNotConfiguredError,
     _match_skill_slug,
     auto_update_skills,
@@ -25,6 +26,7 @@ from mantle.core.skills import (
     detect_skills_from_content,
     detect_stubs,
     generate_index_notes,
+    list_skill_summaries,
     list_skills,
     load_relevant_skills,
     load_skill,
@@ -447,6 +449,82 @@ class TestListSkills:
         stems = [p.stem for p in result]
         assert "python-asyncio" in stems
         assert "broken" not in stems
+
+
+# ── list_skill_summaries ─────────────────────────────────────────
+
+
+class TestListSkillSummaries:
+    """Tests for list_skill_summaries()."""
+
+    def test_empty_when_no_skills(self, project: Path) -> None:
+        result = list_skill_summaries(project)
+
+        assert result == []
+
+    def test_returns_sorted_summaries(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Zsh scripting",
+            description="Zsh shell scripting.",
+        )
+        _create_skill(
+            project,
+            name="Docker compose",
+            description="Docker container orchestration.",
+        )
+
+        result = list_skill_summaries(project)
+
+        assert len(result) == 2
+        assert result[0] == SkillSummary(
+            slug="docker-compose",
+            description="Docker container orchestration.",
+        )
+        assert result[1] == SkillSummary(
+            slug="zsh-scripting",
+            description="Zsh shell scripting.",
+        )
+
+    def test_raises_vault_not_configured(self, project_no_vault: Path) -> None:
+        with pytest.raises(VaultNotConfiguredError):
+            list_skill_summaries(project_no_vault)
+
+    def test_filter_by_tag(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            description="Async Python patterns.",
+            tags=("type/skill", "topic/python"),
+        )
+        _create_skill(
+            project,
+            name="Docker compose",
+            description="Docker container orchestration.",
+            tags=("type/skill", "domain/devops"),
+        )
+
+        result = list_skill_summaries(project, tag="topic/python")
+
+        assert len(result) == 1
+        assert result[0].slug == "python-asyncio"
+        assert result[0].description == "Async Python patterns."
+
+    def test_skips_invalid_skill_files(self, project: Path) -> None:
+        _create_skill(
+            project,
+            name="Python asyncio",
+            description="Async Python patterns.",
+        )
+        skills_dir = project / "vault" / "skills"
+        (skills_dir / "broken.md").write_text(
+            "not valid frontmatter at all", encoding="utf-8"
+        )
+
+        result = list_skill_summaries(project)
+
+        assert len(result) == 1
+        assert result[0].slug == "python-asyncio"
 
 
 # ── skill_exists ─────────────────────────────────────────────────
@@ -1459,9 +1537,7 @@ class TestGenerateIndexNotes:
         indexes_dir = vault_root / "indexes"
         assert not (indexes_dir / "type-skill.md").exists()
 
-    def test_removes_orphaned_generated_indexes(
-        self, project: Path
-    ) -> None:
+    def test_removes_orphaned_generated_indexes(self, project: Path) -> None:
         """Generated index files for tags that no longer exist are deleted."""
         vault_root = project / "vault"
         indexes_dir = vault_root / "indexes"
@@ -1482,9 +1558,7 @@ class TestGenerateIndexNotes:
         assert not orphan.exists()
         assert (indexes_dir / "domain-web.md").exists()
 
-    def test_preserves_orphaned_manual_indexes(
-        self, project: Path
-    ) -> None:
+    def test_preserves_orphaned_manual_indexes(self, project: Path) -> None:
         """Manual index files are kept even if no skill uses the tag."""
         vault_root = project / "vault"
         indexes_dir = vault_root / "indexes"

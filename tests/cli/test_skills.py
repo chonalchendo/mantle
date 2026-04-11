@@ -267,6 +267,55 @@ class TestListSkillsCommand:
 
         assert "No skills matching tag 'domain/web'" in captured.out
 
+    def test_list_skills_shows_descriptions(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _save_skill(
+            project,
+            name="Python asyncio",
+            description="Async Python patterns.",
+        )
+        capsys.readouterr()
+
+        from mantle.cli.main import list_skills_command
+
+        list_skills_command(path=project)
+        captured = capsys.readouterr()
+
+        assert "python-asyncio" in captured.out
+        assert "Async Python patterns." in captured.out
+        # Verify the slug-description format
+        assert "python-asyncio \u2014 Async Python patterns." in captured.out
+
+    def test_list_skills_with_tag_shows_descriptions(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        _save_skill(
+            project,
+            name="Python asyncio",
+            description="Async Python patterns.",
+            tags=("type/skill", "topic/python"),
+        )
+        _save_skill(
+            project,
+            name="Docker compose",
+            description="Docker container orchestration.",
+            tags=("type/skill", "domain/devops"),
+        )
+        capsys.readouterr()
+
+        from mantle.cli.main import list_skills_command
+
+        list_skills_command(tag="topic/python", path=project)
+        captured = capsys.readouterr()
+
+        assert "python-asyncio \u2014 Async Python patterns." in captured.out
+        assert "docker-compose" not in captured.out
+
     def test_list_skills_help_mentions_tag(self) -> None:
         result = subprocess.run(
             [

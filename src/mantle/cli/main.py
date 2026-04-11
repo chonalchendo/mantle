@@ -1009,22 +1009,22 @@ def list_skills_command(
     from mantle.core import skills
 
     try:
-        skill_paths = skills.list_skills(path, tag=tag)
+        summaries = skills.list_skill_summaries(path, tag=tag)
     except skills.VaultNotConfiguredError, FileNotFoundError:
         print("No personal vault configured.")
         print("Run `mantle init-vault` to set up your vault.")
         return
 
-    if not skill_paths:
+    if not summaries:
         if tag is not None:
             print(f"No skills matching tag '{tag}'.")
         else:
             print("No skills found in vault.")
         return
 
-    print(f"{len(skill_paths)} skill(s) in vault:")
-    for p in skill_paths:
-        print(f"  - {p.stem}")
+    print(f"{len(summaries)} skill(s) in vault:")
+    for s in summaries:
+        print(f"  - {s.slug} \u2014 {s.description}")
 
 
 @app.command(name="list-tags")

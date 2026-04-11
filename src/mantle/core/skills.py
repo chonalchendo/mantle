@@ -97,6 +97,18 @@ class SkillNote(pydantic.BaseModel, frozen=True):
     tags: tuple[str, ...] = ("type/skill",)
 
 
+class SkillSummary(pydantic.BaseModel, frozen=True):
+    """Lightweight skill descriptor for selection UIs.
+
+    Attributes:
+        slug: Filename stem identifying the skill.
+        description: What this skill covers and when it's relevant.
+    """
+
+    slug: str
+    description: str
+
+
 # ── Exceptions ──────────────────────────────────────────────────
 
 
@@ -388,6 +400,36 @@ def list_skills(
         if tag in note.tags:
             filtered.append(path)
     return filtered
+
+
+def list_skill_summaries(
+    project_dir: Path,
+    *,
+    tag: str | None = None,
+) -> list[SkillSummary]:
+    """Return slug and description for all vault skills.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        tag: Optional tag to filter by.
+
+    Returns:
+        Alphabetically sorted list of SkillSummary.
+
+    Raises:
+        VaultNotConfiguredError: If personal vault is not configured.
+    """
+    paths = list_skills(project_dir, tag=tag)
+    summaries: list[SkillSummary] = []
+    for path in paths:
+        try:
+            note, _ = load_skill(path)
+        except vault.NoteParseError, vault.NoteValidationError:
+            continue
+        summaries.append(
+            SkillSummary(slug=path.stem, description=note.description)
+        )
+    return summaries
 
 
 def skill_exists(project_dir: Path, name: str) -> bool:
