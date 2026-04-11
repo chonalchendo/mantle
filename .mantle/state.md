@@ -32,6 +32,7 @@ skills_required:
 - OpenRouter LLM Gateway
 - Playwright Web Scraping
 - Production Project Readiness
+- Python 3.14
 - Python Project Conventions
 - Python package structure
 - SQLMesh Best Practices
@@ -60,7 +61,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Brainstorm completed (proceed) — idea validated, ready for next steps.
+Issue 55 planned — run /mantle:build to automate the full pipeline, /mantle:shape-issue for manual control, or /mantle:plan-issues for next issue.
 
 ## Blockers
 
