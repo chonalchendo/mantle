@@ -61,7 +61,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 53 shaped — run /mantle:plan-stories next.
+Issue 53 — 3 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

@@ -1,31 +1,44 @@
 ---
 title: Skill anatomy standardisation — executable workflows with anti-rationalization
   guardrails
-status: planned
+status: implementing
 slice:
 - claude-code
 - tests
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
 skills_required:
 - CLI design best practices
 - Design Review
+- Designing Architecture
 - DuckDB Best Practices and Optimisations
 - DuckLake
+- Earnings Transcript Data Sources
+- EarningsCall.biz Scraping
 - FRED Data Source
+- Finnhub Data Source
+- Finviz Data Source
+- Lakehouse Architecture
+- Macrotrends Data Source
+- Medallion Architecture & Star Schema
+- Mohnish Pabrai Investment Philosophy
 - OpenRouter LLM Gateway
+- Playwright Web Scraping
 - Production Project Readiness
 - Python 3.14
 - Python Project Conventions
 - Python package structure
 - SQLMesh Best Practices
 - Software Design Principles
+- Tom Gayner Investment Philosophy
+- beautifulsoup4-web-scraping
 - claude-sdk-structured-analysis-pipelines
 - cyclopts
 - docker-compose-python
 - edgartools
 - fastapi
+- httpx-async
 - omegaconf
 - pydantic-discriminated-unions
 - pydantic-project-conventions
@@ -33,7 +46,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
