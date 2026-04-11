@@ -575,11 +575,9 @@ def update_skill(
 
     updated_note = current_note.model_copy(update=updates)
 
-    # Determine content for the body
-    if content is not None:
-        new_content = content
-    else:
-        new_content = _extract_content(current_body)
+    new_content = (
+        content if content is not None else _extract_content(current_body)
+    )
 
     body = _build_skill_body(updated_note, new_content)
     vault.write_note(skill_path, updated_note, body)
