@@ -60,7 +60,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Brainstorm completed (research) — needs more research before proceeding.
+Issue 52 shaped — run /mantle:plan-stories next.
 
 ## Blockers
 

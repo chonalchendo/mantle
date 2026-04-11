@@ -7,7 +7,22 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Designing Architecture
+- DuckDB Best Practices and Optimisations
+- OpenRouter LLM Gateway
+- Production Project Readiness
+- Python package structure
+- SQLMesh Best Practices
+- claude-sdk-structured-analysis-pipelines
+- cyclopts
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
 - status/planned
