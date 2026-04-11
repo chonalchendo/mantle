@@ -70,17 +70,26 @@ is already active in state.md.
 
 Skills give you domain-specific knowledge (patterns, conventions, anti-patterns)
 that grounds approach evaluation in project reality rather than generic advice.
+Skills are loaded here — at the shaping stage where design decisions are made.
+Downstream stages (plan-stories, implement) consume the shaped issue's code
+design, which already reflects skill knowledge.
 
-1. Run `mantle list-skills` to see what vault skills exist.
-2. Run `mantle update-skills --issue {NN}` to auto-detect which skills match
-   the issue, updating `skills_required` in `state.md`.
-3. Run `mantle compile` to compile matched skills into `.claude/skills/` so
-   they are available when evaluating approaches and writing code design.
+1. Run `mantle list-skills` to see available skills with descriptions.
+2. **Select 2-4 skills** whose descriptions directly match the work in this
+   issue. Choose skills you would actively consult during this work — not
+   tangentially related ones. For example, a CLI issue needs `cyclopts` and
+   `cli-design-best-practices`, not `streamlit`.
+3. For each selected skill, Read `.claude/skills/{slug}/references/core.md`
+   to load the full domain knowledge.
+4. Apply skill knowledge when writing the code design section — include
+   specific patterns, conventions, and anti-patterns from the skills.
+   The code design is how skill knowledge flows to stories and implementation.
 
 If `mantle list-skills` fails (vault not configured), skip this step and note
 it — approach evaluation will rely on system design and codebase reading only.
 
-> **Skills loaded:** {list of matched skills, or "vault not configured — skipped"}
+> **Skills loaded:** {list of selected skills and why each was chosen, or
+> "vault not configured — skipped"}
 
 ## Step 3 — Explore approaches
 

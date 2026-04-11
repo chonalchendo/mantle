@@ -156,25 +156,10 @@ last week.
 
 If nothing is relevant (first story, empty project), skip this step.
 
-**Required reading injection:** Read the issue file's `skills_required`
-frontmatter field (added in this issue). For each skill name listed, include
-a `## Required reading` section in the story agent's prompt:
-
-> ## Required reading
->
-> Before implementing, read these compiled skills for domain-specific
-> conventions and anti-patterns:
-> - `.claude/skills/{skill-slug}/SKILL.md` — {skill name}
-> - `.claude/skills/{skill-slug}/SKILL.md` — {skill name}
->
-> Apply the patterns and avoid the anti-patterns described in these skills.
-
-The skill slug is the skill name lowercased with spaces replaced by hyphens
-(e.g., "Python Project Conventions" → `python-project-conventions`).
-
-If the issue has no `skills_required` (empty or missing field), skip this
-section — agents will still see compiled skills in `.claude/skills/` but
-won't be specifically directed to read them.
+**Skill context:** Skill knowledge is embedded in the shaped issue's code
+design and flows into stories via their implementation sections. Do not
+separately inject skill files — the story spec already carries the relevant
+domain knowledge.
 
 ## Verification Discipline
 
