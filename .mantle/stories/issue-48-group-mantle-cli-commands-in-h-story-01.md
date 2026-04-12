@@ -1,11 +1,11 @@
 ---
 issue: 48
 title: Add groups.py registry and annotate all CLI commands with Cyclopts help panels
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

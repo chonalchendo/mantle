@@ -1,6 +1,6 @@
 ---
 title: Group mantle CLI commands in --help with Cyclopts help panels
-status: implementing
+status: verified
 slice:
 - cli
 - tests
@@ -30,7 +30,7 @@ skills_required:
 - pydantic-project-conventions
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
