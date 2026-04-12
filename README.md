@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.14.0** — Build pipeline gets a single quality gate: the per-story code-reviewer step is removed from `/mantle:implement` and the post-implementation simplify step becomes the sole code-quality pass, now gated by a composite file-count + lines-changed heuristic via the new `mantle collect-issue-diff-stats` CLI (#55).
+**v0.15.0** — `/mantle:patterns` surfaces recurring themes and per-slice confidence-delta trends across accumulated learnings (#41). Build pipeline tightened: shaping in build mode now actively selects and reads vault skills rather than silently no-op'ing when `compile` finds no matches; orchestrator re-runs tests after the refactorer returns; `analyze_patterns` joins against archived issues so trends work on mature projects.
 
 ## License
 

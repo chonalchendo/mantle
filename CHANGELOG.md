@@ -2,6 +2,20 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.15.0] — 2026-04-12
+
+### Added
+- **`/mantle:patterns` command** (#41) — surfaces recurring themes and per-slice confidence-delta trends across accumulated learnings. New `core/patterns.py` with `analyze_patterns` and `render_report`; thin CLI wrapper `mantle show-patterns`; new Claude Code prompt. Keyword-bucketed themes (testing, estimation, scope, tooling, shaping, worktree, ci, skills, other) — deterministic, no LLM calls.
+- `core.issues.list_archived_issues` — sibling to `list_issues` for scanning `.mantle/archive/issues/`. Consumed by `analyze_patterns` so confidence-trend tables populate on mature projects where most issues are archived.
+
+### Changed
+- **Build pipeline skill loading** — `build.md` Step 4 now follows `shape-issue.md` Step 2.3 "Load skills" as written (active selection of 2-4 skills from `mantle list-skills`, read each), restoring issue 52's intended flow inside build mode. Previous override silently no-op'd when `mantle compile --issue NN` found no matches.
+- **Build pipeline simplify verification** — `build.md` Step 7 now requires the orchestrator to re-run the project test command after the refactorer agent returns; the agent may lack bash access so its "tests passed" claim is unverified until confirmed.
+- **`plan-stories.md`** — new rule: verify structural claims about sibling-module public APIs (attribute names, function signatures) before asserting them in story specs. Avoids implementer-confusion from unverified claims.
+
+### Fixed
+- `analyze_patterns` now joins against both live and archived issues; regex tolerates slug-less archive filenames (`issue-01.md`). Live issues win on collisions.
+
 ## [0.14.0] — 2026-04-12
 
 ### Added
@@ -186,6 +200,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.15.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.15.0
 [0.14.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.14.0
 [0.13.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.13.0
 [0.12.2]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.2
