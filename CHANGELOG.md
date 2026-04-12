@@ -2,6 +2,15 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.16.0] — 2026-04-12
+
+### Added
+- **Build pipeline observability** (#54) — new `mantle build-start` and `mantle build-finish` CLI commands. `core/telemetry.py` parses Claude Code session JSONL (`~/.claude/projects/<slug>/<uuid>.jsonl`), groups sidechain clusters into per-story runs, and writes a structured markdown report to `.mantle/builds/build-<NN>-<timestamp>.md` with YAML frontmatter (model, tokens, duration, turn count) plus a rendered summary table. `implement.md` and `build.md` wired to call both around the implementation loop. Schema mirrors Anthropic issue #22625 for forward compatibility.
+- **Issue-mode research** — `mantle save-research --issue N` skips the `idea.md` requirement, snapshots the issue title as `idea_ref`, and writes `.mantle/research/issue-<NN>-<focus>.md`. `/mantle:research` prompt documents both idea and issue modes. Lets the build pipeline dispatch research cleanly when an issue body lists prerequisite research questions.
+
+### Changed
+- **Build pipeline skill loading evidence requirement** — `build.md` gains Iron Law #5, two red-flag entries, and an explicit `Skills read:` report format listing the Read path for each loaded skill. Prose reinforcement alone ("as written") proved insufficient on issues 41 and 54; the new rule requires a `Read` tool call on each skill's `references/core.md` before "Skills loaded" can be reported.
+
 ## [0.15.0] — 2026-04-12
 
 ### Added
@@ -200,6 +209,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.16.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.16.0
 [0.15.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.15.0
 [0.14.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.14.0
 [0.13.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.13.0

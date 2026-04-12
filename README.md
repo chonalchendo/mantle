@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.15.0** — `/mantle:patterns` surfaces recurring themes and per-slice confidence-delta trends across accumulated learnings (#41). Build pipeline tightened: shaping in build mode now actively selects and reads vault skills rather than silently no-op'ing when `compile` finds no matches; orchestrator re-runs tests after the refactorer returns; `analyze_patterns` joins against archived issues so trends work on mature projects.
+**v0.16.0** — Build pipeline observability (#54): new `mantle build-start` and `mantle build-finish` CLI commands parse Claude Code session JSONL into per-story telemetry (model, tokens, duration) and write a reviewable summary to `.mantle/builds/`. `/mantle:research` generalised — `--issue N` enables issue-mode technical research without requiring `idea.md`, saving as `issue-NN-<focus>.md`. Build pipeline skill-loading tightened with Iron Law #5 — orchestrators must Read each named skill's reference file before reporting "Skills loaded".
 
 ## License
 
