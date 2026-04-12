@@ -213,9 +213,9 @@ story in the wave, follow this sequence:
 4. **Handle agent status**: Parse the status code from the agent's response and act accordingly:
 
    - **DONE**: Proceed to test verification (sub-step 5).
-   - **DONE_WITH_CONCERNS**: Proceed to test verification (sub-step 5), but record the concerns. Include them in the story's commit message and in any extracted learnings (sub-step 9).
+   - **DONE_WITH_CONCERNS**: Proceed to test verification (sub-step 5), but record the concerns. Include them in the story's commit message and in any extracted learnings (sub-step 8).
    - **NEEDS_CONTEXT**: Do NOT retry blindly. Read the agent's request, gather the missing context (from project files, the user, or other sources), then re-spawn the story-implementer agent with the original prompt PLUS the additional context. This counts as the first attempt, not a retry.
-   - **BLOCKED**: Skip directly to marking the story blocked (sub-step 8, failure path). Do NOT retry — the agent already determined it cannot proceed. Retrying the same agent without changes is wasted effort.
+   - **BLOCKED**: Skip directly to marking the story blocked (sub-step 7, failure path). Do NOT retry — the agent already determined it cannot proceed. Retrying the same agent without changes is wasted effort.
 
 5. **Verify tests**: After the agent completes with DONE or DONE_WITH_CONCERNS, run the project's test command to independently verify all tests pass. Check CLAUDE.md for the test command — common examples: `uv run pytest`, `npm test`, `cargo test`, `go test ./...`. If no test command is documented, ask the user.
 
@@ -224,39 +224,11 @@ story in the wave, follow this sequence:
    - Include the same status code instruction from step 3.
    - Run tests again after the retry agent completes.
 
-7. **Post-implementation review**: After tests pass, spawn a single review agent before committing. Use `subagent_type: "code-reviewer"` with `model: "sonnet"`.
-
-   > Review the implementation of story {S} against both its specification and
-   > the project's coding standards.
-   >
-   > **Story spec:** {full story content}
-   > **Files changed:** {list of files the implementer touched}
-   > **Project coding standards:** {from CLAUDE.md}
-   >
-   > **Part 1 — Spec compliance:**
-   > - Does the implementation deliver exactly what the story specifies? Nothing more, nothing less.
-   > - Are all test cases from the story spec covered?
-   > - Does it match the approach described in the story?
-   >
-   > **Part 2 — Code quality:**
-   > - Does the code follow the project's coding standards?
-   > - Are there unnecessary abstractions, dead code, or over-engineering?
-   > - Is test quality adequate — do tests verify behaviour, not implementation?
-   > - Are there obvious bugs, edge cases, or error handling gaps?
-   >
-   > Report one of:
-   > - `REVIEW: PASS` — spec compliance and code quality are both acceptable
-   > - `REVIEW: ISSUES` — list each issue with category (spec/quality), file path, and description
-
-   **Handling review results:**
-   - **Pass**: Proceed to commit (sub-step 8).
-   - **Issues found**: Spawn one more story-implementer agent with the review feedback: "The implementation passed tests but a code review found issues. Fix these: {issues}. Do not change any behaviour — only address the review feedback." Run tests again after fixes. Do NOT re-run the review — one round of feedback is enough.
-
-8. **Handle outcome**:
-   - **Tests pass (and review passed or issues fixed)**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`. If the agent reported DONE_WITH_CONCERNS, append the concerns to the commit body.
+7. **Handle outcome**:
+   - **Tests pass**: Create an atomic git commit with message `feat(issue-{N}): {story title}`, then run `mantle update-story-status --issue {N} --story {S} --status completed`. If the agent reported DONE_WITH_CONCERNS, append the concerns to the commit body.
    - **Tests fail after retry**: Run `mantle update-story-status --issue {N} --story {S} --status blocked --failure-log "{error summary}"` and stop the loop (do not continue to the next story)
 
-9. **Extract learnings**: After a story completes successfully, check whether
+8. **Extract learnings**: After a story completes successfully, check whether
    the agent reported any patterns, gotchas, or conventions. If so, save them:
 
    ```bash
@@ -278,7 +250,7 @@ story in the wave, follow this sequence:
    bug being fixed. Capture learnings via `/mantle:retrospective` after
    releasing instead.
 
-**Wave completion:** After all stories in a wave finish (sub-steps 1-9 for
+**Wave completion:** After all stories in a wave finish (sub-steps 1-8 for
 each), check outcomes before proceeding to the next wave:
 
 - If **any story in the wave is blocked**, stop the entire loop. Do not start
