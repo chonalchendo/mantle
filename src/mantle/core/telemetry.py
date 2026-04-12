@@ -377,7 +377,7 @@ def _parse_assistant_line(line: str) -> Turn | None:
     """
     try:
         record = json.loads(line)
-    except json.JSONDecodeError, ValueError:
+    except (json.JSONDecodeError, ValueError):
         return None
 
     if not isinstance(record, dict):
@@ -399,7 +399,7 @@ def _parse_assistant_line(line: str) -> Turn | None:
             is_sidechain=bool(record.get("isSidechain", False)),
             usage=usage,
         )
-    except KeyError, ValueError, TypeError, pydantic.ValidationError:
+    except (KeyError, ValueError, TypeError, pydantic.ValidationError):
         return None
 
 
@@ -421,7 +421,7 @@ def _parse_usage(data: dict[str, Any]) -> Usage | None:
                 data.get("cache_creation_input_tokens", 0)
             ),
         )
-    except TypeError, ValueError, pydantic.ValidationError:
+    except (TypeError, ValueError, pydantic.ValidationError):
         return None
 
 
@@ -452,23 +452,14 @@ def _aggregate_cluster(cluster: list[Turn]) -> StoryRun:
     started = min(timestamps)
     finished = max(timestamps)
 
-    input_tokens = 0
-    output_tokens = 0
-    cache_read = 0
-    cache_creation = 0
-    for turn in cluster:
-        if turn.usage is None:
-            continue
-        input_tokens += turn.usage.input_tokens
-        output_tokens += turn.usage.output_tokens
-        cache_read += turn.usage.cache_read_input_tokens
-        cache_creation += turn.usage.cache_creation_input_tokens
-
+    usages = [t.usage for t in cluster if t.usage is not None]
     usage = Usage(
-        input_tokens=input_tokens,
-        output_tokens=output_tokens,
-        cache_read_input_tokens=cache_read,
-        cache_creation_input_tokens=cache_creation,
+        input_tokens=sum(u.input_tokens for u in usages),
+        output_tokens=sum(u.output_tokens for u in usages),
+        cache_read_input_tokens=sum(u.cache_read_input_tokens for u in usages),
+        cache_creation_input_tokens=sum(
+            u.cache_creation_input_tokens for u in usages
+        ),
     )
 
     models = [t.model for t in cluster if t.model is not None]
@@ -518,11 +509,7 @@ def _attach_story_ids(
                 best = marker
                 best_delta = delta
 
-        if (
-            best is not None
-            and best_delta is not None
-            and (best_delta <= MARKER_WINDOW_SECONDS)
-        ):
+        if best is not None and best_delta is not None and best_delta <= MARKER_WINDOW_SECONDS:
             updated.append(run.model_copy(update={"story_id": best.story_id}))
         else:
             warnings.warn(

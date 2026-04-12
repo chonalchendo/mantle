@@ -164,14 +164,10 @@ def _read_frontmatter_value(body: str, key: str) -> str | None:
     if not body.startswith("---"):
         return None
     lines = body.splitlines()
-    # Skip the opening ``---``.
     for raw in lines[1:]:
         if raw.strip() == "---":
             break
-        if ":" not in raw:
-            continue
-        # Scalar values only — skip indented (list) entries.
-        if raw.startswith(" "):
+        if ":" not in raw or raw.startswith(" "):
             continue
         name, _, value = raw.partition(":")
         if name.strip() == key:
@@ -234,16 +230,9 @@ def _finalize_frontmatter(rendered: str, finished: datetime) -> str:
     lines = rendered.split("\n")
     if not lines or lines[0] != "---":
         return rendered
-    end = None
-    for idx in range(1, len(lines)):
-        if lines[idx] == "---":
-            end = idx
-            break
-    if end is None:
+    try:
+        end = next(idx for idx in range(1, len(lines)) if lines[idx] == "---")
+    except StopIteration:
         return rendered
-    injection = [
-        f"build_finished: {finished.isoformat()}",
-        "status: complete",
-    ]
-    new_lines = lines[:end] + injection + lines[end:]
-    return "\n".join(new_lines)
+    injection = [f"build_finished: {finished.isoformat()}", "status: complete"]
+    return "\n".join(lines[:end] + injection + lines[end:])
