@@ -36,6 +36,9 @@ from mantle.cli import (
 from mantle.cli import (
     compile as compile_cmd,
 )
+from mantle.cli import (
+    patterns as patterns_cli,
+)
 
 app = App(
     name="mantle",
@@ -983,6 +986,20 @@ def update_skills_command(
     else:
         print()
         print("No new skills detected.")
+
+
+@app.command(name="show-patterns")
+def show_patterns_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Surface recurring themes and confidence trends from past learnings."""
+    patterns_cli.run_show_patterns(project_dir=path)
 
 
 @app.command(name="list-skills")
