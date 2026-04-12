@@ -132,7 +132,8 @@ def render_report(report: PatternReport) -> str:
         hits = report.themes.get(theme)
         if not hits:
             continue
-        lines.append(f"### {_theme_display(theme)} ({len(hits)} hits)")
+        display = "CI" if theme == "ci" else theme.title()
+        lines.append(f"### {display} ({len(hits)} hits)")
         for hit in hits:
             section_label = _SECTION_LABEL[hit.section]
             lines.append(f"- issue {hit.issue} ({section_label}): {hit.text}")
@@ -144,7 +145,7 @@ def render_report(report: PatternReport) -> str:
     lines.append("| --- | ---: | ---: |")
     for stat in report.slice_stats:
         lines.append(
-            f"| {stat.slice} | {stat.count} | {_format_delta(stat.avg_delta)} |"
+            f"| {stat.slice} | {stat.count} | {stat.avg_delta:+.1f} |"
         )
     lines.append("")
     lines.append("_Slices with no matched issue are omitted._")
@@ -245,7 +246,6 @@ def _split_sections(body: str) -> dict[str, list[str]]:
             flush_current()
             current = matched_section
             current_bullets = []
-            pending.clear()
             continue
 
         # Heading we don't recognise ends the current section.
@@ -253,7 +253,6 @@ def _split_sections(body: str) -> dict[str, list[str]]:
             flush_current()
             current = None
             current_bullets = []
-            pending.clear()
             continue
 
         if current is None:
@@ -272,15 +271,7 @@ def _split_sections(body: str) -> dict[str, list[str]]:
 
 
 def _match_section(line: str) -> str | None:
-    """Return the canonical section name a heading line maps to.
-
-    Args:
-        line: Raw line from the markdown body.
-
-    Returns:
-        Canonical section name, or ``None`` if the line is not a
-        known heading.
-    """
+    """Return the canonical section name for a heading line, or ``None``."""
     candidate = line.strip()
     for name, pattern in _SECTION_PATTERNS.items():
         if pattern.match(candidate):
@@ -289,18 +280,7 @@ def _match_section(line: str) -> str | None:
 
 
 def _theme_for(text: str) -> str:
-    """Classify a bullet into a theme by keyword match.
-
-    Lowercases the text, then scans ``_THEME_KEYWORDS`` in
-    declaration order and returns the first theme whose keyword is
-    a substring. Falls back to ``"other"``.
-
-    Args:
-        text: Bullet text to classify.
-
-    Returns:
-        Theme name.
-    """
+    """Classify a bullet into a theme by keyword match, or ``"other"``."""
     haystack = f" {text.lower()} "
     for theme, keywords in _THEME_KEYWORDS.items():
         for keyword in keywords:
@@ -312,18 +292,7 @@ def _theme_for(text: str) -> str:
 def _bucket_by_theme(
     learnings: Iterable[tuple[learning.LearningNote, str]],
 ) -> dict[str, tuple[PatternHit, ...]]:
-    """Group bullets from learnings into theme buckets.
-
-    Only bullets under ``harder``, ``wrong_assumptions``, and
-    ``recommendations`` are considered. Within each bucket hits are
-    sorted by ``(issue, section, text)``.
-
-    Args:
-        learnings: Iterable of (note, body) pairs.
-
-    Returns:
-        Mapping from theme name to tuple of ``PatternHit``.
-    """
+    """Group bullets from learnings into theme buckets, sorted by (issue, section, text)."""
     buckets: dict[str, list[PatternHit]] = {}
 
     for note, body in learnings:
@@ -347,17 +316,7 @@ def _bucket_by_theme(
 def _confidence_by_slice(
     notes_with_slices: Iterable[tuple[learning.LearningNote, tuple[str, ...]]],
 ) -> tuple[SliceStat, ...]:
-    """Compute average confidence delta per slice.
-
-    Args:
-        notes_with_slices: Iterable of (note, slice-tuple) pairs.
-            Notes whose parent issue cannot be located should be
-            filtered out upstream.
-
-    Returns:
-        Tuple of ``SliceStat`` sorted ascending by ``avg_delta`` with
-        ties broken alphabetically by slice name.
-    """
+    """Compute average confidence delta per slice, sorted ascending by avg_delta."""
     totals: dict[str, list[int]] = {}
     for note, slices in notes_with_slices:
         delta = int(note.confidence_delta)
@@ -377,15 +336,7 @@ def _confidence_by_slice(
 
 
 def _issue_slice_map(project_dir: Path) -> dict[int, tuple[str, ...]]:
-    """Build a mapping from issue number to slice tuple.
-
-    Args:
-        project_dir: Directory containing ``.mantle/``.
-
-    Returns:
-        Mapping from issue number to ``slice`` tuple from the issue
-        frontmatter.
-    """
+    """Return a mapping from issue number to slice tuple."""
     pattern = re.compile(r"issue-(\d+)-.*\.md")
     mapping: dict[int, tuple[str, ...]] = {}
     for path in issues.list_issues(project_dir):
@@ -396,30 +347,3 @@ def _issue_slice_map(project_dir: Path) -> dict[int, tuple[str, ...]]:
         note, _ = issues.load_issue(path)
         mapping[number] = note.slice
     return mapping
-
-
-def _theme_display(theme: str) -> str:
-    """Return the display name for a theme.
-
-    Args:
-        theme: Internal theme name.
-
-    Returns:
-        Display name. Special-cases ``ci`` to ``CI``; others are
-        title-cased.
-    """
-    if theme == "ci":
-        return "CI"
-    return theme.title()
-
-
-def _format_delta(value: float) -> str:
-    """Format a float confidence delta with sign and one decimal.
-
-    Args:
-        value: Average confidence delta.
-
-    Returns:
-        Signed string such as ``+1.0``, ``-0.5``, ``+0.0``.
-    """
-    return f"{value:+.1f}"
