@@ -226,6 +226,16 @@ def save_research_command(
             help="Skip updating state.md (for sub-steps of other commands).",
         ),
     ] = False,
+    issue: Annotated[
+        int | None,
+        Parameter(
+            name="--issue",
+            help=(
+                "Issue number — save in issue-mode (no idea.md required, "
+                "filename is issue-NN-<focus>.md)."
+            ),
+        ),
+    ] = None,
     path: Annotated[
         Path | None,
         Parameter(
@@ -241,6 +251,7 @@ def save_research_command(
         content=content,
         update_state=not no_state_update,
         project_dir=path,
+        issue=issue,
     )
 
 

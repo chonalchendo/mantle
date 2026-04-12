@@ -18,6 +18,7 @@ def run_save_research(
     content: str,
     update_state: bool = True,
     project_dir: Path | None = None,
+    issue: int | None = None,
 ) -> None:
     """Save research note, print confirmation, suggest next steps.
 
@@ -28,9 +29,10 @@ def run_save_research(
         update_state: Whether to update state.md. False when
             research is a sub-step of another command.
         project_dir: Project directory. Defaults to cwd.
+        issue: Save in issue mode for this issue number.
 
     Raises:
-        SystemExit: If idea.md does not exist or args are invalid.
+        SystemExit: If prerequisites are missing or args are invalid.
     """
     if project_dir is None:
         project_dir = Path.cwd()
@@ -42,11 +44,18 @@ def run_save_research(
             focus=focus,
             confidence=confidence,
             update_state=update_state,
+            issue=issue,
         )
     except research.IdeaNotFoundError:
         console.print(
             "[yellow]Warning:[/yellow] No idea.md found. "
-            "Run /mantle:idea first."
+            "Run /mantle:idea first, or pass --issue to save issue-mode "
+            "research."
+        )
+        raise SystemExit(1) from None
+    except research.IssueNotFoundError as exc:
+        console.print(
+            f"[red]Error:[/red] No issue file found for issue {exc.issue}."
         )
         raise SystemExit(1) from None
     except ValueError as exc:
@@ -60,8 +69,19 @@ def run_save_research(
     console.print(f"  Author:     {note.author}")
     console.print(f"  Focus:      {note.focus}")
     console.print(f"  Confidence: {note.confidence}")
+    if issue is not None:
+        console.print(f"  Issue:      {issue}")
     console.print()
-    console.print("  Next: run [bold]/mantle:research[/bold] for another angle")
-    console.print(
-        "        or [bold]/mantle:design-product[/bold] to define the product"
-    )
+    if issue is not None:
+        console.print(
+            "  Next: run [bold]/mantle:shape-issue[/bold] "
+            "to fold the research into a chosen approach"
+        )
+    else:
+        console.print(
+            "  Next: run [bold]/mantle:research[/bold] for another angle"
+        )
+        console.print(
+            "        or [bold]/mantle:design-product[/bold] "
+            "to define the product"
+        )

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 from mantle.core import idea, vault
 from mantle.core.research import (
     IdeaNotFoundError,
+    IssueNotFoundError,
     ResearchNote,
     list_research,
     load_research,
@@ -263,6 +264,136 @@ class TestSaveResearch:
     def test_invalid_confidence_raises_value_error(self, project: Path) -> None:
         with pytest.raises(ValueError, match="Invalid confidence"):
             _save(project, confidence="high")
+
+
+# ── issue-mode ───────────────────────────────────────────────────
+
+
+def _write_issue(project_dir: Path, issue: int, title: str) -> None:
+    """Write a minimal issue file for issue-mode research tests."""
+    from mantle.core import issues
+
+    note = issues.IssueNote(
+        title=title,
+        status="planned",
+        slice=("core",),
+    )
+    issues_dir = project_dir / ".mantle" / "issues"
+    issues_dir.mkdir(parents=True, exist_ok=True)
+    path = issues_dir / f"issue-{issue:02d}-{title.lower().replace(' ', '-')}.md"
+    vault.write_note(path, note, f"## Problem\n\n{title} problem.\n")
+
+
+class TestSaveResearchIssueMode:
+    @patch(
+        "mantle.core.research.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_issue_mode_uses_issue_filename(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+        _write_issue(tmp_path, 77, "Observability telemetry")
+
+        _, path = save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=77
+        )
+
+        assert path.name == "issue-77-feasibility.md"
+
+    @patch(
+        "mantle.core.research.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_issue_mode_snapshots_title_as_idea_ref(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+        _write_issue(tmp_path, 42, "Report to GitHub")
+
+        note, _ = save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=42
+        )
+
+        assert note.idea_ref == "Report to GitHub"
+
+    @patch(
+        "mantle.core.research.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_issue_mode_does_not_require_idea_md(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+        _write_issue(tmp_path, 7, "No idea file needed")
+
+        note, path = save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=7
+        )
+
+        assert not (tmp_path / ".mantle" / "idea.md").exists()
+        assert path.exists()
+        assert note.idea_ref == "No idea file needed"
+
+    def test_issue_mode_missing_issue_raises(self, tmp_path: Path) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+
+        with pytest.raises(IssueNotFoundError):
+            save_research(
+                tmp_path,
+                CONTENT,
+                focus="feasibility",
+                confidence="7/10",
+                issue=99,
+            )
+
+    @patch(
+        "mantle.core.research.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_issue_mode_auto_increments_on_collision(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+        _write_issue(tmp_path, 3, "Collision test")
+
+        _, path1 = save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=3
+        )
+        _, path2 = save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=3
+        )
+
+        assert path1.name == "issue-03-feasibility.md"
+        assert path2.name == "issue-03-feasibility-2.md"
+
+    @patch(
+        "mantle.core.research.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_issue_mode_does_not_update_state_current_focus(
+        self, _mock: object, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+        _write_state(tmp_path)
+        _write_issue(tmp_path, 5, "No state rewrite")
+
+        before = (tmp_path / ".mantle" / "state.md").read_text()
+        save_research(
+            tmp_path, CONTENT, focus="feasibility", confidence="7/10", issue=5
+        )
+        after = (tmp_path / ".mantle" / "state.md").read_text()
+
+        assert "Research (feasibility) completed" not in after
+        # The state file may still change (timestamps) in idea mode but
+        # in issue mode we leave Current Focus alone entirely.
+        assert "Idea captured" in before
+        assert "Idea captured" in after
 
 
 # ── load_research ────────────────────────────────────────────────
