@@ -64,7 +64,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 48 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Scout report completed for andrej-karpathy-skills — findings captured for planning.
 
 ## Blockers
 
