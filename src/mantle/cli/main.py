@@ -1738,6 +1738,30 @@ def collect_issue_files_command(
     )
 
 
+@app.command(name="collect-issue-diff-stats")
+def collect_issue_diff_stats_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to collect diff stats for.",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Report diff stats (file count, lines added/removed/changed) for an issue's commits."""
+    simplify.run_collect_issue_diff_stats(
+        issue=issue,
+        project_dir=path,
+    )
+
+
 @app.command(name="collect-changed-files")
 def collect_changed_files_command(
     path: Annotated[

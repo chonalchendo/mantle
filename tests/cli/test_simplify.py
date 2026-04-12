@@ -6,8 +6,13 @@ import subprocess
 import sys
 from typing import TYPE_CHECKING
 
+from mantle.cli import simplify as cli_simplify
+from mantle.core import simplify as core_simplify
+
 if TYPE_CHECKING:
     from pathlib import Path
+
+    import pytest
 
 
 # ── Helpers ──────────────────────────────────────────────────────
@@ -129,6 +134,36 @@ class TestCollectIssueFilesCLI:
 
         assert result.returncode == 0
         assert "No commits found" in result.stdout
+
+
+# ── collect-issue-diff-stats ─────────────────────────────────────
+
+
+class TestCollectIssueDiffStatsCLI:
+    def test_run_prints_key_value_lines(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+        tmp_path: Path,
+    ) -> None:
+        """Prints files/lines_added/lines_removed/lines_changed lines."""
+
+        def fake_stats(
+            project_root: Path, issue: int
+        ) -> core_simplify.DiffStats:
+            return core_simplify.DiffStats(3, 42, 5, 47)
+
+        monkeypatch.setattr(
+            core_simplify, "collect_issue_diff_stats", fake_stats
+        )
+
+        cli_simplify.run_collect_issue_diff_stats(issue=1, project_dir=tmp_path)
+
+        out = capsys.readouterr().out
+        assert "files=3" in out
+        assert "lines_added=42" in out
+        assert "lines_removed=5" in out
+        assert "lines_changed=47" in out
 
 
 # ── collect-changed-files ────────────────────────────────────────

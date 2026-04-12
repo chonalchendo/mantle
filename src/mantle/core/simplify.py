@@ -2,13 +2,41 @@
 
 from __future__ import annotations
 
+import re
 import subprocess
+import typing
 from typing import TYPE_CHECKING
 
 from mantle.core import issues
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+# ── Types ────────────────────────────────────────────────────────
+
+
+class DiffStats(typing.NamedTuple):
+    """Aggregated diff statistics across commits.
+
+    Attributes:
+        files: Number of files changed.
+        lines_added: Total lines added (insertions).
+        lines_removed: Total lines removed (deletions).
+        lines_changed: Sum of lines_added and lines_removed.
+    """
+
+    files: int
+    lines_added: int
+    lines_removed: int
+    lines_changed: int
+
+
+_SHORTSTAT_RE = re.compile(
+    r"(\d+) files? changed"
+    r"(?:, (\d+) insertions?\(\+\))?"
+    r"(?:, (\d+) deletions?\(-\))?"
+)
 
 
 # ── Constants ────────────────────────────────────────────────────
@@ -114,6 +142,92 @@ def collect_issue_files(
 
     files = [f for f in diff_result.stdout.strip().splitlines() if f]
     return tuple(files)
+
+
+def collect_issue_diff_stats(
+    project_root: Path,
+    issue: int,
+) -> DiffStats:
+    """Aggregate diff stats across commits for an issue.
+
+    Uses the same commit-discovery logic as
+    :func:`collect_issue_files` (grep for ``(issue-N)`` and, for
+    ``N < 10``, also ``(issue-0N)``), then runs
+    ``git diff --shortstat <first>^..<last>`` and parses the
+    single summary line.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue: Issue number to collect diff stats for.
+
+    Returns:
+        DiffStats with file count and line totals. Returns
+        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist.
+
+    Raises:
+        FileNotFoundError: If the issue file does not exist.
+    """
+    issue_path = issues.find_issue_path(project_root, issue)
+    if issue_path is None:
+        msg = f"Issue {issue} not found"
+        raise FileNotFoundError(msg)
+    issues.load_issue(issue_path)
+
+    def _grep_commits(pattern: str) -> list[str]:
+        result = subprocess.run(
+            [
+                "git",
+                "log",
+                "--oneline",
+                f"--grep={pattern}",
+                "--format=%H",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=project_root,
+        )
+        return result.stdout.strip().splitlines()
+
+    commit_hashes = _grep_commits(f"(issue-{issue})")
+
+    if issue < 10:
+        padded = _grep_commits(f"(issue-0{issue})")
+        seen = set(commit_hashes)
+        commit_hashes += [h for h in padded if h not in seen]
+
+    if not commit_hashes:
+        return DiffStats(0, 0, 0, 0)
+
+    first_commit = commit_hashes[-1]
+    last_commit = commit_hashes[0]
+
+    shortstat = subprocess.run(
+        [
+            "git",
+            "diff",
+            "--shortstat",
+            f"{first_commit}^..{last_commit}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=project_root,
+    )
+
+    match = _SHORTSTAT_RE.search(shortstat.stdout)
+    if match is None:
+        return DiffStats(0, 0, 0, 0)
+
+    files = int(match.group(1))
+    lines_added = int(match.group(2)) if match.group(2) else 0
+    lines_removed = int(match.group(3)) if match.group(3) else 0
+    return DiffStats(
+        files=files,
+        lines_added=lines_added,
+        lines_removed=lines_removed,
+        lines_changed=lines_added + lines_removed,
+    )
 
 
 def collect_changed_files(

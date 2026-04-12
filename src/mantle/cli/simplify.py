@@ -36,6 +36,27 @@ def run_collect_issue_files(
     console.print(f"{len(files)} file(s) changed.")
 
 
+def run_collect_issue_diff_stats(
+    *,
+    issue: int,
+    project_dir: Path | None = None,
+) -> None:
+    """Print diff stats for an issue as key=value lines.
+
+    Args:
+        issue: Issue number to collect diff stats for.
+        project_dir: Project directory. Defaults to cwd.
+    """
+    if project_dir is None:
+        project_dir = Path.cwd()
+
+    stats = simplify.collect_issue_diff_stats(project_dir, issue)
+    console.print(f"files={stats.files}")
+    console.print(f"lines_added={stats.lines_added}")
+    console.print(f"lines_removed={stats.lines_removed}")
+    console.print(f"lines_changed={stats.lines_changed}")
+
+
 def run_collect_changed_files(
     *,
     project_dir: Path | None = None,

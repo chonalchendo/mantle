@@ -150,6 +150,139 @@ class TestCollectIssueFiles:
         assert "other.py" not in files
 
 
+# ── collect_issue_diff_stats ─────────────────────────────────────
+
+
+def _commit_content(
+    project_root: Path,
+    filename: str,
+    content: str,
+    message: str,
+) -> None:
+    """Write file content and commit it."""
+    (project_root / filename).write_text(content, encoding="utf-8")
+    subprocess.run(
+        ["git", "add", filename],
+        cwd=project_root,
+        capture_output=True,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "commit", "-m", message],
+        cwd=project_root,
+        capture_output=True,
+        check=True,
+    )
+
+
+class TestCollectIssueDiffStats:
+    def test_returns_zeros_when_no_commits(self, tmp_path: Path) -> None:
+        """Returns DiffStats(0, 0, 0, 0) when no matching commits."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 1)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        stats = simplify.collect_issue_diff_stats(project, 1)
+
+        assert stats == simplify.DiffStats(0, 0, 0, 0)
+
+    def test_single_commit(self, tmp_path: Path) -> None:
+        """Single matching commit reports correct file and line counts."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        content = "".join(f"line {i}\n" for i in range(10))
+        _commit_content(project, "foo.py", content, "feat(issue-7): add foo")
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 1
+        assert stats.lines_added == 10
+        assert stats.lines_removed == 0
+        assert stats.lines_changed == 10
+
+    def test_multi_commit_aggregation(self, tmp_path: Path) -> None:
+        """Stats aggregate across multiple matching commits."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        content_a = "".join(f"a{i}\n" for i in range(5))
+        _commit_content(project, "a.py", content_a, "feat(issue-7): add a")
+
+        content_b = "".join(f"b{i}\n" for i in range(8))
+        _commit_content(project, "b.py", content_b, "feat(issue-7): add b")
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 2
+        assert stats.lines_added == 13
+        assert stats.lines_removed == 0
+        assert stats.lines_changed == 13
+
+    def test_only_deletions(self, tmp_path: Path) -> None:
+        """Pure deletion commits report lines_removed only."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+
+        content = "".join(f"line {i}\n" for i in range(6))
+        _commit_content(project, "foo.py", content, "chore: initial foo")
+
+        (project / "foo.py").write_text("", encoding="utf-8")
+        subprocess.run(
+            ["git", "add", "foo.py"],
+            cwd=project,
+            capture_output=True,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "commit", "-m", "feat(issue-7): empty foo"],
+            cwd=project,
+            capture_output=True,
+            check=True,
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 1
+        assert stats.lines_added == 0
+        assert stats.lines_removed == 6
+        assert stats.lines_changed == 6
+
+    def test_unknown_issue_raises(self, tmp_path: Path) -> None:
+        """Unknown issue number raises FileNotFoundError."""
+        project = _init_git_repo(tmp_path)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        try:
+            simplify.collect_issue_diff_stats(project, 999)
+        except FileNotFoundError:
+            return
+        msg = "Expected FileNotFoundError"
+        raise AssertionError(msg)
+
+    def test_handles_padded_single_digit(self, tmp_path: Path) -> None:
+        """For issue N<10, finds commits written as (issue-0N)."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 1)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        content = "".join(f"p{i}\n" for i in range(4))
+        _commit_content(
+            project,
+            "padded.py",
+            content,
+            "feat(issue-01): add padded",
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 1)
+
+        assert stats.files == 1
+        assert stats.lines_added == 4
+        assert stats.lines_changed == 4
+
+
 # ── collect_changed_files ────────────────────────────────────────
 
 
