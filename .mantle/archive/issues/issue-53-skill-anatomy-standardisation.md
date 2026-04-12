@@ -1,7 +1,7 @@
 ---
 title: Skill anatomy standardisation — executable workflows with anti-rationalization
   guardrails
-status: verified
+status: approved
 slice:
 - claude-code
 - tests
@@ -46,7 +46,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
