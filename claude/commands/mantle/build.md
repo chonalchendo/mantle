@@ -214,13 +214,14 @@ Why: AI-generated code accumulates bloat (unnecessary abstractions, defensive
 over-engineering, dead code). Cleaning this up before verification produces
 cleaner code and fewer false verification issues.
 
-**Skip condition:** Run `mantle collect-issue-files --issue {NN}` to count
-files changed. If **3 or fewer files** were changed across all stories, skip
-this step — the post-implementation review (in Step 6) already caught quality
-issues, and simplification overhead isn't justified for small changes. Report:
-> **Simplification:** Skipped (≤3 files changed)
+**Skip condition:** Run `mantle collect-issue-diff-stats --issue {NN}` to read
+`files`, `lines_added`, `lines_removed`, and `lines_changed` (added+removed).
+Skip simplification only when **both** `files ≤ 3` **AND** `lines_changed ≤ 50`.
+Otherwise, run simplification. Report one of:
+> **Simplification:** Skipped (files=N, lines_changed=N — below threshold)
+> **Simplification:** Running (files=N, lines_changed=N — above threshold)
 
-**If more than 3 files changed**, spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
+**If the skip condition is not met**, spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
 
 > Before starting, review your project memory for relevant context.
 >
