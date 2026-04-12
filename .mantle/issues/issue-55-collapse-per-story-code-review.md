@@ -1,15 +1,22 @@
 ---
 title: Collapse per-story code review into simplify step
-status: planned
+status: implementing
 slice:
 - claude-code
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- EarningsCall.biz Scraping
+- Python 3.14
+- docker-compose-python
+- omegaconf
+- pydantic-discriminated-unions
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
