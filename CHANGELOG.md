@@ -2,6 +2,11 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.17.0] — 2026-04-12
+
+### Added
+- **Grouped `--help` output** (#48). `mantle --help` now renders commands in 8 labelled Cyclopts help panels (Setup & plumbing, Ideation, Design, Planning, Implementation, Verification, Knowledge, Reflection) in declared order. New `cli/groups.py` holds a central `GROUPS` registry; every `@app.command` is annotated with `group=GROUPS[key]`. Regression test covers panel ordering, per-command placement, the no-ungrouped-command invariant, and registry integrity.
+
 ## [0.16.0] — 2026-04-12
 
 ### Added
@@ -209,6 +214,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.17.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.0
 [0.16.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.16.0
 [0.15.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.15.0
 [0.14.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.14.0
