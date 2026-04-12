@@ -1,6 +1,6 @@
 ---
 title: Build pipeline observability — per-story model and performance telemetry
-status: verified
+status: approved
 slice:
 - cli
 - core
@@ -25,7 +25,7 @@ skills_required:
 - pydantic-project-conventions
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Problem
