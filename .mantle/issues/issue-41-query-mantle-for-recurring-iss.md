@@ -1,17 +1,25 @@
 ---
 title: Query .mantle/ for recurring issues — surface patterns from learnings and retrospectives
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - claude-code
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckLake
+- Lakehouse Architecture
+- OpenRouter LLM Gateway
+- Python package structure
+- cyclopts
+- omegaconf
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
