@@ -148,9 +148,13 @@ Check if `$MANTLE_DIR/shaped/issue-{NN}-shaped.md` exists.
 Steps 2-5 directly with these build-mode overrides:
 - No user interaction — auto-choose the smallest-appetite approach that
   satisfies all acceptance criteria
-- Read any compiled skills in `.claude/skills/*/SKILL.md` that are relevant
-  to this issue — they contain domain knowledge that should inform approach
-  evaluation
+- Follow `shape-issue.md` Step 2.3 "Load skills" **as written** — run
+  `mantle list-skills`, select 2-4 skills whose descriptions directly
+  match the work in this issue, and read each selected skill's full
+  content. Do **not** substitute "read whatever compile emitted" for
+  active selection — `mantle compile` only populates `.claude/skills/`
+  for skills the auto-matcher flagged, which is often empty for
+  internal-tooling issues.
 - Skip the "next steps" recommendation (Step 6 in that file)
 
 Report the result:
