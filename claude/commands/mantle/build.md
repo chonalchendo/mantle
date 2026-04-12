@@ -15,6 +15,7 @@ These rules are absolute. There are no exceptions, no "just this once", no edge 
 2. **NO claiming pipeline success without verification evidence.** Step 8 must run and produce a per-criterion result. "It probably passes" is not a result.
 3. **NO continuing past blocked stories.** If Step 6 blocks, the pipeline stops. Do not optimistically continue to simplification or verification.
 4. **NO silent failures.** If any step produces errors or warnings, they are reported verbatim — never summarised away.
+5. **NO reporting "Skills loaded" without Read evidence.** In Step 4, every skill named in the report must correspond to an actual `Read` call on that skill's reference file (`.claude/skills/<slug>/references/core.md` or `.claude/skills/<slug>/SKILL.md`). Substituting "I skimmed a codebase example" for reading the skill file is the violation — skill files encode patterns and anti-patterns that codebase samples do not surface.
 
 ### Red Flags — thoughts that mean STOP
 
@@ -25,6 +26,8 @@ If you catch yourself thinking any of these, you are about to violate an Iron La
 | "Simplification isn't needed, the code looks clean" | You haven't reviewed it yet. Run the step. |
 | "Verification will pass, the tests already passed" | Tests check code correctness. Verification checks acceptance criteria. Different things. |
 | "I'll skip skill loading since we already have skills" | Skills may be stale or missing for new technologies in this issue. |
+| "I'll list the skills I *would* consult — naming them is enough" | Naming a skill is not loading it. If you have not Read the file, the skill is not loaded. |
+| "The codebase example I read covers what the skill would say" | Skill files encode patterns and anti-patterns that codebase samples do not surface. Read the skill. |
 | "The story is blocked but the rest are independent, I'll continue" | Blocked stories signal problems that may affect dependent work. Stop. |
 | "I can report the pipeline result without running verification" | A build without verification is an unverified build. Run Step 8. |
 
@@ -155,6 +158,23 @@ Steps 2-5 directly with these build-mode overrides:
   active selection — `mantle compile` only populates `.claude/skills/`
   for skills the auto-matcher flagged, which is often empty for
   internal-tooling issues.
+- **Evidence requirement (Iron Law #5):** For each skill you name in
+  the Step 4 report, you MUST make a `Read` tool call on that skill's
+  reference file before reporting. The path is typically
+  `.claude/skills/<slug>/references/core.md` (fallback
+  `.claude/skills/<slug>/SKILL.md`). "Reading a codebase example
+  instead" does not satisfy this — codebase samples lack the patterns
+  and anti-patterns that skill files encode.
+- **Report format:** after shaping, include an explicit evidence
+  block listing each skill with the exact path Read, like:
+
+  > **Skills read:**
+  > - `cyclopts` → `.claude/skills/cyclopts/references/core.md`
+  > - `software-design-principles` → `.claude/skills/software-design-principles/references/core.md`
+
+  If you cannot Read a listed skill's file (e.g., the slug does not
+  exist on disk), drop it from the list — do not include skills you
+  did not consume.
 - Skip the "next steps" recommendation (Step 6 in that file)
 
 Report the result:
