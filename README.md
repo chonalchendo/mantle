@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.13.0** — Skills become actually useful during planning: agent-curated skill injection into shaping sessions (#52), and a standardised skill anatomy (what/why/when/how + rationalizations + red flags + verification) with marker-based progressive disclosure (#53).
+**v0.14.0** — Build pipeline gets a single quality gate: the per-story code-reviewer step is removed from `/mantle:implement` and the post-implementation simplify step becomes the sole code-quality pass, now gated by a composite file-count + lines-changed heuristic via the new `mantle collect-issue-diff-stats` CLI (#55).
 
 ## License
 

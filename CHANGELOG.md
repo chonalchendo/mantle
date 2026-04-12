@@ -2,6 +2,16 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.14.0] — 2026-04-12
+
+### Added
+- `mantle collect-issue-diff-stats` CLI command — reports `files`, `lines_added`, `lines_removed`, and `lines_changed` for an issue's commits as key=value lines, consumed by the build pipeline's simplify skip condition (#55).
+- `DiffStats` NamedTuple and `collect_issue_diff_stats` in `core/simplify.py`, reusing the commit-grep pattern shared with `collect_issue_files` via new private helpers `_verify_issue_exists` and `_grep_issue_commits`.
+
+### Changed
+- **Single quality gate in the build pipeline** (#55). `/mantle:implement` no longer spawns a per-story code-reviewer agent after each story — TDD covers spec compliance and the post-implementation simplify step becomes the sole code-quality gate with cross-story context.
+- Build pipeline simplify skip condition now uses a composite heuristic: skip only when `files ≤ 3` AND `lines_changed ≤ 50` (previously file count alone).
+
 ## [0.13.0] — 2026-04-12
 
 ### Added
@@ -176,6 +186,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.14.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.14.0
 [0.13.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.13.0
 [0.12.2]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.2
 [0.12.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.1
