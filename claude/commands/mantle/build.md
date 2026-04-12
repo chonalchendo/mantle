@@ -294,6 +294,7 @@ Report the full pipeline run:
 > | Implementation | {completed/blocked} stories |
 > | Simplification | {files changed} |
 > | Verification | {PASSED / FAILED} |
+> | Build report | `.mantle/builds/build-{NN}-<timestamp>.md` |
 > | Inbox ideas | {count captured, or "none"} |
 >
 > **Total commits:** {count}

@@ -10,6 +10,7 @@ from mantle.cli import (
     adopt,
     brainstorm,
     bugs,
+    builds,
     challenge,
     decisions,
     idea,
@@ -1555,6 +1556,34 @@ def transition_issue_approved_command(
         issue=issue,
         project_dir=path,
     )
+
+
+@app.command(name="build-start")
+def build_start_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number being built.",
+        ),
+    ],
+) -> None:
+    """Record the start of a build pipeline run (writes stub telemetry)."""
+    builds.run_build_start(issue)
+
+
+@app.command(name="build-finish")
+def build_finish_command(
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number being finished.",
+        ),
+    ],
+) -> None:
+    """Finalize the build report by parsing Claude Code session JSONL."""
+    builds.run_build_finish(issue)
 
 
 @app.command(name="transition-issue-implementing")

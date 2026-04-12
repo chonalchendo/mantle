@@ -79,6 +79,14 @@ After confirming the issue, transition it to implementing (idempotent — safe i
 
     mantle transition-issue-implementing --issue {NN}
 
+Then record the start of the build run so per-story telemetry can be
+correlated later:
+
+    mantle build-start --issue {NN}
+
+This silently writes a stub build record to `.mantle/builds/`; it is safe
+to ignore if you are running outside Claude Code (no session id).
+
 Confirm with the user before proceeding.
 
 **Step 3 — Load context and stories**
@@ -262,6 +270,15 @@ each), check outcomes before proceeding to the next wave:
   stories see prior work.
 
 **Step 6 — Report results**
+
+First, finalize the build telemetry report. This parses the Claude Code
+session JSONL and writes the per-story summary to
+`.mantle/builds/build-{NN}-<timestamp>.md`:
+
+    mantle build-finish --issue {NN}
+
+Mention the build report path in the recommendation at the end of this
+step so the user can review it.
 
 After all stories are processed (or the loop stops), summarise:
 - Stories completed this run

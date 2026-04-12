@@ -58,3 +58,11 @@ class TestPublishWorkflow:
         steps = wf["jobs"]["publish"]["steps"]
         runs = [s.get("run", "") for s in steps]
         assert any("uv publish" in r for r in runs)
+
+
+def test_implement_md_references_build_telemetry():
+    """implement.md must wire in build-start and build-finish telemetry."""
+    path = REPO_ROOT / "claude" / "commands" / "mantle" / "implement.md"
+    text = path.read_text(encoding="utf-8")
+    assert "mantle build-start --issue" in text
+    assert "mantle build-finish --issue" in text

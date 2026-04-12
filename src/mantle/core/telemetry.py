@@ -250,6 +250,99 @@ def summarise(
     )
 
 
+def current_session_id() -> str:
+    """Return the Claude Code session id from the environment.
+
+    Returns:
+        Value of the ``CLAUDE_SESSION_ID`` environment variable.
+
+    Raises:
+        RuntimeError: If ``CLAUDE_SESSION_ID`` is unset. This env var
+            is set by the Claude Code CLI when a slash command runs;
+            missing it means we are running outside that context.
+    """
+    value = os.environ.get("CLAUDE_SESSION_ID")
+    if not value:
+        msg = (
+            "CLAUDE_SESSION_ID is not set. This command expects to "
+            "run inside a Claude Code session."
+        )
+        raise RuntimeError(msg)
+    return value
+
+
+def render_report(
+    report: BuildReport,
+    issue: int,
+    markers: tuple[Marker, ...],
+) -> str:
+    """Render a build report as YAML frontmatter plus summary markdown.
+
+    The output is a complete build-file body: a YAML frontmatter
+    block with issue, timestamps, session id, and a ``stories`` list
+    followed by a ``## Summary`` section. Empty reports (no story
+    runs detected) still produce valid frontmatter and a placeholder
+    summary line.
+
+    Args:
+        report: Aggregated build report.
+        issue: Issue number this build corresponds to.
+        markers: Orchestrator markers used during correlation (kept
+            for parity with the CLI wiring — not currently emitted
+            into the frontmatter but reserved for future use).
+
+    Returns:
+        Full build file body as a string ending in a newline.
+    """
+    del markers  # reserved for future marker-provenance output
+
+    lines: list[str] = ["---"]
+    lines.append(f"issue: {issue}")
+    lines.append(f"session_id: {report.session_id}")
+    lines.append(f"started: {report.started.isoformat()}")
+    lines.append(f"finished: {report.finished.isoformat()}")
+    lines.append("stories:")
+    for story in report.stories:
+        story_id = "null" if story.story_id is None else str(story.story_id)
+        lines.append(f"  - story_id: {story_id}")
+        lines.append(f"    model: {story.model}")
+        lines.append(f"    started: {story.started.isoformat()}")
+        lines.append(f"    finished: {story.finished.isoformat()}")
+        lines.append(f"    duration_s: {story.duration_s:.1f}")
+        lines.append(f"    turn_count: {story.turn_count}")
+        lines.append(f"    input_tokens: {story.usage.input_tokens}")
+        lines.append(f"    output_tokens: {story.usage.output_tokens}")
+        lines.append(
+            f"    cache_read_input_tokens: "
+            f"{story.usage.cache_read_input_tokens}"
+        )
+        lines.append(
+            f"    cache_creation_input_tokens: "
+            f"{story.usage.cache_creation_input_tokens}"
+        )
+    lines.append("---")
+    lines.append("")
+    lines.append("## Summary")
+    lines.append("")
+
+    if not report.stories:
+        lines.append("No story runs detected in this build.")
+        lines.append("")
+        return "\n".join(lines)
+
+    lines.append("| Story | Model | Duration (s) | Turns | In tok | Out tok |")
+    lines.append("|-------|-------|--------------|-------|--------|---------|")
+    for story in report.stories:
+        story_label = "—" if story.story_id is None else str(story.story_id)
+        lines.append(
+            f"| {story_label} | {story.model} | "
+            f"{story.duration_s:.1f} | {story.turn_count} | "
+            f"{story.usage.input_tokens} | {story.usage.output_tokens} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 # ── Internal helpers ─────────────────────────────────────────────
 
 

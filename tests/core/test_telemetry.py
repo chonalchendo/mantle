@@ -435,3 +435,87 @@ def test_empty_session_yields_empty_report(tmp_path: Path) -> None:
     assert runs == ()
     assert report.stories == ()
     assert report.started == report.finished
+
+
+# ── current_session_id ───────────────────────────────────────────
+
+
+def test_current_session_id_reads_env(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("CLAUDE_SESSION_ID", "abc")
+
+    assert telemetry.current_session_id() == "abc"
+
+
+def test_current_session_id_missing_raises(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+
+    with pytest.raises(RuntimeError) as exc:
+        telemetry.current_session_id()
+
+    assert "CLAUDE_SESSION_ID" in str(exc.value)
+
+
+# ── render_report ────────────────────────────────────────────────
+
+
+def test_render_report_emits_yaml_frontmatter() -> None:
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    story1 = telemetry.StoryRun(
+        story_id=1,
+        model="claude-opus-4-6",
+        started=ts,
+        finished=ts + timedelta(seconds=60),
+        duration_s=60.0,
+        usage=telemetry.Usage(input_tokens=100, output_tokens=50),
+        turn_count=3,
+    )
+    story2 = telemetry.StoryRun(
+        story_id=2,
+        model="claude-sonnet-4-5",
+        started=ts + timedelta(seconds=120),
+        finished=ts + timedelta(seconds=180),
+        duration_s=60.0,
+        usage=telemetry.Usage(input_tokens=200, output_tokens=80),
+        turn_count=5,
+    )
+    report = telemetry.BuildReport(
+        session_id="sess-1",
+        started=ts,
+        finished=ts + timedelta(seconds=180),
+        stories=(story1, story2),
+    )
+    markers = (
+        telemetry.Marker(story_id=1, timestamp=ts),
+        telemetry.Marker(story_id=2, timestamp=ts + timedelta(seconds=120)),
+    )
+
+    text = telemetry.render_report(report, issue=54, markers=markers)
+
+    assert text.startswith("---")
+    assert "issue: 54" in text
+    assert "stories:" in text
+    assert "model" in text
+    assert "duration_s" in text
+    assert "## Summary" in text
+    # A markdown table header row
+    assert "|" in text.split("## Summary", 1)[1]
+
+
+def test_render_report_zero_stories() -> None:
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    report = telemetry.BuildReport(
+        session_id="sess-empty",
+        started=ts,
+        finished=ts,
+        stories=(),
+    )
+
+    text = telemetry.render_report(report, issue=99, markers=())
+
+    assert text.startswith("---")
+    assert "issue: 99" in text
+    assert "No story runs detected" in text
