@@ -2,11 +2,11 @@
 issue: 41
 title: Core patterns module — load learnings, bucket by theme, confidence trend, render
   report
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

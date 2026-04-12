@@ -1,11 +1,11 @@
 ---
 issue: 41
 title: CLI command and prompt — expose show-patterns and /mantle:patterns
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
