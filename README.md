@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.12.2** — Fix non-existent `--global` flag in README install instructions.
+**v0.13.0** — Skills become actually useful during planning: agent-curated skill injection into shaping sessions (#52), and a standardised skill anatomy (what/why/when/how + rationalizations + red flags + verification) with marker-based progressive disclosure (#53).
 
 ## License
 

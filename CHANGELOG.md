@@ -2,6 +2,17 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.13.0] — 2026-04-12
+
+### Added
+- **Skill injection into shaping** (#52). `/mantle:shape-issue` now agent-curates relevant vault skills and injects their knowledge into the shaping prompt. New `SkillSummary` model and enriched `list-skills` CLI output surface slug + description pairs for agent selection.
+- **Standardised skill anatomy** (#53). Vault skills now follow a what/why/when/how template with Common Rationalizations, Red Flags, and Verification sections — executable workflows with anti-rationalization guardrails, not passive reference prose.
+- **Marker-based progressive disclosure** (#53). New `<!-- mantle:reference -->` marker in vault skill source splits compiled output: main workflow inline in `SKILL.md`, deep reference material in `references/core.md`. Un-markered skills fall back to the existing line-count heuristic — fully backwards compatible.
+
+### Changed
+- 5 high-use vault skills migrated to the new anatomy as proof of concept: `design-review`, `software-design-principles`, `python-project-conventions`, `cli-design-best-practices`, `cyclopts`.
+- `/mantle:add-skill` prompt now generates skills in the new anatomy.
+
 ## [0.12.2] — 2026-04-10
 
 ### Fixed
@@ -165,6 +176,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.13.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.13.0
 [0.12.2]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.2
 [0.12.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.1
 [0.12.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.12.0
