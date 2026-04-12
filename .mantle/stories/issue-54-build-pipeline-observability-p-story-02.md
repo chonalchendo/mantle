@@ -1,11 +1,11 @@
 ---
 issue: 54
 title: Build-start/build-finish CLI and implement.md wiring
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

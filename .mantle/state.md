@@ -63,7 +63,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 54 — 2 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Brainstorm completed (proceed) — idea validated, ready for next steps.
 
 ## Blockers
 
