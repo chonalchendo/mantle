@@ -64,6 +64,52 @@ options that are never varied in practice
 """
 
 
+# ── Private helpers ──────────────────────────────────────────────
+
+
+def _verify_issue_exists(project_root: Path, issue: int) -> None:
+    """Raise FileNotFoundError if the issue file does not exist."""
+    issue_path = issues.find_issue_path(project_root, issue)
+    if issue_path is None:
+        msg = f"Issue {issue} not found"
+        raise FileNotFoundError(msg)
+    issues.load_issue(issue_path)
+
+
+def _grep_issue_commits(project_root: Path, issue: int) -> list[str]:
+    """Return commit hashes for commits referencing the given issue.
+
+    Searches for ``(issue-N)`` in commit messages, and for N < 10
+    also searches ``(issue-0N)`` to catch zero-padded history.
+
+    Args:
+        project_root: Directory containing the git repo.
+        issue: Issue number to search for.
+
+    Returns:
+        List of commit hashes, most-recent first, deduplicated.
+    """
+
+    def _grep(pattern: str) -> list[str]:
+        result = subprocess.run(
+            ["git", "log", "--oneline", f"--grep={pattern}", "--format=%H"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=project_root,
+        )
+        return result.stdout.strip().splitlines()
+
+    commit_hashes = _grep(f"(issue-{issue})")
+
+    if issue < 10:
+        padded = _grep(f"(issue-0{issue})")
+        seen = set(commit_hashes)
+        commit_hashes += [h for h in padded if h not in seen]
+
+    return commit_hashes
+
+
 # ── Public API ───────────────────────────────────────────────────
 
 
@@ -92,34 +138,8 @@ def collect_issue_files(
     Raises:
         FileNotFoundError: If the issue file does not exist.
     """
-    issue_path = issues.find_issue_path(project_root, issue)
-    if issue_path is None:
-        msg = f"Issue {issue} not found"
-        raise FileNotFoundError(msg)
-    issues.load_issue(issue_path)
-
-    def _grep_commits(pattern: str) -> list[str]:
-        result = subprocess.run(
-            [
-                "git",
-                "log",
-                "--oneline",
-                f"--grep={pattern}",
-                "--format=%H",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=project_root,
-        )
-        return result.stdout.strip().splitlines()
-
-    commit_hashes = _grep_commits(f"(issue-{issue})")
-
-    if issue < 10:
-        padded = _grep_commits(f"(issue-0{issue})")
-        seen = set(commit_hashes)
-        commit_hashes += [h for h in padded if h not in seen]
+    _verify_issue_exists(project_root, issue)
+    commit_hashes = _grep_issue_commits(project_root, issue)
 
     if not commit_hashes:
         return ()
@@ -128,12 +148,7 @@ def collect_issue_files(
     last_commit = commit_hashes[0]
 
     diff_result = subprocess.run(
-        [
-            "git",
-            "diff",
-            "--name-only",
-            f"{first_commit}^..{last_commit}",
-        ],
+        ["git", "diff", "--name-only", f"{first_commit}^..{last_commit}"],
         capture_output=True,
         text=True,
         check=True,
@@ -167,34 +182,8 @@ def collect_issue_diff_stats(
     Raises:
         FileNotFoundError: If the issue file does not exist.
     """
-    issue_path = issues.find_issue_path(project_root, issue)
-    if issue_path is None:
-        msg = f"Issue {issue} not found"
-        raise FileNotFoundError(msg)
-    issues.load_issue(issue_path)
-
-    def _grep_commits(pattern: str) -> list[str]:
-        result = subprocess.run(
-            [
-                "git",
-                "log",
-                "--oneline",
-                f"--grep={pattern}",
-                "--format=%H",
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=project_root,
-        )
-        return result.stdout.strip().splitlines()
-
-    commit_hashes = _grep_commits(f"(issue-{issue})")
-
-    if issue < 10:
-        padded = _grep_commits(f"(issue-0{issue})")
-        seen = set(commit_hashes)
-        commit_hashes += [h for h in padded if h not in seen]
+    _verify_issue_exists(project_root, issue)
+    commit_hashes = _grep_issue_commits(project_root, issue)
 
     if not commit_hashes:
         return DiffStats(0, 0, 0, 0)
@@ -203,12 +192,7 @@ def collect_issue_diff_stats(
     last_commit = commit_hashes[0]
 
     shortstat = subprocess.run(
-        [
-            "git",
-            "diff",
-            "--shortstat",
-            f"{first_commit}^..{last_commit}",
-        ],
+        ["git", "diff", "--shortstat", f"{first_commit}^..{last_commit}"],
         capture_output=True,
         text=True,
         check=True,

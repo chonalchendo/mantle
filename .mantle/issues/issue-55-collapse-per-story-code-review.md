@@ -1,6 +1,6 @@
 ---
 title: Collapse per-story code review into simplify step
-status: implementing
+status: implemented
 slice:
 - claude-code
 story_count: 3
@@ -16,7 +16,7 @@ skills_required:
 - pydantic-discriminated-unions
 tags:
 - type/issue
-- status/implementing
+- status/implemented
 ---
 
 ## Parent PRD

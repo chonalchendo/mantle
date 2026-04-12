@@ -1,11 +1,11 @@
 ---
 issue: 55
 title: Composite skip heuristic in build.md step 7
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
