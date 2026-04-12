@@ -25,6 +25,8 @@ skills_required:
 - FRED Data Source
 - Finnhub Data Source
 - Finviz Data Source
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
 - Lakehouse Architecture
 - Macrotrends Data Source
 - Medallion Architecture & Star Schema
@@ -61,7 +63,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 41 — review past learnings before next planning cycle.
+Issue 54 — 2 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

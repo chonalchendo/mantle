@@ -1,16 +1,31 @@
 ---
 title: Build pipeline observability — per-story model and performance telemetry
-status: planned
+status: implementing
 slice:
 - cli
 - core
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- Design Review
+- DuckDB Best Practices and Optimisations
+- DuckLake
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
+- Mohnish Pabrai Investment Philosophy
+- OpenRouter LLM Gateway
+- Python 3.14
+- Python package structure
+- SQLMesh Best Practices
+- Tom Gayner Investment Philosophy
+- cyclopts
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Problem
