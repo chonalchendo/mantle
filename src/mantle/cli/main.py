@@ -40,6 +40,7 @@ from mantle.cli import (
 from mantle.cli import (
     patterns as patterns_cli,
 )
+from mantle.cli.groups import GROUPS
 
 app = App(
     name="mantle",
@@ -48,7 +49,7 @@ app = App(
 )
 
 
-@app.command(name="init")
+@app.command(name="init", group=GROUPS["setup"])
 def init_command(
     path: Annotated[
         Path | None,
@@ -62,7 +63,7 @@ def init_command(
     init.run_init(path)
 
 
-@app.command(name="init-vault")
+@app.command(name="init-vault", group=GROUPS["setup"])
 def init_vault_command(
     path: Annotated[
         Path,
@@ -76,7 +77,7 @@ def init_vault_command(
     init_vault.run_init_vault(path)
 
 
-@app.command(name="save-idea")
+@app.command(name="save-idea", group=GROUPS["idea"])
 def save_idea_command(
     problem: Annotated[
         str,
@@ -132,7 +133,7 @@ def save_idea_command(
     )
 
 
-@app.command(name="save-challenge")
+@app.command(name="save-challenge", group=GROUPS["idea"])
 def save_challenge_command(
     transcript: Annotated[
         str,
@@ -156,7 +157,7 @@ def save_challenge_command(
     )
 
 
-@app.command(name="save-brainstorm")
+@app.command(name="save-brainstorm", group=GROUPS["idea"])
 def save_brainstorm_command(
     title: Annotated[
         str,
@@ -196,7 +197,7 @@ def save_brainstorm_command(
     )
 
 
-@app.command(name="save-research")
+@app.command(name="save-research", group=GROUPS["idea"])
 def save_research_command(
     focus: Annotated[
         str,
@@ -255,7 +256,7 @@ def save_research_command(
     )
 
 
-@app.command(name="save-product-design")
+@app.command(name="save-product-design", group=GROUPS["design"])
 def save_product_design_command(
     vision: Annotated[
         str,
@@ -335,7 +336,7 @@ def save_product_design_command(
     )
 
 
-@app.command(name="save-revised-product-design")
+@app.command(name="save-revised-product-design", group=GROUPS["design"])
 def save_revised_product_design_command(
     vision: Annotated[
         str,
@@ -431,7 +432,7 @@ def save_revised_product_design_command(
     )
 
 
-@app.command(name="save-system-design")
+@app.command(name="save-system-design", group=GROUPS["design"])
 def save_system_design_command(
     content: Annotated[
         str,
@@ -463,7 +464,7 @@ def save_system_design_command(
     )
 
 
-@app.command(name="save-revised-system-design")
+@app.command(name="save-revised-system-design", group=GROUPS["design"])
 def save_revised_system_design_command(
     content: Annotated[
         str,
@@ -511,7 +512,7 @@ def save_revised_system_design_command(
     )
 
 
-@app.command(name="save-decision")
+@app.command(name="save-decision", group=GROUPS["design"])
 def save_decision_command(
     topic: Annotated[
         str,
@@ -591,7 +592,7 @@ def save_decision_command(
     )
 
 
-@app.command(name="save-adoption")
+@app.command(name="save-adoption", group=GROUPS["design"])
 def save_adoption_command(
     vision: Annotated[
         str,
@@ -679,7 +680,7 @@ def save_adoption_command(
     )
 
 
-@app.command(name="save-shaped-issue")
+@app.command(name="save-shaped-issue", group=GROUPS["planning"])
 def save_shaped_issue_command(
     issue: Annotated[
         int,
@@ -759,7 +760,7 @@ def save_shaped_issue_command(
     )
 
 
-@app.command(name="save-story")
+@app.command(name="save-story", group=GROUPS["planning"])
 def save_story_command(
     issue: Annotated[
         int,
@@ -815,7 +816,7 @@ def save_story_command(
     )
 
 
-@app.command(name="update-story-status")
+@app.command(name="update-story-status", group=GROUPS["impl"])
 def update_story_status_command(
     issue: Annotated[
         int,
@@ -863,7 +864,7 @@ def update_story_status_command(
     )
 
 
-@app.command(name="save-issue")
+@app.command(name="save-issue", group=GROUPS["planning"])
 def save_issue_command(
     title: Annotated[
         str,
@@ -943,7 +944,7 @@ def save_issue_command(
     )
 
 
-@app.command(name="set-slices")
+@app.command(name="set-slices", group=GROUPS["setup"])
 def set_slices_command(
     slices: Annotated[
         tuple[str, ...],
@@ -964,7 +965,7 @@ def set_slices_command(
     issues.run_set_slices(slices=slices, project_dir=path)
 
 
-@app.command(name="update-skills")
+@app.command(name="update-skills", group=GROUPS["planning"])
 def update_skills_command(
     issue: Annotated[
         int,
@@ -1000,7 +1001,7 @@ def update_skills_command(
         print("No new skills detected.")
 
 
-@app.command(name="show-patterns")
+@app.command(name="show-patterns", group=GROUPS["knowledge"])
 def show_patterns_command(
     path: Annotated[
         Path | None,
@@ -1014,7 +1015,7 @@ def show_patterns_command(
     patterns_cli.run_show_patterns(project_dir=path)
 
 
-@app.command(name="list-skills")
+@app.command(name="list-skills", group=GROUPS["knowledge"])
 def list_skills_command(
     tag: Annotated[
         str | None,
@@ -1056,7 +1057,7 @@ def list_skills_command(
         print(f"  - {s.slug} \u2014 {s.description}")
 
 
-@app.command(name="list-tags")
+@app.command(name="list-tags", group=GROUPS["knowledge"])
 def list_tags_command(
     path: Annotated[
         Path | None,
@@ -1094,7 +1095,7 @@ def list_tags_command(
         print(f"\n{n} undeclared tag(s) — consider adding to .mantle/tags.md")
 
 
-@app.command(name="save-bug")
+@app.command(name="save-bug", group=GROUPS["capture"])
 def save_bug_command(
     summary: Annotated[
         str,
@@ -1174,7 +1175,7 @@ def save_bug_command(
     )
 
 
-@app.command(name="update-bug-status")
+@app.command(name="update-bug-status", group=GROUPS["capture"])
 def update_bug_status_command(
     bug: Annotated[
         str,
@@ -1214,7 +1215,7 @@ def update_bug_status_command(
     )
 
 
-@app.command(name="save-inbox-item")
+@app.command(name="save-inbox-item", group=GROUPS["capture"])
 def save_inbox_item_command(
     title: Annotated[
         str,
@@ -1254,7 +1255,7 @@ def save_inbox_item_command(
     )
 
 
-@app.command(name="update-inbox-status")
+@app.command(name="update-inbox-status", group=GROUPS["capture"])
 def update_inbox_status_command(
     item: Annotated[
         str,
@@ -1286,7 +1287,7 @@ def update_inbox_status_command(
     )
 
 
-@app.command(name="save-learning")
+@app.command(name="save-learning", group=GROUPS["knowledge"])
 def save_learning_command(
     issue: Annotated[
         int,
@@ -1342,7 +1343,7 @@ def save_learning_command(
     )
 
 
-@app.command(name="save-session")
+@app.command(name="save-session", group=GROUPS["capture"])
 def save_session_command(
     content: Annotated[
         str,
@@ -1374,7 +1375,7 @@ def save_session_command(
     )
 
 
-@app.command(name="save-skill")
+@app.command(name="save-skill", group=GROUPS["knowledge"])
 def save_skill_command(
     name: Annotated[
         str,
@@ -1462,7 +1463,7 @@ def save_skill_command(
     )
 
 
-@app.command(name="save-verification-strategy")
+@app.command(name="save-verification-strategy", group=GROUPS["design"])
 def save_verification_strategy_command(
     strategy: Annotated[
         str,
@@ -1486,7 +1487,7 @@ def save_verification_strategy_command(
     )
 
 
-@app.command(name="introspect-project")
+@app.command(name="introspect-project", group=GROUPS["setup"])
 def introspect_project_command(
     path: Annotated[
         Path | None,
@@ -1497,7 +1498,7 @@ def introspect_project_command(
     verify.run_introspect_project(project_dir=path)
 
 
-@app.command(name="transition-issue-verified")
+@app.command(name="transition-issue-verified", group=GROUPS["planning"])
 def transition_issue_verified_command(
     issue: Annotated[
         int,
@@ -1521,7 +1522,7 @@ def transition_issue_verified_command(
     )
 
 
-@app.command(name="transition-issue-implemented")
+@app.command(name="transition-issue-implemented", group=GROUPS["planning"])
 def transition_issue_implemented_command(
     issue: Annotated[
         int,
@@ -1545,7 +1546,7 @@ def transition_issue_implemented_command(
     )
 
 
-@app.command(name="transition-issue-approved")
+@app.command(name="transition-issue-approved", group=GROUPS["planning"])
 def transition_issue_approved_command(
     issue: Annotated[
         int,
@@ -1569,7 +1570,7 @@ def transition_issue_approved_command(
     )
 
 
-@app.command(name="build-start")
+@app.command(name="build-start", group=GROUPS["impl"])
 def build_start_command(
     issue: Annotated[
         int,
@@ -1583,7 +1584,7 @@ def build_start_command(
     builds.run_build_start(issue)
 
 
-@app.command(name="build-finish")
+@app.command(name="build-finish", group=GROUPS["impl"])
 def build_finish_command(
     issue: Annotated[
         int,
@@ -1597,7 +1598,7 @@ def build_finish_command(
     builds.run_build_finish(issue)
 
 
-@app.command(name="transition-issue-implementing")
+@app.command(name="transition-issue-implementing", group=GROUPS["planning"])
 def transition_issue_implementing_command(
     issue: Annotated[
         int,
@@ -1621,7 +1622,7 @@ def transition_issue_implementing_command(
     )
 
 
-@app.command(name="save-review-result")
+@app.command(name="save-review-result", group=GROUPS["review"])
 def save_review_result_command(
     issue: Annotated[
         int,
@@ -1653,7 +1654,7 @@ def save_review_result_command(
     )
 
 
-@app.command(name="load-review-result")
+@app.command(name="load-review-result", group=GROUPS["review"])
 def load_review_result_command(
     issue: Annotated[
         int,
@@ -1677,7 +1678,7 @@ def load_review_result_command(
     )
 
 
-@app.command(name="save-scout")
+@app.command(name="save-scout", group=GROUPS["idea"])
 def save_scout_command(
     repo_url: Annotated[
         str,
@@ -1725,7 +1726,7 @@ def save_scout_command(
     )
 
 
-@app.command(name="compile")
+@app.command(name="compile", group=GROUPS["setup"])
 def compile_command(
     if_stale: Annotated[
         bool,
@@ -1765,13 +1766,13 @@ def compile_command(
     )
 
 
-@app.command(name="install")
+@app.command(name="install", group=GROUPS["setup"])
 def install_command() -> None:
     """Mount commands, agents, and hooks into ~/.claude/."""
     install.run_install()
 
 
-@app.command(name="collect-issue-files")
+@app.command(name="collect-issue-files", group=GROUPS["impl"])
 def collect_issue_files_command(
     issue: Annotated[
         int,
@@ -1795,7 +1796,7 @@ def collect_issue_files_command(
     )
 
 
-@app.command(name="collect-issue-diff-stats")
+@app.command(name="collect-issue-diff-stats", group=GROUPS["impl"])
 def collect_issue_diff_stats_command(
     issue: Annotated[
         int,
@@ -1819,7 +1820,7 @@ def collect_issue_diff_stats_command(
     )
 
 
-@app.command(name="collect-changed-files")
+@app.command(name="collect-changed-files", group=GROUPS["impl"])
 def collect_changed_files_command(
     path: Annotated[
         Path | None,
@@ -1835,7 +1836,7 @@ def collect_changed_files_command(
     )
 
 
-@app.command(name="save-distillation")
+@app.command(name="save-distillation", group=GROUPS["knowledge"])
 def save_distillation_command(
     topic: Annotated[
         str,
@@ -1875,7 +1876,7 @@ def save_distillation_command(
     )
 
 
-@app.command(name="list-distillations")
+@app.command(name="list-distillations", group=GROUPS["knowledge"])
 def list_distillations_command(
     topic: Annotated[
         str | None,
@@ -1899,7 +1900,7 @@ def list_distillations_command(
     )
 
 
-@app.command(name="load-distillation")
+@app.command(name="load-distillation", group=GROUPS["knowledge"])
 def load_distillation_command(
     path: Annotated[
         str,
@@ -1913,7 +1914,7 @@ def load_distillation_command(
     knowledge.run_load_distillation(path=path)
 
 
-@app.command(name="storage")
+@app.command(name="storage", group=GROUPS["setup"])
 def storage_command(
     mode: Annotated[
         str,
@@ -1934,7 +1935,7 @@ def storage_command(
     storage.run_storage(mode=mode, project_dir=path)
 
 
-@app.command(name="migrate-storage")
+@app.command(name="migrate-storage", group=GROUPS["setup"])
 def migrate_storage_command(
     direction: Annotated[
         str,
@@ -1955,7 +1956,7 @@ def migrate_storage_command(
     storage.run_migrate_storage(direction=direction, project_dir=path)
 
 
-@app.command(name="where")
+@app.command(name="where", group=GROUPS["setup"])
 def where_command(
     path: Annotated[
         Path | None,
