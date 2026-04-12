@@ -235,8 +235,16 @@ Otherwise, run simplification. Report one of:
 > When done, report: files reviewed count, files simplified count, and whether
 > tests passed after simplification.
 
+After the agent returns, **run the project's test command yourself** to
+independently confirm the simplification didn't regress anything — the
+refactorer agent may not have bash access, so its "tests passed" claim is
+unverified until the orchestrator confirms. Use the test command from
+CLAUDE.md (e.g., `uv run pytest`). If tests fail, revert the simplification
+commit and continue to Step 8 with the pre-simplify state.
+
 Report the agent's result:
 > **Simplification:** {files simplified}/{files reviewed} files changed
+> **Post-simplify tests:** {passed/failed}
 
 ## Step 8 — Verify (agent)
 

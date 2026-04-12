@@ -336,10 +336,17 @@ def _confidence_by_slice(
 
 
 def _issue_slice_map(project_dir: Path) -> dict[int, tuple[str, ...]]:
-    """Return a mapping from issue number to slice tuple."""
-    pattern = re.compile(r"issue-(\d+)-.*\.md")
+    """Return a mapping from issue number to slice tuple.
+
+    Scans both live and archived issues so confidence trends cover the
+    full project history, not just issues still in ``issues/``. Live
+    entries win on collisions.
+    """
+    pattern = re.compile(r"issue-(\d+)(?:-.*)?\.md")
     mapping: dict[int, tuple[str, ...]] = {}
-    for path in issues.list_issues(project_dir):
+    paths = list(issues.list_archived_issues(project_dir))
+    paths += list(issues.list_issues(project_dir))
+    for path in paths:
         match = pattern.match(path.name)
         if match is None:
             continue

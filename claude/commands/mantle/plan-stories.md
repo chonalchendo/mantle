@@ -129,6 +129,11 @@ Rules for story content:
   code in the project)
 - Reference existing modules that the story builds on (e.g., "follows the pattern of
   `core/shaping.py`")
+- **Verify structural claims before asserting them.** If a story spec says a
+  module exposes attribute `X` or function `Y(args)`, grep or read that module
+  first to confirm. Unverified claims about sibling modules' public APIs are a
+  common source of implementer-confusion — the agent either follows them into
+  a bug or wastes time re-deriving the truth.
 
 Present each proposed story and **wait for user approval or adjustment**. Do not
 propose the next story until the current one is approved.

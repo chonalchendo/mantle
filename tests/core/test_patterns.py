@@ -325,6 +325,105 @@ def test_render_report_produces_markdown_with_themes_and_trend_table(
     assert "+1.0" in rendered
 
 
+def _write_archived_issue(
+    project_dir: Path,
+    *,
+    issue: int,
+    title: str | None = None,
+    slice_: tuple[str, ...] = ("core",),
+) -> None:
+    """Write a synthetic issue under .mantle/archive/issues/.
+
+    If ``title`` is None, writes the legacy slug-less filename
+    ``issue-NN.md`` to cover both archival naming conventions.
+    """
+    archive_dir = project_dir / ".mantle" / "archive" / "issues"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    if title is None:
+        path = archive_dir / f"issue-{issue:02d}.md"
+        display = f"Issue {issue}"
+    else:
+        slug = title.lower().replace(" ", "-")
+        path = archive_dir / f"issue-{issue:02d}-{slug}.md"
+        display = title
+    slice_yaml = "\n".join(f"- {s}" for s in slice_)
+    frontmatter = (
+        "---\n"
+        f"title: {display}\n"
+        "status: approved\n"
+        "slice:\n"
+        f"{slice_yaml}\n"
+        "story_count: 0\n"
+        "verification: null\n"
+        "blocked_by: []\n"
+        "skills_required: []\n"
+        "tags:\n"
+        "- type/issue\n"
+        "- status/approved\n"
+        "---\n\n"
+        "## Why\nx\n"
+    )
+    path.write_text(frontmatter, encoding="utf-8")
+
+
+def test_analyze_patterns_joins_confidence_trend_against_archived_issues(
+    tmp_path: Path,
+) -> None:
+    _write_learning(
+        tmp_path,
+        issue=7,
+        confidence_delta="-1",
+        harder="testing was slow",
+        wrong="assumed small",
+        rec="add coverage",
+    )
+    _write_archived_issue(
+        tmp_path, issue=7, title="old-work", slice_=("core", "cli")
+    )
+
+    report = analyze_patterns(tmp_path)
+
+    slices = {s.slice: s.avg_delta for s in report.slice_stats}
+    assert slices == {"cli": -1.0, "core": -1.0}
+
+
+def test_analyze_patterns_handles_slugless_archived_issue_filenames(
+    tmp_path: Path,
+) -> None:
+    _write_learning(
+        tmp_path,
+        issue=3,
+        confidence_delta="+2",
+        harder="testing was slow",
+        wrong="assumed small",
+        rec="add coverage",
+    )
+    _write_archived_issue(tmp_path, issue=3, title=None, slice_=("core",))
+
+    report = analyze_patterns(tmp_path)
+
+    assert {s.slice for s in report.slice_stats} == {"core"}
+
+
+def test_analyze_patterns_live_issue_wins_over_archived_collision(
+    tmp_path: Path,
+) -> None:
+    _write_learning(
+        tmp_path,
+        issue=5,
+        confidence_delta="+1",
+        harder="testing was slow",
+        wrong="assumed small",
+        rec="add coverage",
+    )
+    _write_archived_issue(tmp_path, issue=5, title="old", slice_=("cli",))
+    _write_issue(tmp_path, issue=5, title="new", slice_=("core",))
+
+    report = analyze_patterns(tmp_path)
+
+    assert {s.slice for s in report.slice_stats} == {"core"}
+
+
 def test_render_report_empty_learnings_returns_guidance_message() -> None:
     report = patterns.PatternReport(
         total_learnings=0,

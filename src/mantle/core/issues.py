@@ -169,6 +169,24 @@ def list_issues(project_dir: Path) -> list[Path]:
     return sorted(issues_dir.glob("issue-*.md"))
 
 
+def list_archived_issues(project_dir: Path) -> list[Path]:
+    """All issue paths in .mantle/archive/issues/, sorted oldest-first.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+
+    Returns:
+        List of paths to archived issue files. Empty if the archive
+        directory does not exist.
+    """
+    archive_dir = (
+        project.resolve_mantle_dir(project_dir) / "archive" / "issues"
+    )
+    if not archive_dir.is_dir():
+        return []
+    return sorted(archive_dir.glob("issue-*.md"))
+
+
 def next_issue_number(project_dir: Path) -> int:
     """Return the next issue number (highest existing + 1).
 

@@ -1,6 +1,6 @@
 ---
 title: Query .mantle/ for recurring issues — surface patterns from learnings and retrospectives
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -19,7 +19,7 @@ skills_required:
 - omegaconf
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
