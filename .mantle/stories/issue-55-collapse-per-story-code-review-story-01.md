@@ -1,11 +1,11 @@
 ---
 issue: 55
 title: Core + CLI — collect_issue_diff_stats helper
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

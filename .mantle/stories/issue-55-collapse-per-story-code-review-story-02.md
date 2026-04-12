@@ -1,11 +1,11 @@
 ---
 issue: 55
 title: Remove per-story code-reviewer from implement.md
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
