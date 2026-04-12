@@ -31,6 +31,7 @@ skills_required:
 - Macrotrends Data Source
 - Medallion Architecture & Star Schema
 - Mohnish Pabrai Investment Philosophy
+- Nick Sleep Investment Philosophy
 - OpenRouter LLM Gateway
 - Playwright Web Scraping
 - Production Project Readiness
@@ -63,7 +64,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 54 — review past learnings before next planning cycle.
+Issue 48 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

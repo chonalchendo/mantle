@@ -1,16 +1,36 @@
 ---
 title: Group mantle CLI commands in --help with Cyclopts help panels
-status: planned
+status: implementing
 slice:
 - cli
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckLake
+- Earnings Transcript Data Sources
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
+- Mohnish Pabrai Investment Philosophy
+- Nick Sleep Investment Philosophy
+- OpenRouter LLM Gateway
+- Production Project Readiness
+- Python 3.14
+- Python Project Conventions
+- Python package structure
+- Software Design Principles
+- Tom Gayner Investment Philosophy
+- claude-sdk-structured-analysis-pipelines
+- cyclopts
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
