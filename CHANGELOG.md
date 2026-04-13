@@ -2,6 +2,11 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.17.1] — 2026-04-13
+
+### Fixed
+- `project.read_config` and `project.update_config` now resolve the config path via `resolve_mantle_dir` instead of hardcoding `project_root / .mantle/config.md`. Fixes `create_skill` (and any downstream `save-skill` flow) failing with `FileNotFoundError` in projects configured for global storage, which legitimately have no local `.mantle/` directory.
+
 ## [0.17.0] — 2026-04-12
 
 ### Added
@@ -214,6 +219,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.17.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.1
 [0.17.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.0
 [0.16.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.16.0
 [0.15.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.15.0

@@ -249,7 +249,7 @@ def read_config(project_root: Path) -> dict[str, Any]:
     Raises:
         FileNotFoundError: If .mantle/ or config.md does not exist.
     """
-    config_path = project_root / MANTLE_DIR / "config.md"
+    config_path = resolve_mantle_dir(project_root) / "config.md"
     frontmatter, _ = _read_frontmatter_and_body(config_path)
     return frontmatter
 
@@ -267,7 +267,7 @@ def update_config(project_root: Path, **kwargs: Any) -> None:
     Raises:
         FileNotFoundError: If .mantle/ or config.md does not exist.
     """
-    config_path = project_root / MANTLE_DIR / "config.md"
+    config_path = resolve_mantle_dir(project_root) / "config.md"
     frontmatter, body = _read_frontmatter_and_body(config_path)
     frontmatter.update(kwargs)
     _write_frontmatter_and_body(config_path, frontmatter, body)

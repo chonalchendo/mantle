@@ -1,3 +1,3 @@
 """Mantle — AI workflow engine with persistent context."""
 
-__version__ = "0.17.0"
+__version__ = "0.17.1"

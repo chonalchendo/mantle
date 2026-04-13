@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.17.0** — Grouped CLI help (#48): `mantle --help` now organises commands into Cyclopts help panels (Setup, Ideation, Design, Planning, Implementation, Verification, Knowledge, Reflection) via a shared `cli/groups.py` registry, making the CLI surface discoverable as the command count grows.
+**v0.17.1** — Fix `create_skill` (and any config read/write) failing with `FileNotFoundError` in projects using global storage: `project.read_config` / `project.update_config` now resolve via `resolve_mantle_dir` instead of hardcoding the local `.mantle/` path.
 
 ## License
 
