@@ -64,7 +64,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Scout report completed for andrej-karpathy-skills — findings captured for planning.
+Learning captured for issue 48 — review past learnings before next planning cycle.
 
 ## Blockers
 
