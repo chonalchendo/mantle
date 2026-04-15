@@ -2,11 +2,11 @@
 issue: 50
 title: Add tests/test_staleness_regressions.py with compile-lifecycle, CLI-ordering,
   archive-side-effect tests
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

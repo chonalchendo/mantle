@@ -1,6 +1,6 @@
 ---
 title: Staleness detection test suite — compile-modify-recompile regression tests
-status: implementing
+status: implemented
 slice:
 - core
 - cli
@@ -23,7 +23,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/implemented
 ---
 
 ## Parent PRD

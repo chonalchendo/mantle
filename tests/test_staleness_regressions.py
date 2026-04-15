@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from mantle.core import archive, issues, project, skills, vault
+from mantle.core import archive, issues, project, skills, stories, vault
 from mantle.core.project import _ConfigFrontmatter
 from mantle.core.skills import SkillNote
 from mantle.core.state import ProjectState, Status
@@ -39,14 +39,9 @@ def _make_mantle_fixture(
 ) -> Path:
     """Scaffold a minimal but realistic .mantle/ in tmp_path.
 
-    Writes:
-      - .mantle/state.md (status=implementing, project=test-project)
-      - .mantle/issues/issue-NN-<slug>.md with one acceptance criterion
-      - .mantle/stories/ (empty dir)
-      - .mantle/config.md pointing at tmp_path/vault when extra_skills
-        are requested, and writes each skill file under vault/skills/.
-
-    Each extra_skills entry is ``(skill_name, tags)``.
+    Each extra_skills entry is ``(skill_name, tags)``. When provided,
+    a personal vault is created at tmp_path/vault with config.md pointing
+    to it and ``type/skill`` is added to each skill's tags automatically.
 
     Args:
         tmp_path: Pytest tmp_path fixture.
@@ -58,7 +53,6 @@ def _make_mantle_fixture(
     Returns:
         Path to the project root (same as tmp_path).
     """
-
     mantle_dir = tmp_path / ".mantle"
     for subdir in ("issues", "stories", "shaped", "learnings", "reviews"):
         (mantle_dir / subdir).mkdir(parents=True, exist_ok=True)
@@ -115,19 +109,8 @@ def _write_skill_file(
     skills_dir: Path,
     name: str,
     tags: tuple[str, ...],
-) -> Path:
-    """Write a minimal skill file to the vault's skills directory.
-
-    Args:
-        skills_dir: Path to ``<vault>/skills/``.
-        name: Human-readable skill name.
-        tags: Tags to include in the skill frontmatter (``type/skill``
-            is added automatically).
-
-    Returns:
-        Path to the created skill file.
-    """
-
+) -> None:
+    """Write a minimal skill file to skills_dir (``type/skill`` auto-added)."""
     slug = skills._slugify(name)
     note = SkillNote(
         name=name,
@@ -140,27 +123,14 @@ def _write_skill_file(
         updated_by=MOCK_EMAIL,
         tags=("type/skill", *tags),
     )
-    path = skills_dir / f"{slug}.md"
-    vault.write_note(path, note, "## Context\n\nTest body.\n")
-    return path
+    vault.write_note(skills_dir / f"{slug}.md", note, "## Context\n\nTest body.\n")
 
 
 def _run_mantle(
     *args: str,
     cwd: Path,
 ) -> subprocess.CompletedProcess[str]:
-    """Run the mantle CLI as a subprocess rooted at cwd.
-
-    Uses ``uv run mantle`` so the working-tree source is exercised
-    even when an older ``mantle`` binary happens to be on ``PATH``.
-
-    Args:
-        *args: Positional arguments passed to ``mantle``.
-        cwd: Working directory for the subprocess (usually tmp_path).
-
-    Returns:
-        The completed subprocess result with captured stdout/stderr.
-    """
+    """Run ``uv run mantle`` so working-tree source is exercised over PATH."""
     return subprocess.run(
         ["uv", "run", "mantle", *args],
         capture_output=True,
@@ -372,9 +342,7 @@ class TestArchiveSideEffects:
         _make_mantle_fixture(tmp_path, issue=50, issue_status="verified")
 
         # Add a story so the archive has something to move.
-        from mantle.core.stories import StoryNote
-
-        story_note = StoryNote(
+        story_note = stories.StoryNote(
             issue=50,
             title="Test story",
             status="in-progress",
