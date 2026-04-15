@@ -1,6 +1,6 @@
 ---
 title: save-learning silently writes after issue archived
-status: implementing
+status: verified
 slice:
 - core
 - cli
@@ -14,7 +14,7 @@ skills_required:
 - cyclopts
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
