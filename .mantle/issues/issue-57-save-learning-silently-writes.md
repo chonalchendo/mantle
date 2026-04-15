@@ -1,6 +1,6 @@
 ---
 title: save-learning silently writes after issue archived
-status: planned
+status: implementing
 slice:
 - core
 - cli
@@ -8,10 +8,13 @@ story_count: 0
 verification: null
 blocked_by: []
 skills_required:
+- CLI design best practices
+- Design Review
 - Software Design Principles
+- cyclopts
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
