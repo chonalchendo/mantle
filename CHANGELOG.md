@@ -2,6 +2,14 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.18.0] — 2026-04-15
+
+### Added
+- **Staleness regression test suite** (#50) — new `tests/test_staleness_regressions.py` pins post-archive behaviour across the side-effect-ordering family: `find_issue_path` returns None after `archive_issue`, `update_story_status` fails clearly when the parent issue has been archived, `save-review-result` refuses to write for unknown issues, and more. Acts as a shared safety net for follow-up fixes in the family.
+
+### Fixed
+- **`save-learning` silently writing after issue archival** (#57). `mantle save-learning --issue NN` used to write a learning file even when issue NN had been moved to `.mantle/archive/issues/`, producing an orphaned learning with no live issue to link back to. `core.learning.save_learning` now raises `IssueNotFoundError` via a `find_issue_path` precondition before any filesystem mutation; CLI catches it and exits 1 with an actionable message. Flips `test_save_learning_after_archive_fails_clearly` from `xfail` to a real pass.
+
 ## [0.17.1] — 2026-04-13
 
 ### Fixed
@@ -219,6 +227,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.18.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.18.0
 [0.17.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.1
 [0.17.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.0
 [0.16.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.16.0

@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.17.1** — Fix `create_skill` (and any config read/write) failing with `FileNotFoundError` in projects using global storage: `project.read_config` / `project.update_config` now resolve via `resolve_mantle_dir` instead of hardcoding the local `.mantle/` path.
+**v0.18.0** — Staleness safety: new regression test suite pins post-archive side-effect behaviour across `find_issue_path`, `update_story_status`, `save-review-result`, and `save-learning`; `save-learning` now fails loudly when the target issue is missing or archived instead of silently writing an orphaned learning file.
 
 ## License
 
