@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "a5fa92a7fee91fe676128c4b835d3b8d5ab9d4d263a2f2301b44cfbc57340337",
+    "/Users/conal/Development/mantle/.mantle/state.md": "19533395d489fcfed4030043a8bb208917f787fd3f15789a301c0f481416c361",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "d91cac9749ebae0470349eddf411b5ef3adc656154822359f89eaa12c3537e26",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-12-2238.md": "8e2d7606238075e5e4eeea1ed4c36e889d97926020607d2e509b5d1c6e7ead47",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-15-2053.md": "8eaa93a140d04ff29233248b510400a485718814d83f46fbe2c964d0a0c13f52",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -16,7 +16,7 @@
     "/Users/conal/test-vault/skills/designing-architecture.md": "725bec39749f04371359da4fa33f55367a3f6c1fbff5000e1de91ad0074915eb",
     "/Users/conal/test-vault/skills/docker-compose-python.md": "e5d5477b2660ca9eb64b30858a58a71d9e7ea7ec95b12eabb67d5ccbf3610546",
     "/Users/conal/test-vault/skills/duckdb-best-practices-and-optimisations.md": "14f825c7161ca6ffb44f4822d9622e82b7e17a51f98937cced532c229ba97393",
-    "/Users/conal/test-vault/skills/ducklake.md": "b417404a58168c353b5e8e3e931fa22886820fc0373fdb9338094bd1efb41aad",
+    "/Users/conal/test-vault/skills/ducklake.md": "daaa314c9a49fff08461d175370e6e28b9266ad41ceee97cb2bb303ab6da9cb6",
     "/Users/conal/test-vault/skills/earnings-transcript-data-sources.md": "e315df1a77dcfd6569f33e64650be723a0acb11ce6f6049fd1f28cdfa8d0646d",
     "/Users/conal/test-vault/skills/earningscallbiz-scraping.md": "a51de68dc504fab138405e02dedefc4a6ff392ec3ac393b79664c52d59d95647",
     "/Users/conal/test-vault/skills/edgartools.md": "dfc4a43d356c510efb7f883810e6d673d696f693185de3054792a5abc0f034a0",
