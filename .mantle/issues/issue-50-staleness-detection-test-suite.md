@@ -1,17 +1,29 @@
 ---
 title: Staleness detection test suite — compile-modify-recompile regression tests
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Python package structure
+- SQLMesh Best Practices
+- cyclopts
+- docker-compose-python
+- edgartools
+- fastapi
+- omegaconf
+- pydantic-project-conventions
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
