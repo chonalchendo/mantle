@@ -52,6 +52,21 @@ class LearningExistsError(Exception):
         super().__init__(f"Learning already exists at {path}")
 
 
+class IssueNotFoundError(Exception):
+    """Raised when save-learning targets an unknown / archived issue.
+
+    Attributes:
+        issue: Issue number that could not be found.
+    """
+
+    def __init__(self, issue: int) -> None:
+        self.issue = issue
+        super().__init__(
+            f"Issue {issue} not found in .mantle/issues/ "
+            f"(may have been archived)"
+        )
+
+
 # ── Public API ───────────────────────────────────────────────────
 
 
@@ -81,10 +96,15 @@ def save_learning(
         Tuple of (LearningNote frontmatter, path to saved file).
 
     Raises:
+        IssueNotFoundError: If the issue is absent from
+            .mantle/issues/ (e.g. unknown or already archived).
         LearningExistsError: If file exists and overwrite is False.
         ValueError: If confidence_delta format is invalid.
     """
     _validate_confidence_delta(confidence_delta)
+
+    if issues.find_issue_path(project_dir, issue) is None:
+        raise IssueNotFoundError(issue)
 
     learning_path = _learning_path(project_dir, issue, title)
 

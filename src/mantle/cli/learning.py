@@ -31,7 +31,8 @@ def run_save_learning(
         project_dir: Project directory. Defaults to cwd.
 
     Raises:
-        SystemExit: If learning exists or validation fails.
+        SystemExit: If learning exists, the target issue is not
+            found, or validation fails.
     """
     if project_dir is None:
         project_dir = Path.cwd()
@@ -49,6 +50,14 @@ def run_save_learning(
         console.print(
             "[yellow]Warning:[/yellow] Learning already"
             " exists. Use --overwrite to replace."
+        )
+        raise SystemExit(1) from None
+    except learning.IssueNotFoundError as exc:
+        console.print(
+            f"[red]Error:[/red] {exc}\n"
+            "  If the issue is archived, save the learning before"
+            " running /mantle:archive, or edit the archived issue"
+            " file directly."
         )
         raise SystemExit(1) from None
     except ValueError as exc:

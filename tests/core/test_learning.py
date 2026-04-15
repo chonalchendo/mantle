@@ -12,8 +12,9 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
-from mantle.core import vault
+from mantle.core import archive, issues, vault
 from mantle.core.learning import (
+    IssueNotFoundError,
     LearningExistsError,
     LearningNote,
     learning_exists,
@@ -34,11 +35,26 @@ CONTENT = (
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """Create a minimal .mantle/ with state.md."""
+    """Create a minimal .mantle/ with state.md and a few issues."""
     (tmp_path / ".mantle").mkdir()
     (tmp_path / ".mantle" / "learnings").mkdir()
+    (tmp_path / ".mantle" / "issues").mkdir()
     _write_state(tmp_path)
+    for issue_num in (1, 2, 3, 21):
+        _write_issue(tmp_path, issue_num)
     return tmp_path
+
+
+def _write_issue(project_dir: Path, issue: int) -> None:
+    """Scaffold a minimal issue file under .mantle/issues/."""
+    note = issues.IssueNote(
+        title=f"Issue {issue}",
+        status="implementing",
+        slice=("core",),
+        tags=("type/issue", "status/implementing"),
+    )
+    path = project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-issue.md"
+    vault.write_note(path, note, "## Acceptance Criteria\n\n- It works\n")
 
 
 def _mock_git_identity() -> str:
@@ -293,6 +309,45 @@ class TestSaveLearning:
         note, _ = _save(project, confidence_delta="+10")
 
         assert note.confidence_delta == "+10"
+
+    def test_save_learning_raises_when_issue_missing(
+        self, project: Path
+    ) -> None:
+        with pytest.raises(IssueNotFoundError):
+            _save(project, issue=99)
+
+        learnings_dir = project / ".mantle" / "learnings"
+        assert list(learnings_dir.glob("*.md")) == []
+
+    @patch(
+        "mantle.core.learning.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_save_learning_raises_when_issue_archived(
+        self, _mock: object, project: Path
+    ) -> None:
+        # Scaffold issue 50 in .mantle/issues/ then archive it.
+        (project / ".mantle" / "issues").mkdir(exist_ok=True)
+        issue_note = issues.IssueNote(
+            title="Test issue",
+            status="verified",
+            slice=("core",),
+            tags=("type/issue", "status/verified"),
+        )
+        issue_path = project / ".mantle" / "issues" / "issue-50-test-issue.md"
+        vault.write_note(
+            issue_path,
+            issue_note,
+            "## Acceptance Criteria\n\n- It works\n",
+        )
+
+        archive.archive_issue(project, 50)
+
+        with pytest.raises(IssueNotFoundError):
+            _save(project, issue=50)
+
+        learnings_dir = project / ".mantle" / "learnings"
+        assert list(learnings_dir.glob("*.md")) == []
 
 
 # ── load_learning ────────────────────────────────────────────────

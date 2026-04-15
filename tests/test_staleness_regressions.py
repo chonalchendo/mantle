@@ -13,8 +13,6 @@ import textwrap
 from datetime import date
 from typing import TYPE_CHECKING
 
-import pytest
-
 from mantle.core import archive, issues, project, skills, stories, vault
 from mantle.core.project import _ConfigFrontmatter
 from mantle.core.skills import SkillNote
@@ -296,14 +294,6 @@ class TestArchiveSideEffects:
         archived = mantle_dir / "archive" / "issues" / "issue-50-test-issue.md"
         assert archived.exists()
 
-    @pytest.mark.xfail(
-        reason=(
-            "save-learning does not call find_issue_path, so it silently"
-            " writes a learning for an archived issue — see"
-            " .mantle/inbox/ for the follow-up bug."
-        ),
-        strict=False,
-    )
     def test_save_learning_after_archive_fails_clearly(
         self, tmp_path: Path
     ) -> None:
