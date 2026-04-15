@@ -123,7 +123,9 @@ def _write_skill_file(
         updated_by=MOCK_EMAIL,
         tags=("type/skill", *tags),
     )
-    vault.write_note(skills_dir / f"{slug}.md", note, "## Context\n\nTest body.\n")
+    vault.write_note(
+        skills_dir / f"{slug}.md", note, "## Context\n\nTest body.\n"
+    )
 
 
 def _run_mantle(
