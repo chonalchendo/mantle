@@ -162,6 +162,19 @@ This prevents agents from confidently following outdated advice — a learning
 that says "use pattern X in module Y" is dangerous if module Y was refactored
 last week.
 
+**Bug-claim caveat:** if a learning bullet asserts that something is broken,
+unimplemented, missing, or "a known bug" (e.g., "compile does not delete
+orphaned indexes", "command X silently fails after Y"), prefix it with:
+
+> **Verify before applying:** the claim below may have been fixed, scoped
+> incorrectly, or never applied to this code path. Grep or read the named
+> module before treating the claim as fact.
+
+Bug claims age fast and generalise badly — an issue's specific bug may have
+been patched in a follow-up, or the learning's author may have misattributed
+the failure. Forcing a verify step prevents the implementer from baking
+phantom xfails or working around bugs that no longer exist.
+
 If nothing is relevant (first story, empty project), skip this step.
 
 **Skill context:** Skill knowledge is embedded in the shaped issue's code

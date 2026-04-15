@@ -104,6 +104,21 @@ For each file in the list:
 > 7. Slop scaffolding — boilerplate wrapping trivial logic
 > 8. Over-parameterisation — configuration for things that never vary
 >
+> **Convention Checklist (applies to test files too):**
+> Re-check the file against the project's import and naming rules in
+> CLAUDE.md. Common violations the bloat checklist misses:
+> - `from package.module import Name` when the project mandates
+>   `from package import module` then `module.Name(...)`. Test files
+>   regularly slip past this; flag them.
+> - Importing private (underscore-prefixed) symbols across module
+>   boundaries — brittle and a sign the test should hardcode the value
+>   or the symbol should be made public.
+> - Mutable default arguments, bare `except:`, missing type hints on
+>   public functions.
+>
+> Fix convention violations as part of simplification. They are not
+> "bloat" but they degrade the codebase the same way.
+>
 > **File to simplify:** {file_path}
 >
 > Read the file, apply simplifications, and edit the file directly. If no simplifications are needed, make no changes.
