@@ -4,10 +4,25 @@ status: planned
 slice:
 - cli
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckDB Best Practices and Optimisations
+- Python 3.14
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- cyclopts
+- docker-compose-python
+- edgartools
+- fastapi
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
 - status/planned
