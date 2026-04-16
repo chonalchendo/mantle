@@ -29,6 +29,17 @@ Follow the Google Python Style Guide (see `google-python-style` skill).
 - Never bare `except:`
 - Never mutable default arguments
 
+## Baseline Skills
+
+Some vault skills are auto-loaded based on project-level constraints,
+independent of issue body matching. For example, any project with
+`requires-python >= 3.14` in `pyproject.toml` gets the `python-314`
+vault skill (when present) added to `skills_required` by
+`mantle update-skills` and compiled by `mantle compile`. This ensures
+agents working on 3.14+ code never misdiagnose valid PEP 758 syntax.
+Baseline resolution lives in `core/baseline.py` — the mapping is a
+flat function, not a plug-in registry.
+
 ## Test Conventions
 
 - Framework: pytest

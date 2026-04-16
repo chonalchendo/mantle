@@ -786,20 +786,25 @@ def auto_update_skills(
 ) -> list[str]:
     """Auto-detect and update skills_required from issue and story content.
 
-    Reads the issue and all its stories, detects vault skill matches,
-    and merges them into ``skills_required`` in ``state.md``.
+    Unions baseline skills (from project constraints) with detected
+    matches (from issue body and stories).  Both are merged additively
+    into ``state.md`` and the issue file.
 
     Args:
         project_dir: Directory containing .mantle/.
         issue_number: Issue number to scan.
 
     Returns:
-        List of newly detected skill names (not previously in
-        skills_required).
+        List of newly added skill names (not previously in
+        skills_required).  Includes baseline additions.
 
     Raises:
         VaultNotConfiguredError: If personal vault is not configured.
     """
+    # Local import to avoid circular dependency: baseline imports
+    # skills for skill_exists.
+    from mantle.core import baseline
+
     mantle_dir = project.resolve_mantle_dir(project_dir)
 
     # Collect all content from issue and its stories
@@ -825,24 +830,27 @@ def auto_update_skills(
             if p.stem.startswith(f"issue-{issue_number:02d}"):
                 content_parts.append(p.read_text(encoding="utf-8"))
 
-    if not content_parts:
-        return []
+    if content_parts:
+        combined = "\n".join(content_parts)
+        detected = detect_skills_from_content(project_dir, combined)
+    else:
+        detected = []
 
-    combined = "\n".join(content_parts)
-    detected = detect_skills_from_content(project_dir, combined)
+    baseline_skills = list(baseline.resolve_baseline_skills(project_dir))
 
-    if not detected:
+    effective = tuple(sorted(set(baseline_skills) | set(detected)))
+    if not effective:
         return []
 
     # Determine which are new
     current_state = state.load_state(project_dir)
     existing = set(current_state.skills_required)
-    new_skills = [s for s in detected if s not in existing]
+    new_skills = [s for s in effective if s not in existing]
 
     if new_skills:
         state.update_skills_required(
             project_dir,
-            tuple(detected),
+            effective,
             additive=True,
         )
 
@@ -857,7 +865,7 @@ def auto_update_skills(
             issue_note, issue_body = issues_mod.load_issue(issue_path)
         except vault.NoteParseError, vault.NoteValidationError:
             return new_skills
-        merged = set(issue_note.skills_required) | set(detected)
+        merged = set(issue_note.skills_required) | set(effective)
         if merged != set(issue_note.skills_required):
             updated_note = issue_note.model_copy(
                 update={
@@ -986,6 +994,11 @@ def compile_skills(
     instead of the project-wide list from ``state.md``.  Falls back to
     ``state.md`` if the issue has no ``skills_required``.
 
+    Baseline skills (from project-level constraints, e.g. Python
+    version) are unioned into the effective filter so language
+    baselines are always compiled, even when an issue frontmatter
+    predates baseline support.
+
     Removes stale skill directories (skills no longer in
     ``skills_required`` or deleted from vault).
 
@@ -996,10 +1009,16 @@ def compile_skills(
     Returns:
         List of compiled skill slugs.
     """
+    # Local import to avoid circular dependency: baseline imports
+    # skills for skill_exists.
+    from mantle.core import baseline
+
     skills_target = project_dir / ".claude" / "skills"
     compiled_slugs: list[str] = []
 
     skills_filter: tuple[str, ...] = ()
+    baseline_skills = baseline.resolve_baseline_skills(project_dir)
+
     if issue is not None:
         # Local import to avoid circular dependency:
         # issues -> state <- skills -> issues
@@ -1010,6 +1029,15 @@ def compile_skills(
             note, _ = issues_mod.load_issue(issue_path)
             if note.skills_required:
                 skills_filter = note.skills_required
+
+    if baseline_skills and skills_filter:
+        skills_filter = tuple(sorted(set(skills_filter) | set(baseline_skills)))
+    elif baseline_skills and not skills_filter:
+        # No issue filter: union baseline with state.md skills_required
+        state_required = state.load_state(project_dir).skills_required
+        skills_filter = tuple(
+            sorted(set(state_required) | set(baseline_skills))
+        )
 
     try:
         matches = _match_required_skills(

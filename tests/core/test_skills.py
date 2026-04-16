@@ -1538,6 +1538,93 @@ class TestAutoUpdateSkills:
 
         assert "Python asyncio" in result
 
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_baseline_unioned_with_detected(
+        self, _mock: object, project: Path
+    ) -> None:
+        """Baseline skills union with issue-detected skills."""
+        _write_state(project)
+        _create_skill(project, name="Python asyncio")
+        _create_skill(project, name="python-314")
+        (project / "pyproject.toml").write_text(
+            '[project]\nname = "demo"\nrequires-python = ">=3.14"\n',
+            encoding="utf-8",
+        )
+
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01-test.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\n"
+            "Uses Python asyncio for async I/O.\n"
+        )
+
+        result = auto_update_skills(project, 1)
+
+        assert "python-314" in result
+        assert "Python asyncio" in result
+        loaded = load_state(project)
+        assert "python-314" in loaded.skills_required
+        assert "Python asyncio" in loaded.skills_required
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_baseline_added_when_no_issue_matches(
+        self, _mock: object, project: Path
+    ) -> None:
+        """Baseline still added when the issue body matches nothing."""
+        _write_state(project)
+        _create_skill(project, name="python-314")
+        (project / "pyproject.toml").write_text(
+            '[project]\nname = "demo"\nrequires-python = ">=3.14"\n',
+            encoding="utf-8",
+        )
+
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01-test.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\n"
+            "Nothing matchable in this body.\n"
+        )
+
+        result = auto_update_skills(project, 1)
+
+        assert "python-314" in result
+        loaded = load_state(project)
+        assert "python-314" in loaded.skills_required
+
+    @patch(
+        "mantle.core.state.resolve_git_identity",
+        return_value=MOCK_EMAIL,
+    )
+    def test_baseline_not_added_if_missing_from_vault(
+        self, _mock: object, project: Path
+    ) -> None:
+        """Missing baseline skill warns and is not added."""
+        _write_state(project)
+        (project / "pyproject.toml").write_text(
+            '[project]\nname = "demo"\nrequires-python = ">=3.14"\n',
+            encoding="utf-8",
+        )
+
+        issues_dir = project / ".mantle" / "issues"
+        issues_dir.mkdir(parents=True, exist_ok=True)
+        (issues_dir / "issue-01-test.md").write_text(
+            "---\ntitle: Test\nstatus: planned\n---\n"
+            "Nothing matchable in this body.\n"
+        )
+
+        with pytest.warns(UserWarning, match="python-314"):
+            result = auto_update_skills(project, 1)
+
+        assert "python-314" not in result
+        loaded = load_state(project)
+        assert "python-314" not in loaded.skills_required
+
 
 # ── generate_index_notes ────────────────────────────────────────
 
@@ -1791,6 +1878,49 @@ class TestCompileSkillsWithIssue:
         result = compile_skills(project)
 
         assert result == ["skill-a"]
+
+
+# ── compile_skills with baseline ───────────────────────────────
+
+
+class TestCompileSkillsBaseline:
+    """Tests for compile_skills() unioning baseline skills."""
+
+    def test_baseline_compiled_even_when_issue_frontmatter_omits_it(
+        self, project: Path
+    ) -> None:
+        """Baseline skills are unioned with issue's skills_required."""
+        _create_skill(project, name="cyclopts")
+        _create_skill(project, name="python-314")
+        _write_state(project)
+        _write_issue(project, 1, skills_required=("cyclopts",))
+        (project / "pyproject.toml").write_text(
+            '[project]\nname = "demo"\nrequires-python = ">=3.14"\n',
+            encoding="utf-8",
+        )
+
+        result = compile_skills(project, issue=1)
+
+        assert sorted(result) == ["cyclopts", "python-314"]
+        skills_dir = project / ".claude" / "skills"
+        assert (skills_dir / "cyclopts").is_dir()
+        assert (skills_dir / "python-314").is_dir()
+
+    def test_baseline_unioned_with_state_when_no_issue(
+        self, project: Path
+    ) -> None:
+        """Without an issue, baseline unions with state's skills_required."""
+        _create_skill(project, name="cyclopts")
+        _create_skill(project, name="python-314")
+        _write_state(project, skills_required=("cyclopts",))
+        (project / "pyproject.toml").write_text(
+            '[project]\nname = "demo"\nrequires-python = ">=3.14"\n',
+            encoding="utf-8",
+        )
+
+        result = compile_skills(project)
+
+        assert sorted(result) == ["cyclopts", "python-314"]
 
 
 # ── auto_update_skills writes to issue ─────────────────────────

@@ -1,11 +1,11 @@
 ---
 issue: 59
 title: core/baseline.py — resolve baseline skills from pyproject.toml
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

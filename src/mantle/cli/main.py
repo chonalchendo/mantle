@@ -986,19 +986,37 @@ def update_skills_command(
     if path is None:
         path = Path.cwd()
 
-    from mantle.core import skills
+    import sys
 
+    from mantle.core import baseline, skills
+
+    baseline_names = baseline.resolve_baseline_skills(path)
     new_skills = skills.auto_update_skills(path, issue)
-    if new_skills:
-        print()
-        print(f"Detected {len(new_skills)} new skill(s):")
-        for s in new_skills:
-            print(f"  - {s}")
-        print()
-        print("Updated skills_required in state.md.")
-    else:
-        print()
-        print("No new skills detected.")
+
+    baseline_set = set(baseline_names)
+    issue_matched_new = [s for s in new_skills if s not in baseline_set]
+
+    if baseline_names:
+        print(file=sys.stderr)
+        print(
+            f"Baseline skills (always loaded): {', '.join(baseline_names)}",
+            file=sys.stderr,
+        )
+
+    if issue_matched_new:
+        print(file=sys.stderr)
+        print(
+            "Issue-matched skills (from body scan): "
+            f"{', '.join(issue_matched_new)}",
+            file=sys.stderr,
+        )
+        print("Updated skills_required in state.md.", file=sys.stderr)
+    elif new_skills:
+        # Only baseline-new, no body-scan matches
+        print("Updated skills_required in state.md.", file=sys.stderr)
+    elif not baseline_names:
+        print(file=sys.stderr)
+        print("No new skills detected.", file=sys.stderr)
 
 
 @app.command(name="show-patterns", group=GROUPS["knowledge"])
