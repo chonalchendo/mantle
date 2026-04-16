@@ -1,10 +1,10 @@
 ---
 title: Contextual CLI errors with recovery suggestions
-status: planned
+status: implementing
 slice:
 - cli
 - tests
-story_count: 1
+story_count: 2
 verification: null
 blocked_by: []
 skills_required:
@@ -25,7 +25,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
