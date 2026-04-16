@@ -22,8 +22,7 @@ Before starting, use TaskCreate to create a task for each step:
 4. "Step 4 — Save each approved story"
 5. "Step 5 — Coverage check"
 6. "Step 5b — Story self-review"
-7. "Step 5c — Load relevant skills"
-8. "Step 6 — Session wrap-up"
+7. "Step 6 — Session wrap-up"
 
 As you start each step, use TaskUpdate to set it to `in_progress`. When
 complete, use TaskUpdate to set it to `completed`.
@@ -229,27 +228,6 @@ Before loading skills, review the full set of stories with fresh eyes:
 
 Fix any issues by updating the saved stories via `mantle save-story --issue <N>
 --story <S> --title "<title>" --content "<updated content>" --overwrite`.
-
-## Step 5c — Load relevant skills
-
-After stories are saved, ensure the right vault knowledge is available for
-implementation.
-
-1. **Auto-detect existing skills**: Run `mantle update-skills --issue {NN}` to
-   scan the issue and stories for vault skill matches.
-
-2. **Identify skill gaps**: Review the technologies and patterns referenced in
-   the stories. For any that don't have a matching vault skill, tell the user:
-
-   > **Skill gaps detected:**
-   > - {technology} — no vault skill found
-   >
-   > Consider running `/mantle:add-skill` to create skills for these before
-   > implementation. Vault skills give the implementing agent domain-specific
-   > knowledge (patterns, conventions, anti-patterns) beyond what's in its
-   > training data.
-
-3. Run `mantle compile` to ensure the latest skills are compiled.
 
 ## Step 6 — Session wrap-up
 
