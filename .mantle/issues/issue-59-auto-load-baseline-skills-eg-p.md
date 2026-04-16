@@ -1,6 +1,6 @@
 ---
 title: Auto-load baseline skills (e.g. python-314) based on project constraints
-status: implementing
+status: verified
 slice:
 - core
 - cli
@@ -49,7 +49,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD

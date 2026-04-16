@@ -1,11 +1,11 @@
 ---
 issue: 59
 title: Wire baseline skills into auto_update_skills, compile_skills, and CLI reporting
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
