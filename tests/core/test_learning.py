@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pydantic
 import pytest
+from dirty_equals import IsPartialDict
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -151,10 +152,12 @@ class TestSaveLearning:
         saved_note, path = _save(project)
         loaded_note, _ = learning.load_learning(path)
 
-        assert loaded_note.issue == saved_note.issue
-        assert loaded_note.title == saved_note.title
-        assert loaded_note.confidence_delta == (saved_note.confidence_delta)
-        assert loaded_note.tags == saved_note.tags
+        assert loaded_note.model_dump() == IsPartialDict(
+            issue=21,
+            title="Shaping phase implementation",
+            confidence_delta="+2",
+            tags=saved_note.tags,
+        )
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",

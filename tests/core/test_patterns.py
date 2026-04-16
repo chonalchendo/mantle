@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 
+from inline_snapshot import snapshot
+
 from mantle.core import learning, patterns
 from mantle.core.patterns import (
     PatternHit,
@@ -282,47 +284,39 @@ def test_confidence_by_slice_ignores_unmatched_issue(tmp_path: Path) -> None:
 
 
 def test_render_report_produces_markdown_with_themes_and_trend_table(
-    tmp_path: Path,
+    vault_with_learnings: Path,
 ) -> None:
-    _write_learning(
-        tmp_path,
-        issue=47,
-        title="testing-woes",
-        confidence_delta="+1",
-        harder="pytest fixtures broke",
-        wrong="Assumed mock matched prod",
-        rec="Use real database",
-    )
-    _write_issue(tmp_path, issue=47, title="testing-woes", slice_=("core",))
-    _write_learning(
-        tmp_path,
-        issue=48,
-        title="cli-trouble",
-        confidence_delta="-1",
-        harder="worktree merge was harder",
-        wrong="Assumed branch was clean",
-        rec="Use worktree isolation",
-    )
-    _write_issue(tmp_path, issue=48, title="cli-trouble", slice_=("cli",))
-
-    report = analyze_patterns(tmp_path)
+    report = analyze_patterns(vault_with_learnings)
     rendered = render_report(report)
 
-    assert "# Recurring Patterns" in rendered
-    assert "Based on 2 learnings" in rendered
-    assert "## Themes" in rendered
-    # Testing theme title-cased
-    assert "### Testing" in rendered
-    # Worktree theme title-cased
-    assert "### Worktree" in rendered
-    assert "## Confidence trend by slice" in rendered
-    assert "| Slice | Learnings | Avg Δ confidence |" in rendered
-    # core has +1 delta, cli has -1 delta — sorted ascending by delta.
-    cli_idx = rendered.find("| cli |")
-    core_idx = rendered.find("| core |")
-    assert cli_idx < core_idx
-    assert "-1.0" in rendered
-    assert "+1.0" in rendered
+    assert rendered == snapshot("""\
+# Recurring Patterns
+
+Based on 2 learnings.
+
+## Themes
+
+### Testing (2 hits)
+- issue 47 (harder): pytest fixtures broke
+- issue 47 (wrong): Assumed mock matched prod
+
+### Worktree (3 hits)
+- issue 48 (harder): worktree merge was harder
+- issue 48 (rec): Use worktree isolation
+- issue 48 (wrong): Assumed branch was clean
+
+### Other (1 hits)
+- issue 47 (rec): Use real database
+
+## Confidence trend by slice
+
+| Slice | Learnings | Avg Δ confidence |
+| --- | ---: | ---: |
+| cli | 1 | -1.0 |
+| core | 1 | +1.0 |
+
+_Slices with no matched issue are omitted._
+""")
 
 
 def _write_archived_issue(

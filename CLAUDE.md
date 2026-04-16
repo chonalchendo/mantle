@@ -38,6 +38,10 @@ Follow the Google Python Style Guide (see `google-python-style` skill).
 - No LLM calls in tests
 - Test external behaviour, not internal implementation details
 - Mock boundaries (filesystem, network), not internal functions
+- Use `inline_snapshot` (`from inline_snapshot import snapshot`) for tests asserting exact-string CLI output, rendered markdown, or generated artefacts. `assert rendered == snapshot()` starts empty and is auto-filled by `uv run pytest --inline-snapshot=create`; review the diff before committing. Never hand-edit a snapshot literal.
+- Use `dirty-equals` (`IsPartialDict`, `IsList(..., check_order=False)`, `IsDatetime`, `IsNow`, `IsStr(regex=...)`) for partial or unordered comparisons — replaces hand-written attribute-by-attribute asserts and sort-then-compare helpers. Pair with `inline_snapshot` for captures that need to tolerate unstable fields.
+- Scenario fixtures in `tests/conftest.py` follow the naming convention `vault_with_<state>` or `<noun>_after_<event>`; the docstring describes the scenario. One fixture = one named scenario.
+- Don't mix the two tools in a single assertion without intent: `inline_snapshot` captures values, `dirty-equals` captures shape.
 
 ## Commit Messages
 
