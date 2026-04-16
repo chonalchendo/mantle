@@ -172,7 +172,7 @@ class TestMigrateStorage:
             run_migrate_storage(direction="global", project_dir=tmp_path)
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
     def test_migrate_storage_invalid_direction(
         self,

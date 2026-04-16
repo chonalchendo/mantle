@@ -117,7 +117,7 @@ class TestRunSaveBug:
             _save_bug(project, severity="critical")
 
         captured = capsys.readouterr()
-        assert "Invalid severity" in captured.out
+        assert "Invalid severity" in captured.err
 
 
 # ── run_update_bug_status ───────────────────────────────────────
@@ -182,7 +182,7 @@ class TestRunUpdateBugStatus:
             )
 
         captured = capsys.readouterr()
-        assert "Bug not found" in captured.out
+        assert "Bug not found" in captured.err
 
     def test_handles_invalid_status(
         self,
@@ -203,7 +203,7 @@ class TestRunUpdateBugStatus:
             )
 
         captured = capsys.readouterr()
-        assert "Invalid status" in captured.out
+        assert "Invalid status" in captured.err
 
 
 # ── CLI wiring ──────────────────────────────────────────────────

@@ -11,6 +11,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import archive, issues, review
 
 console = Console()
@@ -38,11 +39,13 @@ def _transition(
     try:
         path = fn(project_dir, issue)
     except issues.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot transition to '{target}'"
-            f" from '{exc.current_status}' status."
+        errors.exit_with_error(
+            (
+                f"Cannot transition to '{target}'"
+                f" from '{exc.current_status}' status."
+            ),
+            hint=f"Run 'mantle verify-issue --issue {issue}' first",
         )
-        raise SystemExit(1) from None
 
     console.print()
     console.print(
@@ -159,8 +162,10 @@ def run_save_review_result(
 
     issue_path = issues.find_issue_path(project_dir, issue)
     if issue_path is None:
-        console.print(f"[red]Error:[/red] Issue {issue} not found.")
-        raise SystemExit(1)
+        errors.exit_with_error(
+            f"Issue {issue} not found.",
+            hint="Check the issue number with 'mantle list-issues'",
+        )
 
     issue_note, _ = issues.load_issue(issue_path)
 
@@ -213,7 +218,9 @@ def run_load_review_result(
     try:
         _, body = review.load_review_result(project_dir, issue)
     except FileNotFoundError:
-        console.print(f"[red]Error:[/red] No review found for issue {issue}.")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            f"No review found for issue {issue}.",
+            hint=f"Run 'mantle review-issue --issue {issue}' first",
+        )
 
     console.print(body)

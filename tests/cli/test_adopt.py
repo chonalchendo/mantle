@@ -171,8 +171,8 @@ class TestRunSaveAdoption:
             run_save_adoption(**_DEFAULTS, project_dir=tmp_path)
 
         captured = capsys.readouterr()
-        assert "planning" in captured.out
-        assert "adoption requires" in captured.out
+        assert "planning" in captured.err
+        assert "adoption requires" in captured.err
 
     def test_overwrite_succeeds(
         self,

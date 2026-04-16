@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import skills
 
 console = Console()
@@ -65,14 +66,22 @@ def run_save_skill(
         )
         raise SystemExit(1) from None
     except skills.VaultNotConfiguredError:
-        console.print(
-            "[red]Error:[/red] Personal vault not configured. "
-            "Run mantle init-vault <path> first."
+        errors.exit_with_error(
+            "Personal vault not configured.",
+            hint=(
+                "Set vault_path in ~/.mantle/config.yaml"
+                " or run 'mantle init-vault'"
+            ),
         )
-        raise SystemExit(1) from None
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print(f"Skill saved to {path}")
     console.print()

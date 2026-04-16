@@ -135,7 +135,7 @@ class TestTransitionIssueVerifiedCLI:
         )
 
         assert result.returncode != 0
-        assert "Cannot transition" in result.stdout
+        assert "Cannot transition" in result.stderr
 
 
 class TestIntrospectProjectCLI:

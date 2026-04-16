@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import migration, project
 
 console = Console()
@@ -26,11 +27,10 @@ def run_storage(
         SystemExit: If mode is invalid.
     """
     if mode not in ("global", "local"):
-        console.print(
-            f"[red]Error:[/red] Invalid storage mode"
-            f" '{mode}'. Must be 'global' or 'local'."
+        errors.exit_with_error(
+            f"Invalid storage mode '{mode}'. Must be 'global' or 'local'.",
+            hint="Use 'global' or 'local'",
         )
-        raise SystemExit(1)
 
     if project_dir is None:
         project_dir = Path.cwd()
@@ -65,11 +65,10 @@ def run_migrate_storage(
         SystemExit: If direction is invalid or migration fails.
     """
     if direction not in ("global", "local"):
-        console.print(
-            f"[red]Error:[/red] Invalid direction"
-            f" '{direction}'. Must be 'global' or 'local'."
+        errors.exit_with_error(
+            f"Invalid direction '{direction}'. Must be 'global' or 'local'.",
+            hint="Use 'global' or 'local'",
         )
-        raise SystemExit(1)
 
     if project_dir is None:
         project_dir = Path.cwd()
@@ -80,8 +79,14 @@ def run_migrate_storage(
         else:
             result_path = migration.migrate_to_local(project_dir)
     except FileExistsError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print(f"Migrated to {direction} storage: {result_path}")
 

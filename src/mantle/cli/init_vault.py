@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import project
 
 console = Console()
@@ -29,11 +30,10 @@ def run_init_vault(vault_path: Path) -> None:
         )
         return
     except FileNotFoundError:
-        console.print(
-            "[red]Error:[/red] Project not initialized. "
-            "Run [bold]mantle init[/bold] first."
+        errors.exit_with_error(
+            "Project not initialized.",
+            hint="Run 'mantle init' first",
         )
-        raise SystemExit(1) from None
 
     resolved = vault_path.expanduser().resolve()
     console.print()

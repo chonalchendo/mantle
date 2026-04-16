@@ -100,7 +100,7 @@ class TestRunSaveBrainstorm:
             )
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
     def test_save_brainstorm_cli_default_cwd(
         self,

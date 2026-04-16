@@ -197,7 +197,7 @@ class TestRunSaveResearch:
             )
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
     def test_defaults_to_cwd(
         self,

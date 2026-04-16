@@ -70,7 +70,7 @@ class TestRunSaveInboxItem:
             )
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
 
 # ── run_update_inbox_status ─────────────────────────────────────
@@ -125,7 +125,7 @@ class TestRunUpdateInboxStatus:
             )
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
     def test_run_update_inbox_status_invalid_status(
         self,
@@ -153,7 +153,7 @@ class TestRunUpdateInboxStatus:
             )
 
         captured = capsys.readouterr()
-        assert "Error" in captured.out
+        assert "Error" in captured.err
 
 
 # ── CLI wiring ──────────────────────────────────────────────────

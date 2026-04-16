@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import manifest
 
 if TYPE_CHECKING:
@@ -61,11 +62,10 @@ def _locate_bundled_claude_dir() -> Path:
     ref = resources.files("mantle").joinpath("claude")
     source_dir = Path(str(ref))
     if not source_dir.is_dir():
-        console.print(
-            "[red]Error:[/red] Bundled claude/ directory not found. "
-            "The package may be installed incorrectly."
+        errors.exit_with_error(
+            "Bundled claude/ directory not found.",
+            hint="Reinstall mantle with 'uv tool install mantle'",
         )
-        raise SystemExit(1)
     return source_dir
 
 

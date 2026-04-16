@@ -160,7 +160,7 @@ class TestRunSaveSkill:
             _save_skill(project_no_vault)
 
         captured = capsys.readouterr()
-        assert "vault not configured" in captured.out.lower()
+        assert "vault not configured" in captured.err.lower()
 
     def test_errors_on_bad_proficiency(
         self,
@@ -171,7 +171,7 @@ class TestRunSaveSkill:
             _save_skill(project, proficiency="high")
 
         captured = capsys.readouterr()
-        assert "proficiency" in captured.out.lower()
+        assert "proficiency" in captured.err.lower()
 
     def test_save_skill_with_tags(
         self,

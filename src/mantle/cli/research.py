@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import research
 
 console = Console()
@@ -54,13 +55,19 @@ def run_save_research(
         )
         raise SystemExit(1) from None
     except research.IssueNotFoundError as exc:
-        console.print(
-            f"[red]Error:[/red] No issue file found for issue {exc.issue}."
+        errors.exit_with_error(
+            f"No issue file found for issue {exc.issue}.",
+            hint="Check the issue number with 'mantle list-issues'",
         )
-        raise SystemExit(1) from None
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print()
     console.print(f"[green]Research saved to {path.name}[/green]")

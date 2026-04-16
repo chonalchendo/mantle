@@ -260,7 +260,7 @@ class TestRunUpdateStoryStatus:
             )
 
         captured = capsys.readouterr()
-        assert "not found" in captured.out
+        assert "not found" in captured.err
 
 
 # ── CLI wiring ─────────────────────────────────────────────────

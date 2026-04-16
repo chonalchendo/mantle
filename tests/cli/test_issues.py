@@ -245,7 +245,7 @@ class TestRunSaveIssue:
             )
 
         captured = capsys.readouterr()
-        assert "Cannot plan issues" in captured.out
+        assert "Cannot plan issues" in captured.err
 
 
 # ── run_set_slices ──────────────────────────────────────────────

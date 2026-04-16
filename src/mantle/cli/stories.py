@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import stories
 
 console = Console()
@@ -98,10 +99,12 @@ def run_update_story_status(
             failure_log=failure_log,
         )
     except FileNotFoundError:
-        console.print(
-            f"[red]Error:[/red] Story {story} for issue {issue} not found."
+        errors.exit_with_error(
+            f"Story {story} for issue {issue} not found.",
+            hint=(
+                f"Check the story ID with 'mantle list-stories --issue {issue}'"
+            ),
         )
-        raise SystemExit(1) from None
 
     console.print()
     console.print(

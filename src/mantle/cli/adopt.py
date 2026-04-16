@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import adopt
 from mantle.core.state import InvalidTransitionError
 
@@ -67,14 +68,16 @@ def run_save_adoption(
         )
         raise SystemExit(1) from None
     except InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] project is at"
-            f" '{exc.current.value}'"
-            f" — adoption requires 'idea' status.\n"
-            f"Run mantle init to start a new project,"
-            f" then /mantle:adopt."
+        errors.exit_with_error(
+            (
+                f"project is at '{exc.current.value}'"
+                f" — adoption requires 'idea' status."
+            ),
+            hint=(
+                "Back up .mantle/ and re-run 'mantle init'"
+                " if you want to restart"
+            ),
         )
-        raise SystemExit(1) from None
 
     console.print()
     console.print(

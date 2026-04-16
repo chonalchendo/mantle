@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import brainstorm
 
 console = Console()
@@ -50,8 +51,14 @@ def run_save_brainstorm(
             verdict=verdict,
         )
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print()
     console.print(f"[green]Brainstorm saved to {path.name}[/green]")

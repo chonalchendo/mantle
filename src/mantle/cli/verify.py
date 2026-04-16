@@ -8,6 +8,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import issues, verify
 
 console = Console()
@@ -78,11 +79,16 @@ def run_transition_to_verified(
     try:
         path = issues.transition_to_verified(project_dir, issue)
     except issues.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot transition to 'verified'"
-            f" from '{exc.current_status}' status."
+        errors.exit_with_error(
+            (
+                f"Cannot transition to 'verified'"
+                f" from '{exc.current_status}' status."
+            ),
+            hint=(
+                f"Run 'mantle verify-issue --issue {issue}' first"
+                " to record verification result"
+            ),
         )
-        raise SystemExit(1) from None
 
     console.print()
     console.print(

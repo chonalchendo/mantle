@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import issues, state
 
 console = Console()
@@ -61,14 +62,10 @@ def run_save_issue(
         )
         raise SystemExit(1) from None
     except state.InvalidTransitionError as exc:
-        console.print(
-            f"[red]Error:[/red] Cannot plan issues from"
-            f" '{exc.current.value}' status."
+        errors.exit_with_error(
+            f"Cannot plan issues from '{exc.current.value}' status.",
+            hint="Run 'mantle design-product' first",
         )
-        if exc.valid_targets:
-            targets = ", ".join(sorted(s.value for s in exc.valid_targets))
-            console.print(f"  Valid next steps: {targets}")
-        raise SystemExit(1) from None
 
     console.print()
     console.print(f"[green]Saved {path.name} to .mantle/issues/[/green]")

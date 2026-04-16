@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import scout
 
 console = Console()
@@ -43,8 +44,14 @@ def run_save_scout(
             dimensions=tuple(dimensions),
         )
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print()
     console.print(f"[green]Scout report saved to {path.name}[/green]")

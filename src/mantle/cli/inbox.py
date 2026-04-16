@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import inbox
 
 console = Console()
@@ -40,8 +41,14 @@ def run_save_inbox_item(
             source=source,
         )
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print()
     console.print("[green]Inbox item saved to .mantle/inbox/[/green]")
@@ -76,11 +83,19 @@ def run_update_inbox_status(
             status=status,
         )
     except FileNotFoundError:
-        console.print(f"[red]Error:[/red] Inbox item not found: {item}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            f"Inbox item not found: {item}",
+            hint="List inbox items with 'mantle list-inbox'",
+        )
     except ValueError as exc:
-        console.print(f"[red]Error:[/red] {exc}")
-        raise SystemExit(1) from None
+        errors.exit_with_error(
+            str(exc),
+            hint=(
+                "See the error above; file a bug at"
+                " https://github.com/chonalchendo/mantle/issues"
+                " if unexpected"
+            ),
+        )
 
     console.print()
     console.print(f"[green]Item updated:[/green] {item}")

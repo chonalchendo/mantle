@@ -6,6 +6,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from mantle.cli import errors
 from mantle.core import compiler
 
 console = Console()
@@ -44,11 +45,10 @@ def run_compile(
                 project_dir, target_dir=target_dir, issue=issue
             )
     except FileNotFoundError:
-        console.print(
-            "[red]Error:[/red] no .mantle/ directory found. "
-            "Run [bold]mantle init[/bold] first."
+        errors.exit_with_error(
+            "no .mantle/ directory found.",
+            hint="Run 'mantle init' to create a project",
         )
-        raise SystemExit(1) from None
 
     display_target = (
         target_dir or Path.home() / ".claude" / "commands" / "mantle"
