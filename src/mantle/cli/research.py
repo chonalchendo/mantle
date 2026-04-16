@@ -62,11 +62,7 @@ def run_save_research(
     except ValueError as exc:
         errors.exit_with_error(
             str(exc),
-            hint=(
-                "See the error above; file a bug at"
-                " https://github.com/chonalchendo/mantle/issues"
-                " if unexpected"
-            ),
+            hint=errors.UNEXPECTED_BUG_HINT,
         )
 
     console.print()

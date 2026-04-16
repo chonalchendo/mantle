@@ -12,6 +12,18 @@ from rich.console import Console
 
 _stderr = Console(stderr=True, highlight=False)
 
+UNEXPECTED_BUG_HINT = (
+    "See the error above; file a bug at"
+    " https://github.com/chonalchendo/mantle/issues"
+    " if unexpected"
+)
+"""Fallback hint for generic exception catches wrapping core-layer calls.
+
+Use as ``hint=errors.UNEXPECTED_BUG_HINT`` when an internal error shape
+means no actionable recovery suggestion applies — the user should see
+the underlying message and be nudged to file a bug.
+"""
+
 
 def print_error(message: str, *, hint: str) -> None:
     """Print a formatted error message and recovery hint to stderr.

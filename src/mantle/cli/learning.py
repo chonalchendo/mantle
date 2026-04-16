@@ -60,20 +60,12 @@ def run_save_learning(
                 " before running /mantle:archive, or edit the archived"
                 " issue file directly."
             ),
-            hint=(
-                "See the error above; file a bug at"
-                " https://github.com/chonalchendo/mantle/issues"
-                " if unexpected"
-            ),
+            hint=errors.UNEXPECTED_BUG_HINT,
         )
     except ValueError as exc:
         errors.exit_with_error(
             str(exc),
-            hint=(
-                "See the error above; file a bug at"
-                " https://github.com/chonalchendo/mantle/issues"
-                " if unexpected"
-            ),
+            hint=errors.UNEXPECTED_BUG_HINT,
         )
 
     console.print()
