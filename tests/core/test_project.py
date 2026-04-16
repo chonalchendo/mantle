@@ -411,3 +411,76 @@ class TestResolveMantleDir:
 
         assert resolve_mantle_dir(primary) == global_dir
         assert resolve_mantle_dir(worktree) == global_dir
+
+
+# ── Worktree handling (local storage) ───────────────────────────
+
+
+def _init_bare_repo(repo: Path) -> None:
+    """Create a minimal git repo with one commit."""
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "t@example.com"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "t"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "--allow-empty", "-m", "init"],
+        check=True,
+        capture_output=True,
+    )
+
+
+class TestResolveMantleDirLocalWorktree:
+    def test_primary_worktree_uses_own_mantle(self, tmp_path: Path) -> None:
+        """Primary worktree in local mode keeps its own .mantle/."""
+        primary = tmp_path / "primary"
+        primary.mkdir()
+        _init_bare_repo(primary)
+
+        result = resolve_mantle_dir(primary)
+
+        assert result.resolve() == (primary / MANTLE_DIR).resolve()
+
+    def test_linked_worktree_resolves_to_primary_mantle(
+        self, tmp_path: Path
+    ) -> None:
+        """Linked worktree shares the primary's .mantle/ directory."""
+        primary = tmp_path / "primary"
+        primary.mkdir()
+        _init_bare_repo(primary)
+
+        linked = tmp_path / "linked"
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(primary),
+                "worktree",
+                "add",
+                "-b",
+                "feature",
+                str(linked),
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+        result = resolve_mantle_dir(linked)
+
+        assert result.resolve() == (primary / MANTLE_DIR).resolve()
+        assert result.resolve() != (linked / MANTLE_DIR).resolve()
+
+    def test_non_git_dir_uses_project_local(self, tmp_path: Path) -> None:
+        """Non-git directories still fall back to project-local .mantle/."""
+        outsider = tmp_path / "standalone"
+        outsider.mkdir()
+
+        result = resolve_mantle_dir(outsider)
+
+        assert result == outsider / MANTLE_DIR

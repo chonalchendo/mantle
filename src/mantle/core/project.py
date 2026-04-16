@@ -183,6 +183,12 @@ def resolve_mantle_dir(project_dir: Path) -> Path:
     created from a migrated project inherits the same global context
     automatically because it shares the same ``project_identity()``.
 
+    In local storage mode, ``.mantle/`` lives at the primary git
+    worktree's root.  If ``project_dir`` is inside a linked worktree,
+    this function resolves up to the primary so every worktree of the
+    same repo shares one ``.mantle/``.  For non-git directories the
+    path is returned unchanged.
+
     This function does **not** create any directories.
 
     Args:
@@ -195,7 +201,38 @@ def resolve_mantle_dir(project_dir: Path) -> Path:
     global_dir = pathlib.Path.home() / GLOBAL_MANTLE_ROOT / identity
     if global_dir.exists():
         return global_dir
-    return project_dir / MANTLE_DIR
+    primary = _primary_worktree_root(project_dir)
+    root = primary if primary is not None else project_dir
+    return root / MANTLE_DIR
+
+
+def _primary_worktree_root(project_dir: Path) -> Path | None:
+    """Return the primary git worktree root for ``project_dir``.
+
+    The primary worktree is the main checkout of a repository — linked
+    worktrees created via ``git worktree add`` share its ``.git``
+    metadata.  ``git worktree list --porcelain`` always lists the
+    primary first, so the first ``worktree <path>`` line identifies it.
+
+    Args:
+        project_dir: Directory inside the worktree to query.
+
+    Returns:
+        Absolute path to the primary worktree root, or ``None`` if
+        ``project_dir`` is not inside a git repository.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(project_dir), "worktree", "list", "--porcelain"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    for line in result.stdout.splitlines():
+        if line.startswith("worktree "):
+            return pathlib.Path(line[len("worktree ") :])
+    return None
 
 
 def init_project(project_dir: Path, project_name: str) -> Path:
