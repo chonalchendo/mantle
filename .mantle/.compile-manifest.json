@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "46d7d73e5f6a0456074b77829d3f7031bec26610299f4cfc0e726b29608754b8",
+    "/Users/conal/Development/mantle/.mantle/state.md": "93beacc566160613111b3fbe822686b6567be6f63807552161baf8eab2bf08c2",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "d91cac9749ebae0470349eddf411b5ef3adc656154822359f89eaa12c3537e26",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-16-1304.md": "55f406087c91b1c3d594ed8b97f238c83f79b1b310f17fbc0ac5413319a918e4",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-16-1444.md": "eaecdf862ca7ef9d14acb20edc3bb898e53c0cae26a84dac367e1c4263d0517c",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -14,6 +14,7 @@
     "/Users/conal/test-vault/skills/cyclopts.md": "457e28f488b168bd49e15d16d412b7bf84c83bfd99201910ff58d2768e25d90b",
     "/Users/conal/test-vault/skills/design-review.md": "6e34477a0090360ac42df99fb5eb9522787a346fb36e81f12fea7e90c1c3addb",
     "/Users/conal/test-vault/skills/designing-architecture.md": "725bec39749f04371359da4fa33f55367a3f6c1fbff5000e1de91ad0074915eb",
+    "/Users/conal/test-vault/skills/dirty-equals.md": "7991925d7e0cbb7e03f993f825c432b3e70ac352d56ba2539749345fd42616e8",
     "/Users/conal/test-vault/skills/docker-compose-python.md": "e5d5477b2660ca9eb64b30858a58a71d9e7ea7ec95b12eabb67d5ccbf3610546",
     "/Users/conal/test-vault/skills/duckdb-best-practices-and-optimisations.md": "14f825c7161ca6ffb44f4822d9622e82b7e17a51f98937cced532c229ba97393",
     "/Users/conal/test-vault/skills/ducklake.md": "daaa314c9a49fff08461d175370e6e28b9266ad41ceee97cb2bb303ab6da9cb6",
@@ -26,6 +27,7 @@
     "/Users/conal/test-vault/skills/fred-data-source.md": "dc223a28094166ade98c28d5155ddc7a69f9ae0c1b1e00531bafb4adf3dce058",
     "/Users/conal/test-vault/skills/howard-marks-investment-philosophy.md": "2e9b10de51acf1032c35d2bc344c455288e807642df81a345309d2b67e1150c7",
     "/Users/conal/test-vault/skills/httpx-async.md": "43d864333b31db563ed1268f3f93fce51c39e57ae8495b2b6035709aafb262c8",
+    "/Users/conal/test-vault/skills/inline-snapshot.md": "1e99022cd928b63be0e491d42ada93868bfbb2fe9cf479d8b65d34036670f01b",
     "/Users/conal/test-vault/skills/john-templeton-investment-philosophy.md": "387ad15a4383c20afc9bfda579e0aeafa06bff51f68da3646e44422c473ab49f",
     "/Users/conal/test-vault/skills/lakehouse-architecture.md": "88e4a18b1a467d95c10959dc5e28699e4b318b799141dcc906c9cf7d7a4281fb",
     "/Users/conal/test-vault/skills/macrotrends-data-source.md": "8337ef583431dacf0b5a5f22050a8c1aa5e2489fcc0a5113940f729917483f05",

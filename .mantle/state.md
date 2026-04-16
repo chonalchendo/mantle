@@ -44,10 +44,12 @@ skills_required:
 - beautifulsoup4-web-scraping
 - claude-sdk-structured-analysis-pipelines
 - cyclopts
+- dirty-equals
 - docker-compose-python
 - edgartools
 - fastapi
 - httpx-async
+- inline-snapshot
 - omegaconf
 - pydantic-discriminated-unions
 - pydantic-project-conventions
@@ -64,7 +66,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 58 planned — run /mantle:build to automate the full pipeline, /mantle:shape-issue for manual control, or /mantle:plan-issues for next issue.
+Issue 58 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

@@ -136,6 +136,7 @@ Every module in `core/` gets tests:
 - **Fixtures**: Temporary vault directories with pre-built `.mantle/` structures
 - **Mocking**: `subprocess.run` mocked for Obsidian CLI and git operations
 - **No LLM calls in tests**: Orchestration logic lives in `implement.md` (prompt-based). Python tests cover state management and story CRUD, not the orchestration flow.
+- `inline_snapshot` and `dirty-equals` are available for exact-output capture and structural comparison respectively (see CLAUDE.md Test Conventions).
 
 ## Distribution & Installation
 
