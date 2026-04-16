@@ -1,11 +1,11 @@
 ---
 issue: 51
 title: Migrate all CLI error paths to errors.exit_with_error
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

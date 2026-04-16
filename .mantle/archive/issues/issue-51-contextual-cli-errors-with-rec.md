@@ -1,6 +1,6 @@
 ---
 title: Contextual CLI errors with recovery suggestions
-status: implementing
+status: approved
 slice:
 - cli
 - tests
@@ -25,7 +25,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/approved
 ---
 
 ## Parent PRD

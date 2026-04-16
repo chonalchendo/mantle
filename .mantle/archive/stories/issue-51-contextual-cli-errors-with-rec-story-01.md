@@ -1,11 +1,11 @@
 ---
 issue: 51
 title: Core errors module — print_error and exit_with_error
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
