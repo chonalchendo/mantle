@@ -36,7 +36,7 @@ def run_build_start(issue: int, project_dir: Path | None = None) -> None:
         project_dir = Path.cwd()
 
     try:
-        session_id = telemetry.current_session_id()
+        session_id = telemetry.current_session_id(project_dir)
     except RuntimeError as exc:
         console.print(
             f"[yellow]Warning:[/yellow] {exc} Build telemetry will be skipped."

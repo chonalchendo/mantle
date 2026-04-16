@@ -26,3 +26,6 @@ htmlcov/
 
 # Claude Code
 .claude/worktrees/
+
+# Mantle runtime state (volatile, per-machine)
+.mantle/.session-id

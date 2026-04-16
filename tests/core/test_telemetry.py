@@ -450,13 +450,51 @@ def test_current_session_id_reads_env(
 
 def test_current_session_id_missing_raises(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
 
     with pytest.raises(RuntimeError) as exc:
-        telemetry.current_session_id()
+        telemetry.current_session_id(tmp_path)
 
     assert "CLAUDE_SESSION_ID" in str(exc.value)
+
+
+def test_current_session_id_falls_back_to_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+    mantle_dir = tmp_path / ".mantle"
+    mantle_dir.mkdir()
+    (mantle_dir / ".session-id").write_text("sess-from-file\n")
+
+    assert telemetry.current_session_id(tmp_path) == "sess-from-file"
+
+
+def test_current_session_id_env_preferred_over_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("CLAUDE_SESSION_ID", "sess-from-env")
+    mantle_dir = tmp_path / ".mantle"
+    mantle_dir.mkdir()
+    (mantle_dir / ".session-id").write_text("sess-from-file")
+
+    assert telemetry.current_session_id(tmp_path) == "sess-from-env"
+
+
+def test_current_session_id_empty_file_falls_through_to_raise(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
+    mantle_dir = tmp_path / ".mantle"
+    mantle_dir.mkdir()
+    (mantle_dir / ".session-id").write_text("   \n")
+
+    with pytest.raises(RuntimeError):
+        telemetry.current_session_id(tmp_path)
 
 
 # ── render_report ────────────────────────────────────────────────

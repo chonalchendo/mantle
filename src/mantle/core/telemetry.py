@@ -250,25 +250,42 @@ def summarise(
     )
 
 
-def current_session_id() -> str:
-    """Return the Claude Code session id from the environment.
+def current_session_id(project_dir: Path | None = None) -> str:
+    """Return the Claude Code session id.
+
+    Looks first at the ``CLAUDE_SESSION_ID`` environment variable.
+    Falls back to ``<project_dir>/.mantle/.session-id``, which the
+    Mantle SessionStart hook writes from the hook payload.
+
+    Args:
+        project_dir: Project directory to search for the fallback
+            file. Defaults to cwd.
 
     Returns:
-        Value of the ``CLAUDE_SESSION_ID`` environment variable.
+        The Claude Code session id.
 
     Raises:
-        RuntimeError: If ``CLAUDE_SESSION_ID`` is unset. This env var
-            is set by the Claude Code CLI when a slash command runs;
-            missing it means we are running outside that context.
+        RuntimeError: If neither source yields an id — typically
+            means we are running outside a Claude Code session.
     """
     value = os.environ.get("CLAUDE_SESSION_ID")
-    if not value:
-        msg = (
-            "CLAUDE_SESSION_ID is not set. This command expects to "
-            "run inside a Claude Code session."
-        )
-        raise RuntimeError(msg)
-    return value
+    if value:
+        return value
+
+    if project_dir is None:
+        project_dir = Path.cwd()
+    fallback = project_dir / ".mantle" / ".session-id"
+    if fallback.is_file():
+        content = fallback.read_text(encoding="utf-8").strip()
+        if content:
+            return content
+
+    msg = (
+        "CLAUDE_SESSION_ID is not set and no .mantle/.session-id "
+        "fallback file exists. This command expects to run inside "
+        "a Claude Code session."
+    )
+    raise RuntimeError(msg)
 
 
 def render_report(
