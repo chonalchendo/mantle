@@ -280,7 +280,9 @@ def _write_issue(project_dir: Path, issue: int, title: str) -> None:
     )
     issues_dir = project_dir / ".mantle" / "issues"
     issues_dir.mkdir(parents=True, exist_ok=True)
-    path = issues_dir / f"issue-{issue:02d}-{title.lower().replace(' ', '-')}.md"
+    path = (
+        issues_dir / f"issue-{issue:02d}-{title.lower().replace(' ', '-')}.md"
+    )
     vault.write_note(path, note, f"## Problem\n\n{title} problem.\n")
 
 

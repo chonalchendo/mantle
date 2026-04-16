@@ -179,9 +179,7 @@ def list_archived_issues(project_dir: Path) -> list[Path]:
         List of paths to archived issue files. Empty if the archive
         directory does not exist.
     """
-    archive_dir = (
-        project.resolve_mantle_dir(project_dir) / "archive" / "issues"
-    )
+    archive_dir = project.resolve_mantle_dir(project_dir) / "archive" / "issues"
     if not archive_dir.is_dir():
         return []
     return sorted(archive_dir.glob("issue-*.md"))

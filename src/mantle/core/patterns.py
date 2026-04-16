@@ -144,9 +144,7 @@ def render_report(report: PatternReport) -> str:
     lines.append("| Slice | Learnings | Avg Δ confidence |")
     lines.append("| --- | ---: | ---: |")
     for stat in report.slice_stats:
-        lines.append(
-            f"| {stat.slice} | {stat.count} | {stat.avg_delta:+.1f} |"
-        )
+        lines.append(f"| {stat.slice} | {stat.count} | {stat.avg_delta:+.1f} |")
     lines.append("")
     lines.append("_Slices with no matched issue are omitted._")
     lines.append("")

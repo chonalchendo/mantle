@@ -377,7 +377,7 @@ def _parse_assistant_line(line: str) -> Turn | None:
     """
     try:
         record = json.loads(line)
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return None
 
     if not isinstance(record, dict):
@@ -399,7 +399,7 @@ def _parse_assistant_line(line: str) -> Turn | None:
             is_sidechain=bool(record.get("isSidechain", False)),
             usage=usage,
         )
-    except (KeyError, ValueError, TypeError, pydantic.ValidationError):
+    except KeyError, ValueError, TypeError, pydantic.ValidationError:
         return None
 
 
@@ -421,7 +421,7 @@ def _parse_usage(data: dict[str, Any]) -> Usage | None:
                 data.get("cache_creation_input_tokens", 0)
             ),
         )
-    except (TypeError, ValueError, pydantic.ValidationError):
+    except TypeError, ValueError, pydantic.ValidationError:
         return None
 
 
@@ -509,7 +509,11 @@ def _attach_story_ids(
                 best = marker
                 best_delta = delta
 
-        if best is not None and best_delta is not None and best_delta <= MARKER_WINDOW_SECONDS:
+        if (
+            best is not None
+            and best_delta is not None
+            and best_delta <= MARKER_WINDOW_SECONDS
+        ):
             updated.append(run.model_copy(update={"story_id": best.story_id}))
         else:
             warnings.warn(

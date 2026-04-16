@@ -13,10 +13,7 @@ import textwrap
 from datetime import date
 from typing import TYPE_CHECKING
 
-from mantle.core import archive, issues, project, skills, stories, vault
-from mantle.core.project import _ConfigFrontmatter
-from mantle.core.skills import SkillNote
-from mantle.core.state import ProjectState, Status
+from mantle.core import archive, issues, project, skills, state, stories, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -56,9 +53,9 @@ def _make_mantle_fixture(
         (mantle_dir / subdir).mkdir(parents=True, exist_ok=True)
 
     # state.md — allows CLI commands that read project state to resolve.
-    state_note = ProjectState(
+    state_note = state.ProjectState(
         project="test-project",
-        status=Status.IMPLEMENTING,
+        status=state.Status.IMPLEMENTING,
         created=date(2026, 1, 1),
         created_by=MOCK_EMAIL,
         updated=date(2026, 1, 1),
@@ -94,7 +91,7 @@ def _make_mantle_fixture(
     if extra_skills:
         vault_path = tmp_path / "vault"
         (vault_path / "skills").mkdir(parents=True, exist_ok=True)
-        config_fm = _ConfigFrontmatter(personal_vault=str(vault_path))
+        config_fm = project._ConfigFrontmatter(personal_vault=str(vault_path))
         vault.write_note(mantle_dir / "config.md", config_fm, "## Config\n")
 
         for name, tags in extra_skills:
@@ -110,7 +107,7 @@ def _write_skill_file(
 ) -> None:
     """Write a minimal skill file to skills_dir (``type/skill`` auto-added)."""
     slug = skills._slugify(name)
-    note = SkillNote(
+    note = skills.SkillNote(
         name=name,
         description=f"Test skill covering {name}.",
         proficiency="5/10",

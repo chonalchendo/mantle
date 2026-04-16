@@ -12,17 +12,7 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
-from mantle.core import archive, issues, vault
-from mantle.core.learning import (
-    IssueNotFoundError,
-    LearningExistsError,
-    LearningNote,
-    learning_exists,
-    list_learnings,
-    load_learning,
-    save_learning,
-)
-from mantle.core.state import ProjectState, Status
+from mantle.core import archive, issues, learning, state, vault
 
 MOCK_EMAIL = "test@example.com"
 CONTENT = (
@@ -64,11 +54,11 @@ def _mock_git_identity() -> str:
 def _write_state(
     project_dir: Path,
     *,
-    status: Status = Status.REVIEWING,
+    status: state.Status = state.Status.REVIEWING,
     body: str | None = None,
 ) -> None:
     """Write a state.md for testing."""
-    st = ProjectState(
+    st = state.ProjectState(
         project="test-project",
         status=status,
         confidence="7/10",
@@ -98,9 +88,9 @@ def _save(
     confidence_delta: str = "+2",
     content: str = CONTENT,
     overwrite: bool = False,
-) -> tuple[LearningNote, Path]:
+) -> tuple[learning.LearningNote, Path]:
     """Save a learning with sensible defaults."""
-    return save_learning(
+    return learning.save_learning(
         project_dir,
         content,
         issue=issue,
@@ -159,7 +149,7 @@ class TestSaveLearning:
     )
     def test_round_trip(self, _mock: object, project: Path) -> None:
         saved_note, path = _save(project)
-        loaded_note, _ = load_learning(path)
+        loaded_note, _ = learning.load_learning(path)
 
         assert loaded_note.issue == saved_note.issue
         assert loaded_note.title == saved_note.title
@@ -172,7 +162,7 @@ class TestSaveLearning:
     )
     def test_content_in_body(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
-        _, body = load_learning(path)
+        _, body = learning.load_learning(path)
 
         assert CONTENT in body
 
@@ -183,7 +173,7 @@ class TestSaveLearning:
     def test_raises_on_exists(self, _mock: object, project: Path) -> None:
         _save(project)
 
-        with pytest.raises(LearningExistsError):
+        with pytest.raises(learning.LearningExistsError):
             _save(project)
 
     @patch(
@@ -238,7 +228,9 @@ class TestSaveLearning:
         self, _mock: object, project: Path
     ) -> None:
         _save(project)
-        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
+        note = vault.read_note(
+            project / ".mantle" / "state.md", state.ProjectState
+        )
 
         assert note.frontmatter.updated == date.today()
         assert note.frontmatter.updated_by == MOCK_EMAIL
@@ -249,9 +241,11 @@ class TestSaveLearning:
     )
     def test_status_unchanged(self, _mock: object, project: Path) -> None:
         _save(project)
-        note = vault.read_note(project / ".mantle" / "state.md", ProjectState)
+        note = vault.read_note(
+            project / ".mantle" / "state.md", state.ProjectState
+        )
 
-        assert note.frontmatter.status == Status.REVIEWING
+        assert note.frontmatter.status == state.Status.REVIEWING
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",
@@ -313,7 +307,7 @@ class TestSaveLearning:
     def test_save_learning_raises_when_issue_missing(
         self, project: Path
     ) -> None:
-        with pytest.raises(IssueNotFoundError):
+        with pytest.raises(learning.IssueNotFoundError):
             _save(project, issue=99)
 
         learnings_dir = project / ".mantle" / "learnings"
@@ -343,7 +337,7 @@ class TestSaveLearning:
 
         archive.archive_issue(project, 50)
 
-        with pytest.raises(IssueNotFoundError):
+        with pytest.raises(learning.IssueNotFoundError):
             _save(project, issue=50)
 
         learnings_dir = project / ".mantle" / "learnings"
@@ -360,14 +354,14 @@ class TestLoadLearning:
     )
     def test_reads_saved(self, _mock: object, project: Path) -> None:
         _, path = _save(project)
-        note, body = load_learning(path)
+        note, body = learning.load_learning(path)
 
         assert note.issue == 21
         assert CONTENT in body
 
     def test_file_not_found(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
-            load_learning(tmp_path / "nonexistent.md")
+            learning.load_learning(tmp_path / "nonexistent.md")
 
 
 # ── list_learnings ───────────────────────────────────────────────
@@ -375,7 +369,7 @@ class TestLoadLearning:
 
 class TestListLearnings:
     def test_empty_when_none(self, project: Path) -> None:
-        assert list_learnings(project) == []
+        assert learning.list_learnings(project) == []
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",
@@ -384,7 +378,7 @@ class TestListLearnings:
     def test_sorted_paths(self, _mock: object, project: Path) -> None:
         _save(project, issue=2)
         _save(project, issue=1)
-        paths = list_learnings(project)
+        paths = learning.list_learnings(project)
 
         assert len(paths) == 2
         assert paths[0] < paths[1]
@@ -395,7 +389,7 @@ class TestListLearnings:
 
 class TestLearningExists:
     def test_false_before(self, project: Path) -> None:
-        assert learning_exists(project, 21) is False
+        assert learning.learning_exists(project, 21) is False
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",
@@ -404,7 +398,7 @@ class TestLearningExists:
     def test_true_after(self, _mock: object, project: Path) -> None:
         _save(project)
 
-        assert learning_exists(project, 21) is True
+        assert learning.learning_exists(project, 21) is True
 
     @patch(
         "mantle.core.learning.state.resolve_git_identity",
@@ -415,7 +409,7 @@ class TestLearningExists:
     ) -> None:
         _save(project)
 
-        assert learning_exists(project, 99) is False
+        assert learning.learning_exists(project, 99) is False
 
 
 # ── LearningNote model ──────────────────────────────────────────
@@ -423,7 +417,7 @@ class TestLearningExists:
 
 class TestLearningNote:
     def test_frozen(self) -> None:
-        note = LearningNote(
+        note = learning.LearningNote(
             issue=1,
             title="Test",
             author="a@b.com",
