@@ -1,18 +1,33 @@
 ---
 title: Fix redundant skill-loading step in /mantle:plan-stories
-status: planned
+status: implementing
 slice:
 - claude-code
 - cli
 - core
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckLake
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
+- Mohnish Pabrai Investment Philosophy
+- Nick Sleep Investment Philosophy
+- Python 3.14
+- SQLMesh Best Practices
+- Tom Gayner Investment Philosophy
+- cyclopts
+- dirty-equals
+- inline-snapshot
+- omegaconf
+- pydantic-discriminated-unions
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
