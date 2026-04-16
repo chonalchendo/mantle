@@ -1,11 +1,11 @@
 ---
 issue: 58
 title: Pilot inline_snapshot + dirty-equals + scenario fixture in one vertical slice
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

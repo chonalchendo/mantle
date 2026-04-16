@@ -1,7 +1,7 @@
 ---
 title: 'Test-tooling refresh: adopt inline_snapshot and dirty-equals, introduce named
   scenario fixtures'
-status: implementing
+status: verified
 slice:
 - tests
 - cli
@@ -37,7 +37,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
