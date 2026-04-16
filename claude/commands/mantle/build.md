@@ -82,8 +82,30 @@ neither exists, stop:
 > The build pipeline automates from design to verified code. You need at least
 > a product design first. Run `claude/commands/mantle/design-product.md` to get started.
 
-Check git working tree status. If dirty, warn the user and ask whether to
-proceed or commit/stash first.
+Check git working tree status. If dirty:
+
+1. Resolve the target issue's `slice:` field from
+   `$MANTLE_DIR/issues/issue-{NN}.md` (or the issue file the user named).
+2. Run `git status --short` and inspect each dirty path.
+3. If any dirty path lives under a directory that maps to one of the
+   issue's slice layers (`tests/` ↔ tests slice, `src/mantle/cli/` ↔ cli
+   slice, `src/mantle/core/` ↔ core slice, `claude/` or `.claude/` ↔
+   claude-code slice), this is a **hard warning** — the overlap will
+   contaminate the issue's commit range and break Step 7's simplifier
+   scope. Report it explicitly, show which dirty paths overlap which
+   slice, and require the user to commit/stash before proceeding.
+4. If there is no overlap, report the dirty paths as a soft warning and
+   ask whether to proceed or commit/stash first.
+
+Example overlap report:
+
+> **Dirty tree overlaps issue slice.** Issue {NN}'s slice is `tests, cli`.
+> These dirty files overlap:
+> - `tests/core/test_foo.py` → tests slice
+> - `src/mantle/cli/bar.py` → cli slice
+>
+> Commit or stash before building — otherwise the simplifier in Step 7
+> cannot distinguish issue-58 code from this prior work.
 
 ## Step 2 — Select issue
 
@@ -207,7 +229,17 @@ Report the result:
 Why: each story is implemented by a dedicated agent with focused context,
 then verified with tests before moving to the next.
 
-Before reading implement.md, transition the issue to implementing:
+**First, capture the pre-implement git rev.** Before any `mantle transition-*`
+or `mantle save-*` command runs (those can trigger auto-commits via hooks),
+record `git rev-parse HEAD` — this is the baseline Step 7 will diff against
+to scope the simplifier to the issue's actual file changes:
+
+    git rev-parse HEAD
+
+Record the output in this conversation as `PRE_IMPLEMENT_REV`; Step 7 needs
+it.
+
+Then transition the issue to implementing:
 
     mantle transition-issue-implementing --issue {NN}
 
@@ -245,7 +277,19 @@ Otherwise, run simplification. Report one of:
 > **Simplification:** Skipped (files=N, lines_changed=N — below threshold)
 > **Simplification:** Running (files=N, lines_changed=N — above threshold)
 
-**If the skip condition is not met**, spawn an Agent (`subagent_type: "refactorer"`) with this prompt:
+**If the skip condition is not met**, first capture the exact file list the
+simplifier is allowed to touch. This is the issue's actual diff against the
+pre-implement rev captured in Step 6 — everything else is out of scope by
+construction:
+
+    git diff --name-only $PRE_IMPLEMENT_REV..HEAD -- src/ tests/
+
+(Use the `PRE_IMPLEMENT_REV` recorded at the start of Step 6. Filter to
+`src/` and `tests/` to exclude `.mantle/` churn from auto-commits, which is
+never simplifier territory.)
+
+Record the file list. Then spawn an Agent (`subagent_type: "refactorer"`)
+with this prompt:
 
 > Before starting, review your project memory for relevant context.
 >
@@ -255,6 +299,22 @@ Otherwise, run simplification. Report one of:
 > Build-mode overrides:
 > - Use issue-scoped mode with issue number {NN}
 > - Don't ask about dirty working tree — the build pipeline manages git state
+>
+> **Scope is fixed. You may only edit files in this exact list:**
+>
+> ```
+> {file-list-from-git-diff}
+> ```
+>
+> Any other file is out of scope for this simplification pass, even if you
+> notice a smell there. If a file outside this list genuinely needs changes,
+> report it in your summary — the orchestrator will file a follow-up or
+> decide. Do not widen the scope on your own. Files listed above were
+> introduced or modified by this issue; nothing else was.
+>
+> **Python version note:** this project is Python 3.14+. PEP 758 allows
+> `except A, B:` without parentheses and is valid syntax — do not "fix" it
+> back to `except (A, B):`. Consult the `python-314` skill if unsure.
 >
 > When done, report: files reviewed count, files simplified count, and whether
 > tests passed after simplification.
