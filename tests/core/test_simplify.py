@@ -192,8 +192,11 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
+        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"line {i}\n" for i in range(10))
-        _commit_content(project, "foo.py", content, "feat(issue-7): add foo")
+        _commit_content(
+            project, "src/foo.py", content, "feat(issue-7): add foo"
+        )
 
         stats = simplify.collect_issue_diff_stats(project, 7)
 
@@ -208,11 +211,12 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
+        (project / "src").mkdir(exist_ok=True)
         content_a = "".join(f"a{i}\n" for i in range(5))
-        _commit_content(project, "a.py", content_a, "feat(issue-7): add a")
+        _commit_content(project, "src/a.py", content_a, "feat(issue-7): add a")
 
         content_b = "".join(f"b{i}\n" for i in range(8))
-        _commit_content(project, "b.py", content_b, "feat(issue-7): add b")
+        _commit_content(project, "src/b.py", content_b, "feat(issue-7): add b")
 
         stats = simplify.collect_issue_diff_stats(project, 7)
 
@@ -226,12 +230,13 @@ class TestCollectIssueDiffStats:
         project = _init_git_repo(tmp_path)
         _write_issue_file(project, 7)
 
+        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"line {i}\n" for i in range(6))
-        _commit_content(project, "foo.py", content, "chore: initial foo")
+        _commit_content(project, "src/foo.py", content, "chore: initial foo")
 
-        (project / "foo.py").write_text("", encoding="utf-8")
+        (project / "src" / "foo.py").write_text("", encoding="utf-8")
         subprocess.run(
-            ["git", "add", "foo.py"],
+            ["git", "add", "src/foo.py"],
             cwd=project,
             capture_output=True,
             check=True,
@@ -268,10 +273,11 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 1)
         _commit_file(project, "initial.txt", "chore: initial")
 
+        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"p{i}\n" for i in range(4))
         _commit_content(
             project,
-            "padded.py",
+            "src/padded.py",
             content,
             "feat(issue-01): add padded",
         )
@@ -281,6 +287,91 @@ class TestCollectIssueDiffStats:
         assert stats.files == 1
         assert stats.lines_added == 4
         assert stats.lines_changed == 4
+
+    def test_excludes_claude_paths(self, tmp_path: Path) -> None:
+        """Commits touching only claude/ paths report DiffStats(0,0,0,0)."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        (project / "claude" / "commands" / "mantle").mkdir(parents=True)
+        _commit_content(
+            project,
+            "claude/commands/mantle/foo.md",
+            "# foo\n",
+            "feat(issue-7): add foo doc",
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats == simplify.DiffStats(0, 0, 0, 0)
+
+    def test_excludes_mantle_paths(self, tmp_path: Path) -> None:
+        """Commits touching only .mantle/ paths report DiffStats(0,0,0,0)."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        (project / ".mantle" / "learnings").mkdir(parents=True, exist_ok=True)
+        _commit_content(
+            project,
+            ".mantle/learnings/x.md",
+            "# learning\n",
+            "feat(issue-7): add learning",
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats == simplify.DiffStats(0, 0, 0, 0)
+
+    def test_counts_only_src_and_tests_when_mixed(self, tmp_path: Path) -> None:
+        """Only src/ lines counted when diff also touches claude/ paths."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        (project / "src").mkdir(exist_ok=True)
+        src_content = "".join(f"line {i}\n" for i in range(10))
+        _commit_content(
+            project,
+            "src/foo.py",
+            src_content,
+            "feat(issue-7): add src file",
+        )
+
+        (project / "claude").mkdir(exist_ok=True)
+        _commit_content(
+            project,
+            "claude/bar.md",
+            "".join(f"prose {i}\n" for i in range(20)),
+            "feat(issue-7): add claude doc",
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 1
+        assert stats.lines_added == 10
+        assert stats.lines_changed == 10
+
+    def test_counts_tests_directory(self, tmp_path: Path) -> None:
+        """Commits touching tests/ paths are counted."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        (project / "tests").mkdir(exist_ok=True)
+        content = "".join(f"t{i}\n" for i in range(5))
+        _commit_content(
+            project,
+            "tests/test_foo.py",
+            content,
+            "feat(issue-7): add test",
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 1
+        assert stats.lines_changed == 5
 
 
 # ── collect_changed_files ────────────────────────────────────────

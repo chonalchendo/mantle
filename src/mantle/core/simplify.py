@@ -168,8 +168,10 @@ def collect_issue_diff_stats(
     Uses the same commit-discovery logic as
     :func:`collect_issue_files` (grep for ``(issue-N)`` and, for
     ``N < 10``, also ``(issue-0N)``), then runs
-    ``git diff --shortstat <first>^..<last>`` and parses the
-    single summary line.
+    ``git diff --shortstat <first>^..<last> -- src/ tests/`` and
+    parses the single summary line. Counts only changes in ``src/``
+    and ``tests/`` — aligns with the simplifier's edit scope in
+    ``/mantle:build`` Step 7.
 
     Args:
         project_root: Directory containing .mantle/.
@@ -177,7 +179,9 @@ def collect_issue_diff_stats(
 
     Returns:
         DiffStats with file count and line totals. Returns
-        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist.
+        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist,
+        and also when matching commits exist but touch only paths
+        outside ``src/`` + ``tests/``.
 
     Raises:
         FileNotFoundError: If the issue file does not exist.
@@ -192,7 +196,15 @@ def collect_issue_diff_stats(
     last_commit = commit_hashes[0]
 
     shortstat = subprocess.run(
-        ["git", "diff", "--shortstat", f"{first_commit}^..{last_commit}"],
+        [
+            "git",
+            "diff",
+            "--shortstat",
+            f"{first_commit}^..{last_commit}",
+            "--",
+            "src/",
+            "tests/",
+        ],
         capture_output=True,
         text=True,
         check=True,

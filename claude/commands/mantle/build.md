@@ -313,6 +313,8 @@ Otherwise, run simplification. Report one of:
 > **Simplification:** Skipped (files=N, lines_changed=N — below threshold)
 > **Simplification:** Running (files=N, lines_changed=N — above threshold)
 
+The stats command counts only `src/` and `tests/` paths — the same pathspec used below to produce the file list.
+
 **If the skip condition is not met**, first capture the exact file list the
 simplifier is allowed to touch. This is the issue's actual diff against the
 pre-implement rev captured in Step 6 — everything else is out of scope by
