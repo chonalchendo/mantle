@@ -243,6 +243,40 @@ Then transition the issue to implementing:
 
     mantle transition-issue-implementing --issue {NN}
 
+### Fast-path eligibility check
+
+The fast-path lets the orchestrator perform a trivial edit inline rather than
+spawning a full story-implementer agent. Check all four of the following
+against the shaped doc before deciding which branch to take:
+
+1. Exactly one file is named in the shaped doc's Strategy section.
+2. The Strategy describes a removal, rename, or edit of ≤ 10 lines.
+3. No acceptance criterion mentions new tests or new CLI surface.
+4. The shaped appetite is `small batch`.
+
+**Fast-path condition:** If all four rubric items are true, take Branch A
+below. Otherwise, take Branch B.
+
+### Branch A — Fast-path (inline edit)
+
+The orchestrator performs the edit inline — no agent spawn.
+
+1. Use `Read` + `Edit` or `Write` to make the change described in the shaped
+   doc's Strategy section.
+2. Run `just check` (or the project's check command from CLAUDE.md) to
+   verify the edit is clean.
+3. If `just check` fails, revert the edit (`git checkout -- <file>`) and
+   fall back to Branch B below.
+4. On success, commit: `git add <file> && git commit -m "<conventional message>"`.
+
+**Step 8 (Verify) runs regardless — the fast-path only skips Step 6's agent
+spawn, never Step 8.**
+
+Report progress:
+> **Story 1:** {title} — completed (fast-path)
+
+### Branch B — Agent-path (default)
+
 Read `claude/commands/mantle/implement.md` and follow Steps 3-5 with these
 build-mode overrides:
 - Skip user confirmation on issue selection
@@ -254,7 +288,9 @@ Report progress after each story:
 If any story is blocked after retry, stop the pipeline here. Do not continue
 to Step 7.
 
-After all stories complete successfully, transition the issue to implemented:
+---
+
+After both branches complete successfully, transition the issue to implemented:
 
     mantle transition-issue-implemented --issue {NN}
 

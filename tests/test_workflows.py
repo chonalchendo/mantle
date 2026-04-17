@@ -66,3 +66,20 @@ def test_implement_md_references_build_telemetry():
     text = path.read_text(encoding="utf-8")
     assert "mantle build-start --issue" in text
     assert "mantle build-finish --issue" in text
+
+
+def test_build_md_fast_path_cannot_skip_verify():
+    """Regression: build.md fast-path must not short-circuit Step 8 (Verify)."""
+    path = REPO_ROOT / "claude" / "commands" / "mantle" / "build.md"
+    text = path.read_text(encoding="utf-8")
+    # Fast-path branch must exist.
+    assert "Fast-path" in text or "fast-path" in text
+    # Step 8 (Verify) header must appear exactly once — never inside a
+    # fast-path skip block.
+    assert text.count("## Step 8 — Verify") == 1
+    # Fast-path branch must explicitly state Step 8 still runs.
+    fast_path_note = "Step 8 (Verify) runs regardless"
+    assert fast_path_note in text, (
+        "Fast-path branch must contain the verbatim note: "
+        f"{fast_path_note!r} — protects Iron Law #2 (no skipping verification)."
+    )
