@@ -1,11 +1,11 @@
 ---
 issue: 61
 title: Remove skill-file references from implement.md Step 3 and Step 4
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

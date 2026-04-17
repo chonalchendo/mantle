@@ -1,6 +1,6 @@
 ---
 title: Reconcile implement.md internal inconsistency on skill-file injection
-status: implementing
+status: verified
 slice:
 - claude-code
 story_count: 1
@@ -23,7 +23,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
