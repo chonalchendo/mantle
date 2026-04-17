@@ -1,6 +1,6 @@
 ---
 title: Add a fast-path through /mantle:build for trivial single-file edits
-status: verified
+status: approved
 slice:
 - claude-code
 - cli
@@ -21,7 +21,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
