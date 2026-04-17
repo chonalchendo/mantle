@@ -320,10 +320,14 @@ class TestSaveLearning:
         "mantle.core.learning.state.resolve_git_identity",
         side_effect=_mock_git_identity,
     )
-    def test_save_learning_raises_when_issue_archived(
+    def test_save_learning_accepts_archived_issue(
         self, _mock: object, project: Path
     ) -> None:
-        # Scaffold issue 50 in .mantle/issues/ then archive it.
+        # The documented retrospective flow runs /mantle:review (which
+        # archives the issue) before /mantle:retrospective (which calls
+        # save-learning). Archived issues must therefore be a valid
+        # save-learning target; only genuinely-unknown issue numbers
+        # should raise.
         (project / ".mantle" / "issues").mkdir(exist_ok=True)
         issue_note = issues.IssueNote(
             title="Test issue",
@@ -340,11 +344,10 @@ class TestSaveLearning:
 
         archive.archive_issue(project, 50)
 
-        with pytest.raises(learning.IssueNotFoundError):
-            _save(project, issue=50)
+        note, learning_path = _save(project, issue=50)
 
-        learnings_dir = project / ".mantle" / "learnings"
-        assert list(learnings_dir.glob("*.md")) == []
+        assert note.issue == 50
+        assert learning_path.exists()
 
 
 # ── load_learning ────────────────────────────────────────────────

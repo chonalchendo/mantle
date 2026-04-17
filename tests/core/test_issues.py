@@ -12,6 +12,7 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
+from mantle.core import archive as archive_mod
 from mantle.core import issues as issues_mod
 from mantle.core import vault
 from mantle.core.issues import (
@@ -597,3 +598,45 @@ class TestTransitionToImplemented:
 
         with pytest.raises(InvalidTransitionError):
             issues_mod.transition_to_implemented(project, 21)
+
+
+# ── find_issue_path_including_archive ────────────────────────────
+
+
+class TestFindIssuePathIncludingArchive:
+    def test_returns_live_path_when_issue_is_live(self, project: Path) -> None:
+        live = _write_issue_direct(project, 30, status="planned")
+
+        result = issues_mod.find_issue_path_including_archive(project, 30)
+
+        assert result == live
+
+    def test_returns_archived_path_when_issue_archived(
+        self, project: Path
+    ) -> None:
+        _write_issue_direct(project, 31, status="verified")
+        archive_mod.archive_issue(project, 31)
+
+        result = issues_mod.find_issue_path_including_archive(project, 31)
+
+        assert result is not None
+        assert result.parent.name == "issues"
+        assert result.parent.parent.name == "archive"
+        assert result.name.startswith("issue-31-")
+
+    def test_returns_none_when_issue_unknown(self, project: Path) -> None:
+        assert issues_mod.find_issue_path_including_archive(project, 99) is None
+
+    def test_prefers_live_over_archive_when_both_exist(
+        self, project: Path
+    ) -> None:
+        # Write, archive, then write a new live issue with the same
+        # number — the live copy must win so retrospective/save-learning
+        # targets the current work, not a stale archive entry.
+        _write_issue_direct(project, 32, status="verified")
+        archive_mod.archive_issue(project, 32)
+        live = _write_issue_direct(project, 32, status="planned")
+
+        result = issues_mod.find_issue_path_including_archive(project, 32)
+
+        assert result == live

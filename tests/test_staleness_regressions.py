@@ -291,9 +291,7 @@ class TestArchiveSideEffects:
         archived = mantle_dir / "archive" / "issues" / "issue-50-test-issue.md"
         assert archived.exists()
 
-    def test_save_learning_after_archive_fails_clearly(
-        self, tmp_path: Path
-    ) -> None:
+    def test_save_learning_after_archive_succeeds(self, tmp_path: Path) -> None:
         _make_mantle_fixture(tmp_path, issue=50, issue_status="verified")
         archive.archive_issue(tmp_path, 50)
 
@@ -315,13 +313,16 @@ class TestArchiveSideEffects:
             cwd=tmp_path,
         )
 
-        # Desired contract: command should fail clearly when the issue
-        # it relates to has been archived, rather than silently writing
-        # a learning into .mantle/learnings/.
-        assert result.returncode != 0, (
-            f"save-learning silently succeeded after archival:"
+        # The retrospective flow runs save-learning *after* review
+        # archives the issue; archived issues must be a valid target
+        # so the documented flow completes without workarounds.
+        assert result.returncode == 0, (
+            f"save-learning failed on archived issue:"
             f" stdout={result.stdout!r} stderr={result.stderr!r}"
         )
+        learnings_dir = tmp_path / ".mantle" / "learnings"
+        saved = list(learnings_dir.glob("issue-50-*.md"))
+        assert saved, "save-learning did not write a learning file"
         combined = (result.stdout + result.stderr).lower()
         assert "not found" in combined or "archive" in combined
 

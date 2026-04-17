@@ -429,6 +429,34 @@ def find_issue_path(project_dir: Path, issue: int) -> Path | None:
     return old_format if old_format.exists() else None
 
 
+def find_issue_path_including_archive(
+    project_dir: Path, issue: int
+) -> Path | None:
+    """Find an issue file by number, scanning live dir then archive.
+
+    Callers that need to distinguish live vs archived issues should use
+    ``find_issue_path`` instead — this helper exists for workflows that
+    legitimately target archived issues (e.g. save-learning from the
+    retrospective flow, which runs after ``/mantle:review`` archives).
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue: Issue number.
+
+    Returns:
+        Path to the issue file (live or archived), or None if not found.
+    """
+    live = find_issue_path(project_dir, issue)
+    if live is not None:
+        return live
+    archive_dir = project.resolve_mantle_dir(project_dir) / "archive" / "issues"
+    matches = sorted(archive_dir.glob(f"issue-{issue:02d}-*.md"))
+    if matches:
+        return matches[0]
+    old_format = archive_dir / f"issue-{issue:02d}.md"
+    return old_format if old_format.exists() else None
+
+
 def _update_state_body(
     project_dir: Path,
     identity: str,
