@@ -1,16 +1,27 @@
 ---
 title: Add a fast-path through /mantle:build for trivial single-file edits
-status: planned
+status: implementing
 slice:
 - claude-code
 - cli
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckLake
+- Python 3.14
+- Python package structure
+- SQLMesh Best Practices
+- cyclopts
+- docker-compose-python
+- inline-snapshot
+- omegaconf
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
