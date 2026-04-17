@@ -1,6 +1,6 @@
 ---
 title: Fix redundant skill-loading step in /mantle:plan-stories
-status: implementing
+status: approved
 slice:
 - claude-code
 - cli
@@ -27,7 +27,7 @@ skills_required:
 - pydantic-discriminated-unions
 tags:
 - type/issue
-- status/implementing
+- status/approved
 ---
 
 ## Parent PRD

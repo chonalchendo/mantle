@@ -5,7 +5,7 @@ status: planning
 confidence: 0/10
 created: '2026-02-22'
 created_by: conal@conalnicholson.com
-updated: '2026-04-16'
+updated: '2026-04-17'
 updated_by: 110059232+chonalchendo@users.noreply.github.com
 current_issue: null
 current_story: null
@@ -54,6 +54,7 @@ skills_required:
 - pydantic-discriminated-unions
 - pydantic-project-conventions
 - python
+- python-314
 - streamlit
 - streamlit-aggrid
 tags:
@@ -66,7 +67,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 60 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Issue 61 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

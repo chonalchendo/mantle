@@ -1,11 +1,11 @@
 ---
 issue: 60
 title: Remove Step 5c from plan-stories.md
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
