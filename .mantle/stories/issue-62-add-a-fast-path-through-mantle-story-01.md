@@ -1,11 +1,11 @@
 ---
 issue: 62
 title: Add fast-path branch to build.md Step 6 with regression test
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
