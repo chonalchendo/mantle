@@ -103,7 +103,6 @@ Then read all required context files:
 - `$MANTLE_DIR/system-design.md` — system architecture (if it exists)
 - `$MANTLE_DIR/product-design.md` — product context (if it exists)
 - `$MANTLE_DIR/stories/issue-{NN}-story-*.md` — all stories for this issue
-- `.claude/skills/*/SKILL.md` — compiled vault skills (these provide domain-specific knowledge to story agents)
 
 For each story, note:
 - Story number, title, current status (planned, in-progress, completed, blocked)
@@ -142,9 +141,6 @@ to that story's implementation:
 - `$MANTLE_DIR/decisions/` — scan decision files. Pick decisions about
   architecture or technology choices that constrain how this story should be
   implemented. Skip decisions about unrelated subsystems.
-- `.claude/skills/*/SKILL.md` — scan compiled skill summaries. Pick skills
-  whose domain matches this story's work. A story about database migrations
-  doesn't need the WebSocket skill.
 
 Build a **context brief** — a focused summary of the selected items (not the
 full files). Include:
