@@ -2,6 +2,23 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.19.0] — 2026-04-17
+
+### Added
+- **Baseline skills auto-loading** (#59) — new `core/baseline.py` resolves project-level skill requirements from `pyproject.toml`. Python 3.14+ projects now auto-get `python-314` in `skills_required` via `mantle update-skills` and compiled by `mantle compile`, so agents never misdiagnose valid PEP 758 syntax. Baseline resolution is a flat function, not a plugin registry — extend sibling helpers for future baselines (e.g. `pydantic-project-conventions` when Pydantic is detected).
+- **Contextual CLI errors with recovery suggestions** (#51) — new `cli/errors` module exposes `exit_with_error(message, *, hint)` that renders a Rich-formatted red `Error:` line with an actionable yellow `Hint:` line on stderr and exits 1. All 16 existing CLI error paths migrated; `hint` is keyword-only so every call site is forced to be explicit. Generic `except Exception` handlers share the `UNEXPECTED_BUG_HINT` constant.
+- **Telemetry session-id fallback** — `mantle build-start` / `build-finish` now fall back to reading `.mantle/.session-id` when `CLAUDE_SESSION_ID` is unset, enabling build telemetry outside of Claude Code's own session shell.
+- **Test-tooling pilot** (#58) — `inline_snapshot` and `dirty-equals` adopted with scenario-fixture naming conventions documented in CLAUDE.md. Covers partial/unordered assertions and captured CLI/markdown output without hand-editing expected values.
+
+### Changed
+- **`plan-stories.md` Step 5c removed** (#60) — the redundant `mantle update-skills + compile` pair was already run by `implement.md` Step 3, so planning no longer duplicates the work or presents it as context-priming. `implement.md` is now the single owner of `update-skills + compile` for the implement path.
+- **Build pipeline dirty-tree check tightened; simplifier scoped to the issue diff** — prevents false-positive review churn on unrelated uncommitted changes.
+- **Module-import style and PEP 758 `except` syntax adopted** across `src/` and `tests/` — e.g. `from mantle.core import vault` + `vault.read_note(...)` instead of importing `read_note` directly. Aligns the codebase with CLAUDE.md's documented import rules.
+
+### Fixed
+- **`save-learning` accepts archived issues.** The documented retrospective flow runs `/mantle:review` (which archives) before `/mantle:retrospective` (which calls save-learning), but the issue-57 "strict" check rejected archived issues. Added `core.issues.find_issue_path_including_archive` that scans live first, then archive; `save_learning` now uses it, while other callers (`archive`, `stories`, `review`, `verify`) keep the live-only `find_issue_path` contract unchanged. Two pinning tests flipped from "fails clearly" to "succeeds"; four regression tests cover the new helper.
+- **`resolve_mantle_dir` walks up to the primary worktree in local mode.** `mantle where` previously resolved to an empty `.mantle/` when invoked from a secondary git worktree, breaking `/mantle:build` from any worktree. Now parses `git worktree list --porcelain` and walks up to the primary repo's canonical `.mantle/`. Global-mode behaviour unchanged.
+
 ## [0.18.0] — 2026-04-15
 
 ### Added
@@ -227,6 +244,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.19.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.19.0
 [0.18.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.18.0
 [0.17.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.1
 [0.17.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.0

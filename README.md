@@ -148,7 +148,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.18.0** — Staleness safety: new regression test suite pins post-archive side-effect behaviour across `find_issue_path`, `update_story_status`, `save-review-result`, and `save-learning`; `save-learning` now fails loudly when the target issue is missing or archived instead of silently writing an orphaned learning file.
+**v0.19.0** — Baseline skills auto-loaded from project constraints (#59), contextual CLI errors with recovery suggestions (#51), worktree-aware `mantle where`, and `save-learning` accepting archived issues so the review → retrospective flow completes without workarounds.
 
 ## License
 
