@@ -73,7 +73,7 @@ def test_build_md_fast_path_cannot_skip_verify():
     path = REPO_ROOT / "claude" / "commands" / "mantle" / "build.md"
     text = path.read_text(encoding="utf-8")
     # Fast-path branch must exist.
-    assert "Fast-path" in text or "fast-path" in text
+    assert "fast-path" in text.lower()
     # Step 8 (Verify) header must appear exactly once — never inside a
     # fast-path skip block.
     assert text.count("## Step 8 — Verify") == 1
