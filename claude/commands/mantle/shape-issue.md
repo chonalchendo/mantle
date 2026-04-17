@@ -79,6 +79,20 @@ design, which already reflects skill knowledge.
    issue. Choose skills you would actively consult during this work — not
    tangentially related ones. For example, a CLI issue needs `cyclopts` and
    `cli-design-best-practices`, not `streamlit`.
+
+   **Meta-template carve-out.** If the issue slice is exclusively
+   `claude-code` and the files being edited are `claude/commands/mantle/*.md`
+   (Mantle's own command templates), skill selection is advisory, not
+   mandatory. When no vault skill genuinely applies — the common case for
+   editorial or reconciliation work on prompt templates — report "no vault
+   skills applied — meta-template edit" and proceed with zero skills. Do
+   not pad the list with tangential matches to hit a count: that produces
+   Iron-Law theatre (Read calls on files whose content does not inform the
+   work) and buries the signal when a skill *does* genuinely apply on a
+   future issue. If one or two skills do clearly apply (e.g.,
+   `design-review` for spotting contradictions), select those — the
+   carve-out removes the floor, not the ceiling.
+
 3. For each selected skill, Read `.claude/skills/{slug}/references/core.md`
    to load the full domain knowledge.
 4. Apply skill knowledge when writing the code design section — include
@@ -89,7 +103,8 @@ If `mantle list-skills` fails (vault not configured), skip this step and note
 it — approach evaluation will rely on system design and codebase reading only.
 
 > **Skills loaded:** {list of selected skills and why each was chosen, or
-> "vault not configured — skipped"}
+> "no vault skills applied — meta-template edit", or "vault not configured
+> — skipped"}
 
 ## Step 3 — Explore approaches
 
