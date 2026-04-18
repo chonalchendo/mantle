@@ -2,6 +2,14 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.20.0] — 2026-04-18
+
+### Added
+- **Generic lifecycle hook seam** (#56) — mantle now invokes user-supplied `<mantle-dir>/hooks/on-<event>.sh` scripts on four issue lifecycle events: `issue-shaped` (after `save-shaped-issue`), `issue-implement-start` (after `transition-issue-implementing`), `issue-verify-done` (after `transition-issue-verified`), and `issue-review-approved` (after `transition-issue-approved`). Scripts receive positional args — issue number, new status, issue title — plus any env vars listed under `hooks_env:` in `.mantle/config.md` frontmatter. New `core/hooks.py` module hides the subprocess wiring; timeouts and non-zero exits log a warning and continue (fail-open — hooks never block the workflow). Missing scripts are a silent no-op. Mantle never imports a tracker library, never stores credentials, and never interprets the hook's env keys.
+- **`mantle show-hook-example NAME`** — new CLI command under "Setup & plumbing" that prints a shipped reference hook script to stdout. Three examples ship as package data: `linear` (GraphQL via curl), `jira` (via Atlassian `acli`), and `slack` (incoming webhook). Each script has a setup-header comment block documenting install, authentication, and required `hooks_env:` entries. Typical use: `mantle show-hook-example linear > .mantle/hooks/on-issue-shaped.sh && chmod +x ...`.
+- **`hooks_env:` config key** — new optional dict on `_ConfigFrontmatter` in `core/project.py`. Keys are opaque; mantle exports them as env vars to the hook process without interpretation. Absent or malformed `hooks_env:` degrades gracefully to an empty dict — the seam guarantees hook dispatch never blocks on a broken config.
+- **`## Lifecycle hooks` section in README** — documents the hook authoring convention: path pattern, positional args, env passthrough, failure semantics, event list, and quickstart via `show-hook-example`.
+
 ## [0.19.0] — 2026-04-17
 
 ### Added
@@ -244,6 +252,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.20.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.20.0
 [0.19.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.19.0
 [0.18.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.18.0
 [0.17.1]: https://github.com/chonalchendo/mantle/releases/tag/v0.17.1

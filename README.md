@@ -198,7 +198,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.19.0** — Baseline skills auto-loaded from project constraints (#59), contextual CLI errors with recovery suggestions (#51), worktree-aware `mantle where`, and `save-learning` accepting archived issues so the review → retrospective flow completes without workarounds.
+**v0.20.0** — Generic lifecycle hook seam (#56). Mantle now invokes user-supplied `<mantle-dir>/hooks/on-<event>.sh` scripts on four issue lifecycle events (shaped, implement-start, verify-done, review-approved) with positional args and `hooks_env:` passthrough from `config.md`. Ships three reference scripts (`linear`, `jira`, `slack`) printable via `mantle show-hook-example NAME`. Fail-open semantics — hook failures log a warning and never block the workflow.
 
 ## License
 
