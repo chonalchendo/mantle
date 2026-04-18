@@ -100,3 +100,24 @@ class TestArchiveIssue:
 
         assert len(moved) == 1
         assert (mantle / "archive" / "issues" / "issue-02-partial.md").exists()
+
+    def test_slug_less_shaped_doc_is_archived(self, tmp_path: Path) -> None:
+        """Archive matches shaped docs with no slug (issue-NN-shaped.md)."""
+        mantle = tmp_path / ".mantle"
+        (mantle / "issues").mkdir(parents=True)
+        (mantle / "shaped").mkdir(parents=True)
+
+        (mantle / "issues" / "issue-24-slug-less.md").write_text(
+            "---\ntitle: Slug-less\nstatus: approved\n"
+            "slice: [core]\ntags: [type/issue]\n---\nBody\n"
+        )
+        (mantle / "shaped" / "issue-24-shaped.md").write_text(
+            "---\ntitle: Shaped\n---\nApproach\n"
+        )
+
+        moved = archive.archive_issue(tmp_path, 24)
+
+        assert len(moved) == 2
+        archive_dir = mantle / "archive"
+        assert (archive_dir / "shaped" / "issue-24-shaped.md").exists()
+        assert not (mantle / "shaped" / "issue-24-shaped.md").exists()

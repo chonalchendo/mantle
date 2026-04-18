@@ -43,7 +43,7 @@ def archive_issue(project_dir: Path, issue: int) -> list[Path]:
     # Shaped doc
     shaped_dir = mantle_dir / "shaped"
     if shaped_dir.is_dir():
-        for path in shaped_dir.glob(f"issue-{issue:02d}-*-shaped.md"):
+        for path in shaped_dir.glob(f"issue-{issue:02d}*-shaped.md"):
             candidates.append((path, "shaped"))
 
     # Learning
