@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from mantle.core import vault
+from mantle.core.issues import IssueNote
 from mantle.core.shaping import (
     ShapedIssueExistsError,
     ShapedIssueNote,
@@ -331,3 +332,57 @@ class TestShapedIssueNote:
 
         with pytest.raises(pydantic.ValidationError):
             note.title = "changed"  # type: ignore[misc]
+
+
+# ── hook dispatch ────────────────────────────────────────────────
+
+
+@patch(
+    "mantle.core.shaping.state.resolve_git_identity",
+    side_effect=_mock_git_identity,
+)
+def test_save_shaped_issue_dispatches_hook(
+    _mock: object, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """save_shaped_issue fires the issue-shaped hook after a successful save."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "shaped").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir)
+
+    # Seed a live issue so find_issue_path + load_issue can resolve the status.
+    issue_note = IssueNote(
+        title="Shaping phase",
+        status="planned",
+        slice=("core",),
+        tags=("type/issue", "status/planned"),
+    )
+    issue_path = (
+        project_dir / ".mantle" / "issues" / "issue-21-shaping-phase.md"
+    )
+    vault.write_note(issue_path, issue_note, "## Body\n\nContent.\n")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.shaping.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    save_shaped_issue(
+        project_dir,
+        CONTENT,
+        issue=21,
+        title="Shaping phase",
+        approaches=("Approach A", "Approach B"),
+        chosen_approach="Approach A",
+        appetite="medium batch",
+    )
+
+    assert len(calls) == 1
+    event, kw = calls[0]
+    assert event == "issue-shaped"
+    assert kw["issue"] == 21
+    assert kw["title"] == "Shaping phase"
+    assert kw["project_dir"] == project_dir
+    assert isinstance(kw["status"], str) and kw["status"]

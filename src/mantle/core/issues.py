@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import project, state, vault
+from mantle.core import hooks, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -310,7 +310,16 @@ def transition_to_verified(project_root: Path, issue_number: int) -> Path:
             transition to ``verified``.
         FileNotFoundError: If the issue file does not exist.
     """
-    return _transition_issue(project_root, issue_number, "verified")
+    issue_path = _transition_issue(project_root, issue_number, "verified")
+    note, _ = load_issue(issue_path)
+    hooks.dispatch(
+        "issue-verify-done",
+        issue=issue_number,
+        status="verified",
+        title=note.title,
+        project_dir=project_root,
+    )
+    return issue_path
 
 
 def transition_to_approved(project_root: Path, issue_number: int) -> Path:
@@ -328,7 +337,16 @@ def transition_to_approved(project_root: Path, issue_number: int) -> Path:
             transition to ``approved``.
         FileNotFoundError: If the issue file does not exist.
     """
-    return _transition_issue(project_root, issue_number, "approved")
+    issue_path = _transition_issue(project_root, issue_number, "approved")
+    note, _ = load_issue(issue_path)
+    hooks.dispatch(
+        "issue-review-approved",
+        issue=issue_number,
+        status="approved",
+        title=note.title,
+        project_dir=project_root,
+    )
+    return issue_path
 
 
 def transition_to_implementing(
@@ -349,7 +367,16 @@ def transition_to_implementing(
             transition to ``implementing``.
         FileNotFoundError: If the issue file does not exist.
     """
-    return _transition_issue(project_root, issue_number, "implementing")
+    issue_path = _transition_issue(project_root, issue_number, "implementing")
+    note, _ = load_issue(issue_path)
+    hooks.dispatch(
+        "issue-implement-start",
+        issue=issue_number,
+        status="implementing",
+        title=note.title,
+        project_dir=project_root,
+    )
+    return issue_path
 
 
 def transition_to_implemented(

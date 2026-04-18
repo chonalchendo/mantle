@@ -600,6 +600,145 @@ class TestTransitionToImplemented:
             issues_mod.transition_to_implemented(project, 21)
 
 
+# ── hook dispatch ───────────────────────────────────────────────
+
+
+def test_transition_to_implementing_dispatches_hook(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """transition_to_implementing fires issue-implement-start hook."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir, status=Status.PLANNING)
+    _write_issue_direct(project_dir, 7, status="verified")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.issues.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    issues_mod.transition_to_implementing(project_dir, 7)
+
+    assert calls == [
+        (
+            "issue-implement-start",
+            {
+                "issue": 7,
+                "status": "implementing",
+                "title": "Issue 7",
+                "project_dir": project_dir,
+            },
+        )
+    ]
+
+
+def test_transition_to_verified_dispatches_hook(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """transition_to_verified fires issue-verify-done hook."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir, status=Status.PLANNING)
+    _write_issue_direct(project_dir, 7, status="implementing")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.issues.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    issues_mod.transition_to_verified(project_dir, 7)
+
+    assert calls == [
+        (
+            "issue-verify-done",
+            {
+                "issue": 7,
+                "status": "verified",
+                "title": "Issue 7",
+                "project_dir": project_dir,
+            },
+        )
+    ]
+
+
+def test_transition_to_approved_dispatches_hook(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """transition_to_approved fires issue-review-approved hook."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir, status=Status.PLANNING)
+    _write_issue_direct(project_dir, 7, status="verified")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.issues.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    issues_mod.transition_to_approved(project_dir, 7)
+
+    assert calls == [
+        (
+            "issue-review-approved",
+            {
+                "issue": 7,
+                "status": "approved",
+                "title": "Issue 7",
+                "project_dir": project_dir,
+            },
+        )
+    ]
+
+
+def test_failed_transition_does_not_dispatch_hook(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Failed transition raises InvalidTransitionError and hook does not fire."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir, status=Status.PLANNING)
+    _write_issue_direct(project_dir, 7, status="planned")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.issues.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    with pytest.raises(InvalidTransitionError):
+        issues_mod.transition_to_verified(project_dir, 7)
+
+    assert calls == []
+
+
+def test_transition_to_implemented_does_not_dispatch_hook(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """transition_to_implemented is not in the event list — no hook fires."""
+    project_dir = tmp_path
+    (project_dir / ".mantle").mkdir()
+    (project_dir / ".mantle" / "issues").mkdir()
+    _write_state(project_dir, status=Status.PLANNING)
+    _write_issue_direct(project_dir, 7, status="implementing")
+
+    calls: list[tuple[str, dict[str, object]]] = []
+    monkeypatch.setattr(
+        "mantle.core.issues.hooks.dispatch",
+        lambda event, **kw: calls.append((event, kw)),
+    )
+
+    issues_mod.transition_to_implemented(project_dir, 7)
+
+    assert calls == []
+
+
 # ── find_issue_path_including_archive ────────────────────────────
 
 

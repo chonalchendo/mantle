@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import issues, project, state, vault
+from mantle.core import hooks, issues, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -128,6 +128,21 @@ def save_shaped_issue(
 
     vault.write_note(shaped_path, note, content)
     _update_state_body(project_dir, identity, issue)
+
+    issue_path = issues.find_issue_path(project_dir, issue)
+    if issue_path is not None:
+        issue_note, _ = issues.load_issue(issue_path)
+        current_status = issue_note.status
+    else:
+        current_status = "shaped"
+
+    hooks.dispatch(
+        "issue-shaped",
+        issue=issue,
+        status=current_status,
+        title=title,
+        project_dir=project_dir,
+    )
 
     return note, shaped_path
 
