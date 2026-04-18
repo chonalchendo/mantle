@@ -1,11 +1,11 @@
 ---
 issue: 65
 title: Drop description-overlap rule from detect_skills_from_content
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

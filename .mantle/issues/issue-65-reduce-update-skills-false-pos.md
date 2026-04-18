@@ -1,6 +1,6 @@
 ---
 title: Reduce update-skills false positives from description-overlap matching
-status: implementing
+status: verified
 slice:
 - core
 - tests
@@ -22,7 +22,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
