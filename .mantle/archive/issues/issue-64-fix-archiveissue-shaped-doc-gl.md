@@ -1,6 +1,6 @@
 ---
 title: Fix archive_issue shaped-doc glob to match slug-less filenames
-status: verified
+status: approved
 slice:
 - core
 - tests
@@ -11,7 +11,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD

@@ -1,16 +1,28 @@
 ---
 title: Reduce update-skills false positives from description-overlap matching
-status: planned
+status: implementing
 slice:
 - core
 - tests
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- DuckLake
+- Howard Marks Investment Philosophy
+- Nick Sleep Investment Philosophy
+- Python 3.14
+- Python Project Conventions
+- Python package structure
+- cyclopts
+- dirty-equals
+- inline-snapshot
+- omegaconf
+- pydantic-project-conventions
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
