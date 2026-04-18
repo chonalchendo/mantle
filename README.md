@@ -136,6 +136,56 @@ The compounding effect: learnings from Issue 5 improve how Issue 12 is shaped. A
 
 The result: agents that know your project's conventions, remember past mistakes, and make informed tradeoff decisions — every session, automatically.
 
+## Lifecycle hooks
+
+Mantle invokes user-supplied shell scripts on issue lifecycle events so you
+can push status updates to Linear, Jira, Slack, or any other tracker —
+without mantle ever importing a tracker library or holding credentials.
+
+### Convention
+
+Drop an executable script at `<mantle-dir>/hooks/on-<event>.sh`:
+
+| Event | Fires after |
+|---|---|
+| `issue-shaped` | `/mantle:shape-issue` saves a shaped issue |
+| `issue-implement-start` | issue transitions to `implementing` |
+| `issue-verify-done` | issue transitions to `verified` |
+| `issue-review-approved` | issue transitions to `approved` |
+
+Your script is invoked with:
+
+- `$1` — issue number
+- `$2` — new status
+- `$3` — issue title
+
+Missing scripts are a silent no-op. Non-zero exits log a warning and the
+workflow continues (hook failures never block mantle).
+
+### Config passthrough
+
+Any dict under `hooks_env:` in `<mantle-dir>/config.md` frontmatter is
+exported as environment variables to the hook process. Keys are opaque —
+mantle never interprets them.
+
+```yaml
+---
+hooks_env:
+  LINEAR_API_KEY: lin_api_xxx
+  JIRA_PROJECT_KEY: PLAT
+---
+```
+
+### Quick start with shipped examples
+
+```bash
+mantle show-hook-example linear > .mantle/hooks/on-issue-shaped.sh
+chmod +x .mantle/hooks/on-issue-shaped.sh
+```
+
+Available examples: `linear`, `jira`, `slack`. Each contains a setup
+header documenting the CLI/API install, auth steps, and required env vars.
+
 ## How It Works
 
 Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude Code (`/mantle:*`). The core library handles all state and vault operations. The CLI is a thin wrapper. Claude Code commands compile context from your vault and orchestrate AI-assisted workflows.

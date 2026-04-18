@@ -47,6 +47,7 @@ _EXPECTED_COMMAND_PANELS: dict[str, str] = {
     "set-slices": "Setup & plumbing",
     "storage": "Setup & plumbing",
     "migrate-storage": "Setup & plumbing",
+    "show-hook-example": "Setup & plumbing",
     # idea
     "save-idea": "Idea & Validation",
     "save-challenge": "Idea & Validation",

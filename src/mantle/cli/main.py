@@ -13,6 +13,7 @@ from mantle.cli import (
     builds,
     challenge,
     decisions,
+    hooks,
     idea,
     inbox,
     init,
@@ -1986,6 +1987,22 @@ def where_command(
 ) -> None:
     """Print the resolved .mantle/ directory absolute path."""
     storage.run_where(project_dir=path)
+
+
+@app.command(name="show-hook-example", group=GROUPS["setup"])
+def show_hook_example_command(
+    name: Annotated[
+        str,
+        Parameter(
+            help="Example name: linear, jira, or slack.",
+        ),
+    ],
+) -> None:
+    """Print a shipped lifecycle hook example to stdout.
+
+    Usage: mantle show-hook-example linear > .mantle/hooks/on-issue-shaped.sh
+    """
+    hooks.run_show_hook_example(name=name)
 
 
 if __name__ == "__main__":
