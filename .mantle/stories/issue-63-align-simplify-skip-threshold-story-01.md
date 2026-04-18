@@ -2,11 +2,11 @@
 issue: 63
 title: Default-filter collect_issue_diff_stats to src/+tests/ and align build.md Step
   7
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

@@ -1,6 +1,6 @@
 ---
 title: Align simplify skip-threshold stats with simplify scope
-status: implementing
+status: verified
 slice:
 - cli
 - claude-code
@@ -16,7 +16,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
