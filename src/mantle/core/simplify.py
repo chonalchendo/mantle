@@ -163,25 +163,20 @@ def collect_issue_diff_stats(
     project_root: Path,
     issue: int,
 ) -> DiffStats:
-    """Aggregate diff stats across commits for an issue.
+    """Aggregate diff stats for an issue, scoped to ``src/`` and ``tests/``.
 
-    Uses the same commit-discovery logic as
-    :func:`collect_issue_files` (grep for ``(issue-N)`` and, for
-    ``N < 10``, also ``(issue-0N)``), then runs
-    ``git diff --shortstat <first>^..<last> -- src/ tests/`` and
-    parses the single summary line. Counts only changes in ``src/``
-    and ``tests/`` — aligns with the simplifier's edit scope in
-    ``/mantle:build`` Step 7.
+    Uses the same commit-discovery logic as :func:`collect_issue_files`,
+    then runs ``git diff --shortstat <first>^..<last> -- src/ tests/``
+    and parses the summary line.
 
     Args:
         project_root: Directory containing .mantle/.
         issue: Issue number to collect diff stats for.
 
     Returns:
-        DiffStats with file count and line totals. Returns
-        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist,
-        and also when matching commits exist but touch only paths
-        outside ``src/`` + ``tests/``.
+        DiffStats with file count and line totals, or
+        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist or
+        when commits touch only paths outside ``src/`` and ``tests/``.
 
     Raises:
         FileNotFoundError: If the issue file does not exist.

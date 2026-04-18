@@ -159,8 +159,10 @@ def _commit_content(
     content: str,
     message: str,
 ) -> None:
-    """Write file content and commit it."""
-    (project_root / filename).write_text(content, encoding="utf-8")
+    """Write file content and commit it, creating parent directories."""
+    path = project_root / filename
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
     subprocess.run(
         ["git", "add", filename],
         cwd=project_root,
@@ -192,7 +194,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"line {i}\n" for i in range(10))
         _commit_content(
             project, "src/foo.py", content, "feat(issue-7): add foo"
@@ -211,7 +212,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "src").mkdir(exist_ok=True)
         content_a = "".join(f"a{i}\n" for i in range(5))
         _commit_content(project, "src/a.py", content_a, "feat(issue-7): add a")
 
@@ -230,23 +230,9 @@ class TestCollectIssueDiffStats:
         project = _init_git_repo(tmp_path)
         _write_issue_file(project, 7)
 
-        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"line {i}\n" for i in range(6))
         _commit_content(project, "src/foo.py", content, "chore: initial foo")
-
-        (project / "src" / "foo.py").write_text("", encoding="utf-8")
-        subprocess.run(
-            ["git", "add", "src/foo.py"],
-            cwd=project,
-            capture_output=True,
-            check=True,
-        )
-        subprocess.run(
-            ["git", "commit", "-m", "feat(issue-7): empty foo"],
-            cwd=project,
-            capture_output=True,
-            check=True,
-        )
+        _commit_content(project, "src/foo.py", "", "feat(issue-7): empty foo")
 
         stats = simplify.collect_issue_diff_stats(project, 7)
 
@@ -273,7 +259,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 1)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "src").mkdir(exist_ok=True)
         content = "".join(f"p{i}\n" for i in range(4))
         _commit_content(
             project,
@@ -294,7 +279,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "claude" / "commands" / "mantle").mkdir(parents=True)
         _commit_content(
             project,
             "claude/commands/mantle/foo.md",
@@ -312,7 +296,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / ".mantle" / "learnings").mkdir(parents=True, exist_ok=True)
         _commit_content(
             project,
             ".mantle/learnings/x.md",
@@ -330,7 +313,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "src").mkdir(exist_ok=True)
         src_content = "".join(f"line {i}\n" for i in range(10))
         _commit_content(
             project,
@@ -339,7 +321,6 @@ class TestCollectIssueDiffStats:
             "feat(issue-7): add src file",
         )
 
-        (project / "claude").mkdir(exist_ok=True)
         _commit_content(
             project,
             "claude/bar.md",
@@ -359,7 +340,6 @@ class TestCollectIssueDiffStats:
         _write_issue_file(project, 7)
         _commit_file(project, "initial.txt", "chore: initial")
 
-        (project / "tests").mkdir(exist_ok=True)
         content = "".join(f"t{i}\n" for i in range(5))
         _commit_content(
             project,
