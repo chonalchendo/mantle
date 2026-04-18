@@ -142,12 +142,11 @@ def _validate_proficiency(proficiency: str) -> None:
         ValueError: If the format is invalid.
     """
     match = re.fullmatch(r"(\d+)/10", proficiency)
+    msg = 'Invalid proficiency format. Use "N/10" (e.g. "7/10").'
     if not match:
-        msg = 'Invalid proficiency format. Use "N/10" (e.g. "7/10").'
         raise ValueError(msg)
     n = int(match.group(1))
     if n < 0 or n > 10:
-        msg = 'Invalid proficiency format. Use "N/10" (e.g. "7/10").'
         raise ValueError(msg)
 
 

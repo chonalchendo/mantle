@@ -12,6 +12,7 @@ import pytest
 from mantle.core import issues as issues_mod
 from mantle.core import vault
 from mantle.core.skills import (
+    _CONTENT_MARKER,
     _GENERATED_MARKER,
     _REFERENCE_MARKER,
     SkillExistsError,
@@ -2090,17 +2091,15 @@ class TestMigratedSkillLineCount:
 
         text = skill_file.read_text(encoding="utf-8")
 
-        # Extract content after <!-- mantle:content -->
-        content_marker = "<!-- mantle:content -->"
-        if content_marker not in text:
-            pytest.fail(f"{slug}: missing {content_marker}")
+        # Extract content after the content marker
+        if _CONTENT_MARKER not in text:
+            pytest.fail(f"{slug}: missing {_CONTENT_MARKER}")
 
-        content = text.split(content_marker, maxsplit=1)[1]
+        content = text.split(_CONTENT_MARKER, maxsplit=1)[1]
 
         # Split on reference marker
-        ref_marker = "<!-- mantle:reference -->"
-        if ref_marker in content:
-            above = content.split(ref_marker, maxsplit=1)[0]
+        if _REFERENCE_MARKER in content:
+            above = content.split(_REFERENCE_MARKER, maxsplit=1)[0]
         else:
             above = content
 
