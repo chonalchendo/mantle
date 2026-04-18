@@ -1,11 +1,11 @@
 ---
 issue: 56
 title: Wire hooks.dispatch into shaping + 4 issue transitions
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story

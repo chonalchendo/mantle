@@ -1,11 +1,11 @@
 ---
 issue: 56
 title: Core hook dispatcher with env passthrough and fail-open semantics
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

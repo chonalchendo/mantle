@@ -67,7 +67,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 63 — review past learnings before next planning cycle.
+Learning captured for issue 56 — review past learnings before next planning cycle.
 
 ## Blockers
 
