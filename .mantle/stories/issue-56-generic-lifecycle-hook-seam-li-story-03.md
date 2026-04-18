@@ -1,11 +1,11 @@
 ---
 issue: 56
 title: Ship example hook scripts (linear/jira/slack) + show-hook-example CLI + README
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

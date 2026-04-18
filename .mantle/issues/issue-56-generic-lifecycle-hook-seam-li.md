@@ -1,6 +1,6 @@
 ---
 title: Generic lifecycle hook seam (Linear/Jira as first examples)
-status: implementing
+status: verified
 slice:
 - core
 - cli
@@ -29,7 +29,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implementing
+- status/verified
 ---
 
 ## Parent PRD
