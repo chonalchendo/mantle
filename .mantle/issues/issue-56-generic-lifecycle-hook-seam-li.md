@@ -1,17 +1,35 @@
 ---
 title: Generic lifecycle hook seam (Linear/Jira as first examples)
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - claude-code
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- FRED Data Source
+- John Templeton Investment Philosophy
+- Python 3.14
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- cyclopts
+- edgartools
+- fastapi
+- httpx-async
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- python-314
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
