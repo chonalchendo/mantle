@@ -21,42 +21,6 @@ _CONTENT_MARKER = "<!-- mantle:content -->"
 _GENERATED_MARKER = "<!-- mantle:generated -->"
 _REFERENCE_MARKER = "<!-- mantle:reference -->"
 
-_STOPWORDS = frozenset(
-    {
-        "a",
-        "an",
-        "the",
-        "is",
-        "are",
-        "was",
-        "were",
-        "be",
-        "been",
-        "in",
-        "on",
-        "at",
-        "to",
-        "for",
-        "of",
-        "with",
-        "and",
-        "or",
-        "not",
-        "this",
-        "that",
-        "it",
-        "by",
-        "from",
-        "as",
-    }
-)
-
-
-def _tokenize(text: str) -> set[str]:
-    """Split text into lowercase word tokens."""
-    return {t for t in re.split(r"[^a-z0-9]+", text.lower()) if t}
-
-
 # ── Data model ───────────────────────────────────────────────────
 
 
@@ -746,7 +710,6 @@ def detect_skills_from_content(
         return []
 
     content_lower = content.lower()
-    content_tokens = _tokenize(content_lower)
     matched: list[str] = []
 
     for path in existing:
@@ -772,10 +735,6 @@ def detect_skills_from_content(
         ):
             matched.append(note.name)
             continue
-        # Match by description word overlap (3+ non-stopword tokens)
-        desc_tokens = _tokenize(note.description) - _STOPWORDS
-        if len(desc_tokens & content_tokens) >= 3:
-            matched.append(note.name)
 
     return matched
 

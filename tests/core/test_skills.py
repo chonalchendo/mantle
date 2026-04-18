@@ -1398,34 +1398,28 @@ class TestDetectSkillsFromContent:
 
         assert "Web Development" in result
 
-    def test_detect_skills_matches_by_description(self, project: Path) -> None:
-        _create_skill(
-            project,
-            name="Async IO Patterns",
-            description=(
-                "Async Python patterns using asyncio"
-                " for concurrent I/O-bound services"
-            ),
-        )
-        content = "We need asyncio concurrent services patterns here."
-
-        result = detect_skills_from_content(project, content)
-
-        assert "Async IO Patterns" in result
-
-    def test_detect_skills_no_match_below_threshold(
+    def test_no_false_positive_from_description_tokens(
         self, project: Path
     ) -> None:
         _create_skill(
             project,
-            name="Async IO Patterns",
-            description="Async Python patterns using asyncio",
+            name="Nick Sleep Investment Philosophy",
+            description=(
+                "Investment framework focused on moat durability, "
+                "reinvestment runway, and long-term analysis of "
+                "compounding businesses. Use when evaluating "
+                "commands output scale."
+            ),
         )
-        content = "Python is a great language for scripting."
+        content = (
+            "Group mantle CLI commands in help output by topic. "
+            "Analysis of current help output shows commands are listed "
+            "flat, making it hard to use at scale."
+        )
 
         result = detect_skills_from_content(project, content)
 
-        assert "Async IO Patterns" not in result
+        assert "Nick Sleep Investment Philosophy" not in result
 
     def test_detect_skills_ignores_type_tags(self, project: Path) -> None:
         _create_skill(
