@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "8fb49023ef40ca3541e9fe7fcf56900941e9541b28d70456cc85e3aa9f1ecaf5",
+    "/Users/conal/Development/mantle/.mantle/state.md": "de7f97fb6b0aa2ce992386f0cbaead75b742a00384b581a1b9048c8fc7b8371b",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-18-1333.md": "69194dca46dcb319db87c11de0bb84021e4f51cac5b119e4b23a91480699dd55",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-19-1854.md": "99a07236707bf30a22c75da879e980fe069623d64915ffe53af4e67290618952",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -22,7 +22,7 @@
     "/Users/conal/test-vault/skills/earningscallbiz-scraping.md": "a51de68dc504fab138405e02dedefc4a6ff392ec3ac393b79664c52d59d95647",
     "/Users/conal/test-vault/skills/edgartools.md": "dfc4a43d356c510efb7f883810e6d673d696f693185de3054792a5abc0f034a0",
     "/Users/conal/test-vault/skills/fastapi.md": "7f1f4a6a18158cf27a2e258a50816214470bbe1d2a60c15311c7af911258d655",
-    "/Users/conal/test-vault/skills/finnhub-data-source.md": "ea34e820d7dcaf28227192b439726f72931785672808a0416e055af99347d10d",
+    "/Users/conal/test-vault/skills/finnhub-data-source.md": "92a3d21e0d29a618efdd1692464103334313c16104d7b34f49a8a1a598e10577",
     "/Users/conal/test-vault/skills/finviz-data-source.md": "473950b59bfa4a53427d7ce33b529e0e9c29a07a78594efeb65f8e11aa8b08c6",
     "/Users/conal/test-vault/skills/fred-data-source.md": "dc223a28094166ade98c28d5155ddc7a69f9ae0c1b1e00531bafb4adf3dce058",
     "/Users/conal/test-vault/skills/howard-marks-investment-philosophy.md": "2e9b10de51acf1032c35d2bc344c455288e807642df81a345309d2b67e1150c7",

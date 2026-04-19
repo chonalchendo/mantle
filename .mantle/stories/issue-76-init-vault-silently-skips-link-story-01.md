@@ -1,11 +1,11 @@
 ---
 issue: 76
 title: Core init_vault — idempotent linking with outcome signal
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
