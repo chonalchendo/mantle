@@ -21,14 +21,7 @@ def run_init_vault(vault_path: Path) -> None:
     project_root = Path.cwd()
 
     try:
-        project.init_vault(vault_path, project_root)
-    except FileExistsError:
-        resolved = vault_path.expanduser().resolve()
-        console.print(
-            f"[yellow]Warning:[/yellow] Personal vault already "
-            f"exists at {resolved}. Nothing to do."
-        )
-        return
+        created = project.init_vault(vault_path, project_root)
     except FileNotFoundError:
         errors.exit_with_error(
             "Project not initialized.",
@@ -36,13 +29,19 @@ def run_init_vault(vault_path: Path) -> None:
         )
 
     resolved = vault_path.expanduser().resolve()
-    console.print()
-    console.print(f"[green]Created personal vault at {resolved}[/green]")
-    console.print("  - skills/")
-    console.print("  - knowledge/")
-    console.print("  - inbox/")
-    console.print()
-    console.print("Vault path saved to .mantle/config.md")
-    console.print(
-        "  Tip: Place in iCloud Drive for automatic sync across machines."
-    )
+
+    if created:
+        console.print()
+        console.print(f"[green]Created personal vault at {resolved}[/green]")
+        console.print("  - skills/")
+        console.print("  - knowledge/")
+        console.print("  - inbox/")
+        console.print()
+        console.print("Vault path saved to .mantle/config.md")
+        console.print(
+            "  Tip: Place in iCloud Drive for automatic sync across machines."
+        )
+    else:
+        console.print()
+        console.print(f"[green]Linked existing vault at {resolved}[/green]")
+        console.print("Vault path saved to .mantle/config.md")

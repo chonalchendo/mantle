@@ -49,7 +49,7 @@ class TestRunInitVault:
         assert "knowledge/" in captured.out
         assert "inbox/" in captured.out
 
-    def test_prints_warning_on_existing(
+    def test_prints_linked_message_for_existing_vault(
         self,
         tmp_path: Path,
         capsys: pytest.CaptureFixture[str],
@@ -67,7 +67,28 @@ class TestRunInitVault:
         run_init_vault(vault)
         captured = capsys.readouterr()
 
-        assert "already exists" in captured.out
+        assert "Linked existing vault" in captured.out
+        assert "Nothing to do" not in captured.out
+
+    def test_populates_config_when_linking_existing_vault(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        _create_project(tmp_path)
+        monkeypatch.chdir(tmp_path)
+
+        vault = tmp_path / "vault"
+        for d in ("skills", "knowledge", "inbox", "projects"):
+            (vault / d).mkdir(parents=True)
+
+        from mantle.cli.init_vault import run_init_vault
+        from mantle.core.project import read_config
+
+        run_init_vault(vault)
+
+        result = read_config(tmp_path)
+        assert result["personal_vault"] == str(vault.resolve())
 
     def test_prints_error_when_not_initialized(
         self,
