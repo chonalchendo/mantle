@@ -311,18 +311,23 @@ def update_config(project_root: Path, **kwargs: Any) -> None:
     _write_frontmatter_and_body(config_path, frontmatter, body)
 
 
-def init_vault(vault_path: Path, project_root: Path) -> None:
-    """Create personal vault structure and link it to this project.
+def init_vault(vault_path: Path, project_root: Path) -> bool:
+    """Create or link a personal vault, then record it in this project's config.
 
-    Creates skills/, knowledge/, inbox/, projects/ at vault_path.
-    Records the resolved vault path in .mantle/config.md.
+    If all four vault subdirectories already exist at ``vault_path``, the
+    existing vault is linked without creating anything. Otherwise the
+    subdirectories are created. Either way, the resolved vault path is
+    written to ``.mantle/config.md``.
 
     Args:
         vault_path: Path for the personal vault (expanded and resolved).
         project_root: Directory containing .mantle/.
 
+    Returns:
+        True if the vault was newly created, False if linked to an
+        existing one.
+
     Raises:
-        FileExistsError: If all three vault subdirectories already exist.
         FileNotFoundError: If .mantle/ does not exist at project_root.
     """
     mantle_path = project_root / MANTLE_DIR
@@ -333,14 +338,15 @@ def init_vault(vault_path: Path, project_root: Path) -> None:
     resolved = vault_path.expanduser().resolve()
     subdirs = ("skills", "knowledge", "inbox", "projects")
 
-    if all((resolved / d).is_dir() for d in subdirs):
-        msg = f"Personal vault already exists at {resolved}"
-        raise FileExistsError(msg)
+    already_linked = all((resolved / d).is_dir() for d in subdirs)
 
-    for d in subdirs:
-        (resolved / d).mkdir(parents=True, exist_ok=True)
+    if not already_linked:
+        for d in subdirs:
+            (resolved / d).mkdir(parents=True, exist_ok=True)
 
     update_config(project_root, personal_vault=str(resolved))
+
+    return not already_linked
 
 
 # ── Internal helpers ─────────────────────────────────────────────

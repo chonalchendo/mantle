@@ -272,14 +272,47 @@ class TestInitVault:
         text = (tmp_path / MANTLE_DIR / "config.md").read_text()
         assert "Custom body." in text
 
-    def test_raises_if_all_exist(self, tmp_path: Path) -> None:
+    def test_returns_true_on_fresh_vault(self, tmp_path: Path) -> None:
+        _create_config(tmp_path)
+        vault = tmp_path / "vault"
+
+        assert init_vault(vault, tmp_path) is True
+
+    def test_returns_false_when_linking_existing_vault(
+        self, tmp_path: Path
+    ) -> None:
         _create_config(tmp_path)
         vault = tmp_path / "vault"
         for d in ("skills", "knowledge", "inbox", "projects"):
             (vault / d).mkdir(parents=True)
 
-        with pytest.raises(FileExistsError):
-            init_vault(vault, tmp_path)
+        assert init_vault(vault, tmp_path) is False
+
+    def test_links_existing_vault_writes_config(self, tmp_path: Path) -> None:
+        _create_config(tmp_path)
+        vault = tmp_path / "vault"
+        for d in ("skills", "knowledge", "inbox", "projects"):
+            (vault / d).mkdir(parents=True)
+
+        init_vault(vault, tmp_path)
+
+        assert read_config(tmp_path)["personal_vault"] == str(vault.resolve())
+
+    def test_multi_project_share(self, tmp_path: Path) -> None:
+        proj_a = tmp_path / "proj_a"
+        proj_b = tmp_path / "proj_b"
+        proj_a.mkdir()
+        proj_b.mkdir()
+        _create_config(proj_a)
+        _create_config(proj_b)
+        vault = tmp_path / "vault"
+
+        init_vault(vault, proj_a)
+        init_vault(vault, proj_b)
+
+        resolved = str(vault.resolve())
+        assert read_config(proj_a)["personal_vault"] == resolved
+        assert read_config(proj_b)["personal_vault"] == resolved
 
     def test_partial_init_completes(self, tmp_path: Path) -> None:
         _create_config(tmp_path)

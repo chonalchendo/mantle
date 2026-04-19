@@ -1,17 +1,25 @@
 ---
 title: init-vault silently skips linking when vault directory already exists
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - tests
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Python 3.14
+- Python package structure
+- cyclopts
+- omegaconf
+- pydantic-project-conventions
+- python-314
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD
