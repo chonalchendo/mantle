@@ -5,7 +5,7 @@ status: planning
 confidence: 0/10
 created: '2026-02-22'
 created_by: conal@conalnicholson.com
-updated: '2026-04-18'
+updated: '2026-04-19'
 updated_by: 110059232+chonalchendo@users.noreply.github.com
 current_issue: null
 current_story: null
@@ -67,7 +67,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 65 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Issue 76 planned — run /mantle:build to automate the full pipeline, /mantle:shape-issue for manual control, or /mantle:plan-issues for next issue.
 
 ## Blockers
 
