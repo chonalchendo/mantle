@@ -1,6 +1,6 @@
 ---
 title: init-vault silently skips linking when vault directory already exists
-status: implemented
+status: verified
 slice:
 - core
 - cli
@@ -19,7 +19,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implemented
+- status/verified
 ---
 
 ## Parent PRD
