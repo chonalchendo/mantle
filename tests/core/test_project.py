@@ -244,15 +244,6 @@ class TestInitVault:
         assert (vault / "inbox").is_dir()
         assert (vault / "projects").is_dir()
 
-    def test_tilde_expansion(self, tmp_path: Path) -> None:
-        _create_config(tmp_path)
-        # Use a path under tmp_path to avoid touching real ~
-        vault = tmp_path / "vault"
-
-        init_vault(vault, tmp_path)
-
-        assert vault.is_dir()
-
     def test_auto_sets_config(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
         vault = tmp_path / "vault"

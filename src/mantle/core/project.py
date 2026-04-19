@@ -338,15 +338,15 @@ def init_vault(vault_path: Path, project_root: Path) -> bool:
     resolved = vault_path.expanduser().resolve()
     subdirs = ("skills", "knowledge", "inbox", "projects")
 
-    already_linked = all((resolved / d).is_dir() for d in subdirs)
+    created = not all((resolved / d).is_dir() for d in subdirs)
 
-    if not already_linked:
+    if created:
         for d in subdirs:
             (resolved / d).mkdir(parents=True, exist_ok=True)
 
     update_config(project_root, personal_vault=str(resolved))
 
-    return not already_linked
+    return created
 
 
 # ── Internal helpers ─────────────────────────────────────────────
