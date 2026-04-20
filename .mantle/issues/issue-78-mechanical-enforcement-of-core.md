@@ -1,16 +1,47 @@
 ---
 title: Mechanical enforcement of core/ → cli/ import-direction invariant
-status: planned
+status: implementing
 slice:
 - tests
 - cli
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckDB Best Practices and Optimisations
+- DuckLake
+- FRED Data Source
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
+- Mohnish Pabrai Investment Philosophy
+- Nick Sleep Investment Philosophy
+- OpenRouter LLM Gateway
+- Production Project Readiness
+- Python 3.14
+- Python Project Conventions
+- Python package structure
+- SQLMesh Best Practices
+- Software Design Principles
+- Tom Gayner Investment Philosophy
+- beautifulsoup4-web-scraping
+- claude-sdk-structured-analysis-pipelines
+- cyclopts
+- dirty-equals
+- edgartools
+- fastapi
+- import-linter
+- inline-snapshot
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- python-314
+- streamlit
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD

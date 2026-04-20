@@ -37,7 +37,7 @@ dev = [
     "inline-snapshot>=0.19",
     "dirty-equals>=0.8",
 ]
-lint = ["ruff>=0.11"]
+lint = ["ruff>=0.11", "import-linter>=2.0"]
 type = ["ty>=0.0"]
 hooks = ["prek>=0.3"]
 check = [
@@ -64,3 +64,14 @@ python-version = "3.14"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --strict-markers --tb=short"
+
+[tool.importlinter]
+root_package = "mantle"
+include_external_packages = false
+exclude_type_checking_imports = true
+
+[[tool.importlinter.contracts]]
+name = "core never imports from cli or api"
+type = "forbidden"
+source_modules = ["mantle.core"]
+forbidden_modules = ["mantle.cli", "mantle.api"]

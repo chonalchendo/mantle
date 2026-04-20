@@ -27,6 +27,7 @@ test *args:
 # Run all checks (lint, format check, type, test)
 check: lint type test
     uv run ruff format src/ tests/ --check
+    uv run lint-imports
     @echo "All checks passed."
 
 # CI mode (non-destructive, used in GitHub Actions)
@@ -34,6 +35,7 @@ ci:
     uv run ruff check src/ tests/
     uv run ruff format src/ tests/ --check
     uv run ty check src/
+    uv run lint-imports
     uv run pytest
 
 # Auto-fix lint and format issues

@@ -5,6 +5,8 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 ## Architecture
 
 - `core/` never imports from `cli/` or `api/`
+  - Enforced by `import-linter` — see `[tool.importlinter]` in `pyproject.toml`. The check runs as part of `just check` and CI.
+  - To add another architectural invariant (e.g., `cli/` may not import `tests.fixtures`), append a new contract under `[[tool.importlinter.contracts]]`. No new tooling required.
 - `cli/` depends on `core/`, never the reverse
 - All state lives in `.mantle/` (local) or the Obsidian vault
 
