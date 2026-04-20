@@ -1,18 +1,34 @@
 ---
 title: Machine-verifiable acceptance criteria with explicit pass/fail state
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - claude-code
 - tests
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- DuckLake
+- Howard Marks Investment Philosophy
+- John Templeton Investment Philosophy
+- Lakehouse Architecture
+- OpenRouter LLM Gateway
+- Python 3.14
+- Python package structure
+- claude-sdk-structured-analysis-pipelines
+- cyclopts
+- import-linter
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 ---
 
 ## Parent PRD

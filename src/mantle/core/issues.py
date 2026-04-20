@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pydantic
 
-from mantle.core import hooks, project, state, vault
+from mantle.core import acceptance, hooks, project, state, vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,6 +29,9 @@ class IssueNote(pydantic.BaseModel, frozen=True):
         blocked_by: Issue numbers this issue depends on.
         skills_required: Skills needed for this issue.
         tags: Mantle tags for categorization.
+        acceptance_criteria: Structured acceptance criteria with explicit
+            pass/fail state. Empty tuple means no structured ACs yet
+            (legacy issue awaiting migration).
     """
 
     title: str
@@ -39,6 +42,7 @@ class IssueNote(pydantic.BaseModel, frozen=True):
     blocked_by: tuple[int, ...] = ()
     skills_required: tuple[str, ...] = ()
     tags: tuple[str, ...] = ("type/issue", "status/planned")
+    acceptance_criteria: tuple[acceptance.AcceptanceCriterion, ...] = ()
 
 
 # ── Exception ────────────────────────────────────────────────────
@@ -69,6 +73,22 @@ class InvalidTransitionError(Exception):
         self.target_status = target_status
         super().__init__(
             f"Cannot transition from '{current_status}' to '{target_status}'"
+        )
+
+
+class UnresolvedAcceptanceCriteriaError(Exception):
+    """Raised when approval is attempted with pending acceptance criteria.
+
+    Attributes:
+        issue_number: Issue whose approval was blocked.
+        failing: Ids of criteria that are neither passing nor waived.
+    """
+
+    def __init__(self, issue_number: int, failing: tuple[str, ...]) -> None:
+        self.issue_number = issue_number
+        self.failing = failing
+        super().__init__(
+            f"Issue {issue_number} has unresolved ACs: {', '.join(failing)}"
         )
 
 
@@ -127,6 +147,13 @@ def save_issue(
         skills_required=skills_required,
         verification=verification,
     )
+
+    if note.acceptance_criteria:
+        acceptance.assert_unique_ids(note.acceptance_criteria)
+        content = acceptance.replace_ac_section(
+            content,
+            acceptance.render_ac_section(note.acceptance_criteria),
+        )
 
     vault.write_note(issue_path, note, content)
 
@@ -325,6 +352,11 @@ def transition_to_verified(project_root: Path, issue_number: int) -> Path:
 def transition_to_approved(project_root: Path, issue_number: int) -> Path:
     """Transition an issue to ``approved`` status.
 
+    Raises :class:`UnresolvedAcceptanceCriteriaError` when the issue has
+    structured acceptance criteria and at least one of them is neither
+    passing nor waived. Issues with an empty ``acceptance_criteria``
+    tuple skip the gate (backwards compatible with unmigrated issues).
+
     Args:
         project_root: Directory containing .mantle/.
         issue_number: Issue number to transition.
@@ -336,7 +368,21 @@ def transition_to_approved(project_root: Path, issue_number: int) -> Path:
         InvalidTransitionError: If current status does not allow
             transition to ``approved``.
         FileNotFoundError: If the issue file does not exist.
+        UnresolvedAcceptanceCriteriaError: If any AC is still pending.
     """
+    issue_path = find_issue_path(project_root, issue_number)
+    if issue_path is None:
+        msg = f"Issue {issue_number} not found"
+        raise FileNotFoundError(msg)
+    note, _ = load_issue(issue_path)
+    if note.acceptance_criteria and not acceptance.all_pass_or_waived(
+        note.acceptance_criteria
+    ):
+        failing = tuple(
+            c.id for c in note.acceptance_criteria if not (c.passes or c.waived)
+        )
+        raise UnresolvedAcceptanceCriteriaError(issue_number, failing)
+
     issue_path = _transition_issue(project_root, issue_number, "approved")
     note, _ = load_issue(issue_path)
     hooks.dispatch(
@@ -398,6 +444,99 @@ def transition_to_implemented(
         FileNotFoundError: If the issue file does not exist.
     """
     return _transition_issue(project_root, issue_number, "implemented")
+
+
+# ── Acceptance criteria ──────────────────────────────────────────
+
+
+def flip_acceptance_criterion(
+    project_dir: Path,
+    issue_number: int,
+    ac_id: str,
+    *,
+    passes: bool,
+    waived: bool = False,
+    waiver_reason: str | None = None,
+) -> IssueNote:
+    """Flip a single acceptance criterion and persist the issue.
+
+    Loads the issue, mutates the matching criterion in
+    ``acceptance_criteria``, regenerates the body's
+    ``## Acceptance criteria`` section, and writes back.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+        issue_number: Issue number to update.
+        ac_id: Criterion id to flip (e.g. ``ac-01``).
+        passes: New ``passes`` value.
+        waived: New ``waived`` value.
+        waiver_reason: New ``waiver_reason`` value.
+
+    Returns:
+        The updated :class:`IssueNote`.
+
+    Raises:
+        FileNotFoundError: If the issue file does not exist.
+        CriterionNotFoundError: If ``ac_id`` is not in the issue's
+            ``acceptance_criteria``.
+    """
+    issue_path = find_issue_path(project_dir, issue_number)
+    if issue_path is None:
+        msg = f"Issue {issue_number} not found"
+        raise FileNotFoundError(msg)
+    note, body = load_issue(issue_path)
+    new_criteria = acceptance.flip_criterion(
+        note.acceptance_criteria,
+        ac_id,
+        passes=passes,
+        waived=waived,
+        waiver_reason=waiver_reason,
+    )
+    updated = note.model_copy(update={"acceptance_criteria": new_criteria})
+    body = acceptance.replace_ac_section(
+        body,
+        acceptance.render_ac_section(new_criteria),
+    )
+    vault.write_note(issue_path, updated, body)
+    return updated
+
+
+def migrate_all_acs(project_dir: Path) -> list[tuple[int, int]]:
+    """Backfill structured acceptance criteria for every live + archived issue.
+
+    Walks ``.mantle/issues/`` and ``.mantle/archive/issues/``, parses
+    the markdown ``- [ ]`` / ``- [x]`` checkboxes under the
+    ``## Acceptance criteria`` heading, and writes them back into the
+    frontmatter's ``acceptance_criteria`` field (and regenerates the
+    body view). Issues that already have a non-empty
+    ``acceptance_criteria`` tuple are skipped.
+
+    Args:
+        project_dir: Directory containing .mantle/.
+
+    Returns:
+        List of ``(issue_number, criteria_count)`` tuples for every
+        issue that was migrated.
+    """
+    results: list[tuple[int, int]] = []
+    paths = list_issues(project_dir) + list_archived_issues(project_dir)
+    for path in paths:
+        note, body = load_issue(path)
+        if note.acceptance_criteria:
+            continue  # already migrated
+        parsed = acceptance.parse_ac_section(body)
+        if not parsed:
+            continue
+        updated = note.model_copy(update={"acceptance_criteria": parsed})
+        new_body = acceptance.replace_ac_section(
+            body,
+            acceptance.render_ac_section(parsed),
+        )
+        vault.write_note(path, updated, new_body)
+        match = re.match(r"issue-(\d+)-", path.name)
+        number = int(match.group(1)) if match else -1
+        results.append((number, len(parsed)))
+    return results
 
 
 # ── Internal helpers ─────────────────────────────────────────────

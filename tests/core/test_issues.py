@@ -12,13 +12,20 @@ import pytest
 if TYPE_CHECKING:
     from pathlib import Path
 
+from inline_snapshot import snapshot
+
 from mantle.core import archive as archive_mod
 from mantle.core import issues as issues_mod
 from mantle.core import vault
+from mantle.core.acceptance import (
+    AcceptanceCriterion,
+    CriterionNotFoundError,
+)
 from mantle.core.issues import (
     InvalidTransitionError,
     IssueExistsError,
     IssueNote,
+    UnresolvedAcceptanceCriteriaError,
     count_issues,
     issue_exists,
     list_issues,
@@ -779,3 +786,359 @@ class TestFindIssuePathIncludingArchive:
         result = issues_mod.find_issue_path_including_archive(project, 32)
 
         assert result == live
+
+
+# ── Acceptance criteria — save / flip / gate / migrate ──────────
+
+
+def _extract_ac_section(body: str) -> str:
+    """Return just the '## Acceptance criteria' block (for assertions)."""
+    lines = body.splitlines()
+    out: list[str] = []
+    in_section = False
+    for line in lines:
+        if line.startswith("## Acceptance criteria"):
+            in_section = True
+            out.append(line)
+            continue
+        if in_section and line.startswith("## "):
+            break
+        if in_section:
+            out.append(line)
+    return "\n".join(out).rstrip() + "\n"
+
+
+class TestSaveIssueAcceptanceCriteria:
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_save_issue_regenerates_ac_section_in_body(
+        self, _mock: object, project: Path
+    ) -> None:
+        stale_body = (
+            "## What to build\n\nBuild the thing.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] Stale item\n"
+        )
+        note, path = save_issue(
+            project,
+            stale_body,
+            title="AC regen",
+            slice=("core",),
+        )
+        updated = note.model_copy(
+            update={
+                "acceptance_criteria": (
+                    AcceptanceCriterion(
+                        id="ac-01",
+                        text="First criterion",
+                        passes=True,
+                    ),
+                    AcceptanceCriterion(
+                        id="ac-02",
+                        text="Second criterion",
+                        passes=False,
+                    ),
+                )
+            }
+        )
+        vault.write_note(
+            path,
+            updated,
+            issues_mod.acceptance.replace_ac_section(
+                stale_body,
+                issues_mod.acceptance.render_ac_section(
+                    updated.acceptance_criteria
+                ),
+            ),
+        )
+
+        _, body = load_issue(path)
+        ac_block = _extract_ac_section(body)
+
+        assert ac_block == snapshot("""\
+## Acceptance criteria
+
+- [x] ac-01: First criterion
+- [ ] ac-02: Second criterion
+""")
+        assert "Stale item" not in body
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_save_issue_preserves_body_when_criteria_empty(
+        self, _mock: object, project: Path
+    ) -> None:
+        body_in = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] Legacy checkbox\n"
+        )
+
+        _, path = save_issue(
+            project,
+            body_in,
+            title="No AC",
+            slice=("core",),
+        )
+
+        _, body_out = load_issue(path)
+        assert "Legacy checkbox" in body_out
+
+
+class TestFlipAcceptanceCriterion:
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_flip_acceptance_criterion_updates_passes_and_body(
+        self, _mock: object, project: Path
+    ) -> None:
+        body = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] ac-01: First\n"
+        )
+        _, path = save_issue(
+            project,
+            body,
+            title="Flip test",
+            slice=("core",),
+        )
+        # Seed structured ACs on the saved issue.
+        note, body = load_issue(path)
+        note = note.model_copy(
+            update={
+                "acceptance_criteria": (
+                    AcceptanceCriterion(id="ac-01", text="First"),
+                )
+            }
+        )
+        vault.write_note(
+            path,
+            note,
+            issues_mod.acceptance.replace_ac_section(
+                body,
+                issues_mod.acceptance.render_ac_section(
+                    note.acceptance_criteria
+                ),
+            ),
+        )
+
+        updated = issues_mod.flip_acceptance_criterion(
+            project, 1, "ac-01", passes=True
+        )
+
+        assert updated.acceptance_criteria[0].passes is True
+        _, new_body = load_issue(path)
+        assert "- [x] ac-01: First" in new_body
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_flip_acceptance_criterion_raises_on_unknown_ac(
+        self, _mock: object, project: Path
+    ) -> None:
+        _, path = save_issue(
+            project,
+            "## What to build\n\nBuild.\n",
+            title="Flip missing",
+            slice=("core",),
+        )
+        note, body = load_issue(path)
+        note = note.model_copy(
+            update={
+                "acceptance_criteria": (
+                    AcceptanceCriterion(id="ac-01", text="Only"),
+                )
+            }
+        )
+        vault.write_note(
+            path,
+            note,
+            issues_mod.acceptance.replace_ac_section(
+                body,
+                issues_mod.acceptance.render_ac_section(
+                    note.acceptance_criteria
+                ),
+            ),
+        )
+
+        with pytest.raises(CriterionNotFoundError):
+            issues_mod.flip_acceptance_criterion(
+                project, 1, "ac-99", passes=True
+            )
+
+
+def _write_issue_with_acs(
+    project_dir: Path,
+    issue_number: int,
+    *,
+    status: str,
+    criteria: tuple[AcceptanceCriterion, ...],
+) -> Path:
+    """Write an issue file directly with structured ACs for test setup."""
+    title = f"Issue {issue_number}"
+    note = IssueNote(
+        title=title,
+        status=status,
+        slice=("core",),
+        tags=("type/issue", f"status/{status}"),
+        acceptance_criteria=criteria,
+    )
+    slug = title.lower().replace(" ", "-")
+    path = (
+        project_dir
+        / ".mantle"
+        / "issues"
+        / f"issue-{issue_number:02d}-{slug}.md"
+    )
+    body = issues_mod.acceptance.render_ac_section(criteria)
+    vault.write_note(path, note, body)
+    return path
+
+
+class TestTransitionToApprovedAcceptanceGate:
+    def test_blocks_when_ac_pending(self, project: Path) -> None:
+        _write_issue_with_acs(
+            project,
+            40,
+            status="verified",
+            criteria=(AcceptanceCriterion(id="ac-01", text="pending"),),
+        )
+
+        with pytest.raises(UnresolvedAcceptanceCriteriaError) as excinfo:
+            issues_mod.transition_to_approved(project, 40)
+
+        assert excinfo.value.issue_number == 40
+        assert excinfo.value.failing == ("ac-01",)
+
+    def test_allows_when_all_pass(self, project: Path) -> None:
+        _write_issue_with_acs(
+            project,
+            41,
+            status="verified",
+            criteria=(
+                AcceptanceCriterion(id="ac-01", text="a", passes=True),
+                AcceptanceCriterion(id="ac-02", text="b", passes=True),
+            ),
+        )
+
+        path = issues_mod.transition_to_approved(project, 41)
+
+        note, _ = load_issue(path)
+        assert note.status == "approved"
+
+    def test_allows_when_waived(self, project: Path) -> None:
+        _write_issue_with_acs(
+            project,
+            42,
+            status="verified",
+            criteria=(
+                AcceptanceCriterion(id="ac-01", text="a", passes=True),
+                AcceptanceCriterion(
+                    id="ac-02",
+                    text="b",
+                    passes=False,
+                    waived=True,
+                    waiver_reason="deferred",
+                ),
+            ),
+        )
+
+        path = issues_mod.transition_to_approved(project, 42)
+
+        note, _ = load_issue(path)
+        assert note.status == "approved"
+
+    def test_still_works_with_empty_criteria(self, project: Path) -> None:
+        _write_issue_direct(project, 43, status="verified")
+
+        path = issues_mod.transition_to_approved(project, 43)
+
+        note, _ = load_issue(path)
+        assert note.status == "approved"
+
+
+class TestMigrateAllAcs:
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_converts_markdown_checkboxes(
+        self, _mock: object, project: Path
+    ) -> None:
+        body = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] First\n"
+            "- [x] Second\n"
+        )
+        _, path = save_issue(
+            project,
+            body,
+            title="Migrate me",
+            slice=("core",),
+        )
+
+        results = issues_mod.migrate_all_acs(project)
+
+        assert results == [(1, 2)]
+        note, body_out = load_issue(path)
+        assert tuple(c.id for c in note.acceptance_criteria) == (
+            "ac-01",
+            "ac-02",
+        )
+        assert note.acceptance_criteria[0].passes is False
+        assert note.acceptance_criteria[1].passes is True
+        assert "- [ ] ac-01: First" in body_out
+        assert "- [x] ac-02: Second" in body_out
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_skips_already_migrated(self, _mock: object, project: Path) -> None:
+        _write_issue_with_acs(
+            project,
+            1,
+            status="planned",
+            criteria=(
+                AcceptanceCriterion(id="ac-01", text="already", passes=True),
+            ),
+        )
+
+        results = issues_mod.migrate_all_acs(project)
+
+        assert results == []
+
+    @patch(
+        "mantle.core.issues.state.resolve_git_identity",
+        side_effect=_mock_git_identity,
+    )
+    def test_covers_archive(self, _mock: object, project: Path) -> None:
+        # Create and archive an issue carrying a legacy checkbox section.
+        body = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] Archived item\n"
+        )
+        save_issue(
+            project,
+            body,
+            title="Archived work",
+            slice=("core",),
+        )
+        # Force it through to a state that archive_issue accepts.
+        issues_mod.transition_to_implementing(project, 1)
+        issues_mod.transition_to_verified(project, 1)
+        issues_mod.transition_to_approved(project, 1)
+        archive_mod.archive_issue(project, 1)
+
+        results = issues_mod.migrate_all_acs(project)
+
+        assert results == [(1, 1)]
