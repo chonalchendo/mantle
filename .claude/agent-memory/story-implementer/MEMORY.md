@@ -9,3 +9,4 @@
 - [inline-snapshot formatting warning](feedback_inline_snapshot_formatting.md) — "not able to format your code" on --inline-snapshot=create is harmless; `just fix` handles reformat
 - [init_project signature](feedback_init_project_signature.md) — project.init_project takes (tmp_path, project_name); story skeletons sometimes omit the name arg
 - [import-linter Python API](feedback_importlinter_api.md) — use importlinter.cli.lint_imports (returns int, bootstraps config); use_cases.lint_imports returns bool and needs manual configure()
+- [cyclopts app() sys.exit(0) on success](feedback_cyclopts_app_sysexit.md) — main_module.app() raises SystemExit(0) after any None-returning command; wrap with pytest.raises(SystemExit) and assert code==0
