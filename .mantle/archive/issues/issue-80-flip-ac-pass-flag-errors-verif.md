@@ -1,6 +1,6 @@
 ---
 title: flip-ac --pass flag errors; verify.md drives users into the broken path
-status: verified
+status: approved
 slice:
 - cli
 - claude-code
@@ -16,29 +16,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
-acceptance_criteria:
-- id: ac-01
-  text: Running the exact command shown in `verify.md` for marking an AC passed succeeds
-    without error.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-02
-  text: '`--fail` still marks an AC failed.'
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-03
-  text: A test covers the "mark passed" CLI path using the form documented in verify.md.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-04
-  text: '`just check` passes.'
-  passes: true
-  waived: false
-  waiver_reason: null
+- status/approved
 ---
 
 ## Parent PRD
