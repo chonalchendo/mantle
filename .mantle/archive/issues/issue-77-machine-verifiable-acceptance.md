@@ -1,6 +1,6 @@
 ---
 title: Machine-verifiable acceptance criteria with explicit pass/fail state
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -28,49 +28,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
-acceptance_criteria:
-- id: ac-01
-  text: 'Issue frontmatter supports an `acceptance_criteria` list where each entry
-    has `id`, `text`, and `passes: true|false`; Pydantic schema validates it.'
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-02
-  text: Markdown AC checkboxes in the issue body are generated from the structured
-    list on save, so the prose stays true to the data.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-03
-  text: '`/mantle:verify` flips `passes` per AC via a dedicated CLI operation (not
-    raw edit) and emits a report of ACs still at `passes: false`.'
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-04
-  text: '`/mantle:review` refuses to approve an issue unless every AC is `passes:
-    true` or carries an explicit waiver.'
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-05
-  text: A one-time `mantle migrate-acs` CLI backfills existing planned/implemented/verified
-    issues from their markdown checkboxes into structured frontmatter.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-06
-  text: Unit tests cover the Pydantic schema, frontmatter round-trip, migration, body-sync
-    rendering, and the flip-passes CLI behavior.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-07
-  text: '`just check` passes.'
-  passes: true
-  waived: false
-  waiver_reason: null
+- status/approved
 ---
 
 ## Parent PRD
