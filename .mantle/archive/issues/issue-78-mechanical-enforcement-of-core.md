@@ -1,6 +1,6 @@
 ---
 title: Mechanical enforcement of core/ → cli/ import-direction invariant
-status: verified
+status: approved
 slice:
 - tests
 - cli
@@ -41,7 +41,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
