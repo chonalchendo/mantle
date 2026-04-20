@@ -10,7 +10,30 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria: []
+acceptance_criteria:
+- id: ac-01
+  text: The handoff prose in `verify.md` (and any other affected command) states the
+    precedence explicitly — config.md first, introspect-project only as a fallback.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The prose uses directive language ("check", "only if absent") rather than
+    loose conditionals.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A smoke run of /mantle:verify against a project with a configured verification_strategy
+    does not invoke `mantle introspect-project`.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

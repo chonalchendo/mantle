@@ -12,7 +12,41 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria: []
+acceptance_criteria:
+- id: ac-01
+  text: A CLI exists to register a GitHub-hosted skill source (URL + optional branch
+    + optional subdir).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: A refresh path clones/pulls registered sources into a local cache and links
+    their skills into the vault's skill index.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Linked external skills are returned by skill listing/matching identically
+    to local skills, with provenance (source, branch, commit) visible.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A name collision between two sources produces a clear error rather than silent
+    override.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A test covers the end-to-end flow using a fixture git repo.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

@@ -13,7 +13,36 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria: []
+acceptance_criteria:
+- id: ac-01
+  text: A short cost/context policy document lives in `.mantle/` naming default model
+    per workflow stage and a target token budget for /mantle:build.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: /mantle:review and /mantle:retrospective run AI-led by default; human interjection
+    is optional, not forced.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A measured before/after token comparison for one high-frequency command is
+    recorded (e.g. in a learning) showing a meaningful reduction without quality regression.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Model-tier defaults (in the config surface delivered by issue 75) reflect
+    the policy document.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

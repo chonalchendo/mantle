@@ -12,7 +12,36 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria: []
+acceptance_criteria:
+- id: ac-01
+  text: A shaped issue document exists exploring 2–3 approaches to cross-repo initiative
+    identity, with tradeoffs.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The chosen approach is decomposed into stories so implementation can proceed
+    in vertical slices.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: At minimum, issues can be tagged with an initiative identifier that works
+    consistently across repos (the lightweight primitive).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A list/query path exists to find all issues across repos carrying the same
+    initiative tag.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
