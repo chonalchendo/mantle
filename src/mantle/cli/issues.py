@@ -157,13 +157,10 @@ def run_flip_ac(
             hint="Check the issue number and try again.",
         )
 
-    match = next(
-        (c for c in updated.acceptance_criteria if c.id == ac_id),
-        None,
-    )
-    if match is not None and match.waived:
+    flipped = next(c for c in updated.acceptance_criteria if c.id == ac_id)
+    if flipped.waived:
         state_label = "waived"
-    elif match is not None and match.passes:
+    elif flipped.passes:
         state_label = "pass"
     else:
         state_label = "fail"

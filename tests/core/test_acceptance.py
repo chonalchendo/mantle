@@ -7,24 +7,19 @@ import pytest
 from inline_snapshot import snapshot
 
 from mantle.core import acceptance
-from mantle.core.acceptance import (
-    AcceptanceCriterion,
-    CriterionNotFoundError,
-    DuplicateCriterionIdError,
-)
 
 # ── AcceptanceCriterion model ────────────────────────────────────
 
 
 class TestAcceptanceCriterion:
     def test_acceptance_criterion_is_frozen(self) -> None:
-        ac = AcceptanceCriterion(id="ac-01", text="does a thing")
+        ac = acceptance.AcceptanceCriterion(id="ac-01", text="does a thing")
 
         with pytest.raises(pydantic.ValidationError):
             ac.passes = True  # type: ignore[misc]
 
     def test_defaults(self) -> None:
-        ac = AcceptanceCriterion(id="ac-01", text="does a thing")
+        ac = acceptance.AcceptanceCriterion(id="ac-01", text="does a thing")
 
         assert ac.passes is False
         assert ac.waived is False
@@ -37,17 +32,17 @@ class TestAcceptanceCriterion:
 class TestRenderAcSection:
     def test_render_ac_section_snapshot(self) -> None:
         criteria = (
-            AcceptanceCriterion(
+            acceptance.AcceptanceCriterion(
                 id="ac-01",
                 text="Frontmatter supports acceptance_criteria list",
                 passes=True,
             ),
-            AcceptanceCriterion(
+            acceptance.AcceptanceCriterion(
                 id="ac-02",
                 text="Markdown checkboxes reflect structured list",
                 passes=False,
             ),
-            AcceptanceCriterion(
+            acceptance.AcceptanceCriterion(
                 id="ac-03",
                 text="Migration CLI backfills existing issues",
                 passes=False,
@@ -91,7 +86,11 @@ class TestReplaceAcSection:
             "More details.\n"
         )
         rendered = acceptance.render_ac_section(
-            (AcceptanceCriterion(id="ac-01", text="New item", passes=True),)
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="New item", passes=True
+                ),
+            )
         )
 
         result = acceptance.replace_ac_section(body, rendered)
@@ -104,7 +103,7 @@ class TestReplaceAcSection:
     def test_replace_ac_section_appends_when_absent(self) -> None:
         body = "## Why\n\nContext.\n"
         rendered = acceptance.render_ac_section(
-            (AcceptanceCriterion(id="ac-01", text="New item"),)
+            (acceptance.AcceptanceCriterion(id="ac-01", text="New item"),)
         )
 
         result = acceptance.replace_ac_section(body, rendered)
@@ -136,8 +135,12 @@ class TestParseAcSection:
 
     def test_parse_ac_section_roundtrip_preserves_ids(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="alpha", passes=True),
-            AcceptanceCriterion(id="ac-02", text="beta", passes=False),
+            acceptance.AcceptanceCriterion(
+                id="ac-01", text="alpha", passes=True
+            ),
+            acceptance.AcceptanceCriterion(
+                id="ac-02", text="beta", passes=False
+            ),
         )
         rendered = acceptance.render_ac_section(criteria)
 
@@ -166,8 +169,12 @@ class TestParseAcSection:
 class TestFlipCriterion:
     def test_flip_criterion_mutates_matching_id(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="alpha", passes=False),
-            AcceptanceCriterion(id="ac-02", text="beta", passes=False),
+            acceptance.AcceptanceCriterion(
+                id="ac-01", text="alpha", passes=False
+            ),
+            acceptance.AcceptanceCriterion(
+                id="ac-02", text="beta", passes=False
+            ),
         )
 
         flipped = acceptance.flip_criterion(criteria, "ac-01", passes=True)
@@ -178,9 +185,9 @@ class TestFlipCriterion:
         assert criteria[0].passes is False
 
     def test_flip_criterion_raises_on_missing_id(self) -> None:
-        criteria = (AcceptanceCriterion(id="ac-01", text="alpha"),)
+        criteria = (acceptance.AcceptanceCriterion(id="ac-01", text="alpha"),)
 
-        with pytest.raises(CriterionNotFoundError):
+        with pytest.raises(acceptance.CriterionNotFoundError):
             acceptance.flip_criterion(criteria, "ac-99", passes=True)
 
 
@@ -193,16 +200,16 @@ class TestAllPassOrWaived:
 
     def test_all_pass_or_waived_false_when_any_pending(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="a", passes=True),
-            AcceptanceCriterion(id="ac-02", text="b", passes=False),
+            acceptance.AcceptanceCriterion(id="ac-01", text="a", passes=True),
+            acceptance.AcceptanceCriterion(id="ac-02", text="b", passes=False),
         )
 
         assert acceptance.all_pass_or_waived(criteria) is False
 
     def test_all_pass_or_waived_true_when_waived_counts(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="a", passes=True),
-            AcceptanceCriterion(
+            acceptance.AcceptanceCriterion(id="ac-01", text="a", passes=True),
+            acceptance.AcceptanceCriterion(
                 id="ac-02",
                 text="b",
                 passes=False,
@@ -220,17 +227,17 @@ class TestAllPassOrWaived:
 class TestAssertUniqueIds:
     def test_assert_unique_ids_raises_on_duplicate(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="alpha"),
-            AcceptanceCriterion(id="ac-01", text="dup"),
+            acceptance.AcceptanceCriterion(id="ac-01", text="alpha"),
+            acceptance.AcceptanceCriterion(id="ac-01", text="dup"),
         )
 
-        with pytest.raises(DuplicateCriterionIdError):
+        with pytest.raises(acceptance.DuplicateCriterionIdError):
             acceptance.assert_unique_ids(criteria)
 
     def test_assert_unique_ids_noop_on_unique(self) -> None:
         criteria = (
-            AcceptanceCriterion(id="ac-01", text="alpha"),
-            AcceptanceCriterion(id="ac-02", text="beta"),
+            acceptance.AcceptanceCriterion(id="ac-01", text="alpha"),
+            acceptance.AcceptanceCriterion(id="ac-02", text="beta"),
         )
 
         acceptance.assert_unique_ids(criteria)  # no raise

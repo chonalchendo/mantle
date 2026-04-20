@@ -14,13 +14,9 @@ if TYPE_CHECKING:
 
 from inline_snapshot import snapshot
 
+from mantle.core import acceptance, vault
 from mantle.core import archive as archive_mod
 from mantle.core import issues as issues_mod
-from mantle.core import vault
-from mantle.core.acceptance import (
-    AcceptanceCriterion,
-    CriterionNotFoundError,
-)
 from mantle.core.issues import (
     InvalidTransitionError,
     IssueExistsError,
@@ -830,12 +826,12 @@ class TestSaveIssueAcceptanceCriteria:
         updated = note.model_copy(
             update={
                 "acceptance_criteria": (
-                    AcceptanceCriterion(
+                    acceptance.AcceptanceCriterion(
                         id="ac-01",
                         text="First criterion",
                         passes=True,
                     ),
-                    AcceptanceCriterion(
+                    acceptance.AcceptanceCriterion(
                         id="ac-02",
                         text="Second criterion",
                         passes=False,
@@ -846,11 +842,9 @@ class TestSaveIssueAcceptanceCriteria:
         vault.write_note(
             path,
             updated,
-            issues_mod.acceptance.replace_ac_section(
+            acceptance.replace_ac_section(
                 stale_body,
-                issues_mod.acceptance.render_ac_section(
-                    updated.acceptance_criteria
-                ),
+                acceptance.render_ac_section(updated.acceptance_criteria),
             ),
         )
 
@@ -913,18 +907,16 @@ class TestFlipAcceptanceCriterion:
         note = note.model_copy(
             update={
                 "acceptance_criteria": (
-                    AcceptanceCriterion(id="ac-01", text="First"),
+                    acceptance.AcceptanceCriterion(id="ac-01", text="First"),
                 )
             }
         )
         vault.write_note(
             path,
             note,
-            issues_mod.acceptance.replace_ac_section(
+            acceptance.replace_ac_section(
                 body,
-                issues_mod.acceptance.render_ac_section(
-                    note.acceptance_criteria
-                ),
+                acceptance.render_ac_section(note.acceptance_criteria),
             ),
         )
 
@@ -953,22 +945,20 @@ class TestFlipAcceptanceCriterion:
         note = note.model_copy(
             update={
                 "acceptance_criteria": (
-                    AcceptanceCriterion(id="ac-01", text="Only"),
+                    acceptance.AcceptanceCriterion(id="ac-01", text="Only"),
                 )
             }
         )
         vault.write_note(
             path,
             note,
-            issues_mod.acceptance.replace_ac_section(
+            acceptance.replace_ac_section(
                 body,
-                issues_mod.acceptance.render_ac_section(
-                    note.acceptance_criteria
-                ),
+                acceptance.render_ac_section(note.acceptance_criteria),
             ),
         )
 
-        with pytest.raises(CriterionNotFoundError):
+        with pytest.raises(acceptance.CriterionNotFoundError):
             issues_mod.flip_acceptance_criterion(
                 project, 1, "ac-99", passes=True
             )
@@ -979,7 +969,7 @@ def _write_issue_with_acs(
     issue_number: int,
     *,
     status: str,
-    criteria: tuple[AcceptanceCriterion, ...],
+    criteria: tuple[acceptance.AcceptanceCriterion, ...],
 ) -> Path:
     """Write an issue file directly with structured ACs for test setup."""
     title = f"Issue {issue_number}"
@@ -997,7 +987,7 @@ def _write_issue_with_acs(
         / "issues"
         / f"issue-{issue_number:02d}-{slug}.md"
     )
-    body = issues_mod.acceptance.render_ac_section(criteria)
+    body = acceptance.render_ac_section(criteria)
     vault.write_note(path, note, body)
     return path
 
@@ -1008,7 +998,9 @@ class TestTransitionToApprovedAcceptanceGate:
             project,
             40,
             status="verified",
-            criteria=(AcceptanceCriterion(id="ac-01", text="pending"),),
+            criteria=(
+                acceptance.AcceptanceCriterion(id="ac-01", text="pending"),
+            ),
         )
 
         with pytest.raises(UnresolvedAcceptanceCriteriaError) as excinfo:
@@ -1023,8 +1015,12 @@ class TestTransitionToApprovedAcceptanceGate:
             41,
             status="verified",
             criteria=(
-                AcceptanceCriterion(id="ac-01", text="a", passes=True),
-                AcceptanceCriterion(id="ac-02", text="b", passes=True),
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="a", passes=True
+                ),
+                acceptance.AcceptanceCriterion(
+                    id="ac-02", text="b", passes=True
+                ),
             ),
         )
 
@@ -1039,8 +1035,10 @@ class TestTransitionToApprovedAcceptanceGate:
             42,
             status="verified",
             criteria=(
-                AcceptanceCriterion(id="ac-01", text="a", passes=True),
-                AcceptanceCriterion(
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="a", passes=True
+                ),
+                acceptance.AcceptanceCriterion(
                     id="ac-02",
                     text="b",
                     passes=False,
@@ -1108,7 +1106,9 @@ class TestMigrateAllAcs:
             1,
             status="planned",
             criteria=(
-                AcceptanceCriterion(id="ac-01", text="already", passes=True),
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="already", passes=True
+                ),
             ),
         )
 

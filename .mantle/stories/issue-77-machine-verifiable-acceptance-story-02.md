@@ -1,11 +1,11 @@
 ---
 issue: 77
 title: CLI surface, verify/review prompt wiring, and backfill live backlog
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
