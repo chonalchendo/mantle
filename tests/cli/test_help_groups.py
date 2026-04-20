@@ -71,6 +71,9 @@ _EXPECTED_COMMAND_PANELS: dict[str, str] = {
     "transition-issue-implementing": "Planning",
     "transition-issue-implemented": "Planning",
     "transition-issue-verified": "Planning",
+    "flip-ac": "Planning",
+    "list-acs": "Planning",
+    "migrate-acs": "Planning",
     # impl
     "update-story-status": "Implementation",
     "collect-changed-files": "Implementation",

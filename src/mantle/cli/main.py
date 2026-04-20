@@ -945,6 +945,118 @@ def save_issue_command(
     )
 
 
+@app.command(name="flip-ac", group=GROUPS["planning"])
+def flip_ac_command(
+    *,
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number containing the criterion.",
+        ),
+    ],
+    ac_id: Annotated[
+        str,
+        Parameter(
+            name="--ac-id",
+            help="Criterion id to flip (e.g. ac-01).",
+        ),
+    ],
+    passes: Annotated[
+        bool,
+        Parameter(
+            name="--pass/--fail",
+            help="Mark the criterion as passing or failing.",
+        ),
+    ] = True,
+    waive: Annotated[
+        bool,
+        Parameter(
+            name="--waive",
+            help="Waive the criterion (requires --reason).",
+        ),
+    ] = False,
+    reason: Annotated[
+        str | None,
+        Parameter(
+            name="--reason",
+            help="Waiver rationale — required when --waive is set.",
+        ),
+    ] = None,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Flip one acceptance criterion's pass/fail state."""
+    issues.run_flip_ac(
+        issue=issue,
+        ac_id=ac_id,
+        passes=passes,
+        waive=waive,
+        reason=reason,
+        project_dir=path,
+    )
+
+
+@app.command(name="list-acs", group=GROUPS["planning"])
+def list_acs_command(
+    *,
+    issue: Annotated[
+        int,
+        Parameter(
+            name="--issue",
+            help="Issue number to list criteria for.",
+        ),
+    ],
+    json_output: Annotated[
+        bool,
+        Parameter(
+            name="--json",
+            help="Emit a JSON array instead of a table.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Print an issue's structured acceptance criteria."""
+    issues.run_list_acs(
+        issue=issue,
+        json_output=json_output,
+        project_dir=path,
+    )
+
+
+@app.command(name="migrate-acs", group=GROUPS["planning"])
+def migrate_acs_command(
+    *,
+    dry_run: Annotated[
+        bool,
+        Parameter(
+            name="--dry-run",
+            help="Report would-be migrations without writing.",
+        ),
+    ] = False,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Backfill markdown AC checkboxes into structured frontmatter."""
+    issues.run_migrate_acs(dry_run=dry_run, project_dir=path)
+
+
 @app.command(name="set-slices", group=GROUPS["setup"])
 def set_slices_command(
     slices: Annotated[

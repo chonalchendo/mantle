@@ -132,14 +132,18 @@ field is set in frontmatter.
 
 ## Step 5 — Load acceptance criteria
 
-Extract the acceptance criteria from the issue file body. These are typically
-in a section like "## Acceptance Criteria" or as a checklist in the issue body.
+Run `mantle list-acs --issue {NN} --json` to load the structured acceptance
+criteria from the issue frontmatter. Parse the JSON array — each entry has
+`{id, text, passes, waived, waiver_reason}`.
 
-Display them:
+Display them with ids and current pass/fail state:
 > **Acceptance Criteria:**
-> 1. {criterion 1}
-> 2. {criterion 2}
+> 1. `ac-01` — {text} — *{pass|fail|waived}*
+> 2. `ac-02` — {text} — *{pass|fail|waived}*
 > ...
+
+If the list is empty, the issue has not been migrated to structured ACs yet.
+Run `mantle migrate-acs` first, then re-load.
 
 ## Verification Discipline
 
@@ -165,6 +169,16 @@ Follow the loaded strategy to verify each acceptance criterion. This may involve
 For each criterion, record:
 - **Pass** or **Fail**
 - Brief detail explaining the result
+
+After gathering evidence for each criterion, record the result via the CLI —
+**never by editing the issue file directly**:
+
+    mantle flip-ac --issue {NN} --ac-id <ac-id> --pass
+    # or
+    mantle flip-ac --issue {NN} --ac-id <ac-id> --fail
+
+Every `--pass` must cite the evidence gathered above. If you cannot produce
+evidence for a criterion, use `--fail`.
 
 ## Step 6.5 — Convention check
 
@@ -224,6 +238,10 @@ Display a formatted verification report:
 >
 > *For architectural quality, convention enforcement, and design review, run
 > `/mantle:review`.*
+
+After the report, run `mantle list-acs --issue {NN}` one more time and include
+any criteria still at `passes: false` (and `waived: false`) at the end of the
+report as the definitive failing list.
 
 ## Step 7.5 — Strategy evolution
 

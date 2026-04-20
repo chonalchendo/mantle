@@ -76,14 +76,17 @@ Confirm with the user before proceeding.
 
 ## Step 3 — Load verification results
 
-Read the issue file (`$MANTLE_DIR/issues/issue-{NN}.md`). Extract:
+Read the issue file (`$MANTLE_DIR/issues/issue-{NN}.md`) and confirm the
+**status** is `verified` (or at least `implemented`). If the issue has not
+been verified yet, recommend running `/mantle:verify` first.
 
-1. **Status** — confirm it is `verified` (or at least `implemented`). If the
-   issue has not been verified yet, recommend running `/mantle:verify` first.
-2. **Acceptance criteria** — from the issue body (typically under
-   "## Acceptance Criteria" or as a checklist).
-3. **Verification pass/fail** — if the issue status is `verified`, all criteria
-   passed verification. Note this for each criterion.
+Then run `mantle list-acs --issue {NN} --json` to load the structured
+acceptance criteria. Each entry has `{id, text, passes, waived,
+waiver_reason}`. **Any criterion with `passes: false` AND `waived: false` is
+a blocker — approval cannot proceed while one exists.**
+
+If the issue pre-dates structured ACs (empty JSON array), run
+`mantle migrate-acs` first, then re-load.
 
 ## Step 4 — Present review checklist
 
@@ -135,6 +138,11 @@ next criterion.
    ```bash
    mantle transition-issue-approved --issue <N>
    ```
+   `transition-issue-approved` will raise `UnresolvedAcceptanceCriteriaError`
+   if any AC is still `passes: false` AND `waived: false`. On that error,
+   report the failing ids and stop — do **not** archive. The user must run
+   `/mantle:verify` again (or explicitly waive with
+   `mantle flip-ac --issue <N> --ac-id <id> --waive --reason "<rationale>"`).
 3. Check `$MANTLE_DIR/learnings/` for whether a retrospective already exists for this issue.
 4. Check `$MANTLE_DIR/issues/` for remaining unimplemented issues.
 

@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from datetime import date
 from typing import TYPE_CHECKING
 
 import pytest
+from dirty_equals import IsList, IsPartialDict
 
+from mantle.core import acceptance
+from mantle.core import issues as core_issues
 from mantle.core.state import ProjectState, Status
 from mantle.core.vault import write_note
 
@@ -353,3 +357,260 @@ class TestCLIWiring:
         )
         assert result.returncode == 0
         assert "slice" in result.stdout.lower()
+
+
+# ── Acceptance criteria CLI (flip-ac, list-acs, migrate-acs) ────
+
+
+def _write_issue_with_acs(
+    project_dir: Path,
+    issue: int,
+    criteria: tuple[acceptance.AcceptanceCriterion, ...],
+    *,
+    body: str = "## What to build\n\nBuild it.\n\n",
+) -> Path:
+    """Persist an issue with structured acceptance criteria."""
+    note = core_issues.IssueNote(
+        title=f"Test issue {issue}",
+        status="implementing",
+        slice=("core",),
+        tags=("type/issue", "status/implementing"),
+        acceptance_criteria=criteria,
+    )
+    full_body = acceptance.replace_ac_section(
+        body,
+        acceptance.render_ac_section(criteria),
+    )
+    slug = f"test-issue-{issue}"
+    path = project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
+    write_note(path, note, full_body)
+    return path
+
+
+class TestRunFlipAc:
+    def test_flip_ac_marks_pass(self, project: Path) -> None:
+        from mantle.cli.issues import run_flip_ac
+
+        path = _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="First", passes=False
+                ),
+            ),
+        )
+
+        run_flip_ac(
+            issue=1,
+            ac_id="ac-01",
+            passes=True,
+            project_dir=project,
+        )
+
+        note, body = core_issues.load_issue(path)
+        assert note.acceptance_criteria[0].passes is True
+        assert "[x] ac-01: First" in body
+
+    def test_flip_ac_marks_fail(self, project: Path) -> None:
+        from mantle.cli.issues import run_flip_ac
+
+        path = _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="First", passes=True
+                ),
+            ),
+        )
+
+        run_flip_ac(
+            issue=1,
+            ac_id="ac-01",
+            passes=False,
+            project_dir=project,
+        )
+
+        note, _ = core_issues.load_issue(path)
+        assert note.acceptance_criteria[0].passes is False
+
+    def test_flip_ac_waive_requires_reason(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_flip_ac
+
+        _write_issue_with_acs(
+            project,
+            1,
+            (acceptance.AcceptanceCriterion(id="ac-01", text="First"),),
+        )
+
+        with pytest.raises(SystemExit):
+            run_flip_ac(
+                issue=1,
+                ac_id="ac-01",
+                waive=True,
+                project_dir=project,
+            )
+
+        captured = capsys.readouterr()
+        assert "--reason" in captured.err
+
+    def test_flip_ac_unknown_id_exits_1(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_flip_ac
+
+        _write_issue_with_acs(
+            project,
+            1,
+            (acceptance.AcceptanceCriterion(id="ac-01", text="First"),),
+        )
+
+        with pytest.raises(SystemExit) as exc_info:
+            run_flip_ac(
+                issue=1,
+                ac_id="ac-99",
+                passes=True,
+                project_dir=project,
+            )
+
+        assert exc_info.value.code == 1
+        captured = capsys.readouterr()
+        assert "ac-99" in captured.err
+
+
+class TestRunListAcs:
+    def test_list_acs_json_matches_frontmatter(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_list_acs
+
+        _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="First", passes=True
+                ),
+                acceptance.AcceptanceCriterion(
+                    id="ac-02", text="Second", passes=False
+                ),
+            ),
+        )
+
+        run_list_acs(issue=1, json_output=True, project_dir=project)
+
+        captured = capsys.readouterr()
+        payload = json.loads(captured.out)
+        assert payload == IsList(
+            IsPartialDict(id="ac-01", passes=True, waived=False),
+            IsPartialDict(id="ac-02", passes=False, waived=False),
+        )
+
+    def test_list_acs_table_contains_ids(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_list_acs
+
+        _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(id="ac-01", text="First"),
+                acceptance.AcceptanceCriterion(id="ac-02", text="Second"),
+            ),
+        )
+
+        run_list_acs(issue=1, json_output=False, project_dir=project)
+
+        captured = capsys.readouterr()
+        assert "ac-01" in captured.out
+        assert "ac-02" in captured.out
+
+
+class TestRunMigrateAcs:
+    def test_migrate_acs_reports_zero_when_nothing_to_do(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_migrate_acs
+
+        run_migrate_acs(project_dir=project)
+
+        captured = capsys.readouterr()
+        assert "No issues needed migration" in captured.out
+
+    def test_migrate_acs_migrates_legacy_checkboxes(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_migrate_acs
+
+        # Write issue with legacy markdown checkboxes and empty
+        # structured ACs.
+        note = core_issues.IssueNote(
+            title="Legacy",
+            status="implementing",
+            slice=("core",),
+            tags=("type/issue", "status/implementing"),
+        )
+        body = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] First\n"
+            "- [x] Second\n"
+        )
+        path = project / ".mantle" / "issues" / "issue-01-legacy.md"
+        write_note(path, note, body)
+
+        run_migrate_acs(project_dir=project)
+
+        note_after, _ = core_issues.load_issue(path)
+        assert len(note_after.acceptance_criteria) == 2
+        assert note_after.acceptance_criteria[0].passes is False
+        assert note_after.acceptance_criteria[1].passes is True
+
+        captured = capsys.readouterr()
+        assert "issue-01" in captured.out
+
+    def test_migrate_acs_dry_run_writes_nothing(
+        self,
+        project: Path,
+        capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        from mantle.cli.issues import run_migrate_acs
+
+        note = core_issues.IssueNote(
+            title="Legacy",
+            status="implementing",
+            slice=("core",),
+            tags=("type/issue", "status/implementing"),
+        )
+        body = (
+            "## What to build\n\nBuild.\n\n"
+            "## Acceptance criteria\n\n"
+            "- [ ] First\n"
+            "- [x] Second\n"
+        )
+        path = project / ".mantle" / "issues" / "issue-01-legacy.md"
+        write_note(path, note, body)
+        before = path.read_text()
+
+        run_migrate_acs(dry_run=True, project_dir=project)
+
+        assert path.read_text() == before
+        captured = capsys.readouterr()
+        assert "dry-run" in captured.out
+        assert "issue-01-legacy.md" in captured.out
