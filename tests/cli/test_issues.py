@@ -11,10 +11,9 @@ from typing import TYPE_CHECKING
 import pytest
 from dirty_equals import IsList, IsPartialDict
 
-from mantle.core import acceptance
+from mantle.core import acceptance, vault
 from mantle.core import issues as core_issues
 from mantle.core import state as core_state
-from mantle.core import vault
 
 if TYPE_CHECKING:
     from pathlib import Path
