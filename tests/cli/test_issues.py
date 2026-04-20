@@ -13,8 +13,8 @@ from dirty_equals import IsList, IsPartialDict
 
 from mantle.core import acceptance
 from mantle.core import issues as core_issues
-from mantle.core.state import ProjectState, Status
-from mantle.core.vault import write_note
+from mantle.core import state as core_state
+from mantle.core import vault
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -36,9 +36,9 @@ def project(tmp_path: Path) -> Path:
     """Create a minimal .mantle/ with state.md and issues dir."""
     (tmp_path / ".mantle").mkdir()
     (tmp_path / ".mantle" / "issues").mkdir()
-    state = ProjectState(
+    state = core_state.ProjectState(
         project="test-project",
-        status=Status.SYSTEM_DESIGN,
+        status=core_state.Status.SYSTEM_DESIGN,
         created=date(2025, 1, 1),
         created_by=MOCK_EMAIL,
         updated=date(2025, 1, 1),
@@ -52,7 +52,7 @@ def project(tmp_path: Path) -> Path:
         "## Blockers\n\n"
         "_Anything preventing progress?_\n"
     )
-    write_note(tmp_path / ".mantle" / "state.md", state, body)
+    vault.write_note(tmp_path / ".mantle" / "state.md", state, body)
     return tmp_path
 
 
@@ -155,7 +155,6 @@ class TestRunSaveIssue:
         project: Path,
     ) -> None:
         from mantle.cli.issues import run_save_issue
-        from mantle.core import issues as core_issues
 
         run_save_issue(
             title="Context engine",
@@ -223,9 +222,9 @@ class TestRunSaveIssue:
     ) -> None:
         (tmp_path / ".mantle").mkdir()
         (tmp_path / ".mantle" / "issues").mkdir()
-        state = ProjectState(
+        state = core_state.ProjectState(
             project="test-project",
-            status=Status.IDEA,
+            status=core_state.Status.IDEA,
             created=date(2025, 1, 1),
             created_by=MOCK_EMAIL,
             updated=date(2025, 1, 1),
@@ -236,7 +235,7 @@ class TestRunSaveIssue:
             "## Current Focus\n\nIdea phase.\n\n"
             "## Blockers\n\nNone.\n"
         )
-        write_note(tmp_path / ".mantle" / "state.md", state, body)
+        vault.write_note(tmp_path / ".mantle" / "state.md", state, body)
 
         from mantle.cli.issues import run_save_issue
 
@@ -268,9 +267,7 @@ class TestRunSetSlices:
             project_dir=project,
         )
 
-        from mantle.core.state import load_state
-
-        loaded = load_state(project)
+        loaded = core_state.load_state(project)
         assert loaded.slices == ("core", "cli", "tests")
 
     def test_prints_confirmation(
@@ -383,7 +380,7 @@ def _write_issue_with_acs(
     )
     slug = f"test-issue-{issue}"
     path = project_dir / ".mantle" / "issues" / f"issue-{issue:02d}-{slug}.md"
-    write_note(path, note, full_body)
+    vault.write_note(path, note, full_body)
     return path
 
 
@@ -625,7 +622,7 @@ class TestRunMigrateAcs:
             "- [x] Second\n"
         )
         path = project / ".mantle" / "issues" / "issue-01-legacy.md"
-        write_note(path, note, body)
+        vault.write_note(path, note, body)
 
         run_migrate_acs(project_dir=project)
 
@@ -657,7 +654,7 @@ class TestRunMigrateAcs:
             "- [x] Second\n"
         )
         path = project / ".mantle" / "issues" / "issue-01-legacy.md"
-        write_note(path, note, body)
+        vault.write_note(path, note, body)
         before = path.read_text()
 
         run_migrate_acs(dry_run=True, project_dir=project)
