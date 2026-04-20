@@ -965,7 +965,8 @@ def flip_ac_command(
     passes: Annotated[
         bool,
         Parameter(
-            name="--pass/--fail",
+            name="--pass",
+            negative="--fail",
             help="Mark the criterion as passing or failing.",
         ),
     ] = True,

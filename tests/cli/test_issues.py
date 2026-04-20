@@ -485,6 +485,58 @@ class TestRunFlipAc:
         assert "ac-99" in captured.err
 
 
+class TestFlipAcCli:
+    def test_flip_ac_cli_pass_flag_marks_passing(
+        self,
+        project: Path,
+    ) -> None:
+        from mantle.cli import main as main_module
+
+        path = _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="First", passes=False
+                ),
+            ),
+        )
+
+        with pytest.raises(SystemExit) as exc_info:
+            main_module.app(
+                f"flip-ac --issue 1 --ac-id ac-01 --pass --path {project}"
+            )
+        assert exc_info.value.code == 0
+
+        note, _ = core_issues.load_issue(path)
+        assert note.acceptance_criteria[0].passes is True
+
+    def test_flip_ac_cli_fail_flag_marks_failing(
+        self,
+        project: Path,
+    ) -> None:
+        from mantle.cli import main as main_module
+
+        path = _write_issue_with_acs(
+            project,
+            1,
+            (
+                acceptance.AcceptanceCriterion(
+                    id="ac-01", text="First", passes=True
+                ),
+            ),
+        )
+
+        with pytest.raises(SystemExit) as exc_info:
+            main_module.app(
+                f"flip-ac --issue 1 --ac-id ac-01 --fail --path {project}"
+            )
+        assert exc_info.value.code == 0
+
+        note, _ = core_issues.load_issue(path)
+        assert note.acceptance_criteria[0].passes is False
+
+
 class TestRunListAcs:
     def test_list_acs_json_matches_frontmatter(
         self,
