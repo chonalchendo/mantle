@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "de7f97fb6b0aa2ce992386f0cbaead75b742a00384b581a1b9048c8fc7b8371b",
+    "/Users/conal/Development/mantle/.mantle/state.md": "5e306e8eef5ded018bb24f511d6a38da9c1258db39113d28bc978a40e0d7c3ea",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-19-1854.md": "99a07236707bf30a22c75da879e980fe069623d64915ffe53af4e67290618952",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-19-2057.md": "052ae5c1c74ec4d9ddecc8d0ff0244059e6afb0b5773f381d8c2b788efc812ff",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -27,6 +27,7 @@
     "/Users/conal/test-vault/skills/fred-data-source.md": "dc223a28094166ade98c28d5155ddc7a69f9ae0c1b1e00531bafb4adf3dce058",
     "/Users/conal/test-vault/skills/howard-marks-investment-philosophy.md": "2e9b10de51acf1032c35d2bc344c455288e807642df81a345309d2b67e1150c7",
     "/Users/conal/test-vault/skills/httpx-async.md": "43d864333b31db563ed1268f3f93fce51c39e57ae8495b2b6035709aafb262c8",
+    "/Users/conal/test-vault/skills/import-linter.md": "03b0d9db19a011384a390d358b2fdb6e11e894e0f6ac2e19a5b56beaac3817df",
     "/Users/conal/test-vault/skills/inline-snapshot.md": "1e99022cd928b63be0e491d42ada93868bfbb2fe9cf479d8b65d34036670f01b",
     "/Users/conal/test-vault/skills/john-templeton-investment-philosophy.md": "387ad15a4383c20afc9bfda579e0aeafa06bff51f68da3646e44422c473ab49f",
     "/Users/conal/test-vault/skills/lakehouse-architecture.md": "88e4a18b1a467d95c10959dc5e28699e4b318b799141dcc906c9cf7d7a4281fb",

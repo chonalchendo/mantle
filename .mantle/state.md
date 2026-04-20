@@ -5,7 +5,7 @@ status: planning
 confidence: 0/10
 created: '2026-02-22'
 created_by: conal@conalnicholson.com
-updated: '2026-04-19'
+updated: '2026-04-20'
 updated_by: 110059232+chonalchendo@users.noreply.github.com
 current_issue: null
 current_story: null
@@ -49,6 +49,7 @@ skills_required:
 - edgartools
 - fastapi
 - httpx-async
+- import-linter
 - inline-snapshot
 - omegaconf
 - pydantic-discriminated-unions
@@ -67,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 79 planned — run /mantle:build to automate the full pipeline, /mantle:shape-issue for manual control, or /mantle:plan-issues for next issue.
+Learning captured for issue 78 — review past learnings before next planning cycle.
 
 ## Blockers
 

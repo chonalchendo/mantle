@@ -1,11 +1,11 @@
 ---
 issue: 78
 title: Wire import-linter into pyproject + just check, with self-test and doc update
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
