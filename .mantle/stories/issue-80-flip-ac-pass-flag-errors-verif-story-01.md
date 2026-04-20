@@ -1,11 +1,11 @@
 ---
 issue: 80
 title: Fix cyclopts --pass/--fail binding and add CLI-path test
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

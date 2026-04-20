@@ -1,6 +1,6 @@
 ---
 title: flip-ac --pass flag errors; verify.md drives users into the broken path
-status: implementing
+status: implemented
 slice:
 - cli
 - claude-code
@@ -16,7 +16,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/implemented
 ---
 
 ## Parent PRD
