@@ -1,12 +1,95 @@
 ---
 title: Research command (/mantle:research) with researcher agent
 status: completed
-slice: [core, claude-code, agents, vault, tests]
+slice:
+- core
+- claude-code
+- agents
+- vault
+- tests
 story_count: 3
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:research` is available in Claude Code and invokes the researcher
+    subagent'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The researcher agent uses WebSearch and WebFetch to investigate the idea from
+    multiple angles (feasibility, competitive, technology, user needs, risks)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The researcher reads `.mantle/idea.md` for context and `.mantle/challenges/`
+    transcripts if they exist
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Each research session produces a dated report in `.mantle/research/<date>-<focus>.md`
+    with YAML frontmatter
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'Research notes follow the schema: date, author, focus, confidence, idea_ref,
+    tags, plus structured body sections'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: The research note is stamped with `git config user.email`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Multiple research rounds are supported — each produces a new dated file, not
+    an overwrite
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: 'State machine updated: `RESEARCH` status added with transitions from IDEA
+    and CHALLENGE, and transition to PRODUCT_DESIGN'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: '`mantle init` creates the `.mantle/research/` directory'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: The researcher agent definition is installed to `~/.claude/agents/` via `mantle
+    install`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-11
+  text: '`/mantle:help` updated to include `/mantle:research` in the "Idea & Validation"
+    phase group'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-12
+  text: Research is optional — design commands work without any research being run
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-13
+  text: Tests verify research note format, frontmatter schema, state transitions,
+    and retrieval
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -77,19 +160,19 @@ Go / pivot / investigate further — with rationale.
 
 ## Acceptance criteria
 
-- [ ] `/mantle:research` is available in Claude Code and invokes the researcher subagent
-- [ ] The researcher agent uses WebSearch and WebFetch to investigate the idea from multiple angles (feasibility, competitive, technology, user needs, risks)
-- [ ] The researcher reads `.mantle/idea.md` for context and `.mantle/challenges/` transcripts if they exist
-- [ ] Each research session produces a dated report in `.mantle/research/<date>-<focus>.md` with YAML frontmatter
-- [ ] Research notes follow the schema: date, author, focus, confidence, idea_ref, tags, plus structured body sections
-- [ ] The research note is stamped with `git config user.email`
-- [ ] Multiple research rounds are supported — each produces a new dated file, not an overwrite
-- [ ] State machine updated: `RESEARCH` status added with transitions from IDEA and CHALLENGE, and transition to PRODUCT_DESIGN
-- [ ] `mantle init` creates the `.mantle/research/` directory
-- [ ] The researcher agent definition is installed to `~/.claude/agents/` via `mantle install`
-- [ ] `/mantle:help` updated to include `/mantle:research` in the "Idea & Validation" phase group
-- [ ] Research is optional — design commands work without any research being run
-- [ ] Tests verify research note format, frontmatter schema, state transitions, and retrieval
+- [ ] ac-01: `/mantle:research` is available in Claude Code and invokes the researcher subagent
+- [ ] ac-02: The researcher agent uses WebSearch and WebFetch to investigate the idea from multiple angles (feasibility, competitive, technology, user needs, risks)
+- [ ] ac-03: The researcher reads `.mantle/idea.md` for context and `.mantle/challenges/` transcripts if they exist
+- [ ] ac-04: Each research session produces a dated report in `.mantle/research/<date>-<focus>.md` with YAML frontmatter
+- [ ] ac-05: Research notes follow the schema: date, author, focus, confidence, idea_ref, tags, plus structured body sections
+- [ ] ac-06: The research note is stamped with `git config user.email`
+- [ ] ac-07: Multiple research rounds are supported — each produces a new dated file, not an overwrite
+- [ ] ac-08: State machine updated: `RESEARCH` status added with transitions from IDEA and CHALLENGE, and transition to PRODUCT_DESIGN
+- [ ] ac-09: `mantle init` creates the `.mantle/research/` directory
+- [ ] ac-10: The researcher agent definition is installed to `~/.claude/agents/` via `mantle install`
+- [ ] ac-11: `/mantle:help` updated to include `/mantle:research` in the "Idea & Validation" phase group
+- [ ] ac-12: Research is optional — design commands work without any research being run
+- [ ] ac-13: Tests verify research note format, frontmatter schema, state transitions, and retrieval
 
 ## Blocked by
 

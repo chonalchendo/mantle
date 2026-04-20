@@ -11,6 +11,38 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`.mantle/config.md` schema documents Jira config keys.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Lifecycle transitions push status updates to Jira via the hook seam (issue
+    56's contract).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Manual `mantle jira-link` command binds an existing Jira key to a Mantle issue.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: E2E test against a Jira sandbox (or mocked client) covers create + transition.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: README documents the Jira flow end-to-end.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -32,12 +64,12 @@ Shaping should decide: pure-hook approach (extend the example script to first-cl
 
 ## Acceptance criteria
 
-- [ ] `.mantle/config.md` schema documents Jira config keys.
-- [ ] Lifecycle transitions push status updates to Jira via the hook seam (issue 56's contract).
-- [ ] Manual `mantle jira-link` command binds an existing Jira key to a Mantle issue.
-- [ ] E2E test against a Jira sandbox (or mocked client) covers create + transition.
-- [ ] README documents the Jira flow end-to-end.
-- [ ] `just check` passes.
+- [ ] ac-01: `.mantle/config.md` schema documents Jira config keys.
+- [ ] ac-02: Lifecycle transitions push status updates to Jira via the hook seam (issue 56's contract).
+- [ ] ac-03: Manual `mantle jira-link` command binds an existing Jira key to a Mantle issue.
+- [ ] ac-04: E2E test against a Jira sandbox (or mocked client) covers create + transition.
+- [ ] ac-05: README documents the Jira flow end-to-end.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

@@ -17,6 +17,40 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Per-story code-reviewer agent spawn removed from implement.md (step 7 and
+    its fix cycle)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: 'Build pipeline skip condition uses composite heuristic: file count AND lines
+    changed (not file count alone)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Simplify checklist unchanged — no code review checks absorbed
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Standalone `/mantle:simplify` continues to work independently of the build
+    pipeline
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A build run with a small issue (few files, few lines) skips simplification
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: A build run with a large issue (many files or many lines) triggers simplification
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -41,12 +75,12 @@ Remove the per-story code-reviewer from the implementation loop and make the sim
 
 ## Acceptance criteria
 
-- [ ] Per-story code-reviewer agent spawn removed from implement.md (step 7 and its fix cycle)
-- [ ] Build pipeline skip condition uses composite heuristic: file count AND lines changed (not file count alone)
-- [ ] Simplify checklist unchanged — no code review checks absorbed
-- [ ] Standalone `/mantle:simplify` continues to work independently of the build pipeline
-- [ ] A build run with a small issue (few files, few lines) skips simplification
-- [ ] A build run with a large issue (many files or many lines) triggers simplification
+- [ ] ac-01: Per-story code-reviewer agent spawn removed from implement.md (step 7 and its fix cycle)
+- [ ] ac-02: Build pipeline skip condition uses composite heuristic: file count AND lines changed (not file count alone)
+- [ ] ac-03: Simplify checklist unchanged — no code review checks absorbed
+- [ ] ac-04: Standalone `/mantle:simplify` continues to work independently of the build pipeline
+- [ ] ac-05: A build run with a small issue (few files, few lines) skips simplification
+- [ ] ac-06: A build run with a large issue (many files or many lines) triggers simplification
 
 ## Brainstorm reference
 

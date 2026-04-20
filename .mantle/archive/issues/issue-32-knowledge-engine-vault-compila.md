@@ -9,9 +9,49 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:query` prompt searches vault content (skills, learnings, decisions,
+    sessions) and answers natural language questions'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Query results cite source notes with file paths so users can verify
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`/mantle:distill` synthesizes a topic into a knowledge note saved to the
+    vault'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Distillation notes include wikilinks to every source note used
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Distillation notes include staleness metadata (source count, last updated
+    date)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`/mantle:query` reads existing distillations to enrich answers'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: All operations are user-triggered — no background token spend
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -52,13 +92,13 @@ User-triggered synthesis of everything on a topic into 1-2 concise paragraphs. O
 
 ## Acceptance criteria
 
-- [ ] `/mantle:query` prompt searches vault content (skills, learnings, decisions, sessions) and answers natural language questions
-- [ ] Query results cite source notes with file paths so users can verify
-- [ ] `/mantle:distill` synthesizes a topic into a knowledge note saved to the vault
-- [ ] Distillation notes include wikilinks to every source note used
-- [ ] Distillation notes include staleness metadata (source count, last updated date)
-- [ ] `/mantle:query` reads existing distillations to enrich answers
-- [ ] All operations are user-triggered — no background token spend
+- [ ] ac-01: `/mantle:query` prompt searches vault content (skills, learnings, decisions, sessions) and answers natural language questions
+- [ ] ac-02: Query results cite source notes with file paths so users can verify
+- [ ] ac-03: `/mantle:distill` synthesizes a topic into a knowledge note saved to the vault
+- [ ] ac-04: Distillation notes include wikilinks to every source note used
+- [ ] ac-05: Distillation notes include staleness metadata (source count, last updated date)
+- [ ] ac-06: `/mantle:query` reads existing distillations to enrich answers
+- [ ] ac-07: All operations are user-triggered — no background token spend
 
 ## Brainstorm reference
 

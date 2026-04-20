@@ -12,6 +12,38 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: Lightweight bug fix command runs without shape/plan-stories steps.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: On success, bug is auto-marked resolved with commit linked.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: On non-trivial mid-pipeline detection, command exits with a "promote to issue"
+    hint.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Doc clearly distinguishes bug-fix path from issue path.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Tests cover the success and "promote" branches.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -32,12 +64,12 @@ A fix pipeline scoped to bugs:
 
 ## Acceptance criteria
 
-- [ ] Lightweight bug fix command runs without shape/plan-stories steps.
-- [ ] On success, bug is auto-marked resolved with commit linked.
-- [ ] On non-trivial mid-pipeline detection, command exits with a "promote to issue" hint.
-- [ ] Doc clearly distinguishes bug-fix path from issue path.
-- [ ] Tests cover the success and "promote" branches.
-- [ ] `just check` passes.
+- [ ] ac-01: Lightweight bug fix command runs without shape/plan-stories steps.
+- [ ] ac-02: On success, bug is auto-marked resolved with commit linked.
+- [ ] ac-03: On non-trivial mid-pipeline detection, command exits with a "promote to issue" hint.
+- [ ] ac-04: Doc clearly distinguishes bug-fix path from issue path.
+- [ ] ac-05: Tests cover the success and "promote" branches.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

@@ -26,6 +26,36 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: A shared error formatting utility exists in `src/mantle/cli/` that outputs
+    errors to stderr with Rich `[red]Error:[/]` prefix and a dim-styled recovery suggestion
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: All existing CLI error paths use the shared utility (no raw `print` or `sys.exit`
+    for errors)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Every error includes a recovery suggestion (e.g., "Run `mantle init` to create
+    a project", "Check the issue number with `mantle --help`")
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A test verifies error output goes to stderr and includes the recovery hint
+    format
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -53,11 +83,11 @@ A shared error formatting utility and migration of all existing CLI error paths 
 
 ## Acceptance criteria
 
-- [ ] A shared error formatting utility exists in `src/mantle/cli/` that outputs errors to stderr with Rich `[red]Error:[/]` prefix and a dim-styled recovery suggestion
-- [ ] All existing CLI error paths use the shared utility (no raw `print` or `sys.exit` for errors)
-- [ ] Every error includes a recovery suggestion (e.g., "Run `mantle init` to create a project", "Check the issue number with `mantle --help`")
-- [ ] A test verifies error output goes to stderr and includes the recovery hint format
-- [ ] `just check` passes
+- [ ] ac-01: A shared error formatting utility exists in `src/mantle/cli/` that outputs errors to stderr with Rich `[red]Error:[/]` prefix and a dim-styled recovery suggestion
+- [ ] ac-02: All existing CLI error paths use the shared utility (no raw `print` or `sys.exit` for errors)
+- [ ] ac-03: Every error includes a recovery suggestion (e.g., "Run `mantle init` to create a project", "Check the issue number with `mantle --help`")
+- [ ] ac-04: A test verifies error output goes to stderr and includes the recovery hint format
+- [ ] ac-05: `just check` passes
 
 ## Blocked by
 

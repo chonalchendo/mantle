@@ -24,6 +24,34 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Shaped doc names the chosen direction (A, B, or C) and gives a one-paragraph
+    rationale citing the two conflicting sections by line number.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`implement.md` is edited so the Step 3/4/5 sections no longer contradict
+    each other.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: No other `claude/commands/mantle/*.md` file is modified in this issue.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: No Python source or tests are modified in this issue.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -60,11 +88,11 @@ Do NOT modify `shape-issue.md`, `plan-stories.md`, or `build.md` as part of this
 
 ## Acceptance criteria
 
-- [ ] Shaped doc names the chosen direction (A, B, or C) and gives a one-paragraph rationale citing the two conflicting sections by line number.
-- [ ] `implement.md` is edited so the Step 3/4/5 sections no longer contradict each other.
-- [ ] No other `claude/commands/mantle/*.md` file is modified in this issue.
-- [ ] No Python source or tests are modified in this issue.
-- [ ] `just check` passes.
+- [ ] ac-01: Shaped doc names the chosen direction (A, B, or C) and gives a one-paragraph rationale citing the two conflicting sections by line number.
+- [ ] ac-02: `implement.md` is edited so the Step 3/4/5 sections no longer contradict each other.
+- [ ] ac-03: No other `claude/commands/mantle/*.md` file is modified in this issue.
+- [ ] ac-04: No Python source or tests are modified in this issue.
+- [ ] ac-05: `just check` passes.
 
 ## Blocked by
 

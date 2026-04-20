@@ -1,12 +1,116 @@
 ---
 title: Project adoption command (/mantle:adopt)
 status: done
-slice: [core, claude-code, agents, vault, tests]
+slice:
+- core
+- claude-code
+- agents
+- vault
+- tests
 story_count: 5
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/done
+- type/issue
+- status/done
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:adopt` is available in Claude Code and starts the adoption workflow'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle init` must be run first (`.mantle/` directory exists) — adopt populates
+    it, doesn''t create it'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Codebase analyst subagent explores architecture, dependencies, tech stack,
+    existing docs, CI/CD, and test patterns
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Domain researcher subagent investigates ecosystem, competitors, relevant standards,
+    and dependency health
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Both agents run concurrently during Phase 1 for efficiency
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Phase 2 is interactive — the AI presents findings and the user refines before
+    artifacts are generated
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Product design document generated at `.mantle/product-design.md` with the
+    same schema as `/mantle:design-product` output
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: System design document generated at `.mantle/system-design.md` with the same
+    schema as `/mantle:design-system` output
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: Initial decision log entries created in `.mantle/decisions/` for key architectural
+    choices visible in the codebase
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: Each decision log entry includes rationale (inferred), alternatives, confidence,
+    and reversal cost
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-11
+  text: Considerations section is clearly marked as optional and non-prescriptive
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-12
+  text: 'State machine updated: `ADOPTED` status with transitions to planning phases'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-13
+  text: Running `/mantle:adopt` when design docs already exist warns the user and
+    asks for confirmation
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-14
+  text: After adoption, `/mantle:plan-issues` and `/mantle:plan-stories` work against
+    the generated artifacts
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-15
+  text: Agent definitions installed to `~/.claude/agents/` via `mantle install`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-16
+  text: '`/mantle:help` updated to include `/mantle:adopt` in the "Setup & Onboarding"
+    phase group'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-17
+  text: Tests verify artifact generation, state transitions, and schema compliance
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -75,23 +179,23 @@ Based on the interactive session, generate:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:adopt` is available in Claude Code and starts the adoption workflow
-- [ ] `mantle init` must be run first (`.mantle/` directory exists) — adopt populates it, doesn't create it
-- [ ] Codebase analyst subagent explores architecture, dependencies, tech stack, existing docs, CI/CD, and test patterns
-- [ ] Domain researcher subagent investigates ecosystem, competitors, relevant standards, and dependency health
-- [ ] Both agents run concurrently during Phase 1 for efficiency
-- [ ] Phase 2 is interactive — the AI presents findings and the user refines before artifacts are generated
-- [ ] Product design document generated at `.mantle/product-design.md` with the same schema as `/mantle:design-product` output
-- [ ] System design document generated at `.mantle/system-design.md` with the same schema as `/mantle:design-system` output
-- [ ] Initial decision log entries created in `.mantle/decisions/` for key architectural choices visible in the codebase
-- [ ] Each decision log entry includes rationale (inferred), alternatives, confidence, and reversal cost
-- [ ] Considerations section is clearly marked as optional and non-prescriptive
-- [ ] State machine updated: `ADOPTED` status with transitions to planning phases
-- [ ] Running `/mantle:adopt` when design docs already exist warns the user and asks for confirmation
-- [ ] After adoption, `/mantle:plan-issues` and `/mantle:plan-stories` work against the generated artifacts
-- [ ] Agent definitions installed to `~/.claude/agents/` via `mantle install`
-- [ ] `/mantle:help` updated to include `/mantle:adopt` in the "Setup & Onboarding" phase group
-- [ ] Tests verify artifact generation, state transitions, and schema compliance
+- [ ] ac-01: `/mantle:adopt` is available in Claude Code and starts the adoption workflow
+- [ ] ac-02: `mantle init` must be run first (`.mantle/` directory exists) — adopt populates it, doesn't create it
+- [ ] ac-03: Codebase analyst subagent explores architecture, dependencies, tech stack, existing docs, CI/CD, and test patterns
+- [ ] ac-04: Domain researcher subagent investigates ecosystem, competitors, relevant standards, and dependency health
+- [ ] ac-05: Both agents run concurrently during Phase 1 for efficiency
+- [ ] ac-06: Phase 2 is interactive — the AI presents findings and the user refines before artifacts are generated
+- [ ] ac-07: Product design document generated at `.mantle/product-design.md` with the same schema as `/mantle:design-product` output
+- [ ] ac-08: System design document generated at `.mantle/system-design.md` with the same schema as `/mantle:design-system` output
+- [ ] ac-09: Initial decision log entries created in `.mantle/decisions/` for key architectural choices visible in the codebase
+- [ ] ac-10: Each decision log entry includes rationale (inferred), alternatives, confidence, and reversal cost
+- [ ] ac-11: Considerations section is clearly marked as optional and non-prescriptive
+- [ ] ac-12: State machine updated: `ADOPTED` status with transitions to planning phases
+- [ ] ac-13: Running `/mantle:adopt` when design docs already exist warns the user and asks for confirmation
+- [ ] ac-14: After adoption, `/mantle:plan-issues` and `/mantle:plan-stories` work against the generated artifacts
+- [ ] ac-15: Agent definitions installed to `~/.claude/agents/` via `mantle install`
+- [ ] ac-16: `/mantle:help` updated to include `/mantle:adopt` in the "Setup & Onboarding" phase group
+- [ ] ac-17: Tests verify artifact generation, state transitions, and schema compliance
 
 ## Blocked by
 

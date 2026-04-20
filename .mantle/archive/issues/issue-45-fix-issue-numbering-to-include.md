@@ -16,6 +16,42 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`next_issue_number()` in `src/mantle/core/issues.py` scans both `.mantle/issues/`
+    and `.mantle/archive/issues/` when computing the max number'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle save-issue` in this repo returns 45 (the next number after the current
+    active max of 44), not 43 or 44'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: 'Unit test: given a repo with active issues [40, 41] and archived issue [43],
+    `next_issue_number` returns 44'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: 'Unit test: given a repo with only archived issues [1, 2, 3], `next_issue_number`
+    returns 4'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'Unit test: existing behaviour (no archive directory present) still returns
+    `max(active) + 1`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: No regression in `tests/core/test_issues.py`
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -44,12 +80,12 @@ Update `next_issue_number()` (or the underlying `list_issues()` helper) to scan 
 
 ## Acceptance criteria
 
-- [ ] `next_issue_number()` in `src/mantle/core/issues.py` scans both `.mantle/issues/` and `.mantle/archive/issues/` when computing the max number
-- [ ] `mantle save-issue` in this repo returns 45 (the next number after the current active max of 44), not 43 or 44
-- [ ] Unit test: given a repo with active issues [40, 41] and archived issue [43], `next_issue_number` returns 44
-- [ ] Unit test: given a repo with only archived issues [1, 2, 3], `next_issue_number` returns 4
-- [ ] Unit test: existing behaviour (no archive directory present) still returns `max(active) + 1`
-- [ ] No regression in `tests/core/test_issues.py`
+- [ ] ac-01: `next_issue_number()` in `src/mantle/core/issues.py` scans both `.mantle/issues/` and `.mantle/archive/issues/` when computing the max number
+- [ ] ac-02: `mantle save-issue` in this repo returns 45 (the next number after the current active max of 44), not 43 or 44
+- [ ] ac-03: Unit test: given a repo with active issues [40, 41] and archived issue [43], `next_issue_number` returns 44
+- [ ] ac-04: Unit test: given a repo with only archived issues [1, 2, 3], `next_issue_number` returns 4
+- [ ] ac-05: Unit test: existing behaviour (no archive directory present) still returns `max(active) + 1`
+- [ ] ac-06: No regression in `tests/core/test_issues.py`
 
 ## Blocked by
 

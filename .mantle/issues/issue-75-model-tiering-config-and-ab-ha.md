@@ -12,6 +12,34 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: Per-stage model config in `.mantle/config.md` is read by build.md and respected
+    by spawned agents.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: At least one tier preset (e.g. `budget`, `balanced`, `quality`) is documented.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A/B harness produces a side-by-side cost + quality summary for two runs of
+    the same issue.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Tests cover config parsing, default fallback, and at least one preset.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -32,11 +60,11 @@ Shaping should split into separate issues if scope is too large for one.
 
 ## Acceptance criteria
 
-- [ ] Per-stage model config in `.mantle/config.md` is read by build.md and respected by spawned agents.
-- [ ] At least one tier preset (e.g. `budget`, `balanced`, `quality`) is documented.
-- [ ] A/B harness produces a side-by-side cost + quality summary for two runs of the same issue.
-- [ ] Tests cover config parsing, default fallback, and at least one preset.
-- [ ] `just check` passes.
+- [ ] ac-01: Per-stage model config in `.mantle/config.md` is read by build.md and respected by spawned agents.
+- [ ] ac-02: At least one tier preset (e.g. `budget`, `balanced`, `quality`) is documented.
+- [ ] ac-03: A/B harness produces a side-by-side cost + quality summary for two runs of the same issue.
+- [ ] ac-04: Tests cover config parsing, default fallback, and at least one preset.
+- [ ] ac-05: `just check` passes.
 
 ## Blocked by
 

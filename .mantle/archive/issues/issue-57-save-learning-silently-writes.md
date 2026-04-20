@@ -15,6 +15,31 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle save-learning --issue NN` exits non-zero and prints a clear error
+    when issue NN is not found in `.mantle/issues/` (option 1) OR succeeds with archived-issue
+    annotation (option 2 — picked during shaping).'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`tests/test_staleness_regressions.py::TestArchiveSideEffects::test_save_learning_after_archive_fails_clearly`
+    flips from xfail to a real pass (or is updated to match option 2''s contract and
+    still passes).'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Existing learning tests still pass.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -40,10 +65,10 @@ Pick the option during shaping; both close the silent-success bug.
 
 ## Acceptance criteria
 
-- [ ] `mantle save-learning --issue NN` exits non-zero and prints a clear error when issue NN is not found in `.mantle/issues/` (option 1) OR succeeds with archived-issue annotation (option 2 — picked during shaping).
-- [ ] `tests/test_staleness_regressions.py::TestArchiveSideEffects::test_save_learning_after_archive_fails_clearly` flips from xfail to a real pass (or is updated to match option 2's contract and still passes).
-- [ ] Existing learning tests still pass.
-- [ ] `just check` passes.
+- [ ] ac-01: `mantle save-learning --issue NN` exits non-zero and prints a clear error when issue NN is not found in `.mantle/issues/` (option 1) OR succeeds with archived-issue annotation (option 2 — picked during shaping).
+- [ ] ac-02: `tests/test_staleness_regressions.py::TestArchiveSideEffects::test_save_learning_after_archive_fails_clearly` flips from xfail to a real pass (or is updated to match option 2's contract and still passes).
+- [ ] ac-03: Existing learning tests still pass.
+- [ ] ac-04: `just check` passes.
 
 ## Blocked by
 

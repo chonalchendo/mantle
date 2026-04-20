@@ -7,9 +7,34 @@ slice:
 story_count: 1
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: verify.md prompt documents that it checks functional correctness, not architectural
+    quality
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: review.md prompt documents that it checks architectural quality and conventions
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Verify step includes a convention check that reads CLAUDE.md and flags deviations
+    in changed files
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Convention check results appear as warnings in the verification report (not
+    pass/fail blockers)
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -43,10 +68,10 @@ Add a "convention check" sub-step to the verify command that reads CLAUDE.md and
 
 ## Acceptance criteria
 
-- [ ] verify.md prompt documents that it checks functional correctness, not architectural quality
-- [ ] review.md prompt documents that it checks architectural quality and conventions
-- [ ] Verify step includes a convention check that reads CLAUDE.md and flags deviations in changed files
-- [ ] Convention check results appear as warnings in the verification report (not pass/fail blockers)
+- [ ] ac-01: verify.md prompt documents that it checks functional correctness, not architectural quality
+- [ ] ac-02: review.md prompt documents that it checks architectural quality and conventions
+- [ ] ac-03: Verify step includes a convention check that reads CLAUDE.md and flags deviations in changed files
+- [ ] ac-04: Convention check results appear as warnings in the verification report (not pass/fail blockers)
 
 ## Blocked by
 

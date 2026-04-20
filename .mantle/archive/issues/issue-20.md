@@ -1,12 +1,73 @@
 ---
 title: Bug capture (/mantle:bug)
 status: completed
-slice: [core, claude-code, vault, tests]
+slice:
+- core
+- claude-code
+- vault
+- tests
 story_count: 3
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/planned
+- type/issue
+- status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:bug` is available in Claude Code and starts a brief structured bug
+    capture'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Bug reports saved to `.mantle/bugs/<date>-<slug>.md` with YAML frontmatter
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Bug frontmatter includes date, author, summary, severity, status, related_issue,
+    related_files, fixed_by, and tags
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: The bug note is stamped with `git config user.email`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Severity is suggested by the AI based on the description, confirmed by the
+    user
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`mantle init` creates the `.mantle/bugs/` directory'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`/mantle:plan-issues` surfaces open bugs at the start of planning sessions'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: When a bug-fixing issue is completed, the bug's status and fixed_by fields
+    are updated
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: '`/mantle:help` updated to include `/mantle:bug`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: Tests verify bug note format, frontmatter schema, listing, and status updates
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -82,16 +143,16 @@ What actually happens.
 
 ## Acceptance criteria
 
-- [ ] `/mantle:bug` is available in Claude Code and starts a brief structured bug capture
-- [ ] Bug reports saved to `.mantle/bugs/<date>-<slug>.md` with YAML frontmatter
-- [ ] Bug frontmatter includes date, author, summary, severity, status, related_issue, related_files, fixed_by, and tags
-- [ ] The bug note is stamped with `git config user.email`
-- [ ] Severity is suggested by the AI based on the description, confirmed by the user
-- [ ] `mantle init` creates the `.mantle/bugs/` directory
-- [ ] `/mantle:plan-issues` surfaces open bugs at the start of planning sessions
-- [ ] When a bug-fixing issue is completed, the bug's status and fixed_by fields are updated
-- [ ] `/mantle:help` updated to include `/mantle:bug`
-- [ ] Tests verify bug note format, frontmatter schema, listing, and status updates
+- [ ] ac-01: `/mantle:bug` is available in Claude Code and starts a brief structured bug capture
+- [ ] ac-02: Bug reports saved to `.mantle/bugs/<date>-<slug>.md` with YAML frontmatter
+- [ ] ac-03: Bug frontmatter includes date, author, summary, severity, status, related_issue, related_files, fixed_by, and tags
+- [ ] ac-04: The bug note is stamped with `git config user.email`
+- [ ] ac-05: Severity is suggested by the AI based on the description, confirmed by the user
+- [ ] ac-06: `mantle init` creates the `.mantle/bugs/` directory
+- [ ] ac-07: `/mantle:plan-issues` surfaces open bugs at the start of planning sessions
+- [ ] ac-08: When a bug-fixing issue is completed, the bug's status and fixed_by fields are updated
+- [ ] ac-09: `/mantle:help` updated to include `/mantle:bug`
+- [ ] ac-10: Tests verify bug note format, frontmatter schema, listing, and status updates
 
 ## Blocked by
 

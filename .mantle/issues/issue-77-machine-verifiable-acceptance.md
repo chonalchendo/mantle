@@ -29,6 +29,48 @@ skills_required:
 tags:
 - type/issue
 - status/implementing
+acceptance_criteria:
+- id: ac-01
+  text: 'Issue frontmatter supports an `acceptance_criteria` list where each entry
+    has `id`, `text`, and `passes: true|false`; Pydantic schema validates it.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Markdown AC checkboxes in the issue body are generated from the structured
+    list on save, so the prose stays true to the data.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`/mantle:verify` flips `passes` per AC via a dedicated CLI operation (not
+    raw edit) and emits a report of ACs still at `passes: false`.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`/mantle:review` refuses to approve an issue unless every AC is `passes:
+    true` or carries an explicit waiver.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A one-time `mantle migrate-acs` CLI backfills existing planned/implemented/verified
+    issues from their markdown checkboxes into structured frontmatter.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Unit tests cover the Pydantic schema, frontmatter round-trip, migration, body-sync
+    rendering, and the flip-passes CLI behavior.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -54,13 +96,13 @@ Shift ground truth for acceptance criteria into issue frontmatter as a structure
 
 ## Acceptance criteria
 
-- [ ] Issue frontmatter supports an `acceptance_criteria` list where each entry has `id`, `text`, and `passes: true|false`; Pydantic schema validates it.
-- [ ] Markdown AC checkboxes in the issue body are generated from the structured list on save, so the prose stays true to the data.
-- [ ] `/mantle:verify` flips `passes` per AC via a dedicated CLI operation (not raw edit) and emits a report of ACs still at `passes: false`.
-- [ ] `/mantle:review` refuses to approve an issue unless every AC is `passes: true` or carries an explicit waiver.
-- [ ] A one-time `mantle migrate-acs` CLI backfills existing planned/implemented/verified issues from their markdown checkboxes into structured frontmatter.
-- [ ] Unit tests cover the Pydantic schema, frontmatter round-trip, migration, body-sync rendering, and the flip-passes CLI behavior.
-- [ ] `just check` passes.
+- [ ] ac-01: Issue frontmatter supports an `acceptance_criteria` list where each entry has `id`, `text`, and `passes: true|false`; Pydantic schema validates it.
+- [ ] ac-02: Markdown AC checkboxes in the issue body are generated from the structured list on save, so the prose stays true to the data.
+- [ ] ac-03: `/mantle:verify` flips `passes` per AC via a dedicated CLI operation (not raw edit) and emits a report of ACs still at `passes: false`.
+- [ ] ac-04: `/mantle:review` refuses to approve an issue unless every AC is `passes: true` or carries an explicit waiver.
+- [ ] ac-05: A one-time `mantle migrate-acs` CLI backfills existing planned/implemented/verified issues from their markdown checkboxes into structured frontmatter.
+- [ ] ac-06: Unit tests cover the Pydantic schema, frontmatter round-trip, migration, body-sync rendering, and the flip-passes CLI behavior.
+- [ ] ac-07: `just check` passes.
 
 ## Blocked by
 

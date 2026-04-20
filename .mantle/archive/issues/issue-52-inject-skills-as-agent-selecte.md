@@ -44,6 +44,36 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: shape-issue and plan-stories prompts instruct the agent to discover relevant
+    skills via `mantle list-skills`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Agent selects applicable skills and can create missing ones via `/mantle:add-skill`
+    during the session
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Selected skill content is recorded in each story's metadata via a `skills`
+    field
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A story implemented with skill references naturally triggers those skills
+    via Claude Code's native loading
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -75,11 +105,11 @@ Update shape-issue and plan-stories prompts to instruct the agent to discover, s
 
 ## Acceptance criteria
 
-- [ ] shape-issue and plan-stories prompts instruct the agent to discover relevant skills via `mantle list-skills`
-- [ ] Agent selects applicable skills and can create missing ones via `/mantle:add-skill` during the session
-- [ ] Selected skill content is recorded in each story's metadata via a `skills` field
-- [ ] A story implemented with skill references naturally triggers those skills via Claude Code's native loading
-- [ ] `just check` passes
+- [ ] ac-01: shape-issue and plan-stories prompts instruct the agent to discover relevant skills via `mantle list-skills`
+- [ ] ac-02: Agent selects applicable skills and can create missing ones via `/mantle:add-skill` during the session
+- [ ] ac-03: Selected skill content is recorded in each story's metadata via a `skills` field
+- [ ] ac-04: A story implemented with skill references naturally triggers those skills via Claude Code's native loading
+- [ ] ac-05: `just check` passes
 
 ## Blocked by
 

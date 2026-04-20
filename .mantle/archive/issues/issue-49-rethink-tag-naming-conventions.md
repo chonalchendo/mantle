@@ -47,6 +47,30 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Tags use coarse-grained topic names (e.g. `dbt` not `dbt-incremental`) — related
+    skills share one topic tag
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Existing overly-specific tags are migrated to the new convention
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Tag naming convention is documented in the skill-authoring and/or add-skill
+    prompt
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Vault indexes reflect the new tags — related skills are grouped under shared
+    topics instead of 1:1 skill-to-index mappings
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -70,10 +94,10 @@ Revise how tags are chosen during skill authoring so they use coarse-grained top
 
 ## Acceptance criteria
 
-- [ ] Tags use coarse-grained topic names (e.g. `dbt` not `dbt-incremental`) — related skills share one topic tag
-- [ ] Existing overly-specific tags are migrated to the new convention
-- [ ] Tag naming convention is documented in the skill-authoring and/or add-skill prompt
-- [ ] Vault indexes reflect the new tags — related skills are grouped under shared topics instead of 1:1 skill-to-index mappings
+- [ ] ac-01: Tags use coarse-grained topic names (e.g. `dbt` not `dbt-incremental`) — related skills share one topic tag
+- [ ] ac-02: Existing overly-specific tags are migrated to the new convention
+- [ ] ac-03: Tag naming convention is documented in the skill-authoring and/or add-skill prompt
+- [ ] ac-04: Vault indexes reflect the new tags — related skills are grouped under shared topics instead of 1:1 skill-to-index mappings
 
 ## Blocked by
 

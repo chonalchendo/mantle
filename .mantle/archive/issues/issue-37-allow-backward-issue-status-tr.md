@@ -7,9 +7,32 @@ slice:
 story_count: 1
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: \`implemented → implementing\` transition is allowed in the issue status machine
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: CLI command \`mantle transition-issue-implementing\` succeeds when issue is
+    in \`implemented\` status
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Other invalid transitions still fail (status machine isn't fully opened up)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Covered by tests
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -33,10 +56,10 @@ Allow backward transitions in the issue status machine, specifically \`implement
 
 ## Acceptance criteria
 
-- [ ] \`implemented → implementing\` transition is allowed in the issue status machine
-- [ ] CLI command \`mantle transition-issue-implementing\` succeeds when issue is in \`implemented\` status
-- [ ] Other invalid transitions still fail (status machine isn't fully opened up)
-- [ ] Covered by tests
+- [ ] ac-01: \`implemented → implementing\` transition is allowed in the issue status machine
+- [ ] ac-02: CLI command \`mantle transition-issue-implementing\` succeeds when issue is in \`implemented\` status
+- [ ] ac-03: Other invalid transitions still fail (status machine isn't fully opened up)
+- [ ] ac-04: Covered by tests
 
 ## Blocked by
 

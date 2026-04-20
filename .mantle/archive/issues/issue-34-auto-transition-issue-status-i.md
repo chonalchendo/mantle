@@ -6,9 +6,26 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Build pipeline auto-transitions issue to 'implementing' at Step 6
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Issue status reflects actual state after a full build pipeline run
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: No manual transition commands needed during normal build pipeline flow
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -33,9 +50,9 @@ May need new CLI commands or relaxed state machine transitions to support skippi
 
 ## Acceptance criteria
 
-- [ ] Build pipeline auto-transitions issue to 'implementing' at Step 6
-- [ ] Issue status reflects actual state after a full build pipeline run
-- [ ] No manual transition commands needed during normal build pipeline flow
+- [ ] ac-01: Build pipeline auto-transitions issue to 'implementing' at Step 6
+- [ ] ac-02: Issue status reflects actual state after a full build pipeline run
+- [ ] ac-03: No manual transition commands needed during normal build pipeline flow
 
 ## Blocked by
 

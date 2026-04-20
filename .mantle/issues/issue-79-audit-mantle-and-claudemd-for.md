@@ -13,6 +13,43 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle audit-context` CLI exists and emits per-file token counts, cross-file
+    overlap pairs, and an orphaned-file list for a given directory tree.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: An audit report lives in `.mantle/` (e.g. under learnings/ or a one-off audit
+    folder) with metrics for CLAUDE.md, product-design.md, system-design.md, state.md,
+    and `.mantle/` artifacts.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The report ends with a ranked trim/split/link action list, each action tagged
+    with estimated token savings and a clarity rationale.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Obvious, unambiguous cuts are applied in the same issue (committed), and ambiguous
+    ones are filed as follow-up inbox items or issues.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'Tests cover the measurement CLI: token counting, overlap detection, orphan
+    detection.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -45,12 +82,12 @@ Land obvious cuts in the same issue (clear duplication, stale sections, dead poi
 
 ## Acceptance criteria
 
-- [ ] `mantle audit-context` CLI exists and emits per-file token counts, cross-file overlap pairs, and an orphaned-file list for a given directory tree.
-- [ ] An audit report lives in `.mantle/` (e.g. under learnings/ or a one-off audit folder) with metrics for CLAUDE.md, product-design.md, system-design.md, state.md, and `.mantle/` artifacts.
-- [ ] The report ends with a ranked trim/split/link action list, each action tagged with estimated token savings and a clarity rationale.
-- [ ] Obvious, unambiguous cuts are applied in the same issue (committed), and ambiguous ones are filed as follow-up inbox items or issues.
-- [ ] Tests cover the measurement CLI: token counting, overlap detection, orphan detection.
-- [ ] `just check` passes.
+- [ ] ac-01: `mantle audit-context` CLI exists and emits per-file token counts, cross-file overlap pairs, and an orphaned-file list for a given directory tree.
+- [ ] ac-02: An audit report lives in `.mantle/` (e.g. under learnings/ or a one-off audit folder) with metrics for CLAUDE.md, product-design.md, system-design.md, state.md, and `.mantle/` artifacts.
+- [ ] ac-03: The report ends with a ranked trim/split/link action list, each action tagged with estimated token savings and a clarity rationale.
+- [ ] ac-04: Obvious, unambiguous cuts are applied in the same issue (committed), and ambiguous ones are filed as follow-up inbox items or issues.
+- [ ] ac-05: Tests cover the measurement CLI: token counting, overlap detection, orphan detection.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

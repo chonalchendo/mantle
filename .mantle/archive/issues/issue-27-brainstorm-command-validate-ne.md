@@ -7,9 +7,66 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:brainstorm` command exists as a Claude Code slash command'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Loads and references product-design.md, system-design.md, and existing issues
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Interactive conversational session (one question at a time)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Vision alignment check explicitly evaluates idea against product design
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Selectively applies challenge lenses based on idea complexity
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Proposes 2-3 lightweight approaches with trade-offs
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: 'Produces one of three verdicts: proceed, research first, or scrap'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: Saves output to `.mantle/brainstorms/` with date-prefixed filename
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: Scrapped ideas are saved (not discarded)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: Recommends next command based on verdict
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-11
+  text: 'CLI support: `mantle save-brainstorm` command for persisting output'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -57,17 +114,17 @@ Saved to `.mantle/brainstorms/YYYY-MM-DD-<slug>.md` with structured sections (id
 
 ## Acceptance criteria
 
-- [ ] `/mantle:brainstorm` command exists as a Claude Code slash command
-- [ ] Loads and references product-design.md, system-design.md, and existing issues
-- [ ] Interactive conversational session (one question at a time)
-- [ ] Vision alignment check explicitly evaluates idea against product design
-- [ ] Selectively applies challenge lenses based on idea complexity
-- [ ] Proposes 2-3 lightweight approaches with trade-offs
-- [ ] Produces one of three verdicts: proceed, research first, or scrap
-- [ ] Saves output to `.mantle/brainstorms/` with date-prefixed filename
-- [ ] Scrapped ideas are saved (not discarded)
-- [ ] Recommends next command based on verdict
-- [ ] CLI support: `mantle save-brainstorm` command for persisting output
+- [ ] ac-01: `/mantle:brainstorm` command exists as a Claude Code slash command
+- [ ] ac-02: Loads and references product-design.md, system-design.md, and existing issues
+- [ ] ac-03: Interactive conversational session (one question at a time)
+- [ ] ac-04: Vision alignment check explicitly evaluates idea against product design
+- [ ] ac-05: Selectively applies challenge lenses based on idea complexity
+- [ ] ac-06: Proposes 2-3 lightweight approaches with trade-offs
+- [ ] ac-07: Produces one of three verdicts: proceed, research first, or scrap
+- [ ] ac-08: Saves output to `.mantle/brainstorms/` with date-prefixed filename
+- [ ] ac-09: Scrapped ideas are saved (not discarded)
+- [ ] ac-10: Recommends next command based on verdict
+- [ ] ac-11: CLI support: `mantle save-brainstorm` command for persisting output
 
 ## Blocked by
 

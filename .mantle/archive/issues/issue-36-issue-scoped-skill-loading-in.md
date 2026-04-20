@@ -12,6 +12,30 @@ skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`compile_skills` accepts an issue number and only compiles skills relevant
+    to that issue'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The build pipeline passes the current issue number to `compile_skills` automatically
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Story implementation prompts include a "Required reading" section listing
+    relevant skill names
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: When no issue is specified, `compile_skills` falls back to compiling all `skills_required`
+    (backward compatibility)
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -48,10 +72,10 @@ The build pipeline's implement step injects a `## Required reading` section into
 
 ## Acceptance criteria
 
-- [ ] `compile_skills` accepts an issue number and only compiles skills relevant to that issue
-- [ ] The build pipeline passes the current issue number to `compile_skills` automatically
-- [ ] Story implementation prompts include a "Required reading" section listing relevant skill names
-- [ ] When no issue is specified, `compile_skills` falls back to compiling all `skills_required` (backward compatibility)
+- [ ] ac-01: `compile_skills` accepts an issue number and only compiles skills relevant to that issue
+- [ ] ac-02: The build pipeline passes the current issue number to `compile_skills` automatically
+- [ ] ac-03: Story implementation prompts include a "Required reading" section listing relevant skill names
+- [ ] ac-04: When no issue is specified, `compile_skills` falls back to compiling all `skills_required` (backward compatibility)
 
 ## Blocked by
 

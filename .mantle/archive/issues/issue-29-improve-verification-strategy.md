@@ -7,9 +7,50 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: First-use flow introspects project files (CLAUDE.md, pyproject.toml, Justfile,
+    etc.) before proposing a strategy
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Proposed strategy is structured with sections (test command, lint, AC verification,
+    smoke test)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: User confirms or adjusts the proposed strategy before it's saved
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: After verification, if user corrected the approach, prompt asks whether to
+    update the strategy
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Strategy updates are persisted via `mantle save-verification-strategy`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Build pipeline auto-generates a structured strategy when none exists (non-interactive)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Existing strategies are preserved — changes only append or refine, never silently
+    overwrite
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -54,13 +95,13 @@ The build pipeline's verify override ("if no strategy, use a sensible default") 
 
 ## Acceptance criteria
 
-- [ ] First-use flow introspects project files (CLAUDE.md, pyproject.toml, Justfile, etc.) before proposing a strategy
-- [ ] Proposed strategy is structured with sections (test command, lint, AC verification, smoke test)
-- [ ] User confirms or adjusts the proposed strategy before it's saved
-- [ ] After verification, if user corrected the approach, prompt asks whether to update the strategy
-- [ ] Strategy updates are persisted via `mantle save-verification-strategy`
-- [ ] Build pipeline auto-generates a structured strategy when none exists (non-interactive)
-- [ ] Existing strategies are preserved — changes only append or refine, never silently overwrite
+- [ ] ac-01: First-use flow introspects project files (CLAUDE.md, pyproject.toml, Justfile, etc.) before proposing a strategy
+- [ ] ac-02: Proposed strategy is structured with sections (test command, lint, AC verification, smoke test)
+- [ ] ac-03: User confirms or adjusts the proposed strategy before it's saved
+- [ ] ac-04: After verification, if user corrected the approach, prompt asks whether to update the strategy
+- [ ] ac-05: Strategy updates are persisted via `mantle save-verification-strategy`
+- [ ] ac-06: Build pipeline auto-generates a structured strategy when none exists (non-interactive)
+- [ ] ac-07: Existing strategies are preserved — changes only append or refine, never silently overwrite
 
 ## Blocked by
 

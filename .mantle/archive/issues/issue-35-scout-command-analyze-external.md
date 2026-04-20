@@ -9,9 +9,41 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle scout <repo-url>` clones the repo to a temp directory and cleans
+    up after analysis'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Analysis is guided by compiled project context (product design, system design,
+    backlog, learnings)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Parallel agents analyze across multiple dimensions (architecture, patterns,
+    testing, CLI design)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Structured report saved to `.mantle/scouts/` with YAML frontmatter and queryable
+    by `/mantle:query`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Report includes actionable recommendations tied to specific backlog gaps or
+    design opportunities
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -39,11 +71,11 @@ A `/mantle:scout` command that clones an external GitHub repo, analyzes it throu
 
 ## Acceptance criteria
 
-- [ ] `mantle scout <repo-url>` clones the repo to a temp directory and cleans up after analysis
-- [ ] Analysis is guided by compiled project context (product design, system design, backlog, learnings)
-- [ ] Parallel agents analyze across multiple dimensions (architecture, patterns, testing, CLI design)
-- [ ] Structured report saved to `.mantle/scouts/` with YAML frontmatter and queryable by `/mantle:query`
-- [ ] Report includes actionable recommendations tied to specific backlog gaps or design opportunities
+- [ ] ac-01: `mantle scout <repo-url>` clones the repo to a temp directory and cleans up after analysis
+- [ ] ac-02: Analysis is guided by compiled project context (product design, system design, backlog, learnings)
+- [ ] ac-03: Parallel agents analyze across multiple dimensions (architecture, patterns, testing, CLI design)
+- [ ] ac-04: Structured report saved to `.mantle/scouts/` with YAML frontmatter and queryable by `/mantle:query`
+- [ ] ac-05: Report includes actionable recommendations tied to specific backlog gaps or design opportunities
 
 ## Brainstorm reference
 

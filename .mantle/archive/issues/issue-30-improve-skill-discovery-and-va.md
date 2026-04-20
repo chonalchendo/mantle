@@ -9,9 +9,42 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`list-skills` accepts a `--tag` filter and returns only skills matching that
+    tag'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`update-skills` matches on skill tags and description, not just name/slug'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`mantle compile` auto-generates index notes in the vault from the tag taxonomy'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Generated index notes list skills as Obsidian wikilinks for graph navigation
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Build pipeline Step 3 works unchanged (backwards compatible)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Existing manually-created vault notes are not overwritten by generated indexes
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -42,12 +75,12 @@ Two complementary improvements to how skills are discovered and navigated:
 
 ## Acceptance criteria
 
-- [ ] `list-skills` accepts a `--tag` filter and returns only skills matching that tag
-- [ ] `update-skills` matches on skill tags and description, not just name/slug
-- [ ] `mantle compile` auto-generates index notes in the vault from the tag taxonomy
-- [ ] Generated index notes list skills as Obsidian wikilinks for graph navigation
-- [ ] Build pipeline Step 3 works unchanged (backwards compatible)
-- [ ] Existing manually-created vault notes are not overwritten by generated indexes
+- [ ] ac-01: `list-skills` accepts a `--tag` filter and returns only skills matching that tag
+- [ ] ac-02: `update-skills` matches on skill tags and description, not just name/slug
+- [ ] ac-03: `mantle compile` auto-generates index notes in the vault from the tag taxonomy
+- [ ] ac-04: Generated index notes list skills as Obsidian wikilinks for graph navigation
+- [ ] ac-05: Build pipeline Step 3 works unchanged (backwards compatible)
+- [ ] ac-06: Existing manually-created vault notes are not overwritten by generated indexes
 
 ## Blocked by
 

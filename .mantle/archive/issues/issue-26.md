@@ -7,9 +7,46 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: Function exists to extract skill references from issue/story markdown content
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Extracted skills are matched against vault skill names (slug-normalized)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: skills_required in state.md is auto-updated when stories are saved
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: /mantle:build auto-updates skills_required before implementation begins
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Existing manually-added skills are preserved (additive update)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Compilation is triggered after skills_required changes
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Issue frontmatter supports optional skills_required field
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -39,13 +76,13 @@ Key design decisions:
 
 ## Acceptance criteria
 
-- [ ] Function exists to extract skill references from issue/story markdown content
-- [ ] Extracted skills are matched against vault skill names (slug-normalized)
-- [ ] skills_required in state.md is auto-updated when stories are saved
-- [ ] /mantle:build auto-updates skills_required before implementation begins
-- [ ] Existing manually-added skills are preserved (additive update)
-- [ ] Compilation is triggered after skills_required changes
-- [ ] Issue frontmatter supports optional skills_required field
+- [ ] ac-01: Function exists to extract skill references from issue/story markdown content
+- [ ] ac-02: Extracted skills are matched against vault skill names (slug-normalized)
+- [ ] ac-03: skills_required in state.md is auto-updated when stories are saved
+- [ ] ac-04: /mantle:build auto-updates skills_required before implementation begins
+- [ ] ac-05: Existing manually-added skills are preserved (additive update)
+- [ ] ac-06: Compilation is triggered after skills_required changes
+- [ ] ac-07: Issue frontmatter supports optional skills_required field
 
 ## Blocked by
 

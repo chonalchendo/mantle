@@ -11,6 +11,37 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:upgrade` reports current vs latest version.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: User confirms before any package install (no surprise upgrades).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: After upgrade, slash commands and agents in `~/.claude/` are refreshed.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Release notes for the version delta are shown.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Test covers the version-detection and refresh logic (mock PyPI + filesystem).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -31,12 +62,12 @@ Today, upgrading the mantle package, refreshing slash commands, and discovering 
 
 ## Acceptance criteria
 
-- [ ] `/mantle:upgrade` reports current vs latest version.
-- [ ] User confirms before any package install (no surprise upgrades).
-- [ ] After upgrade, slash commands and agents in `~/.claude/` are refreshed.
-- [ ] Release notes for the version delta are shown.
-- [ ] Test covers the version-detection and refresh logic (mock PyPI + filesystem).
-- [ ] `just check` passes.
+- [ ] ac-01: `/mantle:upgrade` reports current vs latest version.
+- [ ] ac-02: User confirms before any package install (no surprise upgrades).
+- [ ] ac-03: After upgrade, slash commands and agents in `~/.claude/` are refreshed.
+- [ ] ac-04: Release notes for the version delta are shown.
+- [ ] ac-05: Test covers the version-detection and refresh logic (mock PyPI + filesystem).
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

@@ -38,6 +38,42 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`inline-snapshot` and `dirty-equals` are declared in the `check`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: At least one existing CLI-output test is migrated to `inline_snapshot`,
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: At least one existing unordered-collection assertion is migrated to
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: At least one named scenario fixture exists in `tests/conftest.py`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`CLAUDE.md` Test Conventions section documents: when to use'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`system-design.md` Test Tooling section mentions both helpers.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -91,21 +127,13 @@ so future tests opt in as they are touched.
 
 ## Acceptance criteria
 
-- [ ] `inline-snapshot` and `dirty-equals` are declared in the `check`
-      dependency group in `pyproject.toml` and resolved in `uv.lock`.
-- [ ] At least one existing CLI-output test is migrated to `inline_snapshot`,
-      with the hand-written expected string removed.
-- [ ] At least one existing unordered-collection assertion is migrated to
-      `dirty-equals` (e.g. `IsList(..., check_order=False)` or
-      `IsPartialDict(...)`), with the custom sort-compare helper removed.
-- [ ] At least one named scenario fixture exists in `tests/conftest.py`
-      (e.g. `vault_with_issues`, `vault_after_init`) with a docstring
-      describing the scenario, and is consumed by at least one test.
-- [ ] `CLAUDE.md` Test Conventions section documents: when to use
-      `inline_snapshot`, when to use `dirty-equals`, and the scenario-fixture
-      naming convention.
-- [ ] `system-design.md` Test Tooling section mentions both helpers.
-- [ ] `just check` passes.
+- [ ] ac-01: `inline-snapshot` and `dirty-equals` are declared in the `check`
+- [ ] ac-02: At least one existing CLI-output test is migrated to `inline_snapshot`,
+- [ ] ac-03: At least one existing unordered-collection assertion is migrated to
+- [ ] ac-04: At least one named scenario fixture exists in `tests/conftest.py`
+- [ ] ac-05: `CLAUDE.md` Test Conventions section documents: when to use
+- [ ] ac-06: `system-design.md` Test Tooling section mentions both helpers.
+- [ ] ac-07: `just check` passes.
 
 ## Blocked by
 

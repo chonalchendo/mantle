@@ -8,9 +8,37 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Review feedback can be consumed programmatically (structured output from review
+    step)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Fix command spawns implementation agents with review feedback as context
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Verification re-runs automatically after fixes are applied
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Issue status transitions correctly through the fix cycle (implementing → implemented)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Covered by tests where applicable (CLI/core logic, not prompt behaviour)
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -39,11 +67,11 @@ A way to resume the build pipeline after review flags issues. Two possible appro
 
 ## Acceptance criteria
 
-- [ ] Review feedback can be consumed programmatically (structured output from review step)
-- [ ] Fix command spawns implementation agents with review feedback as context
-- [ ] Verification re-runs automatically after fixes are applied
-- [ ] Issue status transitions correctly through the fix cycle (implementing → implemented)
-- [ ] Covered by tests where applicable (CLI/core logic, not prompt behaviour)
+- [ ] ac-01: Review feedback can be consumed programmatically (structured output from review step)
+- [ ] ac-02: Fix command spawns implementation agents with review feedback as context
+- [ ] ac-03: Verification re-runs automatically after fixes are applied
+- [ ] ac-04: Issue status transitions correctly through the fix cycle (implementing → implemented)
+- [ ] ac-05: Covered by tests where applicable (CLI/core logic, not prompt behaviour)
 
 ## Blocked by
 

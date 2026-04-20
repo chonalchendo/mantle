@@ -1,12 +1,59 @@
 ---
 title: Context compilation engine + /mantle:status
 status: done
-slice: [cli, core, claude-code, tests]
+slice:
+- cli
+- core
+- claude-code
+- tests
 story_count: 4
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/done
+- type/issue
+- status/done
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle compile` reads vault state and renders all `.j2` templates into concrete
+    markdown files in `~/.claude/commands/mantle/`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle compile --if-stale` only recompiles when source files have changed
+    (hash-based comparison)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A manifest file tracks content hashes of source files used in compilation
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`/mantle:status` is available in Claude Code and shows current project state
+    compiled from vault data'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'The compiled status includes: project name, status, current focus, blockers,
+    recent decisions, next steps'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Compilation respects context budgets (status output fits within ~2-3K tokens)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests cover compilation, staleness detection, hash manifest, and template
+    rendering
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -26,13 +73,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `mantle compile` reads vault state and renders all `.j2` templates into concrete markdown files in `~/.claude/commands/mantle/`
-- [ ] `mantle compile --if-stale` only recompiles when source files have changed (hash-based comparison)
-- [ ] A manifest file tracks content hashes of source files used in compilation
-- [ ] `/mantle:status` is available in Claude Code and shows current project state compiled from vault data
-- [ ] The compiled status includes: project name, status, current focus, blockers, recent decisions, next steps
-- [ ] Compilation respects context budgets (status output fits within ~2-3K tokens)
-- [ ] Tests cover compilation, staleness detection, hash manifest, and template rendering
+- [ ] ac-01: `mantle compile` reads vault state and renders all `.j2` templates into concrete markdown files in `~/.claude/commands/mantle/`
+- [ ] ac-02: `mantle compile --if-stale` only recompiles when source files have changed (hash-based comparison)
+- [ ] ac-03: A manifest file tracks content hashes of source files used in compilation
+- [ ] ac-04: `/mantle:status` is available in Claude Code and shows current project state compiled from vault data
+- [ ] ac-05: The compiled status includes: project name, status, current focus, blockers, recent decisions, next steps
+- [ ] ac-06: Compilation respects context budgets (status output fits within ~2-3K tokens)
+- [ ] ac-07: Tests cover compilation, staleness detection, hash manifest, and template rendering
 
 ## Blocked by
 

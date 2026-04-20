@@ -8,9 +8,48 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:verify` is available in Claude Code'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: On first use (no strategy in config.md), prompts user to define verification
+    strategy and persists it
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: On subsequent uses, loads strategy from `.mantle/config.md`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Per-issue verification overrides in issue frontmatter take precedence over
+    project default
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Verification produces a report with pass/fail status per acceptance criterion
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Issue status transitions to "verified" on success
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify strategy loading, per-issue override precedence, and report generation
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -29,13 +68,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:verify` is available in Claude Code
-- [ ] On first use (no strategy in config.md), prompts user to define verification strategy and persists it
-- [ ] On subsequent uses, loads strategy from `.mantle/config.md`
-- [ ] Per-issue verification overrides in issue frontmatter take precedence over project default
-- [ ] Verification produces a report with pass/fail status per acceptance criterion
-- [ ] Issue status transitions to "verified" on success
-- [ ] Tests verify strategy loading, per-issue override precedence, and report generation
+- [ ] ac-01: `/mantle:verify` is available in Claude Code
+- [ ] ac-02: On first use (no strategy in config.md), prompts user to define verification strategy and persists it
+- [ ] ac-03: On subsequent uses, loads strategy from `.mantle/config.md`
+- [ ] ac-04: Per-issue verification overrides in issue frontmatter take precedence over project default
+- [ ] ac-05: Verification produces a report with pass/fail status per acceptance criterion
+- [ ] ac-06: Issue status transitions to "verified" on success
+- [ ] ac-07: Tests verify strategy loading, per-issue override precedence, and report generation
 
 ## Blocked by
 

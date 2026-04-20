@@ -1,12 +1,61 @@
 ---
 title: Package skeleton, CLI entry point, and mantle install
 status: completed
-slice: [package, cli, core, claude-code, tests]
+slice:
+- package
+- cli
+- core
+- claude-code
+- tests
 story_count: 5
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`uv tool install .` (local) installs the package and makes `mantle` available
+    on PATH'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle install` copies all files from `claude/` into `~/.claude/` preserving
+    directory structure'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`mantle install` writes `mantle-file-manifest.json` tracking installed file
+    hashes'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`mantle install` on re-run detects user-modified files and warns before overwriting'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`/mantle:help` is available in Claude Code and lists commands grouped by
+    workflow phase'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`mantle --help` shows available CLI commands with auto-generated help from
+    Cyclopts'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests cover install file copying, manifest creation, and user modification
+    detection (44 tests)
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -27,13 +76,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [x] `uv tool install .` (local) installs the package and makes `mantle` available on PATH
-- [x] `mantle install` copies all files from `claude/` into `~/.claude/` preserving directory structure
-- [x] `mantle install` writes `mantle-file-manifest.json` tracking installed file hashes
-- [x] `mantle install` on re-run detects user-modified files and warns before overwriting
-- [x] `/mantle:help` is available in Claude Code and lists commands grouped by workflow phase
-- [x] `mantle --help` shows available CLI commands with auto-generated help from Cyclopts
-- [x] Tests cover install file copying, manifest creation, and user modification detection (44 tests)
+- [x] ac-01: `uv tool install .` (local) installs the package and makes `mantle` available on PATH
+- [x] ac-02: `mantle install` copies all files from `claude/` into `~/.claude/` preserving directory structure
+- [x] ac-03: `mantle install` writes `mantle-file-manifest.json` tracking installed file hashes
+- [x] ac-04: `mantle install` on re-run detects user-modified files and warns before overwriting
+- [x] ac-05: `/mantle:help` is available in Claude Code and lists commands grouped by workflow phase
+- [x] ac-06: `mantle --help` shows available CLI commands with auto-generated help from Cyclopts
+- [x] ac-07: Tests cover install file copying, manifest creation, and user modification detection (44 tests)
 
 ## Blocked by
 

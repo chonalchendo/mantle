@@ -28,6 +28,43 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Investigation report (under 150 words) captures whether `implement.md` and
+    any subagents it spawns actually read skill files, and what `skills_required`
+    in `state.md` is consumed by.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: A proposed edit to `plan-stories.md` is shown as a diff before being applied.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`plan-stories.md` no longer presents the skill-loading step as context-priming
+    for implementation — either cut, shrunk to bookkeeping, or moved to shape-issue,
+    per the chosen option.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`shape-issue.md` and `implement.md` are NOT modified in this issue (scope
+    is strictly plan-stories.md).'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: If the investigation finds `implement.md` should be loading skills but currently
+    doesn't, a separate follow-up issue is filed capturing that gap.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -68,12 +105,12 @@ A corrective edit to `plan-stories.md` that removes the misleading "ensure skill
 
 ## Acceptance criteria
 
-- [ ] Investigation report (under 150 words) captures whether `implement.md` and any subagents it spawns actually read skill files, and what `skills_required` in `state.md` is consumed by.
-- [ ] A proposed edit to `plan-stories.md` is shown as a diff before being applied.
-- [ ] `plan-stories.md` no longer presents the skill-loading step as context-priming for implementation — either cut, shrunk to bookkeeping, or moved to shape-issue, per the chosen option.
-- [ ] `shape-issue.md` and `implement.md` are NOT modified in this issue (scope is strictly plan-stories.md).
-- [ ] If the investigation finds `implement.md` should be loading skills but currently doesn't, a separate follow-up issue is filed capturing that gap.
-- [ ] `just check` passes.
+- [ ] ac-01: Investigation report (under 150 words) captures whether `implement.md` and any subagents it spawns actually read skill files, and what `skills_required` in `state.md` is consumed by.
+- [ ] ac-02: A proposed edit to `plan-stories.md` is shown as a diff before being applied.
+- [ ] ac-03: `plan-stories.md` no longer presents the skill-loading step as context-priming for implementation — either cut, shrunk to bookkeeping, or moved to shape-issue, per the chosen option.
+- [ ] ac-04: `shape-issue.md` and `implement.md` are NOT modified in this issue (scope is strictly plan-stories.md).
+- [ ] ac-05: If the investigation finds `implement.md` should be loading skills but currently doesn't, a separate follow-up issue is filed capturing that gap.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

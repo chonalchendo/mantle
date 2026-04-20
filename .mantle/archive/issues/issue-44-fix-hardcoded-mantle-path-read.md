@@ -35,6 +35,43 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: A CLI command exists that prints the resolved `.mantle/` absolute path via
+    `project.resolve_mantle_dir()`, usable from any prompt with a single shell call
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: All 20 `claude/commands/mantle/*.md` prompts that currently read `.mantle/`
+    paths directly are updated to resolve via the new command first
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`/mantle:adopt` works end-to-end in a project with `storage_mode: global`
+    (no local `.mantle/` present)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A grep audit of `claude/commands/mantle/*.md` confirms no remaining hardcoded
+    `.mantle/` path reads (excluding intentional mentions in help text, examples,
+    or comments)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Unit test covering the new CLI command
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Integration test simulating a global-mode prompt workflow (prompt resolves
+    path, reads state, returns successfully)
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -67,12 +104,12 @@ Issue 43's own learning note explicitly flagged that Story 2 (22+ source modules
 
 ## Acceptance criteria
 
-- [ ] A CLI command exists that prints the resolved `.mantle/` absolute path via `project.resolve_mantle_dir()`, usable from any prompt with a single shell call
-- [ ] All 20 `claude/commands/mantle/*.md` prompts that currently read `.mantle/` paths directly are updated to resolve via the new command first
-- [ ] `/mantle:adopt` works end-to-end in a project with `storage_mode: global` (no local `.mantle/` present)
-- [ ] A grep audit of `claude/commands/mantle/*.md` confirms no remaining hardcoded `.mantle/` path reads (excluding intentional mentions in help text, examples, or comments)
-- [ ] Unit test covering the new CLI command
-- [ ] Integration test simulating a global-mode prompt workflow (prompt resolves path, reads state, returns successfully)
+- [ ] ac-01: A CLI command exists that prints the resolved `.mantle/` absolute path via `project.resolve_mantle_dir()`, usable from any prompt with a single shell call
+- [ ] ac-02: All 20 `claude/commands/mantle/*.md` prompts that currently read `.mantle/` paths directly are updated to resolve via the new command first
+- [ ] ac-03: `/mantle:adopt` works end-to-end in a project with `storage_mode: global` (no local `.mantle/` present)
+- [ ] ac-04: A grep audit of `claude/commands/mantle/*.md` confirms no remaining hardcoded `.mantle/` path reads (excluding intentional mentions in help text, examples, or comments)
+- [ ] ac-05: Unit test covering the new CLI command
+- [ ] ac-06: Integration test simulating a global-mode prompt workflow (prompt resolves path, reads state, returns successfully)
 
 ## Blocked by
 

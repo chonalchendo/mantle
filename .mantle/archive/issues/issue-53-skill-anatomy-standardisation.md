@@ -47,6 +47,35 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: A standard SKILL.md anatomy is defined and documented (trigger, workflow steps,
+    rationalizations table, red flags, verification)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: 3-5 high-use skills migrated to the new format in the vault, compiled output
+    reflects new structure
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Migrated skills are under ~150 lines with deeper detail in separate reference
+    files
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`/mantle:add-skill` prompt updated to generate skills in the new anatomy'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -90,11 +119,11 @@ All changes target vault source files. The compile pipeline (`mantle compile`) r
 
 ## Acceptance criteria
 
-- [ ] A standard SKILL.md anatomy is defined and documented (trigger, workflow steps, rationalizations table, red flags, verification)
-- [ ] 3-5 high-use skills migrated to the new format in the vault, compiled output reflects new structure
-- [ ] Migrated skills are under ~150 lines with deeper detail in separate reference files
-- [ ] `/mantle:add-skill` prompt updated to generate skills in the new anatomy
-- [ ] `just check` passes
+- [ ] ac-01: A standard SKILL.md anatomy is defined and documented (trigger, workflow steps, rationalizations table, red flags, verification)
+- [ ] ac-02: 3-5 high-use skills migrated to the new format in the vault, compiled output reflects new structure
+- [ ] ac-03: Migrated skills are under ~150 lines with deeper detail in separate reference files
+- [ ] ac-04: `/mantle:add-skill` prompt updated to generate skills in the new anatomy
+- [ ] ac-05: `just check` passes
 
 ## Blocked by
 

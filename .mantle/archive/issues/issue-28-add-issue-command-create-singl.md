@@ -8,9 +8,52 @@ story_count: 1
 verification: null
 blocked_by:
 - 27
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:add-issue` command exists as a Claude Code slash command'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Reads existing issues to determine next number and check for duplicates
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Interactive session captures title, description, acceptance criteria, slices,
+    and dependencies
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Flags overlap with existing issues
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Flags when system design may need updating
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Saves issue via `mantle save-issue` CLI
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: References brainstorm file if one exists for this idea
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: Recommends `/mantle:shape-issue` as next step
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -50,14 +93,14 @@ A `/mantle:add-issue` command that creates a single issue in an existing project
 
 ## Acceptance criteria
 
-- [ ] `/mantle:add-issue` command exists as a Claude Code slash command
-- [ ] Reads existing issues to determine next number and check for duplicates
-- [ ] Interactive session captures title, description, acceptance criteria, slices, and dependencies
-- [ ] Flags overlap with existing issues
-- [ ] Flags when system design may need updating
-- [ ] Saves issue via `mantle save-issue` CLI
-- [ ] References brainstorm file if one exists for this idea
-- [ ] Recommends `/mantle:shape-issue` as next step
+- [ ] ac-01: `/mantle:add-issue` command exists as a Claude Code slash command
+- [ ] ac-02: Reads existing issues to determine next number and check for duplicates
+- [ ] ac-03: Interactive session captures title, description, acceptance criteria, slices, and dependencies
+- [ ] ac-04: Flags overlap with existing issues
+- [ ] ac-05: Flags when system design may need updating
+- [ ] ac-06: Saves issue via `mantle save-issue` CLI
+- [ ] ac-07: References brainstorm file if one exists for this idea
+- [ ] ac-08: Recommends `/mantle:shape-issue` as next step
 
 ## Blocked by
 

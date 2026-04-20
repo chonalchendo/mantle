@@ -30,6 +30,75 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Mantle invokes `<mantle-dir>/hooks/on-<event>.sh` on each emitted lifecycle
+    event with documented positional args (issue id, new status, issue title)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: 'Lifecycle events emitted cover: issue-shaped, issue-implement-start, issue-verify-done,
+    issue-review-approved'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`hooks.env:` keys from `config.yml` are exported as environment variables
+    to the hook process'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Hooks directory resolution works for both global `~/.mantle/` and per-project
+    `.mantle/` via `mantle where`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Missing hook script is a no-op (no error, no warning noise)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Hook script failures log a warning but do not block mantle's workflow
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: 'Shipped example: `linear.sh` works end-to-end against a real Linear workspace
+    (GraphQL via curl)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: 'Shipped example: `jira.sh` works end-to-end against a real Jira instance
+    (via `acli`)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: 'Shipped example: `slack.sh` posts a message to a Slack incoming webhook'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: Each example script has a setup header documenting install + auth + required
+    env vars
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-11
+  text: README section documents the hook authoring convention
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-12
+  text: Covered by tests (event emission, arg passing, env passthrough, missing-hook
+    no-op, failure-does-not-block)
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -60,18 +129,18 @@ A hook-dispatch mechanism in mantle's core, a config passthrough for tracker-spe
 
 ## Acceptance criteria
 
-- [ ] Mantle invokes `<mantle-dir>/hooks/on-<event>.sh` on each emitted lifecycle event with documented positional args (issue id, new status, issue title)
-- [ ] Lifecycle events emitted cover: issue-shaped, issue-implement-start, issue-verify-done, issue-review-approved
-- [ ] `hooks.env:` keys from `config.yml` are exported as environment variables to the hook process
-- [ ] Hooks directory resolution works for both global `~/.mantle/` and per-project `.mantle/` via `mantle where`
-- [ ] Missing hook script is a no-op (no error, no warning noise)
-- [ ] Hook script failures log a warning but do not block mantle's workflow
-- [ ] Shipped example: `linear.sh` works end-to-end against a real Linear workspace (GraphQL via curl)
-- [ ] Shipped example: `jira.sh` works end-to-end against a real Jira instance (via `acli`)
-- [ ] Shipped example: `slack.sh` posts a message to a Slack incoming webhook
-- [ ] Each example script has a setup header documenting install + auth + required env vars
-- [ ] README section documents the hook authoring convention
-- [ ] Covered by tests (event emission, arg passing, env passthrough, missing-hook no-op, failure-does-not-block)
+- [ ] ac-01: Mantle invokes `<mantle-dir>/hooks/on-<event>.sh` on each emitted lifecycle event with documented positional args (issue id, new status, issue title)
+- [ ] ac-02: Lifecycle events emitted cover: issue-shaped, issue-implement-start, issue-verify-done, issue-review-approved
+- [ ] ac-03: `hooks.env:` keys from `config.yml` are exported as environment variables to the hook process
+- [ ] ac-04: Hooks directory resolution works for both global `~/.mantle/` and per-project `.mantle/` via `mantle where`
+- [ ] ac-05: Missing hook script is a no-op (no error, no warning noise)
+- [ ] ac-06: Hook script failures log a warning but do not block mantle's workflow
+- [ ] ac-07: Shipped example: `linear.sh` works end-to-end against a real Linear workspace (GraphQL via curl)
+- [ ] ac-08: Shipped example: `jira.sh` works end-to-end against a real Jira instance (via `acli`)
+- [ ] ac-09: Shipped example: `slack.sh` posts a message to a Slack incoming webhook
+- [ ] ac-10: Each example script has a setup header documenting install + auth + required env vars
+- [ ] ac-11: README section documents the hook authoring convention
+- [ ] ac-12: Covered by tests (event emission, arg passing, env passthrough, missing-hook no-op, failure-does-not-block)
 
 ## Brainstorm reference
 

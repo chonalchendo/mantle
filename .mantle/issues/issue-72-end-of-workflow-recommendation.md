@@ -10,6 +10,28 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: At least two `/mantle:*` commands emit a fresh-context handoff block when
+    recommended.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The pasted prompt runs successfully in a new session without further editing.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The recommendation rule (when to suggest fresh context) is documented.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -30,10 +52,10 @@ Likely overlaps with the dynamic-recommendations issue; these may need to ship t
 
 ## Acceptance criteria
 
-- [ ] At least two `/mantle:*` commands emit a fresh-context handoff block when recommended.
-- [ ] The pasted prompt runs successfully in a new session without further editing.
-- [ ] The recommendation rule (when to suggest fresh context) is documented.
-- [ ] `just check` passes.
+- [ ] ac-01: At least two `/mantle:*` commands emit a fresh-context handoff block when recommended.
+- [ ] ac-02: The pasted prompt runs successfully in a new session without further editing.
+- [ ] ac-03: The recommendation rule (when to suggest fresh context) is documented.
+- [ ] ac-04: `just check` passes.
 
 ## Blocked by
 

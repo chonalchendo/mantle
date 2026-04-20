@@ -1,12 +1,59 @@
 ---
 title: Session logging
 status: done
-slice: [core, claude-code, vault, tests]
+slice:
+- core
+- claude-code
+- vault
+- tests
 story_count: 3
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/done
+- type/issue
+- status/done
+acceptance_criteria:
+- id: ac-01
+  text: Session logs are written to `.mantle/sessions/<date>-<HHMM>.md` with YAML
+    frontmatter
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Frontmatter includes project, author (git identity), date, commands_used,
+    and tags
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: 'Log body follows structured format: summary, what was done, decisions made,
+    what''s next, open questions'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Logs are capped at ~200 words
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A standing rule in `.claude/rules/` instructs session logging for non-command
+    sessions
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`core/session.py` provides read/write interface for session logs'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify session log format, frontmatter structure, word cap, and read/write
+    operations
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -26,13 +73,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [x] Session logs are written to `.mantle/sessions/<date>-<HHMM>.md` with YAML frontmatter
-- [x] Frontmatter includes project, author (git identity), date, commands_used, and tags
-- [x] Log body follows structured format: summary, what was done, decisions made, what's next, open questions
-- [x] Logs are capped at ~200 words
-- [x] A standing rule in `.claude/rules/` instructs session logging for non-command sessions
-- [x] `core/session.py` provides read/write interface for session logs
-- [x] Tests verify session log format, frontmatter structure, word cap, and read/write operations
+- [x] ac-01: Session logs are written to `.mantle/sessions/<date>-<HHMM>.md` with YAML frontmatter
+- [x] ac-02: Frontmatter includes project, author (git identity), date, commands_used, and tags
+- [x] ac-03: Log body follows structured format: summary, what was done, decisions made, what's next, open questions
+- [x] ac-04: Logs are capped at ~200 words
+- [x] ac-05: A standing rule in `.claude/rules/` instructs session logging for non-command sessions
+- [x] ac-06: `core/session.py` provides read/write interface for session logs
+- [x] ac-07: Tests verify session log format, frontmatter structure, word cap, and read/write operations
 
 ## Blocked by
 

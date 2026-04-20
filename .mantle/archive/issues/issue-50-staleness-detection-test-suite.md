@@ -24,6 +24,36 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Compile-modify-recompile tests exist for `mantle compile` — verify new indexes
+    created, modified indexes updated, orphaned indexes deleted
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: CLI ordering tests verify `save-review-result` succeeds when called before
+    `transition-issue-approved` (and fails gracefully if called after)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Archive side-effect tests verify `find_issue_path` and downstream commands
+    work correctly after `archive_issue` runs
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: All tests use `tmp_path` isolation with realistic `.mantle/` fixtures (no
+    real vault)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes with the new test suite'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -53,11 +83,11 @@ A regression test suite that exercises multi-step command sequences, focusing on
 
 ## Acceptance criteria
 
-- [ ] Compile-modify-recompile tests exist for `mantle compile` — verify new indexes created, modified indexes updated, orphaned indexes deleted
-- [ ] CLI ordering tests verify `save-review-result` succeeds when called before `transition-issue-approved` (and fails gracefully if called after)
-- [ ] Archive side-effect tests verify `find_issue_path` and downstream commands work correctly after `archive_issue` runs
-- [ ] All tests use `tmp_path` isolation with realistic `.mantle/` fixtures (no real vault)
-- [ ] `just check` passes with the new test suite
+- [ ] ac-01: Compile-modify-recompile tests exist for `mantle compile` — verify new indexes created, modified indexes updated, orphaned indexes deleted
+- [ ] ac-02: CLI ordering tests verify `save-review-result` succeeds when called before `transition-issue-approved` (and fails gracefully if called after)
+- [ ] ac-03: Archive side-effect tests verify `find_issue_path` and downstream commands work correctly after `archive_issue` runs
+- [ ] ac-04: All tests use `tmp_path` isolation with realistic `.mantle/` fixtures (no real vault)
+- [ ] ac-05: `just check` passes with the new test suite
 
 ## Blocked by
 

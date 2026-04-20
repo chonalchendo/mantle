@@ -1,12 +1,57 @@
 ---
 title: Challenge session (/mantle:challenge)
 status: completed
-slice: [core, claude-code, tests]
+slice:
+- core
+- claude-code
+- tests
 story_count: 3
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:challenge` is available in Claude Code and starts a multi-angle
+    challenge session'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The session weaves through devil's advocate, pre-mortem, and competitive analysis
+    adaptively based on conversation flow
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The session does not follow a rigid checklist — it adapts questioning to what
+    the user says
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Challenge transcript is saved to `.mantle/challenges/` with date-based naming
+    and YAML frontmatter
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: The challenge phase is optional — other commands work without it being run
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: The challenger agent definition is installed to `~/.claude/agents/`
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify prompt construction, session structure, and transcript format
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -25,13 +70,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [x] `/mantle:challenge` is available in Claude Code and starts a multi-angle challenge session
-- [x] The session weaves through devil's advocate, pre-mortem, and competitive analysis adaptively based on conversation flow
-- [x] The session does not follow a rigid checklist — it adapts questioning to what the user says
-- [x] Challenge transcript is saved to `.mantle/challenges/` with date-based naming and YAML frontmatter
-- [x] The challenge phase is optional — other commands work without it being run
-- [x] The challenger agent definition is installed to `~/.claude/agents/`
-- [x] Tests verify prompt construction, session structure, and transcript format
+- [x] ac-01: `/mantle:challenge` is available in Claude Code and starts a multi-angle challenge session
+- [x] ac-02: The session weaves through devil's advocate, pre-mortem, and competitive analysis adaptively based on conversation flow
+- [x] ac-03: The session does not follow a rigid checklist — it adapts questioning to what the user says
+- [x] ac-04: Challenge transcript is saved to `.mantle/challenges/` with date-based naming and YAML frontmatter
+- [x] ac-05: The challenge phase is optional — other commands work without it being run
+- [x] ac-06: The challenger agent definition is installed to `~/.claude/agents/`
+- [x] ac-07: Tests verify prompt construction, session structure, and transcript format
 
 ## Blocked by
 

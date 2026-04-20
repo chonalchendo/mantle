@@ -22,6 +22,42 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Shaped doc names the chosen trigger (A, B, C, or a mix) and gives the rationale.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`build.md` documents the fast-path branch with a clear skip condition, following
+    the same "skip when X, otherwise run Y" format that the simplify step already
+    uses.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The fast-path branch still runs `just check` and the verify agent — the Iron
+    Laws about verification evidence remain intact.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A new regression check (test or template assertion) confirms the fast-path
+    cannot skip Step 8 (Verify).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Issue 60's profile (single-file docs edit, no new tests) would have taken
+    the fast-path if re-run.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -62,12 +98,12 @@ Do NOT remove the story-implementer agent spawn path. The fast-path is an *addit
 
 ## Acceptance criteria
 
-- [ ] Shaped doc names the chosen trigger (A, B, C, or a mix) and gives the rationale.
-- [ ] `build.md` documents the fast-path branch with a clear skip condition, following the same "skip when X, otherwise run Y" format that the simplify step already uses.
-- [ ] The fast-path branch still runs `just check` and the verify agent — the Iron Laws about verification evidence remain intact.
-- [ ] A new regression check (test or template assertion) confirms the fast-path cannot skip Step 8 (Verify).
-- [ ] Issue 60's profile (single-file docs edit, no new tests) would have taken the fast-path if re-run.
-- [ ] `just check` passes.
+- [ ] ac-01: Shaped doc names the chosen trigger (A, B, C, or a mix) and gives the rationale.
+- [ ] ac-02: `build.md` documents the fast-path branch with a clear skip condition, following the same "skip when X, otherwise run Y" format that the simplify step already uses.
+- [ ] ac-03: The fast-path branch still runs `just check` and the verify agent — the Iron Laws about verification evidence remain intact.
+- [ ] ac-04: A new regression check (test or template assertion) confirms the fast-path cannot skip Step 8 (Verify).
+- [ ] ac-05: Issue 60's profile (single-file docs edit, no new tests) would have taken the fast-path if re-run.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

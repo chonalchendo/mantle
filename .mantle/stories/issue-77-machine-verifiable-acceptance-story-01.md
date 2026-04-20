@@ -1,11 +1,11 @@
 ---
 issue: 77
 title: Core acceptance-criteria module, IssueNote integration, and approval gate
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

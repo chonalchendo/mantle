@@ -11,6 +11,34 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: At least three `/mantle:*` commands swap their hard-coded next-step block
+    for the dynamic recommendation.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Recommendations are derived from the full command catalogue, not a static
+    subset.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: The dynamic block stays under ~5 lines of output to avoid bloat.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Token cost of the recommendation step is measured and documented.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -32,11 +60,11 @@ Implementation likely lives in a shared template or a `mantle recommend-next` CL
 
 ## Acceptance criteria
 
-- [ ] At least three `/mantle:*` commands swap their hard-coded next-step block for the dynamic recommendation.
-- [ ] Recommendations are derived from the full command catalogue, not a static subset.
-- [ ] The dynamic block stays under ~5 lines of output to avoid bloat.
-- [ ] Token cost of the recommendation step is measured and documented.
-- [ ] `just check` passes.
+- [ ] ac-01: At least three `/mantle:*` commands swap their hard-coded next-step block for the dynamic recommendation.
+- [ ] ac-02: Recommendations are derived from the full command catalogue, not a static subset.
+- [ ] ac-03: The dynamic block stays under ~5 lines of output to avoid bloat.
+- [ ] ac-04: Token cost of the recommendation step is measured and documented.
+- [ ] ac-05: `just check` passes.
 
 ## Blocked by
 

@@ -7,9 +7,57 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:build` command exists as a Claude Code slash command'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Automatically plans issues from design docs if no issues exist
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Automatically shapes and decomposes existing issues into stories
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Implements stories via story-implementer agents
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Runs verification after implementation
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Pauses at review checkpoint for human approval
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Surfaces progress at each automated stage (not silent)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: Individual workflow commands still work independently
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: Handles errors gracefully — stops and reports rather than continuing with
+    bad state
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -44,15 +92,15 @@ Key design decisions informed by research:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:build` command exists as a Claude Code slash command
-- [ ] Automatically plans issues from design docs if no issues exist
-- [ ] Automatically shapes and decomposes existing issues into stories
-- [ ] Implements stories via story-implementer agents
-- [ ] Runs verification after implementation
-- [ ] Pauses at review checkpoint for human approval
-- [ ] Surfaces progress at each automated stage (not silent)
-- [ ] Individual workflow commands still work independently
-- [ ] Handles errors gracefully — stops and reports rather than continuing with bad state
+- [ ] ac-01: `/mantle:build` command exists as a Claude Code slash command
+- [ ] ac-02: Automatically plans issues from design docs if no issues exist
+- [ ] ac-03: Automatically shapes and decomposes existing issues into stories
+- [ ] ac-04: Implements stories via story-implementer agents
+- [ ] ac-05: Runs verification after implementation
+- [ ] ac-06: Pauses at review checkpoint for human approval
+- [ ] ac-07: Surfaces progress at each automated stage (not silent)
+- [ ] ac-08: Individual workflow commands still work independently
+- [ ] ac-09: Handles errors gracefully — stops and reports rather than continuing with bad state
 
 ## Blocked by
 

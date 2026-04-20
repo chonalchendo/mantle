@@ -1,12 +1,58 @@
 ---
 title: Idea capture (/mantle:idea)
 status: completed
-slice: [core, claude-code, vault, tests]
+slice:
+- core
+- claude-code
+- vault
+- tests
 story_count: 3
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:idea` is available in Claude Code and starts an interactive idea
+    capture session'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The session captures hypothesis, target user, and success criteria through
+    guided conversation
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Idea is saved as `.mantle/idea.md` with YAML frontmatter (hypothesis, target_user,
+    success_criteria, author, date, tags)
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Project state in state.md is updated to reflect idea capture
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: The idea note is stamped with `git config user.email`
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Running `/mantle:idea` when an idea already exists warns the user and asks
+    for confirmation before overwriting
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify idea note format, frontmatter structure, and state update
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -25,13 +71,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [x] `/mantle:idea` is available in Claude Code and starts an interactive idea capture session
-- [x] The session captures hypothesis, target user, and success criteria through guided conversation
-- [x] Idea is saved as `.mantle/idea.md` with YAML frontmatter (hypothesis, target_user, success_criteria, author, date, tags)
-- [x] Project state in state.md is updated to reflect idea capture
-- [x] The idea note is stamped with `git config user.email`
-- [x] Running `/mantle:idea` when an idea already exists warns the user and asks for confirmation before overwriting
-- [x] Tests verify idea note format, frontmatter structure, and state update
+- [x] ac-01: `/mantle:idea` is available in Claude Code and starts an interactive idea capture session
+- [x] ac-02: The session captures hypothesis, target user, and success criteria through guided conversation
+- [x] ac-03: Idea is saved as `.mantle/idea.md` with YAML frontmatter (hypothesis, target_user, success_criteria, author, date, tags)
+- [x] ac-04: Project state in state.md is updated to reflect idea capture
+- [x] ac-05: The idea note is stamped with `git config user.email`
+- [x] ac-06: Running `/mantle:idea` when an idea already exists warns the user and asks for confirmation before overwriting
+- [x] ac-07: Tests verify idea note format, frontmatter structure, and state update
 
 ## Blocked by
 

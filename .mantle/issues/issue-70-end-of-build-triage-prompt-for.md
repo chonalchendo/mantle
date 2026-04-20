@@ -10,6 +10,32 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: Triage step appears at the end of `/mantle:build` and `/mantle:implement`.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: User can dismiss without classifying (skip).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '"needs new issue" choice writes an inbox item with title and body pre-filled.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: No regression in existing build/implement flow when triage is empty.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Documented in build.md prose.
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -30,11 +56,11 @@ A triage step at the end of `/mantle:build` (and `/mantle:implement` when used s
 
 ## Acceptance criteria
 
-- [ ] Triage step appears at the end of `/mantle:build` and `/mantle:implement`.
-- [ ] User can dismiss without classifying (skip).
-- [ ] "needs new issue" choice writes an inbox item with title and body pre-filled.
-- [ ] No regression in existing build/implement flow when triage is empty.
-- [ ] Documented in build.md prose.
+- [ ] ac-01: Triage step appears at the end of `/mantle:build` and `/mantle:implement`.
+- [ ] ac-02: User can dismiss without classifying (skip).
+- [ ] ac-03: "needs new issue" choice writes an inbox item with title and body pre-filled.
+- [ ] ac-04: No regression in existing build/implement flow when triage is empty.
+- [ ] ac-05: Documented in build.md prose.
 
 ## Blocked by
 

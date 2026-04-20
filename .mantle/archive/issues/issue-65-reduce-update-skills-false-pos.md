@@ -23,6 +23,30 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Shaped doc reports the per-issue diff (skills added/removed) for the chosen
+    rule against issues 40-63.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: No false positive of the type "DuckLake on a CLI fix" or "Nick Sleep on a
+    CLI grouping issue" in the test corpus.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Unit test pins the new matching rule against a fixture issue with known expected
+    matches.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -48,10 +72,10 @@ Shaping should evaluate (a) against the past 20 issues' `skills_required` to mea
 
 ## Acceptance criteria
 
-- [ ] Shaped doc reports the per-issue diff (skills added/removed) for the chosen rule against issues 40-63.
-- [ ] No false positive of the type "DuckLake on a CLI fix" or "Nick Sleep on a CLI grouping issue" in the test corpus.
-- [ ] Unit test pins the new matching rule against a fixture issue with known expected matches.
-- [ ] `just check` passes.
+- [ ] ac-01: Shaped doc reports the per-issue diff (skills added/removed) for the chosen rule against issues 40-63.
+- [ ] ac-02: No false positive of the type "DuckLake on a CLI fix" or "Nick Sleep on a CLI grouping issue" in the test corpus.
+- [ ] ac-03: Unit test pins the new matching rule against a fixture issue with known expected matches.
+- [ ] ac-04: `just check` passes.
 
 ## Blocked by
 

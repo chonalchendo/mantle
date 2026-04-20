@@ -20,6 +20,33 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: 'Running `mantle init-vault PATH` when `PATH` already contains all four subdirs
+    records `personal_vault: PATH` in the current project''s `.mantle/config.md` without
+    raising.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: CLI prints a message indicating the existing vault was linked (e.g., *Linked
+    existing vault at PATH*), not *Nothing to do*.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Creating a brand-new vault (fresh path) still creates the four subdirs and
+    links the project — no regression.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: 'Regression test covers the multi-project share flow: Project A creates +
+    links, Project B re-links to the same path, and Project B''s `config.md` ends
+    up populated.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -70,10 +97,10 @@ In `src/mantle/core/project.py::init_vault` (line ~336), don't raise when all fo
 
 ## Acceptance criteria
 
-- [ ] Running `mantle init-vault PATH` when `PATH` already contains all four subdirs records `personal_vault: PATH` in the current project's `.mantle/config.md` without raising.
-- [ ] CLI prints a message indicating the existing vault was linked (e.g., *Linked existing vault at PATH*), not *Nothing to do*.
-- [ ] Creating a brand-new vault (fresh path) still creates the four subdirs and links the project — no regression.
-- [ ] Regression test covers the multi-project share flow: Project A creates + links, Project B re-links to the same path, and Project B's `config.md` ends up populated.
+- [ ] ac-01: Running `mantle init-vault PATH` when `PATH` already contains all four subdirs records `personal_vault: PATH` in the current project's `.mantle/config.md` without raising.
+- [ ] ac-02: CLI prints a message indicating the existing vault was linked (e.g., *Linked existing vault at PATH*), not *Nothing to do*.
+- [ ] ac-03: Creating a brand-new vault (fresh path) still creates the four subdirs and links the project — no regression.
+- [ ] ac-04: Regression test covers the multi-project share flow: Project A creates + links, Project B re-links to the same path, and Project B's `config.md` ends up populated.
 
 ## Blocked by
 

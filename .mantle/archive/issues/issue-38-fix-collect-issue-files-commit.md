@@ -7,9 +7,37 @@ slice:
 story_count: 1
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: \`collect-issue-files\` correctly finds commits from story-implementer agents
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Detection handles both \`feat(issue-N):\` and \`feat(issue-NN):\` patterns
+    (zero-padded and non-padded)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Returns accurate file list when commits exist
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Returns empty/zero gracefully when no commits exist (not an error)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Covered by tests
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -34,11 +62,11 @@ Fix the commit detection logic in \`collect-issue-files\` so it correctly finds 
 
 ## Acceptance criteria
 
-- [ ] \`collect-issue-files\` correctly finds commits from story-implementer agents
-- [ ] Detection handles both \`feat(issue-N):\` and \`feat(issue-NN):\` patterns (zero-padded and non-padded)
-- [ ] Returns accurate file list when commits exist
-- [ ] Returns empty/zero gracefully when no commits exist (not an error)
-- [ ] Covered by tests
+- [ ] ac-01: \`collect-issue-files\` correctly finds commits from story-implementer agents
+- [ ] ac-02: Detection handles both \`feat(issue-N):\` and \`feat(issue-NN):\` patterns (zero-padded and non-padded)
+- [ ] ac-03: Returns accurate file list when commits exist
+- [ ] ac-04: Returns empty/zero gracefully when no commits exist (not an error)
+- [ ] ac-05: Covered by tests
 
 ## Blocked by
 

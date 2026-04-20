@@ -8,9 +8,76 @@ slice:
 story_count: 5
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:implement` triggers `mantle implement --issue N` which runs the
+    Python orchestration loop'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The loop iterates over stories for the specified issue in order
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Each story gets a fresh Claude Code invocation with compiled context (`claude
+    --print`)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Tests are run after each story implementation (`python -m pytest`)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: On test failure, error output is fed back to Claude Code for one retry attempt
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: If retry also fails, the story is marked "blocked" with failure details in
+    `failure_log`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: The loop stops on a blocked story (does not continue to next story)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: 'Each successful story results in an atomic git commit with message format
+    `feat(issue-{N}): {story title}`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: 'Story status is updated: planned → in-progress → completed (or blocked)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-10
+  text: Stories already marked "completed" are skipped on re-run
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-11
+  text: Project state (state.md) is updated with current_issue and current_story
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-12
+  text: Tests mock `subprocess.run` for Claude Code, pytest, and git; verify loop
+    logic, retry behaviour, state transitions, and skip-completed
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -29,18 +96,18 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:implement` triggers `mantle implement --issue N` which runs the Python orchestration loop
-- [ ] The loop iterates over stories for the specified issue in order
-- [ ] Each story gets a fresh Claude Code invocation with compiled context (`claude --print`)
-- [ ] Tests are run after each story implementation (`python -m pytest`)
-- [ ] On test failure, error output is fed back to Claude Code for one retry attempt
-- [ ] If retry also fails, the story is marked "blocked" with failure details in `failure_log`
-- [ ] The loop stops on a blocked story (does not continue to next story)
-- [ ] Each successful story results in an atomic git commit with message format `feat(issue-{N}): {story title}`
-- [ ] Story status is updated: planned → in-progress → completed (or blocked)
-- [ ] Stories already marked "completed" are skipped on re-run
-- [ ] Project state (state.md) is updated with current_issue and current_story
-- [ ] Tests mock `subprocess.run` for Claude Code, pytest, and git; verify loop logic, retry behaviour, state transitions, and skip-completed
+- [ ] ac-01: `/mantle:implement` triggers `mantle implement --issue N` which runs the Python orchestration loop
+- [ ] ac-02: The loop iterates over stories for the specified issue in order
+- [ ] ac-03: Each story gets a fresh Claude Code invocation with compiled context (`claude --print`)
+- [ ] ac-04: Tests are run after each story implementation (`python -m pytest`)
+- [ ] ac-05: On test failure, error output is fed back to Claude Code for one retry attempt
+- [ ] ac-06: If retry also fails, the story is marked "blocked" with failure details in `failure_log`
+- [ ] ac-07: The loop stops on a blocked story (does not continue to next story)
+- [ ] ac-08: Each successful story results in an atomic git commit with message format `feat(issue-{N}): {story title}`
+- [ ] ac-09: Story status is updated: planned → in-progress → completed (or blocked)
+- [ ] ac-10: Stories already marked "completed" are skipped on re-run
+- [ ] ac-11: Project state (state.md) is updated with current_issue and current_story
+- [ ] ac-12: Tests mock `subprocess.run` for Claude Code, pytest, and git; verify loop logic, retry behaviour, state transitions, and skip-completed
 
 ## Implementation notes
 

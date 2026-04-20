@@ -50,6 +50,37 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Project-level constraint detection parses `requires-python` from
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle update-skills --issue N` unions baseline skills with'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`mantle compile --issue N` subsequently compiles the baseline skills'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: If a baseline skill is named but not present in the vault, emit a
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'Unit tests cover: (a) the `requires-python → baseline` mapping,'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`CLAUDE.md` / `system-design.md` note the baseline-skills concept'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -103,21 +134,12 @@ body matching.
 
 ## Acceptance criteria
 
-- [ ] Project-level constraint detection parses `requires-python` from
-      `pyproject.toml`; Python 3.14+ produces a `python-314` baseline entry
-      when the skill exists in the vault.
-- [ ] `mantle update-skills --issue N` unions baseline skills with
-      auto-detected skills; baseline entries appear in `skills_required`
-      even when the issue body does not mention Python.
-- [ ] `mantle compile --issue N` subsequently compiles the baseline skills
-      into `.claude/skills/` alongside issue-matched ones.
-- [ ] If a baseline skill is named but not present in the vault, emit a
-      one-line warning and continue — do not hard-fail.
-- [ ] Unit tests cover: (a) the `requires-python → baseline` mapping,
-      (b) the union behaviour in `update-skills`, (c) the missing-skill
-      warning path.
-- [ ] `CLAUDE.md` / `system-design.md` note the baseline-skills concept
-      in the skills section.
+- [ ] ac-01: Project-level constraint detection parses `requires-python` from
+- [ ] ac-02: `mantle update-skills --issue N` unions baseline skills with
+- [ ] ac-03: `mantle compile --issue N` subsequently compiles the baseline skills
+- [ ] ac-04: If a baseline skill is named but not present in the vault, emit a
+- [ ] ac-05: Unit tests cover: (a) the `requires-python → baseline` mapping,
+- [ ] ac-06: `CLAUDE.md` / `system-design.md` note the baseline-skills concept
 
 ## Blocked by
 

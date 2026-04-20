@@ -9,9 +9,37 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle list-tags` CLI command exists and prints all known tags'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Tags are collected from both `.mantle/tags.md` AND vault skill frontmatter,
+    surfacing undeclared tags
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Output is grouped by prefix (topic/, domain/, type/, etc.) for easy scanning
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Claude-code layer references the list-tags → list-skills --tag workflow
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Covered by unit tests for core logic and CLI output
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -35,11 +63,11 @@ A `mantle list-tags` CLI command that collects tags from both `.mantle/tags.md` 
 
 ## Acceptance criteria
 
-- [ ] `mantle list-tags` CLI command exists and prints all known tags
-- [ ] Tags are collected from both `.mantle/tags.md` AND vault skill frontmatter, surfacing undeclared tags
-- [ ] Output is grouped by prefix (topic/, domain/, type/, etc.) for easy scanning
-- [ ] Claude-code layer references the list-tags → list-skills --tag workflow
-- [ ] Covered by unit tests for core logic and CLI output
+- [ ] ac-01: `mantle list-tags` CLI command exists and prints all known tags
+- [ ] ac-02: Tags are collected from both `.mantle/tags.md` AND vault skill frontmatter, surfacing undeclared tags
+- [ ] ac-03: Output is grouped by prefix (topic/, domain/, type/, etc.) for easy scanning
+- [ ] ac-04: Claude-code layer references the list-tags → list-skills --tag workflow
+- [ ] ac-05: Covered by unit tests for core logic and CLI output
 
 ## Blocked by
 

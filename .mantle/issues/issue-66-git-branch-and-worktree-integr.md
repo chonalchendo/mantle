@@ -12,6 +12,40 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:build NN` in `git_mode: branch` creates `issue-NN-<slug>` branch
+    from current HEAD and commits to it; master untouched.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`/mantle:build NN` in `git_mode: worktree` creates a sibling worktree, runs
+    the build there, leaves the user''s primary worktree untouched.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`git_mode: none` (default) preserves today''s behavior.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: PR-creation step (or instruction) is provided for `branch`/`worktree` modes.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Tests cover branch creation, branch already-exists collision, and worktree
+    path collision.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -32,12 +66,12 @@ Config in `.mantle/config.md` frontmatter (e.g. `git_mode: branch | worktree | n
 
 ## Acceptance criteria
 
-- [ ] `/mantle:build NN` in `git_mode: branch` creates `issue-NN-<slug>` branch from current HEAD and commits to it; master untouched.
-- [ ] `/mantle:build NN` in `git_mode: worktree` creates a sibling worktree, runs the build there, leaves the user's primary worktree untouched.
-- [ ] `git_mode: none` (default) preserves today's behavior.
-- [ ] PR-creation step (or instruction) is provided for `branch`/`worktree` modes.
-- [ ] Tests cover branch creation, branch already-exists collision, and worktree path collision.
-- [ ] `just check` passes.
+- [ ] ac-01: `/mantle:build NN` in `git_mode: branch` creates `issue-NN-<slug>` branch from current HEAD and commits to it; master untouched.
+- [ ] ac-02: `/mantle:build NN` in `git_mode: worktree` creates a sibling worktree, runs the build there, leaves the user's primary worktree untouched.
+- [ ] ac-03: `git_mode: none` (default) preserves today's behavior.
+- [ ] ac-04: PR-creation step (or instruction) is provided for `branch`/`worktree` modes.
+- [ ] ac-05: Tests cover branch creation, branch already-exists collision, and worktree path collision.
+- [ ] ac-06: `just check` passes.
 
 ## Blocked by
 

@@ -10,6 +10,32 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: Audit report lists every command's token count and ranks by cost.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Concrete cuts applied to at least the top 3 commands.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Total token savings measured and reported.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: No behavioral regression — existing `/mantle:build` runs end-to-end.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -30,11 +56,11 @@ An investigation pass with concrete deliverables:
 
 ## Acceptance criteria
 
-- [ ] Audit report lists every command's token count and ranks by cost.
-- [ ] Concrete cuts applied to at least the top 3 commands.
-- [ ] Total token savings measured and reported.
-- [ ] No behavioral regression — existing `/mantle:build` runs end-to-end.
-- [ ] `just check` passes.
+- [ ] ac-01: Audit report lists every command's token count and ranks by cost.
+- [ ] ac-02: Concrete cuts applied to at least the top 3 commands.
+- [ ] ac-03: Total token savings measured and reported.
+- [ ] ac-04: No behavioral regression — existing `/mantle:build` runs end-to-end.
+- [ ] ac-05: `just check` passes.
 
 ## Blocked by
 

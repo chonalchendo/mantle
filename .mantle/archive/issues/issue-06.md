@@ -1,12 +1,68 @@
 ---
 title: System design + decision logging (/mantle:design-system)
 status: completed
-slice: [core, claude-code, vault, tests]
+slice:
+- core
+- claude-code
+- vault
+- tests
 story_count: 0
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:design-system` is available in Claude Code and starts an interactive
+    system design session'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The session guides the user through architecture, tech choices, API contracts,
+    and data model
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: System design is saved as `.mantle/system-design.md` with YAML frontmatter
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Every decision made during the session is logged to `.mantle/decisions/<date>-<topic>.md`
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Decision log entries include rationale, alternatives considered, confidence
+    level, reversibility, and reversal trigger
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`core/decisions.py` provides a clean interface for creating decision entries'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Project state transitions to "system-design"
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: All notes are stamped with git identity
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-09
+  text: Tests verify system design document structure, decision log entry format,
+    and state transition
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -26,15 +82,15 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:design-system` is available in Claude Code and starts an interactive system design session
-- [ ] The session guides the user through architecture, tech choices, API contracts, and data model
-- [ ] System design is saved as `.mantle/system-design.md` with YAML frontmatter
-- [ ] Every decision made during the session is logged to `.mantle/decisions/<date>-<topic>.md`
-- [ ] Decision log entries include rationale, alternatives considered, confidence level, reversibility, and reversal trigger
-- [ ] `core/decisions.py` provides a clean interface for creating decision entries
-- [ ] Project state transitions to "system-design"
-- [ ] All notes are stamped with git identity
-- [ ] Tests verify system design document structure, decision log entry format, and state transition
+- [ ] ac-01: `/mantle:design-system` is available in Claude Code and starts an interactive system design session
+- [ ] ac-02: The session guides the user through architecture, tech choices, API contracts, and data model
+- [ ] ac-03: System design is saved as `.mantle/system-design.md` with YAML frontmatter
+- [ ] ac-04: Every decision made during the session is logged to `.mantle/decisions/<date>-<topic>.md`
+- [ ] ac-05: Decision log entries include rationale, alternatives considered, confidence level, reversibility, and reversal trigger
+- [ ] ac-06: `core/decisions.py` provides a clean interface for creating decision entries
+- [ ] ac-07: Project state transitions to "system-design"
+- [ ] ac-08: All notes are stamped with git identity
+- [ ] ac-09: Tests verify system design document structure, decision log entry format, and state transition
 
 ## Blocked by
 

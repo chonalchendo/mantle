@@ -42,6 +42,42 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`just check` runs a mechanical import-direction check over `src/mantle/core/`
+    and fails on any import from `mantle.cli` or `mantle.api`.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The failure message names the offending file, the forbidden import, and includes
+    remediation steps formatted for injection into agent context.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A test deliberately introduces a violating import into a sandbox/fixture module
+    and asserts the check catches it (the guard itself is tested).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: The rule is data-driven (e.g. `import-linter` contracts) so additional architectural
+    invariants can be added later without new infrastructure.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: CONTRIBUTING.md (or equivalent) documents the rule, points to the check config,
+    and explains how agents/humans extend it.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes in a clean tree.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -72,12 +108,12 @@ Shaping should pick between `import-linter` (data-driven contracts, extensible l
 
 ## Acceptance criteria
 
-- [ ] `just check` runs a mechanical import-direction check over `src/mantle/core/` and fails on any import from `mantle.cli` or `mantle.api`.
-- [ ] The failure message names the offending file, the forbidden import, and includes remediation steps formatted for injection into agent context.
-- [ ] A test deliberately introduces a violating import into a sandbox/fixture module and asserts the check catches it (the guard itself is tested).
-- [ ] The rule is data-driven (e.g. `import-linter` contracts) so additional architectural invariants can be added later without new infrastructure.
-- [ ] CONTRIBUTING.md (or equivalent) documents the rule, points to the check config, and explains how agents/humans extend it.
-- [ ] `just check` passes in a clean tree.
+- [ ] ac-01: `just check` runs a mechanical import-direction check over `src/mantle/core/` and fails on any import from `mantle.cli` or `mantle.api`.
+- [ ] ac-02: The failure message names the offending file, the forbidden import, and includes remediation steps formatted for injection into agent context.
+- [ ] ac-03: A test deliberately introduces a violating import into a sandbox/fixture module and asserts the check catches it (the guard itself is tested).
+- [ ] ac-04: The rule is data-driven (e.g. `import-linter` contracts) so additional architectural invariants can be added later without new infrastructure.
+- [ ] ac-05: CONTRIBUTING.md (or equivalent) documents the rule, points to the check config, and explains how agents/humans extend it.
+- [ ] ac-06: `just check` passes in a clean tree.
 
 ## Blocked by
 

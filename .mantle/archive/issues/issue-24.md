@@ -9,9 +9,57 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:simplify` is available in Claude Code and starts a simplification
+    session'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: 'Issue-scoped mode: accepts an issue number, collects changed files from issue''s
+    story commits'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: 'Standalone mode: operates on changed files from git status when no issue
+    given'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Spawns per-file simplification agents with file contents, CLAUDE.md context,
+    and LLM bloat pattern checklist
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'LLM bloat checklist covers: unnecessary abstractions, defensive over-engineering,
+    code duplication, unnecessary conditionals, dead code, comment noise, slop scaffolding,
+    over-parameterisation'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Tests run before and after simplification to verify behavioral equivalence
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Changes committed separately from implementation commits
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: Language-agnostic — no hardcoded language-specific rules
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -34,14 +82,14 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:simplify` is available in Claude Code and starts a simplification session
-- [ ] Issue-scoped mode: accepts an issue number, collects changed files from issue's story commits
-- [ ] Standalone mode: operates on changed files from git status when no issue given
-- [ ] Spawns per-file simplification agents with file contents, CLAUDE.md context, and LLM bloat pattern checklist
-- [ ] LLM bloat checklist covers: unnecessary abstractions, defensive over-engineering, code duplication, unnecessary conditionals, dead code, comment noise, slop scaffolding, over-parameterisation
-- [ ] Tests run before and after simplification to verify behavioral equivalence
-- [ ] Changes committed separately from implementation commits
-- [ ] Language-agnostic — no hardcoded language-specific rules
+- [ ] ac-01: `/mantle:simplify` is available in Claude Code and starts a simplification session
+- [ ] ac-02: Issue-scoped mode: accepts an issue number, collects changed files from issue's story commits
+- [ ] ac-03: Standalone mode: operates on changed files from git status when no issue given
+- [ ] ac-04: Spawns per-file simplification agents with file contents, CLAUDE.md context, and LLM bloat pattern checklist
+- [ ] ac-05: LLM bloat checklist covers: unnecessary abstractions, defensive over-engineering, code duplication, unnecessary conditionals, dead code, comment noise, slop scaffolding, over-parameterisation
+- [ ] ac-06: Tests run before and after simplification to verify behavioral equivalence
+- [ ] ac-07: Changes committed separately from implementation commits
+- [ ] ac-08: Language-agnostic — no hardcoded language-specific rules
 
 ## Blocked by
 

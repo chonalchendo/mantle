@@ -17,6 +17,38 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Shaped doc names which of (a) default-filter or (b) `--scope` flag is chosen,
+    with the grep evidence for why.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`collect-issue-diff-stats` and Step 7''s simplifier scope agree on what "changed
+    lines" means, by construction (not by reader memory).'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: For issue 62's commit range, the gate would now correctly skip simplification
+    (lines_changed for `src/` + `tests/` is 17, below 50).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: 'A new test covers the scope alignment: either a unit test on `collect-issue-diff-stats`
+    that asserts it excludes `claude/` paths by default (or via flag), or a template
+    assertion that build.md''s diff-stats call and its scope-filter line refer to
+    the same paths.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -45,11 +77,11 @@ Shaping should pick the concrete path. The choice hinges on whether `collect-iss
 
 ## Acceptance criteria
 
-- [ ] Shaped doc names which of (a) default-filter or (b) `--scope` flag is chosen, with the grep evidence for why.
-- [ ] `collect-issue-diff-stats` and Step 7's simplifier scope agree on what "changed lines" means, by construction (not by reader memory).
-- [ ] For issue 62's commit range, the gate would now correctly skip simplification (lines_changed for `src/` + `tests/` is 17, below 50).
-- [ ] A new test covers the scope alignment: either a unit test on `collect-issue-diff-stats` that asserts it excludes `claude/` paths by default (or via flag), or a template assertion that build.md's diff-stats call and its scope-filter line refer to the same paths.
-- [ ] `just check` passes.
+- [ ] ac-01: Shaped doc names which of (a) default-filter or (b) `--scope` flag is chosen, with the grep evidence for why.
+- [ ] ac-02: `collect-issue-diff-stats` and Step 7's simplifier scope agree on what "changed lines" means, by construction (not by reader memory).
+- [ ] ac-03: For issue 62's commit range, the gate would now correctly skip simplification (lines_changed for `src/` + `tests/` is 17, below 50).
+- [ ] ac-04: A new test covers the scope alignment: either a unit test on `collect-issue-diff-stats` that asserts it excludes `claude/` paths by default (or via flag), or a template assertion that build.md's diff-stats call and its scope-filter line refer to the same paths.
+- [ ] ac-05: `just check` passes.
 
 ## Blocked by
 

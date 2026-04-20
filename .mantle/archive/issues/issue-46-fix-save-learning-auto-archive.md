@@ -37,6 +37,42 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: Calling `mantle save-learning` mid-pipeline does not move any issue, shaped,
+    or story files.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: A full `/mantle:build` run (shape → plan-stories → implement → simplify →
+    verify) completes end-to-end with no manual file restoration required.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Archiving still happens via the documented verified-transition flow — terminal
+    issues still end up in `.mantle/archive/`.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A regression test reproduces the mid-pipeline scenario and asserts no files
+    move when `save-learning` is called before verification.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Existing `save-learning` and archive tests still pass.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`implement.md` Step 9 no longer requires a workaround comment about archival
+    ordering.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -72,12 +108,12 @@ Default preference: (a). Confirm at shape time.
 
 ## Acceptance criteria
 
-- [ ] Calling `mantle save-learning` mid-pipeline does not move any issue, shaped, or story files.
-- [ ] A full `/mantle:build` run (shape → plan-stories → implement → simplify → verify) completes end-to-end with no manual file restoration required.
-- [ ] Archiving still happens via the documented verified-transition flow — terminal issues still end up in `.mantle/archive/`.
-- [ ] A regression test reproduces the mid-pipeline scenario and asserts no files move when `save-learning` is called before verification.
-- [ ] Existing `save-learning` and archive tests still pass.
-- [ ] `implement.md` Step 9 no longer requires a workaround comment about archival ordering.
+- [ ] ac-01: Calling `mantle save-learning` mid-pipeline does not move any issue, shaped, or story files.
+- [ ] ac-02: A full `/mantle:build` run (shape → plan-stories → implement → simplify → verify) completes end-to-end with no manual file restoration required.
+- [ ] ac-03: Archiving still happens via the documented verified-transition flow — terminal issues still end up in `.mantle/archive/`.
+- [ ] ac-04: A regression test reproduces the mid-pipeline scenario and asserts no files move when `save-learning` is called before verification.
+- [ ] ac-05: Existing `save-learning` and archive tests still pass.
+- [ ] ac-06: `implement.md` Step 9 no longer requires a workaround comment about archival ordering.
 
 ## Blocked by
 

@@ -1,12 +1,60 @@
 ---
 title: Design revision (/mantle:revise-product + /mantle:revise-system)
 status: completed
-slice: [core, claude-code, tests]
+slice:
+- core
+- claude-code
+- tests
 story_count: 4
 verification: null
+blocked_by: []
+skills_required: []
 tags:
-  - type/issue
-  - status/completed
+- type/issue
+- status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:revise-product` reads the current `.mantle/product-design.md` and
+    opens an interactive revision session'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`/mantle:revise-system` reads the current `.mantle/system-design.md` and
+    opens an interactive revision session'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Each revision automatically creates a decision log entry in `.mantle/decisions/`
+    capturing what changed and why
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Decision log entries reference the revised document and include before/after
+    summary
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: After each revision, the `## Vision` section is checked and updated if it
+    no longer reflects the change
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Commands error clearly if the design document doesn't exist yet (directs user
+    to create command)
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify revision flow, decision log creation, Vision sync, and error
+    handling for missing documents
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -28,13 +76,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:revise-product` reads the current `.mantle/product-design.md` and opens an interactive revision session
-- [ ] `/mantle:revise-system` reads the current `.mantle/system-design.md` and opens an interactive revision session
-- [ ] Each revision automatically creates a decision log entry in `.mantle/decisions/` capturing what changed and why
-- [ ] Decision log entries reference the revised document and include before/after summary
-- [ ] After each revision, the `## Vision` section is checked and updated if it no longer reflects the change
-- [ ] Commands error clearly if the design document doesn't exist yet (directs user to create command)
-- [ ] Tests verify revision flow, decision log creation, Vision sync, and error handling for missing documents
+- [ ] ac-01: `/mantle:revise-product` reads the current `.mantle/product-design.md` and opens an interactive revision session
+- [ ] ac-02: `/mantle:revise-system` reads the current `.mantle/system-design.md` and opens an interactive revision session
+- [ ] ac-03: Each revision automatically creates a decision log entry in `.mantle/decisions/` capturing what changed and why
+- [ ] ac-04: Decision log entries reference the revised document and include before/after summary
+- [ ] ac-05: After each revision, the `## Vision` section is checked and updated if it no longer reflects the change
+- [ ] ac-06: Commands error clearly if the design document doesn't exist yet (directs user to create command)
+- [ ] ac-07: Tests verify revision flow, decision log creation, Vision sync, and error handling for missing documents
 
 ## Blocked by
 

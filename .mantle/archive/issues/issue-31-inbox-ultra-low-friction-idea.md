@@ -9,9 +9,42 @@ slice:
 story_count: 3
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle save-inbox-item` CLI persists a titled note to `.mantle/inbox/`'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`/mantle:inbox` prompt captures title + optional description and saves via
+    CLI'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`.mantle/inbox/` directory created by `mantle init` (added to SUBDIRS)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: '`/mantle:plan-issues` surfaces inbox items as candidates (like bugs do today)'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Build pipeline reports AI-suggested ideas in the Step 9 summary
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Inbox items have status (open/promoted/dismissed) to track triage decisions
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -63,12 +96,12 @@ During build/implement pipelines, the AI captures ideas silently (no interruptio
 
 ## Acceptance criteria
 
-- [ ] `mantle save-inbox-item` CLI persists a titled note to `.mantle/inbox/`
-- [ ] `/mantle:inbox` prompt captures title + optional description and saves via CLI
-- [ ] `.mantle/inbox/` directory created by `mantle init` (added to SUBDIRS)
-- [ ] `/mantle:plan-issues` surfaces inbox items as candidates (like bugs do today)
-- [ ] Build pipeline reports AI-suggested ideas in the Step 9 summary
-- [ ] Inbox items have status (open/promoted/dismissed) to track triage decisions
+- [ ] ac-01: `mantle save-inbox-item` CLI persists a titled note to `.mantle/inbox/`
+- [ ] ac-02: `/mantle:inbox` prompt captures title + optional description and saves via CLI
+- [ ] ac-03: `.mantle/inbox/` directory created by `mantle init` (added to SUBDIRS)
+- [ ] ac-04: `/mantle:plan-issues` surfaces inbox items as candidates (like bugs do today)
+- [ ] ac-05: Build pipeline reports AI-suggested ideas in the Step 9 summary
+- [ ] ac-06: Inbox items have status (open/promoted/dismissed) to track triage decisions
 
 ## Blocked by
 

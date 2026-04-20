@@ -8,9 +8,47 @@ slice:
 story_count: 2
 verification: null
 blocked_by: []
+skills_required: []
 tags:
 - type/issue
 - status/completed
+acceptance_criteria:
+- id: ac-01
+  text: '`/mantle:review` is available in Claude Code'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Presents acceptance criteria as a checklist with pass/fail status from verification
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Human can mark each criterion as approved or needs-changes
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Human can add comments to individual review items
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Issue status transitions to "approved" when all criteria are marked approved
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Issue status transitions back if any criterion is marked needs-changes
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: Tests verify checklist construction from acceptance criteria + verification
+    results
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -28,13 +66,13 @@ This includes:
 
 ## Acceptance criteria
 
-- [ ] `/mantle:review` is available in Claude Code
-- [ ] Presents acceptance criteria as a checklist with pass/fail status from verification
-- [ ] Human can mark each criterion as approved or needs-changes
-- [ ] Human can add comments to individual review items
-- [ ] Issue status transitions to "approved" when all criteria are marked approved
-- [ ] Issue status transitions back if any criterion is marked needs-changes
-- [ ] Tests verify checklist construction from acceptance criteria + verification results
+- [ ] ac-01: `/mantle:review` is available in Claude Code
+- [ ] ac-02: Presents acceptance criteria as a checklist with pass/fail status from verification
+- [ ] ac-03: Human can mark each criterion as approved or needs-changes
+- [ ] ac-04: Human can add comments to individual review items
+- [ ] ac-05: Issue status transitions to "approved" when all criteria are marked approved
+- [ ] ac-06: Issue status transitions back if any criterion is marked needs-changes
+- [ ] ac-07: Tests verify checklist construction from acceptance criteria + verification results
 
 ## Blocked by
 

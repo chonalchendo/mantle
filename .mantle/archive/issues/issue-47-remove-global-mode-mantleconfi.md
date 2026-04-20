@@ -18,6 +18,57 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: After running the migrate-to-global command, the project directory contains
+    no `.mantle/` folder whatsoever.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`mantle where` continues to print the correct global path for a migrated
+    project.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`resolve_mantle_dir` returns the global path iff `~/.mantle/projects/<identity>/`
+    exists, otherwise `project_dir/.mantle/`. No path depends on reading `.mantle/config.md`
+    for `storage_mode`.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A `git worktree add` from a migrated repo resolves to the same `~/.mantle/projects/<identity>/`
+    as its parent with no in-repo setup and no additional commands run inside the
+    worktree.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`migrate_to_local` still works end-to-end: creates a fresh local `.mantle/`,
+    copies global contents, removes the global directory.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Local-mode projects that never migrated are unaffected.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`tests/core/test_project.py`, `tests/core/test_migration.py`, `tests/cli/test_storage.py`,
+    and `tests/test_global_mode_workflow.py` are updated to the new detection semantics
+    and pass.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: 'A new test covers the worktree scenario: two directories with the same `project_identity()`
+    both resolve to the same global dir.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -59,14 +110,14 @@ Proposed changes (production delta ~15 lines):
 
 ## Acceptance criteria
 
-- [ ] After running the migrate-to-global command, the project directory contains no `.mantle/` folder whatsoever.
-- [ ] `mantle where` continues to print the correct global path for a migrated project.
-- [ ] `resolve_mantle_dir` returns the global path iff `~/.mantle/projects/<identity>/` exists, otherwise `project_dir/.mantle/`. No path depends on reading `.mantle/config.md` for `storage_mode`.
-- [ ] A `git worktree add` from a migrated repo resolves to the same `~/.mantle/projects/<identity>/` as its parent with no in-repo setup and no additional commands run inside the worktree.
-- [ ] `migrate_to_local` still works end-to-end: creates a fresh local `.mantle/`, copies global contents, removes the global directory.
-- [ ] Local-mode projects that never migrated are unaffected.
-- [ ] `tests/core/test_project.py`, `tests/core/test_migration.py`, `tests/cli/test_storage.py`, and `tests/test_global_mode_workflow.py` are updated to the new detection semantics and pass.
-- [ ] A new test covers the worktree scenario: two directories with the same `project_identity()` both resolve to the same global dir.
+- [ ] ac-01: After running the migrate-to-global command, the project directory contains no `.mantle/` folder whatsoever.
+- [ ] ac-02: `mantle where` continues to print the correct global path for a migrated project.
+- [ ] ac-03: `resolve_mantle_dir` returns the global path iff `~/.mantle/projects/<identity>/` exists, otherwise `project_dir/.mantle/`. No path depends on reading `.mantle/config.md` for `storage_mode`.
+- [ ] ac-04: A `git worktree add` from a migrated repo resolves to the same `~/.mantle/projects/<identity>/` as its parent with no in-repo setup and no additional commands run inside the worktree.
+- [ ] ac-05: `migrate_to_local` still works end-to-end: creates a fresh local `.mantle/`, copies global contents, removes the global directory.
+- [ ] ac-06: Local-mode projects that never migrated are unaffected.
+- [ ] ac-07: `tests/core/test_project.py`, `tests/core/test_migration.py`, `tests/cli/test_storage.py`, and `tests/test_global_mode_workflow.py` are updated to the new detection semantics and pass.
+- [ ] ac-08: A new test covers the worktree scenario: two directories with the same `project_identity()` both resolve to the same global dir.
 
 ## Blocked by
 

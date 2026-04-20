@@ -31,6 +31,49 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`src/mantle/cli/groups.py` exists and exports a `GROUPS` dict of Cyclopts
+    `Group` objects with explicit `sort_key` ordering.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Every existing top-level command in `src/mantle/cli/` is registered with a
+    group via `group=GROUPS[...]`.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: '`mantle --help` renders 8 distinct labelled panels in the declared order
+    (Setup & plumbing → Knowledge).'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: No command appears in more than one panel and no command is missing from the
+    panels.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A regression test (`tests/cli/test_help_groups.py` or similar) parses `mantle
+    --help` output and asserts each command is in its expected group.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Every existing `mantle <command>` invocation — including every call from the
+    Claude Code prompts under `src/mantle/commands/` — continues to work unchanged.
+    No prompt files are edited.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`uv run pytest` and `just check` both pass.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -96,13 +139,13 @@ Refine the taxonomy at shape time if anything feels off — for example, `save-a
 
 ## Acceptance criteria
 
-- [ ] `src/mantle/cli/groups.py` exists and exports a `GROUPS` dict of Cyclopts `Group` objects with explicit `sort_key` ordering.
-- [ ] Every existing top-level command in `src/mantle/cli/` is registered with a group via `group=GROUPS[...]`.
-- [ ] `mantle --help` renders 8 distinct labelled panels in the declared order (Setup & plumbing → Knowledge).
-- [ ] No command appears in more than one panel and no command is missing from the panels.
-- [ ] A regression test (`tests/cli/test_help_groups.py` or similar) parses `mantle --help` output and asserts each command is in its expected group.
-- [ ] Every existing `mantle <command>` invocation — including every call from the Claude Code prompts under `src/mantle/commands/` — continues to work unchanged. No prompt files are edited.
-- [ ] `uv run pytest` and `just check` both pass.
+- [ ] ac-01: `src/mantle/cli/groups.py` exists and exports a `GROUPS` dict of Cyclopts `Group` objects with explicit `sort_key` ordering.
+- [ ] ac-02: Every existing top-level command in `src/mantle/cli/` is registered with a group via `group=GROUPS[...]`.
+- [ ] ac-03: `mantle --help` renders 8 distinct labelled panels in the declared order (Setup & plumbing → Knowledge).
+- [ ] ac-04: No command appears in more than one panel and no command is missing from the panels.
+- [ ] ac-05: A regression test (`tests/cli/test_help_groups.py` or similar) parses `mantle --help` output and asserts each command is in its expected group.
+- [ ] ac-06: Every existing `mantle <command>` invocation — including every call from the Claude Code prompts under `src/mantle/commands/` — continues to work unchanged. No prompt files are edited.
+- [ ] ac-07: `uv run pytest` and `just check` both pass.
 
 ## Brainstorm reference
 
