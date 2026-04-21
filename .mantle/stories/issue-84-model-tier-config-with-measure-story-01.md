@@ -1,11 +1,11 @@
 ---
 issue: 84
 title: Cost-policy template + mantle init drops it in
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
