@@ -5,47 +5,13 @@ slice:
 - core
 - cli
 - claude-code
-story_count: 0
+story_count: 5
 verification: null
 blocked_by: []
 skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria:
-- id: ac-01
-  text: '`.mantle/cost-policy.md` exists and documents three named presets (`budget`,
-    `balanced`, `quality`) with per-stage model defaults and a short rationale.'
-  passes: false
-  waived: false
-  waiver_reason: null
-- id: ac-02
-  text: '`.mantle/config.md` schema includes a validated `models:` block that selects
-    an active preset (with optional per-stage overrides); `core/config.py` round-trips
-    it.'
-  passes: false
-  waived: false
-  waiver_reason: null
-- id: ac-03
-  text: '`build.md` reads the active tier from `config.md` / `cost-policy.md` and passes
-    the per-stage model to each spawned agent (shape, plan-stories, implement, simplify,
-    verify).'
-  passes: false
-  waived: false
-  waiver_reason: null
-- id: ac-04
-  text: A before/after measurement of one `/mantle:build` run on the same issue is
-    saved to `.mantle/telemetry/baseline-<date>.md`, reporting wall-clock seconds and
-    dollar cost (not just token counts). The telemetry folder is introduced by this
-    issue.
-  passes: false
-  waived: false
-  waiver_reason: null
-- id: ac-05
-  text: '`just check` passes.'
-  passes: false
-  waived: false
-  waiver_reason: null
 ---
 
 ## Parent PRD
