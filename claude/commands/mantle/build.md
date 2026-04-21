@@ -65,7 +65,7 @@ history just adds noise and slows things down.
 
 First, resolve the project's .mantle/ directory:
 
-    MANTLE_DIR=$(mantle where)
+    MANTLE_DIR="${MANTLE_DIR:-$(mantle where)}"
 
 All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
 `$MANTLE_DIR/...` in place of `.mantle/...`.

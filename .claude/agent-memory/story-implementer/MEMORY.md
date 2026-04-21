@@ -10,3 +10,4 @@
 - [init_project signature](feedback_init_project_signature.md) — project.init_project takes (tmp_path, project_name); story skeletons sometimes omit the name arg
 - [import-linter Python API](feedback_importlinter_api.md) — use importlinter.cli.lint_imports (returns int, bootstraps config); use_cases.lint_imports returns bool and needs manual configure()
 - [cyclopts app() sys.exit(0) on success](feedback_cyclopts_app_sysexit.md) — main_module.app() raises SystemExit(0) after any None-returning command; wrap with pytest.raises(SystemExit) and assert code==0
+- [Prompt sweep substring guard](feedback_prompt_sweep_exact_strings.md) — tests/prompts/test_prompt_sweep.py asserts literal "MANTLE_DIR=$(mantle where)"; new prelude variants must be added to accepted tuple

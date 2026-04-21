@@ -75,10 +75,20 @@ def _assert_no_hardcoded_reads(files: tuple[str, ...]) -> None:
 
 
 def _assert_includes_resolve_prelude(files: tuple[str, ...]) -> None:
+    # Accept either the bare form `MANTLE_DIR=$(mantle where)` or the
+    # session-hook-aware fallback form
+    # `MANTLE_DIR="${MANTLE_DIR:-$(mantle where)}"` used by build.md
+    # (see issue 82 — session-start hook exports MANTLE_DIR).
+    accepted = (
+        "MANTLE_DIR=$(mantle where)",
+        'MANTLE_DIR="${MANTLE_DIR:-$(mantle where)}"',
+    )
     missing = [
         name
         for name in files
-        if "MANTLE_DIR=$(mantle where)" not in (PROMPTS_DIR / name).read_text()
+        if not any(
+            form in (PROMPTS_DIR / name).read_text() for form in accepted
+        )
     ]
     assert not missing, "Missing resolve prelude in: " + ", ".join(missing)
 
