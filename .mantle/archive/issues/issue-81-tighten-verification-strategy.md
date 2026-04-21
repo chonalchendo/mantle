@@ -1,6 +1,6 @@
 ---
 title: Tighten verification-strategy handoff to prevent agents skipping config.md
-status: verified
+status: approved
 slice:
 - claude-code
 story_count: 1
@@ -18,31 +18,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
-acceptance_criteria:
-- id: ac-01
-  text: The handoff prose in `verify.md` (and any other affected command) states the
-    precedence explicitly — config.md first, introspect-project only as a fallback.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-02
-  text: The prose uses directive language ("check", "only if absent") rather than
-    loose conditionals.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-03
-  text: A smoke run of /mantle:verify against a project with a configured verification_strategy
-    does not invoke `mantle introspect-project`.
-  passes: true
-  waived: false
-  waiver_reason: null
-- id: ac-04
-  text: '`just check` passes.'
-  passes: true
-  waived: false
-  waiver_reason: null
+- status/approved
 ---
 
 ## Parent PRD

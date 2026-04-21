@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "1ab0c7c7d62ca26bfeb31a88804380a664efa212f3737a0baa20a488445a187f",
+    "/Users/conal/Development/mantle/.mantle/state.md": "bf7943b4be17f34d155031f81537fe458166e08d7aaefd93698d3d7d80e1a818",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-20-2057.md": "a43a42ae477d7c6a29e5231cc088e61f371b65b0ef311b158e5d9111664cbfe9",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-21-1548.md": "47719599112b4298b80b566af22f84c8890dd84ad50ec0316f33aaca09bd93b6",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
