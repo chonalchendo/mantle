@@ -36,7 +36,7 @@ TaskCreate to create a task for each step:
 
 1. "Step 1 — Prerequisites"
 2. "Step 2 — Select issue"
-3. "Step 3 — Load skills"
+3. "Step 3 — Load skills and model tier"
 4. "Step 4 — Shape"
 5. "Step 5 — Plan stories"
 6. "Step 6 — Implement"
@@ -120,7 +120,7 @@ Display:
 > **Status**: {status}
 > **Stories**: {count} planned
 
-## Step 3 — Load skills
+## Step 3 — Load skills and model tier
 
 Why: vault skills give agents domain-specific knowledge (patterns, conventions,
 anti-patterns) that improves both shaping decisions and code quality. Loading
@@ -129,7 +129,15 @@ skills first ensures the shaping agent can make informed approach choices.
 1. Run `mantle list-skills` to see what skills exist in the vault.
 2. Run `mantle update-skills --issue {NN}` to auto-detect which vault skills
    match the issue, updating `skills_required` in `state.md`.
-3. Read the issue to identify technologies and patterns involved. For any
+3. Run `mantle model-tier` and record the resulting JSON in this
+   conversation as `STAGE_MODELS`. Every Agent spawn later in this
+   pipeline passes the relevant stage's model via the Agent tool's
+   `model:` parameter — e.g. Step 7 (Simplify) uses
+   `STAGE_MODELS.simplify`, Step 8 (Verify) uses `STAGE_MODELS.verify`.
+   If a stage's resolved value is unknown to the Agent tool, drop the
+   `model:` parameter for that spawn (Claude Code will default to the
+   session model) and surface a warning in the Step 9 summary.
+4. Read the issue to identify technologies and patterns involved. For any
    technology referenced that doesn't have a matching vault skill, create
    it now by spawning an Agent (`subagent_type: "general-purpose"`) with this prompt:
 
@@ -143,16 +151,21 @@ skills first ensures the shaping agent can make informed approach choices.
    >
    > Skill to create: {technology/pattern name}
 
+   Use model STAGE_MODELS.plan_stories for this agent spawn.
+
    After each skill is created, run `mantle update-skills --issue {NN}` again
    to pick up the new skill.
 
-4. Run `mantle compile --issue {NN}` to compile only issue-relevant vault
+5. Run `mantle compile --issue {NN}` to compile only issue-relevant vault
    skills into `.claude/skills/` so they are available to shaping, planning,
    and implementation agents.
 
 Report:
 > **Skills loaded:** {list of matched skills}
 > **Skills created:** {list of new skills, or "none"}
+> **Model tier:** {preset from config.md or "balanced (fallback)"} —
+> shape={shape}, plan_stories={plan_stories}, implement={implement},
+> simplify={simplify}, verify={verify}, review={review}, retrospective={retrospective}
 
 ## Step 4 — Shape (inline)
 
@@ -162,7 +175,8 @@ domain knowledge that informs approach selection.
 
 **Performance note:** This step runs inline (no agent spawn) to avoid
 unnecessary startup overhead. The build orchestrator already has all the
-context needed.
+context needed. (Model tier only applies when an agent is spawned —
+`STAGE_MODELS.shape` is reserved for future out-of-process shape agents.)
 
 Check if `$MANTLE_DIR/shaped/issue-{NN}-shaped.md` exists.
 
@@ -208,7 +222,9 @@ Why: stories break the issue into session-sized units so each implementation
 agent has focused, completable work with clear test criteria.
 
 **Performance note:** This step runs inline (no agent spawn) to avoid
-unnecessary startup overhead.
+unnecessary startup overhead. (Model tier only applies when an agent is
+spawned — `STAGE_MODELS.plan_stories` is reserved for future
+out-of-process plan-stories agents.)
 
 Check if stories exist in `$MANTLE_DIR/stories/issue-{NN}-story-*.md`.
 
@@ -281,6 +297,9 @@ Read `claude/commands/mantle/implement.md` and follow Steps 3-5 with these
 build-mode overrides:
 - Skip user confirmation on issue selection
 - Don't recommend next steps — the pipeline continues automatically
+- Pass `STAGE_MODELS.implement` to every per-story Agent spawn inside
+  implement.md's Step 4 loop (the `smart` subagent spawns). Other Agent
+  spawns inside implement.md (e.g. retry agents) use the same value.
 
 Report progress after each story:
 > **Story {S}:** {title} — {completed/blocked}
@@ -329,6 +348,8 @@ never simplifier territory.)
 Record the file list. Then spawn an Agent (`subagent_type: "refactorer"`)
 with this prompt:
 
+Use model `STAGE_MODELS.simplify` for this agent spawn.
+
 > Before starting, review your project memory for relevant context.
 >
 > Read `claude/commands/mantle/simplify.md` for detailed instructions.
@@ -375,6 +396,8 @@ acceptance criterion — catching gaps that tests alone don't cover.
 
 Spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
 
+Use model `STAGE_MODELS.verify` for this agent spawn.
+
 > Before starting, review your project memory for relevant context.
 >
 > Read `claude/commands/mantle/verify.md` for detailed instructions.
@@ -409,6 +432,7 @@ Report the full pipeline run:
 > | Stage | Result |
 > |-------|--------|
 > | Shape | {auto-shaped / pre-existing} |
+> | Model tier | {preset} |
 > | Skills | {count loaded, count gaps} |
 > | Stories | {count} planned |
 > | Implementation | {completed/blocked} stories |
