@@ -51,8 +51,18 @@ product-design.md, system-design.md
 An investigation pass with concrete deliverables:
 - Token-count each `claude/commands/mantle/*.md` file.
 - Identify the top 3-5 commands by token cost.
-- For each, propose specific cuts (redundant prose, duplicate step instructions, pruneable examples) with measured savings.
+- For each, propose specific cuts using two primary techniques (see "Scout inputs" below) alongside the usual redundant-prose / duplicate-step / pruneable-example sweep.
 - Land cuts that preserve behavior; defer or split out anything ambiguous.
+
+## Scout inputs
+
+The caveman scout (`.mantle/scouts/2026-04-21-caveman.md`, findings 7 and 8) surfaced two concrete techniques that should anchor the audit, rather than the open-ended "make it shorter":
+
+1. **Explicit Output Format templates** — for any command whose output is machine-consumed or user-scanned (`/mantle:verify`, `/mantle:review`, `/mantle:status`, etc.), add an Output Format section with a one-line-per-item template and a short anti-pattern list ("no 'I noticed'", "no restating"). This cuts output drift and lets the prompt itself be shorter because the model is anchored to a template rather than prose style guidance.
+
+2. **Rewrite prompts in the style they prescribe** — caveman's own SKILL.md and command files are written in the terse imperative-fragment style they ask the model to produce. Mantle commands currently model verbosity by example. During the audit pass, rewrite iron-law sections and numbered steps in imperative fragments, preserving Mantle's explicit-step structure but tightening prose inside each step. Target 20-30% per-command reduction.
+
+These two techniques are the highest-ROI ways to land ac-02 ("concrete cuts applied"); generic prose-trimming is second-order.
 
 ## Acceptance criteria
 

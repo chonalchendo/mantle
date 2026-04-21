@@ -1,11 +1,11 @@
 ---
 issue: 84
 title: StageModels and load_model_tier in core/project.py
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

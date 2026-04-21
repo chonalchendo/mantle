@@ -66,6 +66,10 @@ This is an investigation-shaped issue. It is only "critical" in the sense that c
 
 Note: issue-74 audits `/mantle:*` command prose (the slash commands in `claude/commands/mantle/`). This issue audits project context files (CLAUDE.md and `.mantle/` artifacts) — distinct surface area. Measurement primitives should be general enough that both audits share them.
 
+### Scout inputs
+
+The caveman scout (`.mantle/scouts/2026-04-21-caveman.md`, finding 9) provides a north star for what "progressive disclosure, done right" looks like in Mantle: caveman defines behaviour once (as rows in a single intensity-level table) and filters at runtime to inject only the active preset's row. Applied to Mantle's context surface, the target is similar — one source of truth for each concept, loaded per-stage rather than concatenated into a single session-start dump. The action list produced by this audit should favour "move to pointer + conditional load" over "trim in place" whenever the content is only relevant in specific phases.
+
 ## What to build
 
 A reusable measurement script plus a one-shot audit report. The script counts tokens per context file, detects cross-file duplication (shingles or section-title overlap), flags orphaned files nothing references via wikilinks or save-X commands, and measures pointer-vs-duplication ratio. The audit report runs the script across CLAUDE.md, product-design.md, system-design.md, state.md, and the `.mantle/` artifact folders. Output is a ranked trim/split/link action list with estimated token savings.
