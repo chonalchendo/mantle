@@ -318,6 +318,83 @@ def update_config(project_root: Path, **kwargs: Any) -> None:
     _write_frontmatter_and_body(config_path, frontmatter, body)
 
 
+_STAGE_NAMES: tuple[str, ...] = (
+    "shape",
+    "plan_stories",
+    "implement",
+    "simplify",
+    "verify",
+    "review",
+    "retrospective",
+)
+
+
+class StageModels(pydantic.BaseModel, frozen=True):
+    """Per-stage model tier for /mantle:build.
+
+    One field per build stage; each field holds the model name
+    (e.g. ``"opus"``, ``"sonnet"``, ``"haiku"``) to use for that
+    stage. Frozen — build consumers should treat the value as
+    immutable.
+    """
+
+    shape: str
+    plan_stories: str
+    implement: str
+    simplify: str
+    verify: str
+    review: str
+    retrospective: str
+
+
+_FALLBACK_STAGE_MODELS: StageModels = StageModels(
+    shape="opus",
+    plan_stories="sonnet",
+    implement="sonnet",
+    simplify="sonnet",
+    verify="sonnet",
+    review="haiku",
+    retrospective="haiku",
+)
+
+
+def load_model_tier(project_root: Path) -> StageModels:
+    """Resolve the per-stage model tier for this project.
+
+    Precedence: config.md ``models`` block → cost-policy.md preset
+    → hardcoded balanced fallback.  When ``config.md`` is missing the
+    hardcoded fallback is returned directly; malformed config or
+    cost-policy files propagate their errors.
+
+    Args:
+        project_root: Directory containing .mantle/.
+
+    Returns:
+        Frozen ``StageModels`` with one model name per build stage.
+
+    Raises:
+        pydantic.ValidationError: If the ``models`` block in config.md
+            contains unknown stage names in ``overrides``.
+        KeyError: If the selected preset is not defined in
+            cost-policy.md.
+    """
+    try:
+        config = read_config(project_root)
+    except FileNotFoundError:
+        return _FALLBACK_STAGE_MODELS
+
+    models_cfg = _ModelsConfig.model_validate(config.get("models") or {})
+    presets = _load_presets(project_root)
+    if models_cfg.preset not in presets:
+        msg = (
+            f"Unknown preset {models_cfg.preset!r}. "
+            f"Defined presets: {sorted(presets)}."
+        )
+        raise KeyError(msg)
+    merged = {**presets[models_cfg.preset], **models_cfg.overrides}
+    return StageModels(**merged)
+
+
 def init_vault(vault_path: Path, project_root: Path) -> bool:
     """Create or link a personal vault, then record it in this project's config.
 
@@ -410,6 +487,49 @@ def _slugify_name(source: str) -> str:
 
     slug = _SLUG_RE.sub("-", basename.lower()).strip("-")
     return slug or "project"
+
+
+class _ModelsConfig(pydantic.BaseModel):
+    """Schema for the ``models`` block in config.md (internal)."""
+
+    preset: str = "balanced"
+    overrides: dict[str, str] = pydantic.Field(default_factory=dict)
+
+    @pydantic.field_validator("overrides")
+    @classmethod
+    def _validate_override_keys(cls, v: dict[str, str]) -> dict[str, str]:
+        unknown = set(v) - set(_STAGE_NAMES)
+        if unknown:
+            msg = (
+                f"Unknown stage(s) in models.overrides: "
+                f"{sorted(unknown)}. "
+                f"Valid stages: {list(_STAGE_NAMES)}."
+            )
+            raise ValueError(msg)
+        return v
+
+
+def _load_presets(project_root: Path) -> dict[str, dict[str, str]]:
+    """Read presets from .mantle/cost-policy.md.
+
+    Args:
+        project_root: Directory containing .mantle/.
+
+    Returns:
+        Mapping from preset name to ``{stage: model}`` dict. Returns
+        ``{"balanced": _FALLBACK_STAGE_MODELS.model_dump()}`` when
+        cost-policy.md is missing.
+
+    Raises:
+        yaml.YAMLError: If the frontmatter is malformed.
+        KeyError: If the frontmatter has no ``presets`` field.
+    """
+    cost_policy_path = resolve_mantle_dir(project_root) / COST_POLICY_FILENAME
+    try:
+        frontmatter, _ = _read_frontmatter_and_body(cost_policy_path)
+    except FileNotFoundError:
+        return {"balanced": _FALLBACK_STAGE_MODELS.model_dump()}
+    return frontmatter["presets"]
 
 
 def _read_frontmatter_and_body(path: Path) -> tuple[dict[str, Any], str]:

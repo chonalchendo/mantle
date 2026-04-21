@@ -13,15 +13,20 @@ import yaml
 if TYPE_CHECKING:
     from pathlib import Path
 
+import pydantic
+
 from mantle.core.project import (
+    _FALLBACK_STAGE_MODELS,
     CONFIG_BODY,
     COST_POLICY_FILENAME,
     GITIGNORE_CONTENT,
     MANTLE_DIR,
     SUBDIRS,
     TAGS_BODY,
+    StageModels,
     init_project,
     init_vault,
+    load_model_tier,
     project_identity,
     read_config,
     resolve_mantle_dir,
@@ -552,3 +557,107 @@ class TestResolveMantleDirLocalWorktree:
         result = resolve_mantle_dir(outsider)
 
         assert result == outsider / MANTLE_DIR
+
+
+# ── load_model_tier ──────────────────────────────────────────────
+
+
+class TestLoadModelTier:
+    def test_returns_balanced_fallback_when_no_config(
+        self, tmp_path: Path
+    ) -> None:
+        result = load_model_tier(tmp_path)
+
+        assert result == _FALLBACK_STAGE_MODELS
+
+    def test_returns_balanced_fallback_when_no_cost_policy(
+        self, tmp_path: Path
+    ) -> None:
+        init_project(tmp_path, "test-project")
+        (tmp_path / MANTLE_DIR / COST_POLICY_FILENAME).unlink()
+
+        result = load_model_tier(tmp_path)
+
+        assert result == _FALLBACK_STAGE_MODELS
+
+    def test_resolves_preset_from_cost_policy(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+
+        result = load_model_tier(tmp_path)
+
+        assert result.shape == "opus"
+        assert result.plan_stories == "sonnet"
+        assert result.implement == "sonnet"
+        assert result.simplify == "sonnet"
+        assert result.verify == "sonnet"
+        assert result.review == "haiku"
+        assert result.retrospective == "haiku"
+
+    def test_resolves_named_preset(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+        update_config(tmp_path, models={"preset": "budget"})
+
+        result = load_model_tier(tmp_path)
+
+        assert result.shape == "sonnet"
+        assert result.implement == "haiku"
+
+    def test_overrides_beat_preset(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+        update_config(
+            tmp_path,
+            models={"preset": "budget", "overrides": {"implement": "opus"}},
+        )
+
+        result = load_model_tier(tmp_path)
+
+        assert result.implement == "opus"
+        assert result.simplify == "haiku"
+
+    def test_unknown_override_key_raises(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+        update_config(
+            tmp_path,
+            models={
+                "preset": "balanced",
+                "overrides": {"typoed_stage": "opus"},
+            },
+        )
+
+        with pytest.raises(pydantic.ValidationError, match="typoed_stage"):
+            load_model_tier(tmp_path)
+
+    def test_unknown_preset_raises_key_error(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+        update_config(tmp_path, models={"preset": "rocket_fuel"})
+
+        with pytest.raises(KeyError, match="rocket_fuel"):
+            load_model_tier(tmp_path)
+
+    def test_stage_models_is_frozen(self) -> None:
+        obj = StageModels(
+            shape="opus",
+            plan_stories="sonnet",
+            implement="sonnet",
+            simplify="sonnet",
+            verify="sonnet",
+            review="haiku",
+            retrospective="haiku",
+        )
+
+        with pytest.raises(pydantic.ValidationError):
+            obj.shape = "haiku"
+
+    def test_fallback_preset_matches_cost_policy_balanced(
+        self, tmp_path: Path
+    ) -> None:
+        init_project(tmp_path, "test-project")
+        cost_policy = (tmp_path / MANTLE_DIR / COST_POLICY_FILENAME).read_text(
+            encoding="utf-8"
+        )
+        end = cost_policy.find("\n---", 3)
+        data = yaml.safe_load(cost_policy[4:end])
+
+        assert (
+            _FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
+        )
