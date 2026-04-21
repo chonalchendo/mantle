@@ -2,6 +2,21 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.21.0] — 2026-04-21
+
+### Added
+- **Model-tier config for `/mantle:build`** (#84) — new `.mantle/cost-policy.md` documents three named presets (`budget`, `balanced`, `quality`) with per-stage model defaults and one-line rationale. `.mantle/config.md` gains a validated `models:` block (active preset + per-stage `overrides`); precedence is overrides → preset → hardcoded `balanced` fallback. `core/project.py` exposes `StageModels` and `load_model_tier`; new `mantle model-tier` CLI wrapper emits the resolved stage→model JSON consumed by `build.md` Step 3. Every agent spawn in Steps 6–8 (implement, simplify, verify) now passes the per-stage model via the Agent `model:` parameter. Mechanical stages default to Sonnet/Haiku under `balanced`, cutting per-build cost without touching reasoning-heavy stages.
+- **Structured acceptance criteria** (#77) — new CLI verbs `mantle flip-ac`, `mantle list-acs`, `mantle migrate-acs` promote ACs from free-text checklist items to first-class, addressable identifiers (`ac-01`, `ac-02`, …). `verify.md` and `review.md` prompts wire to `flip-ac` / `list-acs` so per-criterion pass/fail records feed `save-review-result` and `transition-issue-verified` without prose parsing. `migrate-acs` backfills legacy issues idempotently.
+- **`.mantle/telemetry/` folder + baseline report skeleton** (#84) — introduced for build-run measurements. Ships with a method-doc + pricing-table skeleton (`baseline-<date>.md`) to be filled in by paired `/mantle:build` runs from a clean session; JSON companion file tracks the same data in machine-readable form for diff review.
+- **`MANTLE_DIR` exported via `SessionStart` hook** (#82) — new Claude Code session hook resolves `mantle where` once and exports the result, so every prompt can substitute `$MANTLE_DIR/...` without re-resolving. `build.md` and other Claude Code prompts switched to the env-var form; a shell fallback handles sessions where the hook hasn't fired yet.
+- **Configurable source/test paths for `collect-issue-diff-stats`** (#83) — `config.md` gains optional `diff_paths.source` / `diff_paths.tests` lists; the default is still `src/` + `tests/` so existing projects see no behaviour change. New `collect_issue_diff_stats_categorised` reports per-path-bucket stats; the legacy `collect_issue_diff_stats` wrapper keeps the `build.md` Step 7 grep contract intact. Fallback when `config.md` is missing is swallowed at the loader boundary.
+
+### Changed
+- **Verification-strategy precedence is config-first** (#81). `build.md` Step 8 and `verify.md` Step 3 now read `.mantle/config.md`'s `verification_strategy` field before falling back to `mantle introspect-project`. Previously the strategy could be silently regenerated on every run, overwriting the user's curated value.
+
+### Fixed
+- **cyclopts `--pass` / `--fail` binding on `flip-ac`** (#80) — flags now bind via `negative=` so `--pass` cleanly sets the AC state to pass and `--fail` to fail, rather than both aliasing the same parameter. Regression covered by tests that pin the cyclopts binding behaviour directly.
+
 ## [0.20.0] — 2026-04-18
 
 ### Added
@@ -252,6 +267,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.21.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.21.0
 [0.20.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.20.0
 [0.19.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.19.0
 [0.18.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.18.0

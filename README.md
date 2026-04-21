@@ -198,7 +198,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.20.0** — Generic lifecycle hook seam (#56). Mantle now invokes user-supplied `<mantle-dir>/hooks/on-<event>.sh` scripts on four issue lifecycle events (shaped, implement-start, verify-done, review-approved) with positional args and `hooks_env:` passthrough from `config.md`. Ships three reference scripts (`linear`, `jira`, `slack`) printable via `mantle show-hook-example NAME`. Fail-open semantics — hook failures log a warning and never block the workflow.
+**v0.21.0** — Model-tier config for the build pipeline (#84) plus structured acceptance criteria (#77). `/mantle:build` now reads per-stage model defaults (`budget` / `balanced` / `quality` presets with per-stage overrides) from `.mantle/cost-policy.md` via `mantle model-tier`, so mechanical stages (implement, simplify, verify, review, retrospective) can route to cheaper models by default. Structured ACs get first-class CLI support: `mantle flip-ac`, `list-acs`, and `migrate-acs`. Verification-strategy precedence is now config-first (#81), `MANTLE_DIR` is exported via a `SessionStart` hook (#82), and `collect-issue-diff-stats` accepts configurable source/test paths (#83). Includes a cyclopts `--pass`/`--fail` binding fix (#80) and a new `.mantle/telemetry/` folder for build-run measurements.
 
 ## License
 
