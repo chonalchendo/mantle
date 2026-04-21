@@ -1,11 +1,11 @@
 ---
 issue: 84
 title: mantle model-tier CLI subcommand
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

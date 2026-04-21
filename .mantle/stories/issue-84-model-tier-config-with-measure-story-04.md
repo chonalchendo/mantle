@@ -1,11 +1,11 @@
 ---
 issue: 84
 title: build.md reads tier and passes per-stage model to every agent spawn
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
