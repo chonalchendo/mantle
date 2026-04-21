@@ -1,7 +1,7 @@
 ---
 title: Export MANTLE_DIR via Claude Code SessionStart hook instead of per-command
   'mantle where'
-status: implementing
+status: approved
 slice:
 - cli
 - claude-code
@@ -25,7 +25,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/approved
 ---
 
 ## Parent PRD

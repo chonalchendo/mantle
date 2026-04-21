@@ -1,11 +1,11 @@
 ---
 issue: 82
 title: Export MANTLE_DIR via CLAUDE_ENV_FILE in session-start hook + build.md fallback
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
