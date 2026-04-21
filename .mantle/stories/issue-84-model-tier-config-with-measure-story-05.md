@@ -1,11 +1,11 @@
 ---
 issue: 84
 title: Introduce .mantle/telemetry/ and hand-run baseline measurement
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
