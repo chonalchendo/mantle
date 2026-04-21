@@ -1,37 +1,46 @@
 ---
 title: Tighten verification-strategy handoff to prevent agents skipping config.md
-status: planned
+status: verified
 slice:
 - claude-code
-story_count: 0
+story_count: 1
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- CLI design best practices
+- Design Review
+- Production Project Readiness
+- Python package structure
+- cyclopts
+- edgartools
+- pydantic-project-conventions
+- python-314
+- streamlit-aggrid
 tags:
 - type/issue
-- status/planned
+- status/verified
 acceptance_criteria:
 - id: ac-01
   text: The handoff prose in `verify.md` (and any other affected command) states the
     precedence explicitly — config.md first, introspect-project only as a fallback.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-02
   text: The prose uses directive language ("check", "only if absent") rather than
     loose conditionals.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-03
   text: A smoke run of /mantle:verify against a project with a configured verification_strategy
     does not invoke `mantle introspect-project`.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-04
   text: '`just check` passes.'
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 ---
@@ -56,10 +65,10 @@ Update every place the handoff prose appears (verify.md and any other command th
 
 ## Acceptance criteria
 
-- [ ] ac-01: The handoff prose in `verify.md` (and any other affected command) states the precedence explicitly — config.md first, introspect-project only as a fallback.
-- [ ] ac-02: The prose uses directive language ("check", "only if absent") rather than loose conditionals.
-- [ ] ac-03: A smoke run of /mantle:verify against a project with a configured verification_strategy does not invoke `mantle introspect-project`.
-- [ ] ac-04: `just check` passes.
+- [x] ac-01: The handoff prose in `verify.md` (and any other affected command) states the precedence explicitly — config.md first, introspect-project only as a fallback.
+- [x] ac-02: The prose uses directive language ("check", "only if absent") rather than loose conditionals.
+- [x] ac-03: A smoke run of /mantle:verify against a project with a configured verification_strategy does not invoke `mantle introspect-project`.
+- [x] ac-04: `just check` passes.
 
 ## Blocked by
 
