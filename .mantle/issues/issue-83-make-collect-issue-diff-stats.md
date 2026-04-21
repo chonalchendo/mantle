@@ -1,7 +1,7 @@
 ---
 title: Make collect-issue-diff-stats source/test paths configurable for non-src/tests
   projects
-status: implemented
+status: verified
 slice:
 - core
 - cli
@@ -21,7 +21,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/implemented
+- status/verified
 ---
 
 ## Parent PRD
