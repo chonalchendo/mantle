@@ -1,0 +1,42 @@
+{
+  "date": "2026-04-21",
+  "issue_measured": null,
+  "session_before": null,
+  "session_after": null,
+  "status": "skeleton",
+  "method": {
+    "before": "preset: quality, all stages forced to opus — approximates pre-issue-84 default",
+    "after": "preset: balanced, no overrides"
+  },
+  "prices_usd_per_mt": {
+    "opus":   {"input": null, "output": null, "cache_read": null, "cache_write": null},
+    "sonnet": {"input": null, "output": null, "cache_read": null, "cache_write": null},
+    "haiku":  {"input": null, "output": null, "cache_read": null, "cache_write": null}
+  },
+  "arms": {
+    "before": {
+      "stages": {
+        "shape":         {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "plan_stories":  {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "implement":     {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "simplify":      {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "verify":        {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "review":        {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "retrospective": {"model": "opus", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null}
+      },
+      "totals": {"cost_usd": null, "seconds": null}
+    },
+    "after": {
+      "stages": {
+        "shape":         {"model": "opus",   "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "plan_stories":  {"model": "sonnet", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "implement":     {"model": "sonnet", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "simplify":      {"model": "sonnet", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "verify":        {"model": "sonnet", "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "review":        {"model": "haiku",  "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null},
+        "retrospective": {"model": "haiku",  "cost_usd": null, "seconds": null, "input_tokens": null, "output_tokens": null, "cache_read_input_tokens": null, "cache_creation_input_tokens": null}
+      },
+      "totals": {"cost_usd": null, "seconds": null}
+    }
+  }
+}

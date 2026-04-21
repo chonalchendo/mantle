@@ -64,6 +64,21 @@ The caveman scout (`.mantle/scouts/2026-04-21-caveman.md`, findings 7 and 8) sur
 
 These two techniques are the highest-ROI ways to land ac-02 ("concrete cuts applied"); generic prose-trimming is second-order.
 
+## Measurement method
+
+- **ac-01, ac-03 (prompt-file token counts)**: use
+  `anthropic.messages.count_tokens` for real Claude-BPE counts, not
+  tiktoken. Mantle is Claude-Code-native; no reason to approximate.
+- **Validating ac-02's rewrites make *outputs* terser, not just
+  prompts** (optional): caveman's two-stage architecture applies —
+  `evals/llm_run.py` generates outputs locally via real `claude -p`
+  under baseline / terse-control / terse+rewritten arms and commits a
+  snapshot JSON; `evals/measure.py` tokenizes the snapshot in CI. Mantle
+  can substitute `count_tokens` for tiktoken on the measure side. Decide
+  at shape time whether ac-03 covers output savings or just prompt-file
+  savings. Prompt-file-only is cheaper to measure but misses the bigger
+  cost axis — output tokens dominate on long agentic runs.
+
 ## Acceptance criteria
 
 - [ ] ac-01: Audit report lists every command's token count and ranks by cost.
