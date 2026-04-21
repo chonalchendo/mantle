@@ -41,7 +41,7 @@ def run_collect_issue_diff_stats(
     issue: int,
     project_dir: Path | None = None,
 ) -> None:
-    """Print diff stats for an issue as key=value lines.
+    """Print per-category and aggregate diff stats as key=value lines.
 
     Args:
         issue: Issue number to collect diff stats for.
@@ -50,11 +50,30 @@ def run_collect_issue_diff_stats(
     if project_dir is None:
         project_dir = Path.cwd()
 
-    stats = simplify.collect_issue_diff_stats(project_dir, issue)
-    console.print(f"files={stats.files}")
-    console.print(f"lines_added={stats.lines_added}")
-    console.print(f"lines_removed={stats.lines_removed}")
-    console.print(f"lines_changed={stats.lines_changed}")
+    categories = simplify.collect_issue_diff_stats_categorised(
+        project_dir, issue
+    )
+
+    # Legacy aggregate lines — sum of primary categories only.
+    aggregate_files = aggregate_added = aggregate_removed = 0
+    for name in simplify.PRIMARY_CATEGORIES:
+        stats = categories.get(name)
+        if stats is None:
+            continue
+        aggregate_files += stats.files
+        aggregate_added += stats.lines_added
+        aggregate_removed += stats.lines_removed
+    console.print(f"files={aggregate_files}")
+    console.print(f"lines_added={aggregate_added}")
+    console.print(f"lines_removed={aggregate_removed}")
+    console.print(f"lines_changed={aggregate_added + aggregate_removed}")
+
+    # Per-category breakdown, in declaration order.
+    for name, stats in categories.items():
+        console.print(f"{name}_files={stats.files}")
+        console.print(f"{name}_lines_added={stats.lines_added}")
+        console.print(f"{name}_lines_removed={stats.lines_removed}")
+        console.print(f"{name}_lines_changed={stats.lines_changed}")
 
 
 def run_collect_changed_files(

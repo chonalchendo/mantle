@@ -140,21 +140,26 @@ class TestCollectIssueFilesCLI:
 
 
 class TestCollectIssueDiffStatsCLI:
-    def test_run_prints_key_value_lines(
+    def test_prints_aggregate_and_per_category_lines(
         self,
         monkeypatch: pytest.MonkeyPatch,
         capsys: pytest.CaptureFixture[str],
         tmp_path: Path,
     ) -> None:
-        """Prints files/lines_added/lines_removed/lines_changed lines."""
+        """Prints legacy aggregate lines and per-category lines."""
 
-        def fake_stats(
+        def fake_categorised(
             project_root: Path, issue: int
-        ) -> core_simplify.DiffStats:
-            return core_simplify.DiffStats(3, 42, 5, 47)
+        ) -> dict[str, core_simplify.DiffStats]:
+            return {
+                "source": core_simplify.DiffStats(2, 30, 5, 35),
+                "test": core_simplify.DiffStats(1, 12, 0, 12),
+            }
 
         monkeypatch.setattr(
-            core_simplify, "collect_issue_diff_stats", fake_stats
+            core_simplify,
+            "collect_issue_diff_stats_categorised",
+            fake_categorised,
         )
 
         cli_simplify.run_collect_issue_diff_stats(issue=1, project_dir=tmp_path)
@@ -164,6 +169,44 @@ class TestCollectIssueDiffStatsCLI:
         assert "lines_added=42" in out
         assert "lines_removed=5" in out
         assert "lines_changed=47" in out
+        assert "source_files=2" in out
+        assert "source_lines_added=30" in out
+        assert "test_files=1" in out
+        assert "test_lines_changed=12" in out
+        assert "other_" not in out
+
+    def test_prints_other_bucket_when_configured(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        capsys: pytest.CaptureFixture[str],
+        tmp_path: Path,
+    ) -> None:
+        """Other-bucket lines print when categorised output includes it."""
+
+        def fake_categorised(
+            project_root: Path, issue: int
+        ) -> dict[str, core_simplify.DiffStats]:
+            return {
+                "source": core_simplify.DiffStats(2, 30, 5, 35),
+                "test": core_simplify.DiffStats(1, 12, 0, 12),
+                "other": core_simplify.DiffStats(1, 4, 0, 4),
+            }
+
+        monkeypatch.setattr(
+            core_simplify,
+            "collect_issue_diff_stats_categorised",
+            fake_categorised,
+        )
+
+        cli_simplify.run_collect_issue_diff_stats(issue=1, project_dir=tmp_path)
+
+        out = capsys.readouterr().out
+        # Aggregate still excludes other.
+        assert "files=3" in out
+        assert "lines_changed=47" in out
+        # Other-bucket lines present.
+        assert "other_files=1" in out
+        assert "other_lines_changed=4" in out
 
 
 # ── collect-changed-files ────────────────────────────────────────

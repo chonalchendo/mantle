@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import re
 import subprocess
 import typing
 from typing import TYPE_CHECKING
 
-from mantle.core import issues
+from mantle.core import issues, project
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -32,14 +31,14 @@ class DiffStats(typing.NamedTuple):
     lines_changed: int
 
 
-_SHORTSTAT_RE = re.compile(
-    r"(\d+) files? changed"
-    r"(?:, (\d+) insertions?\(\+\))?"
-    r"(?:, (\d+) deletions?\(-\))?"
-)
-
-
 # ── Constants ────────────────────────────────────────────────────
+
+
+DEFAULT_DIFF_PATHS: dict[str, tuple[str, ...]] = {
+    "source": ("src/",),
+    "test": ("tests/",),
+}
+PRIMARY_CATEGORIES: frozenset[str] = frozenset({"source", "test"})
 
 
 LLM_BLOAT_CHECKLIST: str = """\
@@ -159,60 +158,154 @@ def collect_issue_files(
     return tuple(files)
 
 
-def collect_issue_diff_stats(
+def load_diff_paths(
+    project_root: Path,
+) -> tuple[dict[str, tuple[str, ...]], bool]:
+    """Load diff_paths from .mantle/config.md or return defaults.
+
+    When ``.mantle/config.md`` is missing, the file cannot be read, or the
+    ``diff_paths`` field is absent/empty, returns
+    ``(DEFAULT_DIFF_PATHS, False)``.
+
+    Args:
+        project_root: Directory containing .mantle/.
+
+    Returns:
+        Tuple of (mapping, is_custom). ``is_custom`` is True when the
+        config field is present (enables the ``"other"`` bucket in
+        categorised stats).
+    """
+    try:
+        config = project.read_config(project_root)
+    except FileNotFoundError:
+        return DEFAULT_DIFF_PATHS, False
+    raw = config.get("diff_paths")
+    if not raw:
+        return DEFAULT_DIFF_PATHS, False
+    return {k: tuple(v) for k, v in raw.items()}, True
+
+
+def collect_issue_diff_stats_categorised(
     project_root: Path,
     issue: int,
-) -> DiffStats:
-    """Aggregate diff stats for an issue, scoped to ``src/`` and ``tests/``.
+) -> dict[str, DiffStats]:
+    """Per-category diff stats for an issue.
 
-    Uses the same commit-discovery logic as :func:`collect_issue_files`,
-    then runs ``git diff --shortstat <first>^..<last> -- src/ tests/``
-    and parses the summary line.
+    Categories come from ``.mantle/config.md`` ``diff_paths`` frontmatter,
+    or default to ``source=src/``, ``test=tests/``. When ``diff_paths``
+    is explicitly configured, files matching no configured category are
+    reported under an ``"other"`` key. When defaults are in use, the
+    ``"other"`` key is omitted (matches legacy behaviour).
+
+    File classification uses first-matching-prefix semantics in declared
+    category order; a file matches a prefix when its path string starts
+    with that prefix.
 
     Args:
         project_root: Directory containing .mantle/.
         issue: Issue number to collect diff stats for.
 
     Returns:
-        DiffStats with file count and line totals, or
-        ``DiffStats(0, 0, 0, 0)`` when no matching commits exist or
-        when commits touch only paths outside ``src/`` and ``tests/``.
+        Mapping from category name to DiffStats. All declared categories
+        are always present (with zero stats if empty). The ``"other"``
+        key appears only when ``diff_paths`` is explicitly configured.
 
     Raises:
         FileNotFoundError: If the issue file does not exist.
     """
     _verify_issue_exists(project_root, issue)
+    paths, is_custom = load_diff_paths(project_root)
     commit_hashes = _grep_issue_commits(project_root, issue)
 
+    categories: dict[str, DiffStats] = {
+        name: DiffStats(0, 0, 0, 0) for name in paths
+    }
+    if is_custom:
+        categories["other"] = DiffStats(0, 0, 0, 0)
+
     if not commit_hashes:
-        return DiffStats(0, 0, 0, 0)
+        return categories
 
     first_commit = commit_hashes[-1]
     last_commit = commit_hashes[0]
 
-    shortstat = subprocess.run(
-        [
-            "git",
-            "diff",
-            "--shortstat",
-            f"{first_commit}^..{last_commit}",
-            "--",
-            "src/",
-            "tests/",
-        ],
+    numstat = subprocess.run(
+        ["git", "diff", "--numstat", f"{first_commit}^..{last_commit}"],
         capture_output=True,
         text=True,
         check=True,
         cwd=project_root,
     )
 
-    match = _SHORTSTAT_RE.search(shortstat.stdout)
-    if match is None:
-        return DiffStats(0, 0, 0, 0)
+    for line in numstat.stdout.splitlines():
+        parts = line.split("\t", 2)
+        if len(parts) != 3:
+            continue
+        added_s, removed_s, path = parts
+        # Binary files show '-' for counts; treat as zero.
+        added = int(added_s) if added_s.isdigit() else 0
+        removed = int(removed_s) if removed_s.isdigit() else 0
+        category = _classify_path(path, paths, is_custom)
+        if category is None:
+            continue
+        prev = categories[category]
+        categories[category] = DiffStats(
+            files=prev.files + 1,
+            lines_added=prev.lines_added + added,
+            lines_removed=prev.lines_removed + removed,
+            lines_changed=prev.lines_changed + added + removed,
+        )
 
-    files = int(match.group(1))
-    lines_added = int(match.group(2)) if match.group(2) else 0
-    lines_removed = int(match.group(3)) if match.group(3) else 0
+    return categories
+
+
+def _classify_path(
+    path: str,
+    paths: dict[str, tuple[str, ...]],
+    is_custom: bool,
+) -> str | None:
+    """Return the category a path belongs to, or None to drop it.
+
+    First-matching-prefix in declared order. When no category matches:
+    returns ``"other"`` if ``is_custom``, else None (silently dropped).
+    """
+    for name, prefixes in paths.items():
+        if any(path.startswith(p) for p in prefixes):
+            return name
+    return "other" if is_custom else None
+
+
+def collect_issue_diff_stats(
+    project_root: Path,
+    issue: int,
+) -> DiffStats:
+    """Aggregate diff stats for an issue, scoped to source+test categories.
+
+    Thin wrapper over :func:`collect_issue_diff_stats_categorised` that
+    sums DiffStats for the ``source`` and ``test`` categories (the
+    :data:`PRIMARY_CATEGORIES` set). Matches the legacy contract used by
+    ``build.md`` Step 7's simplify-skip heuristic.
+
+    Args:
+        project_root: Directory containing .mantle/.
+        issue: Issue number to collect diff stats for.
+
+    Returns:
+        DiffStats summed across ``source`` and ``test`` categories, or
+        ``DiffStats(0, 0, 0, 0)`` when neither category has any changes.
+
+    Raises:
+        FileNotFoundError: If the issue file does not exist.
+    """
+    categories = collect_issue_diff_stats_categorised(project_root, issue)
+    files = lines_added = lines_removed = 0
+    for name in PRIMARY_CATEGORIES:
+        stats = categories.get(name)
+        if stats is None:
+            continue
+        files += stats.files
+        lines_added += stats.lines_added
+        lines_removed += stats.lines_removed
     return DiffStats(
         files=files,
         lines_added=lines_added,

@@ -46,6 +46,7 @@ class _ConfigFrontmatter(pydantic.BaseModel):
     auto_push: bool = False
     storage_mode: str | None = None
     hooks_env: dict[str, str] | None = None
+    diff_paths: dict[str, list[str]] | None = None
     tags: tuple[str, ...] = ("type/config",)
 
 

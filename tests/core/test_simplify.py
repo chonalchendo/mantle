@@ -5,6 +5,8 @@ from __future__ import annotations
 import subprocess
 from typing import TYPE_CHECKING
 
+import yaml
+
 from mantle.core import simplify
 
 if TYPE_CHECKING:
@@ -74,6 +76,20 @@ def _commit_file(
         capture_output=True,
         check=True,
     )
+
+
+def _write_config_md(
+    project_root: Path,
+    diff_paths: dict[str, list[str]],
+) -> None:
+    """Write a minimal .mantle/config.md with a diff_paths frontmatter block."""
+    config_path = project_root / ".mantle" / "config.md"
+    yaml_str = yaml.dump(
+        {"diff_paths": diff_paths},
+        default_flow_style=False,
+        sort_keys=False,
+    )
+    config_path.write_text(f"---\n{yaml_str}---\n\n", encoding="utf-8")
 
 
 # ── collect_issue_files ──────────────────────────────────────────
@@ -352,6 +368,244 @@ class TestCollectIssueDiffStats:
 
         assert stats.files == 1
         assert stats.lines_changed == 5
+
+    def test_aggregate_sums_only_primary_categories(
+        self, tmp_path: Path
+    ) -> None:
+        """Aggregate wrapper excludes non-primary categories (docs)."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _write_config_md(
+            project,
+            {
+                "source": ["src/"],
+                "test": ["tests/"],
+                "docs": ["docs/"],
+            },
+        )
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        src_content = "".join(f"s{i}\n" for i in range(4))
+        _commit_content(
+            project, "src/a.py", src_content, "feat(issue-7): add src"
+        )
+        test_content = "".join(f"t{i}\n" for i in range(2))
+        _commit_content(
+            project, "tests/t.py", test_content, "feat(issue-7): add test"
+        )
+        docs_content = "".join(f"d{i}\n" for i in range(10))
+        _commit_content(
+            project, "docs/d.md", docs_content, "feat(issue-7): add docs"
+        )
+
+        stats = simplify.collect_issue_diff_stats(project, 7)
+
+        assert stats.files == 2
+        assert stats.lines_changed == 6
+
+
+# ── load_diff_paths ──────────────────────────────────────────────
+
+
+class TestLoadDiffPaths:
+    def test_defaults_when_config_missing(self, tmp_path: Path) -> None:
+        """No config.md present — returns defaults, is_custom=False."""
+        project = _init_git_repo(tmp_path)
+
+        paths, is_custom = simplify.load_diff_paths(project)
+
+        assert paths == simplify.DEFAULT_DIFF_PATHS
+        assert is_custom is False
+
+    def test_defaults_when_field_absent(self, tmp_path: Path) -> None:
+        """config.md without diff_paths field — returns defaults."""
+        project = _init_git_repo(tmp_path)
+        config_path = project / ".mantle" / "config.md"
+        config_path.write_text("---\n---\n\n", encoding="utf-8")
+
+        paths, is_custom = simplify.load_diff_paths(project)
+
+        assert paths == simplify.DEFAULT_DIFF_PATHS
+        assert is_custom is False
+
+    def test_returns_custom_when_field_present(self, tmp_path: Path) -> None:
+        """diff_paths field present — returns mapping, is_custom=True."""
+        project = _init_git_repo(tmp_path)
+        _write_config_md(
+            project,
+            {
+                "source": ["models/"],
+                "test": ["tests/"],
+                "macros": ["macros/"],
+            },
+        )
+
+        paths, is_custom = simplify.load_diff_paths(project)
+
+        assert paths == {
+            "source": ("models/",),
+            "test": ("tests/",),
+            "macros": ("macros/",),
+        }
+        assert is_custom is True
+
+
+# ── collect_issue_diff_stats_categorised ─────────────────────────
+
+
+class TestCollectIssueDiffStatsCategorised:
+    def test_defaults_no_other_bucket(self, tmp_path: Path) -> None:
+        """Defaults mode: returned dict has source+test keys only."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        content = "".join(f"line {i}\n" for i in range(3))
+        _commit_content(
+            project, "src/foo.py", content, "feat(issue-7): add foo"
+        )
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 7)
+
+        assert set(categories.keys()) == {"source", "test"}
+        assert categories["source"].files == 1
+
+    def test_defaults_drop_unclassified(self, tmp_path: Path) -> None:
+        """Defaults mode: unclassified files dropped silently, no other key."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        src_content = "".join(f"line {i}\n" for i in range(4))
+        _commit_content(
+            project, "src/foo.py", src_content, "feat(issue-7): add src"
+        )
+        _commit_content(
+            project,
+            "claude/bar.md",
+            "# bar\n",
+            "feat(issue-7): add claude",
+        )
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 7)
+
+        assert categories["source"].files == 1
+        assert "other" not in categories
+
+    def test_custom_config_adds_other_bucket(self, tmp_path: Path) -> None:
+        """Explicit config — unclassified files go into other bucket."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _write_config_md(
+            project,
+            {"source": ["src/"], "test": ["tests/"]},
+        )
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        _commit_content(
+            project,
+            "src/x.py",
+            "x = 1\n",
+            "feat(issue-7): add src",
+        )
+        _commit_content(
+            project,
+            "docs/y.md",
+            "# doc\n",
+            "feat(issue-7): add doc",
+        )
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 7)
+
+        assert categories["source"].files == 1
+        assert categories["other"].files == 1
+
+    def test_dbt_style_fixture(self, tmp_path: Path) -> None:
+        """dbt-style layout with models/, tests/, macros/ categories."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _write_config_md(
+            project,
+            {
+                "source": ["models/"],
+                "test": ["tests/"],
+                "macros": ["macros/"],
+            },
+        )
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        models_content = "".join(f"m{i}\n" for i in range(3))
+        _commit_content(
+            project,
+            "models/stg_a.sql",
+            models_content,
+            "feat(issue-7): add model",
+        )
+        tests_content = "".join(f"t{i}\n" for i in range(1))
+        _commit_content(
+            project,
+            "tests/generic_b.sql",
+            tests_content,
+            "feat(issue-7): add test",
+        )
+        macros_content = "".join(f"x{i}\n" for i in range(5))
+        _commit_content(
+            project,
+            "macros/util.sql",
+            macros_content,
+            "feat(issue-7): add macro",
+        )
+        other_content = "".join(f"o{i}\n" for i in range(2))
+        _commit_content(
+            project,
+            ".mantle/x.md",
+            other_content,
+            "feat(issue-7): add mantle note",
+        )
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 7)
+
+        assert categories["source"].files == 1
+        assert categories["source"].lines_changed == 3
+        assert categories["test"].files == 1
+        assert categories["test"].lines_changed == 1
+        assert categories["macros"].files == 1
+        assert categories["macros"].lines_changed == 5
+        assert categories["other"].files == 1
+
+    def test_first_match_wins(self, tmp_path: Path) -> None:
+        """Files matching multiple prefixes bucket into first declared."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 7)
+        _write_config_md(
+            project,
+            {"source": ["src/"], "vendor": ["src/vendor/"]},
+        )
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        _commit_content(
+            project,
+            "src/vendor/a.py",
+            "a = 1\n",
+            "feat(issue-7): add vendored file",
+        )
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 7)
+
+        assert categories["source"].files == 1
+        assert categories["vendor"].files == 0
+
+    def test_empty_categories_always_present(self, tmp_path: Path) -> None:
+        """No matching commits: every declared category present, zeroed."""
+        project = _init_git_repo(tmp_path)
+        _write_issue_file(project, 1)
+        _commit_file(project, "initial.txt", "chore: initial")
+
+        categories = simplify.collect_issue_diff_stats_categorised(project, 1)
+
+        assert categories["source"] == simplify.DiffStats(0, 0, 0, 0)
+        assert categories["test"] == simplify.DiffStats(0, 0, 0, 0)
+        assert "other" not in categories
 
 
 # ── collect_changed_files ────────────────────────────────────────
