@@ -167,6 +167,11 @@ class TestInitProject:
         assert "balanced" in text
         assert "How to use" in text
 
+    def test_creates_telemetry_subdir(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+
+        assert (tmp_path / MANTLE_DIR / "telemetry").is_dir()
+
 
 # ── Template constants ───────────────────────────────────────────
 
@@ -190,6 +195,9 @@ class TestTemplateConstants:
         assert "sessions" in SUBDIRS
         assert "issues" in SUBDIRS
         assert "stories" in SUBDIRS
+
+    def test_telemetry_in_subdirs(self) -> None:
+        assert "telemetry" in SUBDIRS
 
     def test_cost_policy_filename_constant(self) -> None:
         assert COST_POLICY_FILENAME == "cost-policy.md"

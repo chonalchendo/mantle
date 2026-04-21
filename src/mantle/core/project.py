@@ -35,6 +35,7 @@ SUBDIRS: tuple[str, ...] = (
     "sessions",
     "shaped",
     "stories",
+    "telemetry",
 )
 
 # ── File template data ───────────────────────────────────────────
