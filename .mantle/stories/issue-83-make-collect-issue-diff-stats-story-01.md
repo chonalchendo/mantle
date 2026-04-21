@@ -1,11 +1,11 @@
 ---
 issue: 83
 title: Categorised diff stats — configurable source/test/other buckets
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

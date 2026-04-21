@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import subprocess
-import typing
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from mantle.core import issues, project
 
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
 # ── Types ────────────────────────────────────────────────────────
 
 
-class DiffStats(typing.NamedTuple):
+class DiffStats(NamedTuple):
     """Aggregated diff statistics across commits.
 
     Attributes:
