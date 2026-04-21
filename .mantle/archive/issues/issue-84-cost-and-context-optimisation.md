@@ -1,6 +1,6 @@
 ---
 title: Model-tier config with measured defaults for the build pipeline
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -51,7 +51,7 @@ skills_required:
 - streamlit-aggrid
 tags:
 - type/issue
-- status/verified
+- status/approved
 ---
 
 ## Parent PRD
