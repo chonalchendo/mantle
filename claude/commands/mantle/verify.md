@@ -96,30 +96,34 @@ Confirm with the user before proceeding.
 
 ## Step 3 — Load verification strategy
 
-Read `$MANTLE_DIR/config.md` directly and look for the `verification_strategy` field
-in frontmatter.
+Follow this precedence strictly. Do not fall back to `mantle introspect-project`
+without first checking `$MANTLE_DIR/config.md`.
 
-**If no strategy is found (first-use flow):**
-1. Tell the user no verification strategy is configured yet.
-2. Run `mantle introspect-project` to auto-detect the project's test, lint,
-   and check commands from CLAUDE.md, pyproject.toml, Justfile, and Makefile.
-3. Read the stderr output — it contains a proposed structured strategy with
-   sections: Test Command, Lint/Format Check, Type Check, and Acceptance
-   Criteria Verification.
-4. Present the proposed strategy to the user:
-   > Based on your project setup, I detected these commands and propose this
-   > verification strategy:
-   >
-   > {structured strategy from introspect-project stderr}
-   >
-   > Would you like to use this strategy, or adjust it?
-5. After the user confirms or adjusts, persist the final strategy via:
-   ```bash
-   mantle save-verification-strategy --strategy "<final strategy text>"
-   ```
-6. Confirm it was saved and continue.
-
-**If a strategy is found**, display it and continue.
+1. **Check** `$MANTLE_DIR/config.md` for a `verification_strategy` field
+   with a non-empty value in frontmatter.
+2. **If present**, display it and use it verbatim for the rest of this run.
+   Continue to Step 4.
+3. **Only if absent or empty**, fall back to `mantle introspect-project` as
+   a last-resort first-use flow:
+   1. Tell the user no verification strategy is configured yet.
+   2. Run `mantle introspect-project` to auto-detect the project's test,
+      lint, and check commands from CLAUDE.md, pyproject.toml, Justfile,
+      and Makefile.
+   3. Read the stderr output — it contains a proposed structured strategy
+      with sections: Test Command, Lint/Format Check, Type Check, and
+      Acceptance Criteria Verification.
+   4. Present the proposed strategy to the user:
+      > Based on your project setup, I detected these commands and propose
+      > this verification strategy:
+      >
+      > {structured strategy from introspect-project stderr}
+      >
+      > Would you like to use this strategy, or adjust it?
+   5. After the user confirms or adjusts, persist the final strategy via:
+      ```bash
+      mantle save-verification-strategy --strategy "<final strategy text>"
+      ```
+   6. Confirm it was saved and continue.
 
 ## Step 4 — Check for per-issue override
 

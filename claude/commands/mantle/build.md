@@ -382,12 +382,14 @@ Spawn an Agent (`subagent_type: "general-purpose"`) with this prompt:
 >
 > Build-mode overrides:
 > - Skip user confirmation — auto-verify all criteria
-> - If no verification strategy is configured, run
->   `mantle introspect-project` to auto-detect the project's test, lint, and
->   check commands, then save the generated strategy via
->   `mantle save-verification-strategy --strategy "<generated strategy>"`
->   before proceeding. This creates a real structured strategy for future runs.
-> - Don't ask the user to define a strategy — use introspection to generate one
+> - **Verification strategy precedence**: check
+>   `$MANTLE_DIR/config.md` for a non-empty `verification_strategy` field
+>   first. If present, use it verbatim. Only if absent or empty, run
+>   `mantle introspect-project` as a last-resort fallback, then save the
+>   generated strategy via
+>   `mantle save-verification-strategy --strategy "<generated strategy>"`.
+> - Do not ask the user to define a strategy — use the configured value if
+>   present, otherwise introspection.
 >
 > Issue number: {NN}
 >
