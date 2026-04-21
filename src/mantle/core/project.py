@@ -348,7 +348,7 @@ class StageModels(pydantic.BaseModel, frozen=True):
     retrospective: str
 
 
-_FALLBACK_STAGE_MODELS: StageModels = StageModels(
+FALLBACK_STAGE_MODELS: StageModels = StageModels(
     shape="opus",
     plan_stories="sonnet",
     implement="sonnet",
@@ -382,7 +382,7 @@ def load_model_tier(project_root: Path) -> StageModels:
     try:
         config = read_config(project_root)
     except FileNotFoundError:
-        return _FALLBACK_STAGE_MODELS
+        return FALLBACK_STAGE_MODELS
 
     models_cfg = _ModelsConfig.model_validate(config.get("models") or {})
     presets = _load_presets(project_root)
@@ -518,7 +518,7 @@ def _load_presets(project_root: Path) -> dict[str, dict[str, str]]:
 
     Returns:
         Mapping from preset name to ``{stage: model}`` dict. Returns
-        ``{"balanced": _FALLBACK_STAGE_MODELS.model_dump()}`` when
+        ``{"balanced": FALLBACK_STAGE_MODELS.model_dump()}`` when
         cost-policy.md is missing.
 
     Raises:
@@ -529,7 +529,7 @@ def _load_presets(project_root: Path) -> dict[str, dict[str, str]]:
     try:
         frontmatter, _ = _read_frontmatter_and_body(cost_policy_path)
     except FileNotFoundError:
-        return {"balanced": _FALLBACK_STAGE_MODELS.model_dump()}
+        return {"balanced": FALLBACK_STAGE_MODELS.model_dump()}
     return frontmatter["presets"]
 
 

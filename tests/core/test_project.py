@@ -15,10 +15,11 @@ if TYPE_CHECKING:
 
 import pydantic
 
+from mantle.core import vault
 from mantle.core.project import (
-    _FALLBACK_STAGE_MODELS,
     CONFIG_BODY,
     COST_POLICY_FILENAME,
+    FALLBACK_STAGE_MODELS,
     GITIGNORE_CONTENT,
     MANTLE_DIR,
     SUBDIRS,
@@ -32,7 +33,6 @@ from mantle.core.project import (
     resolve_mantle_dir,
     update_config,
 )
-from mantle.core.vault import read_note
 
 MOCK_EMAIL = "test@example.com"
 
@@ -70,7 +70,7 @@ class TestInitProject:
 
         from mantle.core.state import ProjectState, Status
 
-        note = read_note(state_path, ProjectState)
+        note = vault.read_note(state_path, ProjectState)
         assert note.frontmatter.project == "test-project"
         assert note.frontmatter.status == Status.IDEA
 
@@ -124,7 +124,7 @@ class TestInitProject:
         from mantle.core.state import ProjectState
 
         state_path = tmp_path / MANTLE_DIR / "state.md"
-        note = read_note(state_path, ProjectState)
+        note = vault.read_note(state_path, ProjectState)
         assert note.frontmatter.project == "my-cool-project"
 
     def test_creates_cost_policy_md(self, tmp_path: Path) -> None:
@@ -576,7 +576,7 @@ class TestLoadModelTier:
     ) -> None:
         result = load_model_tier(tmp_path)
 
-        assert result == _FALLBACK_STAGE_MODELS
+        assert result == FALLBACK_STAGE_MODELS
 
     def test_returns_balanced_fallback_when_no_cost_policy(
         self, tmp_path: Path
@@ -586,7 +586,7 @@ class TestLoadModelTier:
 
         result = load_model_tier(tmp_path)
 
-        assert result == _FALLBACK_STAGE_MODELS
+        assert result == FALLBACK_STAGE_MODELS
 
     def test_resolves_preset_from_cost_policy(self, tmp_path: Path) -> None:
         init_project(tmp_path, "test-project")
@@ -666,6 +666,4 @@ class TestLoadModelTier:
         end = cost_policy.find("\n---", 3)
         data = yaml.safe_load(cost_policy[4:end])
 
-        assert (
-            _FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
-        )
+        assert FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]

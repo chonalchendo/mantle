@@ -9,7 +9,6 @@ import pytest
 
 from mantle.cli import models
 from mantle.core import project
-from mantle.core.project import _FALLBACK_STAGE_MODELS
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -72,7 +71,10 @@ class TestRunModelTier:
         models.run_model_tier(project_dir=tmp_path)
 
         captured = capsys.readouterr()
-        assert json.loads(captured.out) == _FALLBACK_STAGE_MODELS.model_dump()
+        assert (
+            json.loads(captured.out)
+            == project.FALLBACK_STAGE_MODELS.model_dump()
+        )
 
     def test_override_applied_in_json(
         self,
