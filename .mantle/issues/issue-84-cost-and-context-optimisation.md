@@ -1,11 +1,10 @@
 ---
-title: 'Cost and context optimisation: model routing, streamlined prompts, AI-led
-  review/retrospective'
+title: Model-tier config with measured defaults for the build pipeline
 status: planned
 slice:
-- claude-code
-- cli
 - core
+- cli
+- claude-code
 story_count: 0
 verification: null
 blocked_by: []
@@ -15,26 +14,30 @@ tags:
 - status/planned
 acceptance_criteria:
 - id: ac-01
-  text: A short cost/context policy document lives in `.mantle/` naming default model
-    per workflow stage and a target token budget for /mantle:build.
+  text: '`.mantle/cost-policy.md` exists and documents three named presets (`budget`,
+    `balanced`, `quality`) with per-stage model defaults and a short rationale.'
   passes: false
   waived: false
   waiver_reason: null
 - id: ac-02
-  text: /mantle:review and /mantle:retrospective run AI-led by default; human interjection
-    is optional, not forced.
+  text: '`.mantle/config.md` schema includes a validated `models:` block that selects
+    an active preset (with optional per-stage overrides); `core/config.py` round-trips
+    it.'
   passes: false
   waived: false
   waiver_reason: null
 - id: ac-03
-  text: A measured before/after token comparison for one high-frequency command is
-    recorded (e.g. in a learning) showing a meaningful reduction without quality regression.
+  text: '`build.md` reads the active tier from `config.md` / `cost-policy.md` and passes
+    the per-stage model to each spawned agent (shape, plan-stories, implement, simplify,
+    verify).'
   passes: false
   waived: false
   waiver_reason: null
 - id: ac-04
-  text: Model-tier defaults (in the config surface delivered by issue 75) reflect
-    the policy document.
+  text: A before/after measurement of one `/mantle:build` run on the same issue is
+    saved to `.mantle/telemetry/baseline-<date>.md`, reporting wall-clock seconds and
+    dollar cost (not just token counts). The telemetry folder is introduced by this
+    issue.
   passes: false
   waived: false
   waiver_reason: null
@@ -51,43 +54,47 @@ product-design.md, system-design.md
 
 ## Why
 
-Work has moved to API per-usage billing, so every token has real cost and Sonnet 4.6's 200k window is the constraint. Heavy commands like /mantle:build must fit that budget. On the personal side, Opus 5-hour rate limits get hit fast across multiple projects, so efficiency also reduces waiting.
+`/mantle:build` on a work API budget is dominated by Opus-4.7 cost on stages that don't need Opus-grade reasoning (file edits, test runs, commits, mechanical verification). Swapping those stages to Sonnet or Haiku is a ~5× cost reduction and a material speed-up — a step change no amount of prompt pruning can match. The other cost-optimisation threads (prompt pruning, review+retrospective merge, `.mantle/` restructure) were bundled into this issue originally; they're real but each deserves its own narrowly-scoped issue. See `.mantle/learnings/` for the scope-creep learning that drove the split.
 
-Three threads collapse into one umbrella because they share the same driver (cost per invocation) and intersect heavily (streamlining review/retrospective IS context optimisation):
-
-1. **Model routing** — Opus only where deep reasoning earns it (shape, plan, decision gates); Sonnet for implementation and most prompt work; Haiku for deterministic steps. Composes with existing issue 75 (model tiering config) — that issue delivers the knobs; this one delivers the defaults and rationale.
-2. **Context budgeting** — audit compiled payloads, skills graph, and prompt prose so a full /mantle:build run fits inside 200k. Composes with existing issues 74 (token audit of /mantle:* commands) and 79 (progressive-disclosure audit of CLAUDE.md + .mantle/) — those measure; this one acts on the findings.
-3. **AI-led review and retrospective** — today /mantle:review and /mantle:retrospective force Q&A that the user often has nothing to add to. Make them AI-led reflection with optional human interjection, saving a full turn each.
+This issue ships the dominant lever — per-stage model tiering with a cost-policy doc — and a measured baseline so follow-up work has evidence to calibrate against.
 
 ## What to build
 
-Treat this as a programme, not a single patch. Expected shape:
-
-- A short cost/context policy document in `.mantle/` that names defaults (which model at which stage, target token budgets for /mantle:build, etc.).
-- Concrete edits to at least /mantle:review and /mantle:retrospective that convert the mandatory Q&A into an AI-led summary with an optional "anything to add?" hook.
-- Apply the streamlining lens to the top N highest-frequency command prompts (driven by the 74 / 79 findings).
-- Defaults wired into model tiering (issue 75) so a greenfield install gets a sensible cost/quality starting point.
+1. **Policy doc (`.mantle/cost-policy.md`)** naming three presets (`budget`, `balanced`, `quality`) with per-stage model defaults and a one-line rationale for each stage's choice. Stages: `shape`, `plan_stories`, `implement`, `simplify`, `verify`, `review`, `retrospective`.
+2. **Config schema** (`.mantle/config.md` frontmatter) with a `models:` block that selects an active preset and allows per-stage overrides. Validated by a Pydantic model in `core/config.py`.
+3. **`build.md` wiring** so each spawned Agent receives the correct per-stage model, pulled from the active preset with per-stage overrides applied.
+4. **`.mantle/telemetry/` folder** introduced, used to hold the before/after measurement for ac-04 (and future telemetry outputs from follow-up issues).
+5. **Measured before/after** for one `/mantle:build` run on the same issue, under the previous all-Opus default and under the new `balanced` preset. Measure dollar cost and wall-clock seconds — not token counts.
 
 ## Acceptance criteria
 
-- [ ] ac-01: A short cost/context policy document lives in `.mantle/` naming default model per workflow stage and a target token budget for /mantle:build.
-- [ ] ac-02: /mantle:review and /mantle:retrospective run AI-led by default; human interjection is optional, not forced.
-- [ ] ac-03: A measured before/after token comparison for one high-frequency command is recorded (e.g. in a learning) showing a meaningful reduction without quality regression.
-- [ ] ac-04: Model-tier defaults (in the config surface delivered by issue 75) reflect the policy document.
+- [ ] ac-01: `.mantle/cost-policy.md` exists and documents three named presets (`budget`, `balanced`, `quality`) with per-stage model defaults and a short rationale.
+- [ ] ac-02: `.mantle/config.md` schema includes a validated `models:` block that selects an active preset (with optional per-stage overrides); `core/config.py` round-trips it.
+- [ ] ac-03: `build.md` reads the active tier from `config.md` / `cost-policy.md` and passes the per-stage model to each spawned agent (shape, plan-stories, implement, simplify, verify).
+- [ ] ac-04: A before/after measurement of one `/mantle:build` run on the same issue is saved to `.mantle/telemetry/baseline-<date>.md`, reporting wall-clock seconds and dollar cost (not just token counts). The telemetry folder is introduced by this issue.
 - [ ] ac-05: `just check` passes.
 
 ## Blocked by
 
-- issue 75 (model tiering config) — ideally ships first so defaults have somewhere to live. Not strictly required for the /mantle:review and /mantle:retrospective streamlining.
-- Composes with issue 74 (token audit of /mantle:* commands) and issue 79 (context file audit) — use their outputs to choose where to cut.
+None. Supersedes issue 75's scope; 75 should be archived or kept only for the A/B harness piece (which is deferred — one manual before/after comparison is enough for this issue).
 
 ## User stories addressed
 
-- As a mantle user on API billing, I want /mantle:build to finish inside the Sonnet 200k window so heavy runs don't overflow context.
-- As a mantle user running review and retrospective, I want AI-led reflection by default so I don't waste a turn answering questions I have no input on.
-- As a maintainer, I want one canonical policy document so cost choices are visible and revisable rather than scattered across commands.
+- As a Mantle user on API billing, I want the build pipeline to spend Opus tokens only where Opus-grade reasoning earns them, so I don't pay 5× for mechanical steps.
+- As a maintainer, I want one authoritative policy doc naming default models per stage, so cost choices are visible and revisable in one place rather than scattered across prompts.
+- As a Mantle user considering a cheaper tier, I want a measured before/after dollar + time comparison, so the trade-off against Opus is evidence-backed not taste-driven.
+
+## Deferred to follow-up issues
+
+These were part of the original umbrella and should each become their own narrow issue:
+
+- **AI-led review + retrospective** (or merging them into one command). 1–2 days.
+- **Prune build-pipeline prompts** (`build.md`, `shape-issue.md`, `plan-stories.md`, `implement.md`, `simplify.md`, `verify.md`). Likely a one-session editing pass after model tiering ships — revisit size once Opus tax is fixed.
+- **A/B harness** (automated side-by-side strategy comparison). Only if one manual comparison isn't enough.
+- **`.mantle/` restructure** (move `sessions/`, `builds/`, `learnings/` under `telemetry/`). Breaking change; schedule for a planned breaking release.
 
 ## Source inbox items
 
 - `2026-04-20-optimise-mantle-for-costcontex.md`
-- `2026-04-20-streamline-mantlereview-and-ma.md`
+- `2026-04-09-ab-test-modeleffort-strategy.md` (informs the deferred A/B harness issue)
+- `2026-04-16-model-tiering-strategy.md`
