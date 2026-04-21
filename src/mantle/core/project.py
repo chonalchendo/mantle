@@ -6,6 +6,7 @@ import hashlib
 import pathlib
 import re
 import subprocess
+from importlib import resources
 from typing import TYPE_CHECKING, Any
 
 import pydantic
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 
 MANTLE_DIR = ".mantle"
 GLOBAL_MANTLE_ROOT = ".mantle/projects"
+COST_POLICY_FILENAME = "cost-policy.md"
 
 SUBDIRS: tuple[str, ...] = (
     "bugs",
@@ -269,6 +271,10 @@ def init_project(project_dir: Path, project_name: str) -> Path:
         _TagsFrontmatter(),
         TAGS_BODY,
     )
+    (mantle_path / COST_POLICY_FILENAME).write_text(
+        _read_bundled_template(COST_POLICY_FILENAME),
+        encoding="utf-8",
+    )
     (mantle_path / ".gitignore").write_text(GITIGNORE_CONTENT)
 
     state.create_initial_state(project_dir, project_name)
@@ -353,6 +359,34 @@ def init_vault(vault_path: Path, project_root: Path) -> bool:
 # ── Internal helpers ─────────────────────────────────────────────
 
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _read_bundled_template(filename: str) -> str:
+    """Read a bundled vault-template file as text.
+
+    In an installed wheel, ``vault-templates/`` is force-included
+    under ``mantle/`` by ``pyproject.toml``.  During editable /
+    development installs, the directory lives at the project root.
+    This helper checks both locations.
+
+    Args:
+        filename: Name of a file under ``vault-templates/``.
+
+    Returns:
+        File contents as UTF-8 text.
+
+    Raises:
+        FileNotFoundError: If the template cannot be located in
+            either the installed package or the development tree.
+    """
+    pkg_ref = resources.files("mantle").joinpath("vault-templates", filename)
+    pkg_path = pathlib.Path(str(pkg_ref))
+    if pkg_path.is_file():
+        return pkg_path.read_text(encoding="utf-8")
+
+    dev_path = pathlib.Path(str(resources.files("mantle"))).parent.parent
+    dev_path = dev_path / "vault-templates" / filename
+    return dev_path.read_text(encoding="utf-8")
 
 
 def _slugify_name(source: str) -> str:

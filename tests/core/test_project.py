@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 from mantle.core.project import (
     CONFIG_BODY,
+    COST_POLICY_FILENAME,
     GITIGNORE_CONTENT,
     MANTLE_DIR,
     SUBDIRS,
@@ -121,6 +122,46 @@ class TestInitProject:
         note = read_note(state_path, ProjectState)
         assert note.frontmatter.project == "my-cool-project"
 
+    def test_creates_cost_policy_md(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+
+        assert (tmp_path / MANTLE_DIR / "cost-policy.md").exists()
+
+    def test_cost_policy_has_preset_frontmatter(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+
+        cost_policy_path = tmp_path / MANTLE_DIR / "cost-policy.md"
+        text = cost_policy_path.read_text(encoding="utf-8")
+
+        assert text.startswith("---\n")
+        end = text.find("\n---", 3)
+        raw = text[4:end]
+        data = yaml.safe_load(raw)
+
+        assert "presets" in data
+        stage_fields = {
+            "shape",
+            "plan_stories",
+            "implement",
+            "simplify",
+            "verify",
+            "review",
+            "retrospective",
+        }
+        for preset_name in ("budget", "balanced", "quality"):
+            assert preset_name in data["presets"]
+            assert set(data["presets"][preset_name]) == stage_fields
+
+    def test_cost_policy_preserves_template_body(self, tmp_path: Path) -> None:
+        init_project(tmp_path, "test-project")
+
+        text = (tmp_path / MANTLE_DIR / "cost-policy.md").read_text(
+            encoding="utf-8"
+        )
+
+        assert "balanced" in text
+        assert "How to use" in text
+
 
 # ── Template constants ───────────────────────────────────────────
 
@@ -144,6 +185,9 @@ class TestTemplateConstants:
         assert "sessions" in SUBDIRS
         assert "issues" in SUBDIRS
         assert "stories" in SUBDIRS
+
+    def test_cost_policy_filename_constant(self) -> None:
+        assert COST_POLICY_FILENAME == "cost-policy.md"
 
 
 # ── Helpers ──────────────────────────────────────────────────────
