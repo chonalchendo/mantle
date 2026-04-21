@@ -22,6 +22,7 @@ from mantle.cli import (
     issues,
     knowledge,
     learning,
+    models,
     product_design,
     research,
     review,
@@ -1628,6 +1629,20 @@ def introspect_project_command(
 ) -> None:
     """Detect test, lint, and check commands from project files."""
     verify.run_introspect_project(project_dir=path)
+
+
+@app.command(name="model-tier", group=GROUPS["setup"])
+def model_tier_command(
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Print the resolved per-stage model tier as JSON."""
+    models.run_model_tier(project_dir=path)
 
 
 @app.command(name="transition-issue-verified", group=GROUPS["planning"])
