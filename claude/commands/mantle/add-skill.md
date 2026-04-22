@@ -6,10 +6,10 @@ Author a high-quality skill node — metadata plus dense, actionable knowledge �
 and save it to the user's personal vault.
 
 Skill nodes form an interconnected knowledge graph. The content gets loaded into
-Claude's context during implementation, so it must be written *for Claude*, not
-as a human tutorial. Quality is everything: dense, imperative, opinionated.
+Claude's context during implementation, so write it *for Claude*, not as a
+human tutorial. Quality is everything: dense, imperative, opinionated.
 
-Before starting, use TaskCreate to create a task for each step:
+Use TaskCreate to create a task for each step:
 
 1. "Step 1 — Check prerequisites"
 2. "Step 2 — Check for gaps and stubs"
@@ -26,12 +26,12 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
-First, resolve the project's .mantle/ directory:
+Resolve the project's .mantle/ directory:
 
     MANTLE_DIR=$(mantle where)
 
-All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
-`$MANTLE_DIR/...` in place of `.mantle/...`.
+All subsequent `Read` and `Grep`/`Glob` calls must use `$MANTLE_DIR/...` in
+place of `.mantle/...`.
 
 Read `$MANTLE_DIR/config.md` and check for `personal_vault`.
 
@@ -41,8 +41,7 @@ Read `$MANTLE_DIR/config.md` and check for `personal_vault`.
 ## Step 2 — Check for gaps and stubs
 
 Read `$MANTLE_DIR/state.md` for `skills_required`. List existing skills in
-`<vault>/skills/`. If there are required skills without matching nodes, show
-them:
+`<vault>/skills/`. Show any required skills without matching nodes:
 
 > Untracked skills detected:
 >   - Python asyncio
@@ -50,58 +49,41 @@ them:
 >
 > Want to start with one of these?
 
-Also check for stub skills (0/10 proficiency) among required skills. If any
-stubs exist, surface them:
+Also surface stub skills (0/10 proficiency) among required skills:
 
 > Stub skills that could be fleshed out:
 >   - Docker compose (0/10)
 >
 > Want to fill one of these, or create a new skill?
 
-If no gaps and no stubs, proceed directly to step 3.
+If no gaps and no stubs, proceed to Step 3.
 
 ## Step 3 — Gather skill metadata
 
-Quick pass on the structural info. Ask for each in turn:
+Ask for each in turn:
 
-1. **Name** — What skill or technology? Be specific: "Python asyncio" not just
-   "Python".
-2. **Description** — One-line summary of what this skill covers. Write in third
-   person. Example: "Async Python patterns using asyncio for concurrent
-   I/O-bound services."
-3. **When to use** — Trigger conditions for auto-invocation, separate from the
-   description. Describes *when* to activate the skill, not *what* it is.
-   Example: "Use when building concurrent I/O-bound services, working with
-   aiohttp/FastAPI, or debugging async deadlocks." If the user can't think of
-   specific triggers, leave it blank — the description will be used as fallback.
-4. **Proficiency** — Self-assessment 1–10. Brief calibration:
+1. **Name** — specific: "Python asyncio" not "Python".
+2. **Description** — one-line, third person. Example: "Async Python patterns
+   using asyncio for concurrent I/O-bound services."
+3. **When to use** — trigger conditions for auto-invocation (when to activate,
+   not what it is). Example: "Use when building concurrent I/O-bound services,
+   working with aiohttp/FastAPI, or debugging async deadlocks." Leave blank if
+   unsure — description will be used as fallback.
+4. **Proficiency** — self-assessment 1–10:
    - 1–3 = learning, following tutorials
-   - 4–6 = can ship production code with it
+   - 4–6 = can ship production code
    - 7–9 = deep expertise, can debug obscure issues
    - 10 = wrote the spec
-4. **Related skills** — Other skills this connects to. Suggest from existing
-   skill nodes if any are present.
-
-   After the user provides related skills, note them for the save command.
-   Obsidian will show unresolved wikilinks for skills that don't exist yet
-   in the vault — this is fine and expected.
-
-   Process each missing skill individually — the user may want different
-   actions for different links.
-
-5. **Projects** — Which projects use this skill? Suggest from known project
-   names.
+4. **Related skills** — suggest from existing skill nodes. Note them for the
+   save command. Unresolved Obsidian wikilinks are expected. Process each
+   missing skill individually.
+5. **Projects** — which projects use this skill? Suggest from known names.
 
 ## Step 4 — Research the skill
 
-Before authoring content, research the skill to complement the user's knowledge
-with current expert thinking. This produces a persistent research note that
-informs the skill content and remains available for future updates.
-
 ### 4a. Spawn the researcher agent
 
-Use the Agent tool to spawn a `general-purpose` subagent with the following
-prompt (fill in the values from step 3):
+Spawn a `general-purpose` subagent (fill values from Step 3):
 
 ```
 You are researching best practices and expert knowledge for a specific
@@ -116,8 +98,7 @@ User proficiency: <N/10>
 
 ## Research Focus
 
-The goal is to find expert knowledge that complements the user's own
-experience. Focus on:
+Find expert knowledge that complements the user's own experience. Focus on:
 
 - **Current best practices** — What do experts and official docs recommend?
 - **Common patterns** — Idiomatic usage the community converges on.
@@ -125,7 +106,7 @@ experience. Focus on:
 - **Decision criteria** — When to use this vs alternatives and trade-offs.
 - **Recent changes** — New versions, deprecated patterns, shifted guidance.
 
-Tailor depth to the user's proficiency:
+Tailor depth to proficiency:
 - Low (1–3): cover fundamentals and common patterns they may not know.
 - Mid (4–6): focus on intermediate patterns, edge cases, best practices.
 - High (7–10): focus on advanced patterns, recent changes, niche gotchas.
@@ -139,8 +120,6 @@ structure defined there. Cite all sources.
 
 ### 4b. Save the research
 
-After the agent returns, save the research note:
-
 ```bash
 mantle save-research \
   --focus "technology" \
@@ -151,56 +130,46 @@ mantle save-research \
 
 ### 4c. Draft and review with the user
 
-Synthesise the research into a draft following the skill content structure (see
-step 5). Write it in imperative form, for Claude's consumption. Then present
-the draft to the user and ask them to:
+Synthesise the research into a draft following the skill content structure
+(Step 5). Write in imperative form for Claude's consumption. Present the draft
+and ask the user to:
 
 1. **Remove** anything Claude already knows or that doesn't match their usage.
-2. **Add** their own patterns, conventions, and hard-won knowledge — the things
-   no amount of web research would surface. Their personal experience is what
-   makes this node uniquely valuable.
-3. **Correct** anything the research got wrong or that conflicts with their
-   actual practice.
-4. **Prioritise** — if the combined content exceeds ~150 lines, help them cut
-   the least valuable parts.
-
-The goal is a blend: expert knowledge as the foundation, personalised with the
-user's real-world experience on top.
+2. **Add** their own patterns, conventions, and hard-won knowledge — what no
+   web research would surface. Personal experience is what makes a node
+   uniquely valuable.
+3. **Correct** anything that conflicts with their actual practice.
+4. **Prioritise** — if combined content exceeds ~150 lines, cut the least
+   valuable parts.
 
 ## Step 5 — Author skill content
 
-Take the merged research + user knowledge and compose the final content using
-the standard skill anatomy. Every skill must follow this structure (sections
-marked "required" are mandatory; others are strongly recommended):
+Compose the final content using the standard skill anatomy. Every skill must
+follow this structure (required = mandatory; others strongly recommended):
 
 ```
 ## What (required)
 1–3 sentences grounding the skill. What problem does it address? Why does it
-exist? Orients the agent immediately.
+exist?
 
 ## Why (required)
-What goes wrong without this skill — motivates the agent to follow it rather
-than skip steps. Frame as consequences, not abstractions.
+What goes wrong without this skill. Frame as consequences, not abstractions.
 
 ## When to Use (required)
-Bullet list of trigger conditions — the situations where this skill applies.
+Bullet list of trigger conditions.
 
 ## When NOT to Use (required)
-Bullet list of exclusions — prevents over-application. "Don't use this for X
-because Y."
+Bullet list of exclusions — prevents over-application.
 
 ## How (required)
 
-Choose format based on skill type:
-
 For PROCESS skills (reviews, design workflows, deployment checklists):
 Numbered steps with gates. Each step has a clear entry condition and exit
-criterion. Example: "1. Read the module interface first (gate: can you
-describe the public API in one sentence?)"
+criterion.
 
 For REFERENCE skills (frameworks, conventions, API patterns):
-Pattern catalogue with decision criteria. Group by concern (naming, imports,
-error handling). Use tables for quick reference.
+Pattern catalogue with decision criteria. Group by concern. Use tables for
+quick reference.
 
 ## Common Rationalizations (recommended)
 
@@ -208,7 +177,7 @@ error handling). Use tables for quick reference.
 |---|---|---|
 | "This case is different" | [specific reason] | [specific action] |
 
-3–5 rows. These are the excuses agents use to skip steps or cut corners.
+3–5 rows.
 
 ## Red Flags (recommended)
 
@@ -217,87 +186,64 @@ error handling). Use tables for quick reference.
 
 ## Verification (required)
 
-Evidence-based exit criteria. What must be true when you're done? What
-concrete evidence should you check before considering the skill applied?
+Evidence-based exit criteria. What must be true when you're done?
 ```
 
 ### Progressive disclosure
 
-If the skill has deep reference material (full API tables, extended examples,
-exhaustive checklists), place it below a `<!-- mantle:reference -->` marker.
-This content compiles into `references/core.md` for on-demand loading.
-
-Target: main content above the marker should be under ~150 lines. Not every
-skill needs a reference section — short skills can omit the marker entirely.
+Place deep reference material (full API tables, extended examples, exhaustive
+checklists) below a `<!-- mantle:reference -->` marker. This compiles into
+`references/core.md` for on-demand loading. Main content above the marker
+should be under ~150 lines. Short skills can omit the marker.
 
 ### Coaching principles
 
-- Push past surface-level entries. "I know Python asyncio" is not useful.
-  "Here's how I structure async code, here's what to watch out for with task
-  groups, here's when I reach for asyncio vs threading" is useful.
-- Challenge every token: would a senior engineer need this explained? If Claude
-  already knows it, cut it. Focus on *your* patterns, *your* conventions,
-  *your* hard-won knowledge.
-- Explain the why, not just the what. "Use UTC timestamps consistently
-  (timezone bugs are the #1 support issue)" beats "Use UTC timestamps."
+- Push past surface-level entries. "Here's how I structure async code, here's
+  what to watch out for with task groups" beats "I know Python asyncio."
+- Challenge every token: if Claude already knows it, cut it. Focus on *your*
+  patterns, *your* conventions, *your* hard-won knowledge.
+- Explain the why: "Use UTC timestamps consistently (timezone bugs are the #1
+  support issue)" beats "Use UTC timestamps."
 - Aim for ~150 lines above the reference marker. Under 50 probably isn't worth
-  a separate node. Over 150, move deep material below `<!-- mantle:reference -->`.
+  a separate node; over 150, move deep material below the marker.
 - Every skill needs What, Why, When to Use, How, and Verification at minimum.
-  Common Rationalizations and Red Flags are strongly recommended.
-- Choose process (numbered steps) or reference (pattern catalogue) format for
-  the How section based on whether the skill describes a sequential workflow
-  or a knowledge domain.
-- Concrete over abstract. Show code, show the exact pattern. Avoid hand-waving.
+- Concrete over abstract — show code, show the exact pattern.
 
 Review the final draft with the user and iterate once before saving.
 
 ## Step 6 — Suggest content tags
 
-Before suggesting tags, read the existing taxonomy:
+Read `$MANTLE_DIR/tags.md`, then run `mantle list-tags`.
 
-1. Read `$MANTLE_DIR/tags.md`
-2. Run `mantle list-tags` to see every tag currently in use
-
-Then apply these rules when selecting tags:
+Apply these rules when selecting tags:
 
 ### Reuse rule
 
 If an existing tag covers the skill's subject area, reuse it. Do not create
-a new tag that is a more specific variant of an existing one.
+a more specific variant of an existing tag.
 
 ### topic/ — coarse-grained subject areas
 
-Topic tags represent broad subjects that cluster multiple related skills.
 Choose a tag broad enough that other skills could share it.
 
-- Good: `topic/scraping`, `topic/pydantic`, `topic/streamlit`,
-  `topic/duckdb`
-- Bad: `topic/playwright-web-scraping`,
-  `topic/pydantic-discriminated-unions`, `topic/streamlit-aggrid`,
-  `topic/macrotrends-scraping`
+- Good: `topic/scraping`, `topic/pydantic`, `topic/streamlit`, `topic/duckdb`
+- Bad: `topic/playwright-web-scraping`, `topic/pydantic-discriminated-unions`
 
-Rule of thumb: if the tag would only ever apply to one skill, it is too
-specific.
+If the tag would only ever apply to one skill, it is too specific.
 
 ### domain/ — high-level disciplines
 
-Domain tags represent high-level disciplines, not techniques or
-sub-specialties. A domain should be broad enough to contain 3+ skills
-naturally.
+Broad enough to contain 3+ skills naturally.
 
 - Good: `domain/data-engineering`, `domain/finance`, `domain/web`,
   `domain/devops`, `domain/python`, `domain/ai`
-- Bad: `domain/scraping`, `domain/config-management`,
-  `domain/qualitative-analysis`, `domain/financial-data`
+- Bad: `domain/scraping`, `domain/config-management`
 
 ### After selecting tags
 
-If proposing a tag not already in `tags.md`, note it as "(new)". Present
-the suggested tags to the user for confirmation — they can add, remove, or
-edit tags before proceeding.
-
-After the user confirms, these tags will be passed to the save command via
-`--tag` options. New tags are automatically appended to `tags.md`.
+If proposing a new tag not in `tags.md`, note it as "(new)". Present to the
+user for confirmation — they can add, remove, or edit before proceeding.
+New tags are automatically appended to `tags.md`.
 
 ## Step 7 — Confirm and save
 
@@ -319,8 +265,7 @@ mantle save-skill \
 
 Omit `--when-to-use` if the user left it blank.
 
-After saving, trigger recompilation so the new skill is immediately available
-to Claude Code:
+After saving, recompile:
 
 ```bash
 mantle compile
@@ -328,16 +273,14 @@ mantle compile
 
 ## Step 8 — Offer to continue
 
-After saving, ask if they want to add another skill. If gaps were detected in
-step 2, suggest the next untracked skill.
+Ask if they want to add another skill. If gaps were detected in Step 2,
+suggest the next untracked skill.
 
 ## Step 9 — Session logging
-
-Before ending, write a session log:
 
 ```bash
 mantle save-session --content "<body>" --command "add-skill"
 ```
 
-Keep the log under ~200 words following the session log format (Summary, What
-Was Done, Decisions Made, What's Next, Open Questions).
+Keep under ~200 words: Summary, What Was Done, Decisions Made, What's Next,
+Open Questions.
