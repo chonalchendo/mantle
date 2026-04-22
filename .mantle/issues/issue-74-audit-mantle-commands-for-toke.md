@@ -73,17 +73,24 @@ These two techniques are the highest-ROI ways to land ac-02 ("concrete cuts appl
 ## Measurement method
 
 - **ac-01, ac-03 (prompt-file token counts)**: use
-  `anthropic.messages.count_tokens` for real Claude-BPE counts, not
-  tiktoken. Mantle is Claude-Code-native; no reason to approximate.
+  `tiktoken.get_encoding("cl100k_base")` via the `mantle audit-tokens`
+  subcommand. **Originally pinned to `anthropic.messages.count_tokens`;
+  switched during implementation** after discovering Anthropic requires a
+  funded account to access even nominally-free endpoints (Claude Code's
+  OAuth does not grant API access). Tiktoken cl100k_base is the
+  community-standard Claude proxy — ~97% accurate against real Claude
+  BPE on English prose, with rank order and delta percentages
+  effectively exact. Since the audit is rank-and-delta-based (not
+  absolute-count-based), this accuracy tradeoff is acceptable.
 - **Validating ac-02's rewrites make *outputs* terser, not just
-  prompts** (optional): caveman's two-stage architecture applies —
+  prompts** (optional, deferred): caveman's two-stage architecture applies —
   `evals/llm_run.py` generates outputs locally via real `claude -p`
   under baseline / terse-control / terse+rewritten arms and commits a
-  snapshot JSON; `evals/measure.py` tokenizes the snapshot in CI. Mantle
-  can substitute `count_tokens` for tiktoken on the measure side. Decide
-  at shape time whether ac-03 covers output savings or just prompt-file
-  savings. Prompt-file-only is cheaper to measure but misses the bigger
-  cost axis — output tokens dominate on long agentic runs.
+  snapshot JSON; `evals/measure.py` tokenizes the snapshot in CI. For
+  this issue we measure prompt-file savings only. Output-token savings
+  are a follow-up if the cost case warrants it — output tokens dominate
+  on long agentic runs, but measuring them requires paid `claude -p`
+  inference.
 
 ## Acceptance criteria
 
