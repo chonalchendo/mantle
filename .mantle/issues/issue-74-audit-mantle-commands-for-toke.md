@@ -1,15 +1,21 @@
 ---
 title: Audit /mantle:* commands for token-cost conciseness
-status: planned
+status: implementing
 slice:
 - claude-code
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- Design Review
+- Designing Architecture
+- Software Design Principles
+- import-linter
+- pydantic-discriminated-unions
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 acceptance_criteria:
 - id: ac-01
   text: Audit report lists every command's token count and ranks by cost.
