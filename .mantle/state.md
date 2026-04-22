@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Aggressively optimising the Mantle workflow — token cost, output discipline, and build-pipeline efficiency. Prioritise issues that directly reduce friction, token spend, or output drift in `/mantle:*` commands. Deprioritise non-optimisation work unless it unblocks an optimisation issue.
+Issue 88 — 2 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 

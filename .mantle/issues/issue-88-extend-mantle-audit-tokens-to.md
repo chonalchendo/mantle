@@ -1,21 +1,24 @@
 ---
 title: Extend mantle audit-tokens to sweep all commands and skills in the vault
-status: planned
+status: implementing
 slice:
 - core
 - cli
 - claude-code
 - tests
-story_count: 0
+story_count: 2
 verification: null
 blocked_by: []
 skills_required:
-- Design Review
-- Software Design Principles
 - CLI design best practices
+- Design Review
+- OpenRouter LLM Gateway
+- Software Design Principles
+- claude-sdk-structured-analysis-pipelines
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 acceptance_criteria: []
 ---
 
