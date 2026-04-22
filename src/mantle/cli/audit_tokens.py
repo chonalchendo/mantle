@@ -16,16 +16,9 @@ def run_audit_tokens(
 ) -> None:
     """Audit token cost of Markdown prompt files and write a ranked report.
 
-    Default output path: ``.mantle/audits/<YYYY-MM-DD>-token-audit.md``.
+    Default output: ``.mantle/audits/<YYYY-MM-DD>-token-audit.md``.
     ``--append`` appends an 'After' + 'Delta summary' section to an
     existing report (requires ``--out`` pointing at that report).
-
-    Args:
-        path: Directory containing Markdown prompt files to audit.
-        out: Output file path.  Defaults to the dated audits path.
-        heading: Section heading for the report (default: "Before").
-        encoding: tiktoken encoding name (default: cl100k_base).
-        append: If True, append an After+Delta section to ``out``.
 
     Raises:
         SystemExit: If ``--append`` is given without ``--out``.

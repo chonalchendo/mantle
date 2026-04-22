@@ -196,3 +196,17 @@ Measured with tiktoken (encoding: cl100k_base, ~97% Claude BPE proxy).
 
         with pytest.raises(ValueError, match="Could not parse"):
             token_audit.append_after_section(bad_report, [])
+
+    def test_raises_if_after_section_already_exists(
+        self, cmd_dir: Path, tmp_path: Path
+    ) -> None:
+        """ValueError raised when report already has an After section."""
+        entries = token_audit.audit_directory(cmd_dir)
+        report_path = tmp_path / "audit.md"
+        report_path.write_text(
+            token_audit.format_report(entries), encoding="utf-8"
+        )
+        token_audit.append_after_section(report_path, entries)
+
+        with pytest.raises(ValueError, match="already contains"):
+            token_audit.append_after_section(report_path, entries)
