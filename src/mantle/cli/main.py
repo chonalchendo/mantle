@@ -8,6 +8,7 @@ from cyclopts import App, Parameter
 from mantle import __version__
 from mantle.cli import (
     adopt,
+    audit_tokens,
     brainstorm,
     bugs,
     builds,
@@ -2131,6 +2132,63 @@ def show_hook_example_command(
     Usage: mantle show-hook-example linear > .mantle/hooks/on-issue-shaped.sh
     """
     hooks.run_show_hook_example(name=name)
+
+
+@app.command(name="audit-tokens", group=GROUPS["impl"])
+def audit_tokens_command(
+    path: Annotated[
+        Path,
+        Parameter(
+            name="--path",
+            help=(
+                "Directory containing Markdown prompt files to audit."
+                " Defaults to claude/commands/mantle."
+            ),
+        ),
+    ] = Path("claude/commands/mantle"),
+    out: Annotated[
+        Path | None,
+        Parameter(
+            name="--out",
+            help=(
+                "Output file path. Defaults to"
+                " .mantle/audits/<YYYY-MM-DD>-token-audit.md."
+            ),
+        ),
+    ] = None,
+    heading: Annotated[
+        str,
+        Parameter(
+            name="--heading",
+            help="Section heading for the report (default: Before).",
+        ),
+    ] = "Before",
+    encoding: Annotated[
+        str,
+        Parameter(
+            name="--encoding",
+            help="tiktoken encoding name (default: cl100k_base).",
+        ),
+    ] = "cl100k_base",
+    append: Annotated[
+        bool,
+        Parameter(
+            name="--append",
+            help=(
+                "Append an After+Delta section to an existing report."
+                " Requires --out."
+            ),
+        ),
+    ] = False,
+) -> None:
+    """Audit token cost of Markdown prompt files and write a ranked report."""
+    audit_tokens.run_audit_tokens(
+        path=path,
+        out=out,
+        heading=heading,
+        encoding=encoding,
+        append=append,
+    )
 
 
 if __name__ == "__main__":
