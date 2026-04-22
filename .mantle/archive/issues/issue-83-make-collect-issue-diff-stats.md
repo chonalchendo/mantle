@@ -22,6 +22,37 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`config.md` accepts a structured field declaring which paths count as source,
+    test, and optionally other categories.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`collect-issue-diff-stats` reads that config and categorises changed files
+    accordingly; unclassified files are reported under an "other" bucket rather than
+    silently dropped.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: When the config field is absent, behaviour matches today (`src/` = source,
+    `tests/` = test).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A dbt-style fixture (models/, tests/, macros/) produces sensible stats in
+    a test.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

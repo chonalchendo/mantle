@@ -26,6 +26,35 @@ skills_required:
 tags:
 - type/issue
 - status/approved
+acceptance_criteria:
+- id: ac-01
+  text: A SessionStart hook exists that exports `MANTLE_DIR` for the current session.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: At least the highest-frequency command (/mantle:build or equivalent) uses
+    `$MANTLE_DIR` and no longer asks the LLM to run `mantle where` when the env var
+    is set.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: When `MANTLE_DIR` is not set, commands still function (fallback to the prior
+    path).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A test covers the hook generation / installation path.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

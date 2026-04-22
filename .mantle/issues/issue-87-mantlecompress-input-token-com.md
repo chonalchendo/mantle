@@ -13,6 +13,43 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle compress <target>` exists and compresses a single target file in
+    place, saving the original as `<target>.original.md`.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: A file-type classifier skips code/config blocks so only prose is compressed.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: A post-compression validator asserts structural invariants (headings exact,
+    code blocks/URLs/file-paths byte-identical, bullets within ±15%) and fails loudly
+    if any are violated.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: The tool is exercised on at least one real memory file (e.g. `CLAUDE.md`)
+    with before/after token counts recorded in `.mantle/telemetry/`; applying compression
+    to the rest of the memory surface is left to maintainer discretion post-ship.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Tests cover the validator (invariant preservation + intentional-failure cases)
+    and the classifier (prose vs code vs config fixtures).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

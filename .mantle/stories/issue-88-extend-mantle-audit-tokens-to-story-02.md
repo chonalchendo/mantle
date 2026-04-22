@@ -1,11 +1,11 @@
 ---
 issue: 88
 title: 'Audit, trim, and re-measure: vault-wide Output Format sweep + top-3 cuts'
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

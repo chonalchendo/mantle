@@ -1,6 +1,6 @@
 ---
 title: Extend mantle audit-tokens to sweep all commands and skills in the vault
-status: implementing
+status: verified
 slice:
 - core
 - cli
@@ -18,8 +18,42 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
-acceptance_criteria: []
+- status/verified
+acceptance_criteria:
+- id: ac-01
+  text: Audit report lists every command (`claude/commands/**/*.md`) and every skill
+    in the vault with token counts, ranked by cost, with separate sub-tables per surface.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: Top-3 commands AND top-3 skills (by token cost) get concrete cuts applied.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Every `/mantle:*` command that emits any output has an Output Format section
+    (with one-line template + anti-pattern list).
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Total token savings measured and reported via `mantle audit-tokens --append`
+    in the same report.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: No behavioral regression — existing `/mantle:build` runs end-to-end on a test
+    issue.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -50,12 +84,12 @@ Distinct from issue 79 (which audits CLAUDE.md + `.mantle/` artifact files, a di
 
 ## Acceptance criteria
 
-- [ ] ac-01: Audit report lists every command (`claude/commands/**/*.md`) and every skill in the vault with token counts, ranked by cost, with separate sub-tables per surface.
-- [ ] ac-02: Top-3 commands AND top-3 skills (by token cost) get concrete cuts applied.
-- [ ] ac-03: Every `/mantle:*` command that emits any output has an Output Format section (with one-line template + anti-pattern list).
-- [ ] ac-04: Total token savings measured and reported via `mantle audit-tokens --append` in the same report.
-- [ ] ac-05: No behavioral regression — existing `/mantle:build` runs end-to-end on a test issue.
-- [ ] ac-06: `just check` passes.
+- [x] ac-01: Audit report lists every command (`claude/commands/**/*.md`) and every skill in the vault with token counts, ranked by cost, with separate sub-tables per surface.
+- [x] ac-02: Top-3 commands AND top-3 skills (by token cost) get concrete cuts applied.
+- [x] ac-03: Every `/mantle:*` command that emits any output has an Output Format section (with one-line template + anti-pattern list).
+- [x] ac-04: Total token savings measured and reported via `mantle audit-tokens --append` in the same report.
+- [x] ac-05: No behavioral regression — existing `/mantle:build` runs end-to-end on a test issue.
+- [x] ac-06: `just check` passes.
 
 ## Blocked by
 
