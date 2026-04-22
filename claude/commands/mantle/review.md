@@ -180,3 +180,16 @@ next criterion.
    >
    > Fix the flagged items manually, or run `/mantle:fix` to have AI fix them automatically.
    > Then re-run `/mantle:verify` followed by `/mantle:review`.
+
+## Output Format
+
+One row per criterion in the review checklist:
+
+- **Criterion {N}**: <text> — **Verification**: Pass / Fail — **Review**: Approved / Needs changes
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the verification report already run
+- No trailing summary paragraph after the checklist
+- No emoji
+- No marking criterion as approved without the user's explicit decision

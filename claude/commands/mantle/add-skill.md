@@ -276,6 +276,18 @@ mantle compile
 Ask if they want to add another skill. If gaps were detected in Step 2,
 suggest the next untracked skill.
 
+## Output Format
+
+One line per saved skill:
+
+- **Skill**: <name> — <description> — **Proficiency**: <N/10> — **Tags**: <tags>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the skill content body
+- No trailing summary paragraph after the confirmation
+- No emoji
+
 ## Step 9 — Session logging
 
 ```bash

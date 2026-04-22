@@ -174,3 +174,16 @@ Report the outcome:
 > {If FAILED:}
 > {count} criterion/criteria failed re-verification. Review the failures
 > above and fix manually, then re-run `/mantle:verify`.
+
+## Output Format
+
+One line per fixed criterion:
+
+- **Criterion**: <text> — **Fix applied**: <one-line description> — **Verified**: pass / fail
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the review feedback already loaded
+- No trailing summary paragraph after the criteria list
+- No emoji
+- No claiming a criterion is fixed without running tests or reading the corrected code

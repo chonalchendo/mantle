@@ -224,6 +224,22 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per design field in the confirmation summary:
+
+- **Vision**: <one sentence>
+- **Principles**: <count> defined
+- **Building blocks**: <count> defined
+- **Target users**: <one phrase>
+- **Success metrics**: <count> defined
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating individual principles or building blocks in the wrap-up
+- No trailing summary paragraph after the save confirmation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

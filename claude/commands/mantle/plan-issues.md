@@ -233,3 +233,15 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 > **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
 >
 > Other options: [brief list of alternatives with one-line descriptions]
+
+## Output Format
+
+One line per saved issue in the session summary:
+
+- **Issue {NN}**: <title> — Slices: <layers> — Blocked by: <issue-NN or none>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full issue body
+- No trailing summary paragraph after the issues list
+- No emoji

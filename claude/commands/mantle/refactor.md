@@ -208,6 +208,18 @@ briefly:
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One row per key result field in the Refactor Complete summary:
+
+- **Approach**: <name> — **Files changed**: <count> — **Tests**: pass / fail — **Key change**: <one sentence>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the diagnostic analysis already presented
+- No trailing narrative paragraph after the summary table
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

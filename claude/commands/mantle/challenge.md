@@ -177,6 +177,19 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per assumption in the verdict summary:
+
+- **Assumption**: <text> — **Confidence**: High / Medium / Low — **If wrong**: <consequence>
+- **Verdict**: <Proceed / Iterate / Pivot> — **Confidence**: <High / Medium / Low>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full challenge transcript
+- No trailing summary paragraph after the verdict
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

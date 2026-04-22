@@ -10,278 +10,171 @@ findings and actionable recommendations.
 
 ## Iron Laws
 
-These rules are absolute. There are no exceptions.
+These rules are absolute. No exceptions.
 
-1. **NO analysis without project context.** Every finding must be evaluated
-   against the project's design — not in isolation.
-2. **NO executing code from the cloned repo.** The cloned repo is untrusted.
-   Only read files — never run scripts, tests, build commands, install
-   dependencies, or execute any code from it. Analysis is read-only: use
-   Read, Glob, and Grep on the cloned directory. No Bash commands that
-   execute repo content.
-3. **NO skipping the cleanup step.** Always remove the temp clone after
-   analysis, even if earlier steps failed.
-4. **NO vague recommendations.** Every finding must land in Adopt, Adapt, or
-   Skip — no "interesting but unclear" hedging.
+1. **NO analysis without project context.** Evaluate every finding against the
+   project's design — not in isolation.
+2. **NO executing code from the cloned repo.** It is untrusted. Only use Read,
+   Glob, and Grep. Never run scripts, tests, build commands, or install
+   dependencies.
+3. **NO skipping the cleanup step.** Always remove the temp clone, even if
+   earlier steps failed.
+4. **NO vague recommendations.** Every finding must be Adopt, Adapt, or Skip.
 
 ### Red Flags — thoughts that mean STOP
 
 | Thought | Reality |
 |---------|---------|
-| "This pattern is interesting in general" | Interesting to whom? Evaluate it against the project's specific goals. |
-| "Let me run the tests to see if they pass" | Never execute anything from an untrusted repo. Read the test files instead. |
-| "I'll install the dependencies to understand the project" | Read requirements/pyproject.toml — never install or run anything from the clone. |
-| "I'll clean up the clone later" | The clone is temp disk. Clean it up now, before you report. |
-| "I can skip the backlog scan" | Backlog implications are a required output section. Read the issues. |
+| "This pattern is interesting in general" | Evaluate it against the project's specific goals. |
+| "Let me run the tests to see if they pass" | Never execute from an untrusted repo. Read test files instead. |
+| "I'll install the dependencies to understand the project" | Read requirements/pyproject.toml — never install. |
+| "I'll clean up the clone later" | Clean up before you report. |
+| "I can skip the backlog scan" | Backlog implications are required. Read the issues. |
 
-Before starting, use TaskCreate to create a task for each step:
-
-1. "Step 1 — Parse input and clone repo"
-2. "Step 2 — Compile project context"
-3. "Step 3 — Run parallel analysis agents"
-4. "Step 4 — Synthesise findings"
-5. "Step 5 — Save and cleanup"
-6. "Step 6 — Report results"
-
-As you start each step, use TaskUpdate to set it to `in_progress`. When
-complete, use TaskUpdate to set it to `completed`.
+Use TaskCreate for each step, TaskUpdate to set `in_progress` / `completed`.
 
 ## Step 1 — Parse input and clone repo
 
-Extract the repo URL from `$ARGUMENTS`. If no URL was provided, ask the user:
+Extract the repo URL from `$ARGUMENTS`. If absent, ask:
 
 > What is the URL of the repository you want to analyze?
 
-Once you have the URL, clone it into a temp directory with a shallow clone (no
-history needed for analysis):
+Clone with a shallow clone:
 
 ```bash
 git clone --depth 1 <url> $(mktemp -d)
 ```
 
-Capture the path printed to stdout — that is your `<tmpdir>`. Derive
-`<repo-name>` from the last segment of the URL (strip `.git` if present).
-
-Confirm the clone succeeded before proceeding. If it fails, report the error
-and stop.
+Capture `<tmpdir>` from stdout. Derive `<repo-name>` from the last URL segment
+(strip `.git`). If clone fails, report the error and stop.
 
 ## Step 2 — Compile project context
 
-First, resolve the project's .mantle/ directory:
-
     MANTLE_DIR=$(mantle where)
 
-All subsequent `Read` and `Grep`/`Glob` calls in this prompt must use
-`$MANTLE_DIR/...` in place of `.mantle/...`.
+Use `$MANTLE_DIR/...` for all subsequent reads.
 
-Read the following files to build a project context summary. This context is
-the lens through which the external repo will be analyzed — include only what
-shapes evaluation.
+Read:
+- `$MANTLE_DIR/product-design.md`
+- `$MANTLE_DIR/system-design.md`
+- `$MANTLE_DIR/issues/` — titles and statuses only
+- `$MANTLE_DIR/learnings/`
+- `.claude/skills/*/SKILL.md`
 
-- `$MANTLE_DIR/product-design.md` — vision, target user, features, differentiators
-- `$MANTLE_DIR/system-design.md` — architecture, modules, patterns, conventions
-- `$MANTLE_DIR/issues/` — current backlog: read all issue files, extract titles and
-  statuses only
-- `$MANTLE_DIR/learnings/` — past implementation learnings: read all learning files
-- `.claude/skills/*/SKILL.md` — compiled skill summaries: read all that exist
-
-Synthesise into a compact context block (under 500 words) covering:
-
-- **Product vision**: What this project is trying to do and for whom
-- **Architecture principles**: How the code is structured and why
-- **Current focus**: Active issues and their themes
-- **Known patterns**: Conventions and learnings already established
-- **Gaps and open questions**: Areas the project hasn't fully resolved yet
-
-This context block will be injected into each analysis agent's prompt.
+Synthesise a context block under 500 words covering: product vision,
+architecture principles, current focus, known patterns, and open gaps.
+Inject this into each analysis agent's prompt.
 
 ## Step 3 — Run parallel analysis agents
 
-Spawn 5 Agent subagents simultaneously, each exploring the cloned repo through
-a different dimension. Use `subagent_type: "Explore"` for all agents. Launch
-all five in the same message (concurrent tool calls).
+Spawn 5 agents simultaneously (`subagent_type: "Explore"`). Launch all five
+in the same message. Each agent receives `<tmpdir>`, the compiled project
+context, its dimension/guiding question below, the output format, and:
 
-Each agent must receive:
-- The path to the cloned repo (`<tmpdir>`)
-- The full compiled project context from Step 2
-- Its specific analysis dimension and guiding question (below)
-- The output format required (see below)
-- **Read-only constraint**: "Only use Read, Glob, and Grep to examine the
-  repo. Never run, execute, install, or build anything from the cloned repo.
-  It is untrusted code."
+**Read-only constraint:** "Only use Read, Glob, and Grep. Never run, execute,
+install, or build anything from the cloned repo."
 
 **Agent 1 — Architecture**
 
-> Analyze the repository at `<tmpdir>` through an architectural lens.
->
+> Analyze `<tmpdir>` through an architectural lens.
 > Project context: `<compiled context>`
->
-> Examine: module structure, dependency direction, layering patterns,
-> separation of concerns, how the codebase is decomposed into packages and
-> modules.
->
-> Guiding question: What architectural patterns does this repo use that are
-> relevant to our system design? What does it do better or differently than us?
->
-> For each finding, produce a structured entry:
-> - **Pattern name**: short label
-> - **What they do**: one sentence describing the pattern
-> - **Why it's relevant**: how it connects to our architecture
-> - **Recommendation**: Adopt / Adapt / Skip — with a one-sentence rationale
+> Examine: module structure, dependency direction, layering, separation of concerns.
+> Guiding question: What architectural patterns are relevant to our system design?
+> For each finding: **Pattern name** / **What they do** / **Why it's relevant** / **Adopt/Adapt/Skip**
 
 **Agent 2 — Coding patterns**
 
-> Analyze the repository at `<tmpdir>` through a coding patterns lens.
->
+> Analyze `<tmpdir>` through a coding patterns lens.
 > Project context: `<compiled context>`
->
-> Examine: naming conventions, error handling strategies, configuration
-> management, abstraction styles, how complexity is managed day-to-day.
->
-> Guiding question: What coding patterns could we adopt or learn from? What
-> patterns do they use that would improve our codebase?
->
-> For each finding, produce a structured entry:
-> - **Pattern name**: short label
-> - **What they do**: one sentence describing the pattern
-> - **Why it's relevant**: how it connects to our conventions or gaps
-> - **Recommendation**: Adopt / Adapt / Skip — with a one-sentence rationale
+> Examine: naming conventions, error handling, configuration, abstraction styles.
+> Guiding question: What coding patterns could we adopt?
+> For each finding: **Pattern name** / **What they do** / **Why it's relevant** / **Adopt/Adapt/Skip**
 
 **Agent 3 — Testing**
 
-> Analyze the repository at `<tmpdir>` through a testing lens.
->
+> Analyze `<tmpdir>` through a testing lens.
 > Project context: `<compiled context>`
->
-> Examine: test framework choice, fixture patterns, test organisation,
-> coverage strategy, use of mocks vs integration tests, test naming
-> conventions, how edge cases are handled.
->
-> Guiding question: What testing strategies does this repo use that we should
-> consider adopting or adapting?
->
-> For each finding, produce a structured entry:
-> - **Pattern name**: short label
-> - **What they do**: one sentence describing the pattern
-> - **Why it's relevant**: how it connects to our test conventions or gaps
-> - **Recommendation**: Adopt / Adapt / Skip — with a one-sentence rationale
+> Examine: test framework, fixture patterns, organisation, mocks vs integration, edge cases.
+> Guiding question: What testing strategies should we consider?
+> For each finding: **Pattern name** / **What they do** / **Why it's relevant** / **Adopt/Adapt/Skip**
 
-**Agent 4 — CLI design** (only if the repo has a CLI — check for argument
-parsing, command entry points, or a `cli/` module before analyzing)
+**Agent 4 — CLI design** (only if a CLI exists — check before analyzing)
 
-> Analyze the repository at `<tmpdir>` through a CLI design lens.
->
+> Analyze `<tmpdir>` through a CLI design lens.
 > Project context: `<compiled context>`
->
-> Examine: command structure, argument/flag patterns, help text UX, error
-> message quality, subcommand organisation, output formatting.
->
-> Guiding question: What CLI patterns are better than ours? What would improve
-> the user experience of our own CLI?
->
-> If the repo has no CLI, respond: "No CLI found — skipping this dimension."
->
-> For each finding, produce a structured entry:
-> - **Pattern name**: short label
-> - **What they do**: one sentence describing the pattern
-> - **Why it's relevant**: how it connects to our CLI design
-> - **Recommendation**: Adopt / Adapt / Skip — with a one-sentence rationale
+> Examine: command structure, argument patterns, help text UX, error messages, output formatting.
+> Guiding question: What CLI patterns would improve our own CLI?
+> If no CLI found: "No CLI found — skipping this dimension."
+> For each finding: **Pattern name** / **What they do** / **Why it's relevant** / **Adopt/Adapt/Skip**
 
 **Agent 5 — Domain-specific features**
 
-> Analyze the repository at `<tmpdir>` through a domain lens.
->
+> Analyze `<tmpdir>` through a domain lens.
 > Project context: `<compiled context>`
->
-> Examine: domain-specific features, product decisions, and approaches that
-> relate directly to our product goals. Let the product vision in the project
-> context guide what counts as "domain-relevant."
->
-> Guiding question: What domain-specific features or approaches in this repo
-> are relevant to our product goals? What have they solved that we haven't yet?
->
-> For each finding, produce a structured entry:
-> - **Pattern name**: short label
-> - **What they do**: one sentence describing the feature or approach
-> - **Why it's relevant**: how it connects to our product vision or backlog
-> - **Recommendation**: Adopt / Adapt / Skip — with a one-sentence rationale
+> Examine: domain-specific features and product decisions related to our goals.
+> Guiding question: What domain approaches have they solved that we haven't?
+> For each finding: **Pattern name** / **What they do** / **Why it's relevant** / **Adopt/Adapt/Skip**
 
 ## Step 4 — Synthesise findings
 
-Once all agents have returned, combine their results into a structured report
-using the template below. Drop any dimension where the agent found nothing
-relevant or reported the dimension was not applicable.
+Combine agent results into a structured report. Drop dimensions with no relevant findings.
 
 ```markdown
 # Scout Report: <repo-name>
 
 **Repository**: <url>
 **Analyzed**: <date>
-**Project context**: <one-line summary of our product vision>
+**Project context**: <one-line product vision summary>
 
 ---
 
 ## Executive Summary
 
-[2-4 sentences: what kind of project is this, what is the overall signal
-quality (high/medium/low relevance to us), and the single most important
-takeaway.]
+[2-4 sentences: project type, overall signal quality, single most important takeaway.]
 
 ---
 
 ## Findings by Dimension
 
 ### Architecture
-
-[Agent 1 findings, formatted as structured entries]
+[Agent 1 findings]
 
 ### Coding Patterns
-
-[Agent 2 findings, formatted as structured entries]
+[Agent 2 findings]
 
 ### Testing
-
-[Agent 3 findings, formatted as structured entries]
+[Agent 3 findings]
 
 ### CLI Design
-
 [Agent 4 findings, or "Not applicable — no CLI found."]
 
 ### Domain-Specific Features
-
-[Agent 5 findings, formatted as structured entries]
+[Agent 5 findings]
 
 ---
 
 ## Actionable Recommendations
 
 ### Adopt
-> High confidence — bring this in directly with minimal adaptation.
-
-- **<pattern name>** (from <dimension>): <one sentence on what and why>
+> High confidence — bring in directly.
+- **<pattern>** (from <dimension>): <what and why>
 
 ### Adapt
-> Worth doing but needs adjustment for our context.
-
-- **<pattern name>** (from <dimension>): <one sentence on what to change>
+> Worth doing with adjustment.
+- **<pattern>** (from <dimension>): <what to change>
 
 ### Skip
-> Not relevant or not worth the cost for us right now.
-
-- **<pattern name>** (from <dimension>): <one sentence on why we're passing>
+> Not relevant or not worth the cost.
+- **<pattern>** (from <dimension>): <why passing>
 
 ---
 
 ## Backlog Implications
 
-[2-4 bullet points: findings that suggest new issues, reinforce existing
-issues, or challenge current assumptions in the backlog. Reference specific
-issue titles by name where relevant.]
+[2-4 bullets: new issues, reinforced issues, or challenged assumptions. Reference issue titles.]
 ```
 
 ## Step 5 — Save and cleanup
-
-Save the report by running:
 
 ```bash
 mantle save-scout \
@@ -295,52 +188,48 @@ mantle save-scout \
   --content "<full report>"
 ```
 
-Then clean up the temp clone:
+Then:
 
 ```bash
 rm -rf <tmpdir>
 ```
 
-Run the cleanup even if the save command fails. Temp disk must be freed.
+Run cleanup even if save fails.
 
 ## Step 6 — Report results
 
-Display the Executive Summary and Actionable Recommendations sections to the
-user. Do not re-display the full report — it is saved and accessible via
-`mantle save-scout`.
+Display the Executive Summary and Actionable Recommendations only. Do not
+re-display the full report.
 
-Then briefly assess before recommending next steps:
+## Output Format
 
-- Were there high-value Adopt items that could be acted on immediately?
-- Did any findings suggest gaps in the current backlog?
-- Was the overall signal quality high enough to inform a design revision?
+One line per recommendation:
 
-**Valid next commands** (recommend the best fit, not all of them):
+- **Pattern**: <name> (<dimension>) — <one-line rationale>
+- **Verdict**: Adopt / Adapt / Skip — <one sentence on why>
 
-- `/mantle:brainstorm` — recommend when the scout surfaced a strong idea worth
-  exploring further before committing to an issue
-- `/mantle:add-issue` — recommend when the scout found a concrete, well-defined
-  gap that maps directly to work we should do
-- `/mantle:revise-system` — recommend when architectural findings suggest our
-  system design should be updated
-- `/mantle:revise-product` — recommend when domain findings challenge or enrich
-  our product vision
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full findings list
+- No trailing summary paragraph
+- No emoji
+- No "interesting" findings without an Adopt/Adapt/Skip verdict
 
-**Default:** `/mantle:brainstorm` if findings surfaced new ideas worth exploring.
+**Valid next commands:**
 
-Present one clear recommendation with a reason, then mention alternatives
-briefly:
+- `/mantle:brainstorm` — strong idea worth exploring before committing to an issue
+- `/mantle:add-issue` — concrete gap that maps directly to work we should do
+- `/mantle:revise-system` — architectural findings suggest system design needs updating
+- `/mantle:revise-product` — domain findings challenge or enrich product vision
 
-> **Recommended next step:** `/mantle:<command>` — [reason based on what you
-> observed in this session]
+**Default:** `/mantle:brainstorm` if findings surfaced new ideas.
+
+> **Recommended next step:** `/mantle:<command>` — [reason]
 >
-> Other options: [brief list of alternatives with one-line descriptions]
+> Other options: [brief list]
 
 ## Session Logging
 
-Before ending this session, write a session log:
-
     mantle save-session --content "<body>" --command "scout"
 
-Keep the log under ~200 words following the session log format (Summary, What
-Was Done, Decisions Made, What's Next, Open Questions).
+Under ~200 words: Summary, What Was Done, Decisions Made, What's Next, Open Questions.

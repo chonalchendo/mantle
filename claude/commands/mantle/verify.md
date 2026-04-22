@@ -301,3 +301,16 @@ that isn't captured in the current verification strategy.
 4. Tell the user:
    > {count} criterion/criteria failed. Fix the issues above and re-run
    > `/mantle:verify` to try again.
+
+## Output Format
+
+One row per criterion in the verification table:
+
+- **Criterion**: <text> — **Result**: Pass / Fail — **Detail**: <evidence or failure reason>
+
+Anti-patterns:
+- No marking a criterion Pass without citing specific evidence (test output, code location, or command result)
+- No "I noticed" / "I see" / "let me" framing
+- No restating what the verification strategy is
+- No trailing summary paragraph after the table
+- No emoji

@@ -128,3 +128,18 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 > **Recommended next step:** `/mantle:<command>` — [reason based on what you observed]
 >
 > Other options: [brief list of alternatives with one-line descriptions]
+
+## Output Format
+
+One line per reflection section in the saved learning:
+
+- **What went well**: <one-line summary>
+- **Harder than expected**: <one-line summary>
+- **Wrong assumptions**: <one-line summary or "none">
+- **Confidence delta**: <+N or -N>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full reflection transcript
+- No trailing summary paragraph after the learning is saved
+- No emoji

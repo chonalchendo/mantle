@@ -112,6 +112,18 @@ After a successful save, tell the user:
 > Product design revised! A decision log entry has been created to track this
 > change. Review the updated design in `.mantle/product-design.md`.
 
+## Output Format
+
+One line per changed field in the before/after summary:
+
+- **Field**: <name> — **Change**: <one-line description of what changed>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating unchanged fields
+- No trailing summary paragraph after the save confirmation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

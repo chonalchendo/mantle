@@ -100,6 +100,21 @@ to be queried again, offer:
 
 If the user agrees, suggest running `/mantle:distill` with the topic.
 
+## Output Format
+
+One line per evidence item in the answer:
+
+- **Answer**: <direct response>
+- **Evidence**: <finding> (source: <file path>)
+- **Gaps**: <what the vault doesn't cover, or "none">
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the question verbatim as part of the answer
+- No trailing summary paragraph after the evidence list
+- No emoji
+- No stating facts without a cited source
+
 ## Session Logging
 
 Before ending this session, write a session log:

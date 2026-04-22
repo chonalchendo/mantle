@@ -209,6 +209,18 @@ briefly:
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per saved issue field in the confirmation:
+
+- **Issue {NN}**: <title> — Slices: <layers> — ACs: <count>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full issue body after save
+- No trailing summary paragraph after the confirmation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

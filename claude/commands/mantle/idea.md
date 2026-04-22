@@ -96,6 +96,19 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per recommended step:
+
+- **Recommended next step:** `/mantle:<command>` — <one-line reason grounded in this session>
+- **Other options:** `<command>` — <one-line summary>
+
+Anti-patterns:
+- No "I noticed" / "I see" / "let me" / "I'll" framing
+- No restating the captured idea back to the user
+- No trailing summary paragraph after the recommendation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

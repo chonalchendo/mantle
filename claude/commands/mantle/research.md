@@ -234,6 +234,18 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per building block in the status summary:
+
+- **Block**: <name> — **Status**: researched / unresearched — **Confidence**: <N/10> — <one-line finding or gap>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full research report
+- No trailing summary paragraph after the coverage list
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

@@ -142,3 +142,16 @@ Display summary:
 - **Files unchanged**: {count}
 - **Tests**: pass/fail
 - **Next**: suggest `/mantle:verify {N}` if issue-scoped
+
+## Output Format
+
+One line per simplified file:
+
+- **File**: <path> — <one-line description of what was simplified>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the bloat checklist items verbatim
+- No trailing summary paragraph after the file list
+- No emoji
+- No claiming simplification made improvements without listing what changed

@@ -234,3 +234,15 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 > **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
 >
 > Other options: [brief list of alternatives with one-line descriptions]
+
+## Output Format
+
+One line per approach in the comparison table:
+
+- **Approach**: <name> — Appetite: <size> — Key benefit: <one phrase> — Key risk: <one phrase>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the problem description from the issue
+- No trailing summary paragraph after the chosen approach rationale
+- No emoji

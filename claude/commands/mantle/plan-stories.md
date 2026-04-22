@@ -231,7 +231,6 @@ Fix any issues by updating the saved stories via `mantle save-story --issue <N>
 
 ## Step 6 — Session wrap-up
 
-
 When the user stops planning, summarise:
 
 > **Story planning complete for issue {NN}.**
@@ -256,3 +255,15 @@ Present one clear recommendation with a reason, then mention alternatives briefl
 > **Recommended next step:** `/mantle:<command>` — [reason based on what you observed in this session]
 >
 > Other options: [brief list of alternatives with one-line descriptions]
+
+## Output Format
+
+One line per story in the coverage summary:
+
+- **Story {N}**: <title> — covers: <ac-ids>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating story content already presented
+- No trailing summary paragraph after the coverage table
+- No emoji

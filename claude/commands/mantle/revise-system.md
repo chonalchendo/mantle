@@ -101,6 +101,18 @@ After a successful save, tell the user:
 > System design revised! A decision log entry has been created to track this
 > change. Review the updated design in `.mantle/system-design.md`.
 
+## Output Format
+
+One line per changed section in the before/after summary:
+
+- **Section**: <name> — **Change**: <one-line description of what changed>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating unchanged sections
+- No trailing summary paragraph after the save confirmation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

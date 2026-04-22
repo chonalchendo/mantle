@@ -264,6 +264,19 @@ briefly:
 >
 > Other options: [brief list of alternatives with one-line descriptions]
 
+## Output Format
+
+One line per section of the brainstorm verdict:
+
+- **Verdict**: <proceed / research / scrap> — <one-sentence reasoning>
+- **Alignment**: <Strong / Moderate / Weak / Misaligned> — <one-sentence rationale>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the idea description already presented
+- No trailing summary paragraph after the verdict
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:

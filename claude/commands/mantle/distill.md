@@ -98,6 +98,18 @@ After saving, report:
 >
 > Saved to: {path returned by CLI}
 
+## Output Format
+
+One line per source used:
+
+- **Topic**: <topic> — **Sources**: <count> — **Saved to**: <path>
+
+Anti-patterns:
+- No "I noticed" / "I'll do X next" framing
+- No restating the full distillation body
+- No trailing summary paragraph after the save confirmation
+- No emoji
+
 ## Session Logging
 
 Before ending this session, write a session log:
