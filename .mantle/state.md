@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 74 — review past learnings before next planning cycle.
+Aggressively optimising the Mantle workflow — token cost, output discipline, and build-pipeline efficiency. Prioritise issues that directly reduce friction, token spend, or output drift in `/mantle:*` commands. Deprioritise non-optimisation work unless it unblocks an optimisation issue.
 
 ## Blockers
 
@@ -76,8 +76,15 @@ _None_
 
 ## Next Steps
 
-- Build issue 41 — query .mantle/ for recurring patterns from learnings/retrospectives
-- Or build issue 42 — report-to-GitHub command
+Optimisation-focused queue (ordered by leverage):
+
+- Issue 88 — extend `mantle audit-tokens` to sweep all commands + skills in the vault (direct follow-up to 74)
+- Issue 87 — `mantle compress` for input-token compression (direct token-cost reduction)
+- Issue 79 — audit `.mantle/` + `CLAUDE.md` for progressive-disclosure drift (context-surface optimisation)
+- Issue 75 — model-tiering config + A/B harness (cost-lever optimisation; follows 84)
+- Issue 71 / 72 — dynamic end-of-command recommendations (workflow-loop efficiency)
+
+Non-optimisation issues (66 worktree, 67 Jira, 85 cross-repo, 42 GH report, etc.) deferred unless they surface as blockers.
 
 ## Recently Completed
 

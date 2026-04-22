@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "45895f46a3972b2600985048519c152410f5f0521c46f8f1a8b2a01f46d1c39e",
+    "/Users/conal/Development/mantle/.mantle/state.md": "1746910e13d1ca4ffcd71c1b44abf27da12918ade1750d3d2f9f7e82875fbe55",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-21-2211.md": "085ced3bf1cba2e7c2682909c8547eb4b2db90d3a8f0cdef5d87bff819aa81db",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-22-2012.md": "3634de524654df015411f28ea1ef5d1a11e96690e3708a9a57cd04e3a244e866",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -36,6 +36,7 @@
     "/Users/conal/test-vault/skills/mohnish-pabrai-investment-philosophy.md": "cabbe7227c37ee0ad62613d6cdf3da4e438dbeeb32341eb607055916d695905f",
     "/Users/conal/test-vault/skills/nick-sleep-investment-philosophy.md": "a1ef233df8ef91c0214d674ea3d387aa6b65b31fcfab628e3ea1b5b62ef7a927",
     "/Users/conal/test-vault/skills/omegaconf.md": "e63158a7ace6ff1223bdbeec75754508c20e1a2586eecb5f9c5897c48692d56d",
+    "/Users/conal/test-vault/skills/openapi-typescript--openapi-fetch.md": "da3188cda727d4f9b18745f80d6a877839f43576fea4e24dba0ccfbe93a2623c",
     "/Users/conal/test-vault/skills/openrouter-llm-gateway.md": "d0a21fbd51057f60f902c4bc3d5a6ee25e6a5c19a9a906f3138bd570a821ced8",
     "/Users/conal/test-vault/skills/playwright-web-scraping.md": "0dec6cd8569f703f1b48eaf7adedae5973df694abff97a0ce5281e4b6d45b5bf",
     "/Users/conal/test-vault/skills/production-project-readiness.md": "533df297e24a1a88916badabe6078b00948ab1b9ca683ce9f8ae5c9dc3e4c85f",
@@ -44,10 +45,13 @@
     "/Users/conal/test-vault/skills/python-314.md": "451b370d8015bf8eb0a97db452f7cb019ac8c60426f4c8b42fde8c45021cee00",
     "/Users/conal/test-vault/skills/python-package-structure.md": "239dd7d01dc89ba009c5d20f411fa4591f8dfcc38cb8fcf4f0b9c7fdab314286",
     "/Users/conal/test-vault/skills/python-project-conventions.md": "526c5f3e47fbcced2022408ecbc7be2d15af6b5ea64e3d91ab4f32991bdce975",
+    "/Users/conal/test-vault/skills/shadcn-svelte.md": "62058d34e7223476d71c365d8df2512eed816e012466c7437b42255e673372d7",
     "/Users/conal/test-vault/skills/software-design-principles.md": "5a83fa9ce670981ac0bdcf71033b855169a7f7e8d1a14ce4b4b417408b0de5c4",
     "/Users/conal/test-vault/skills/sqlmesh-best-practices.md": "6ffe83647c6cd8973d5223cbb9e0c3e8c2ed92efe54056ce8f926382c9289ac5",
     "/Users/conal/test-vault/skills/streamlit-aggrid.md": "c3a013c8acd4d61b5e64c02ee9503bae7daf7f894640c89fbde7fd67c0820614",
     "/Users/conal/test-vault/skills/streamlit.md": "b5ce02da86c0a0ca3c17090426461fa1152f5a06124ff482a01e36c4fae717ae",
+    "/Users/conal/test-vault/skills/sveltekit-2--svelte-5.md": "de6bea5d42cc2de4f2b72d568aee3261b151597a4eb08d9d0a396d7278743a4c",
+    "/Users/conal/test-vault/skills/tailwind-css-v4.md": "681956335d51ab124cfdfc2b1c01c64a4d79addb328ab2217238f67af063f407",
     "/Users/conal/test-vault/skills/tom-gayner-investment-philosophy.md": "414609dbad7c4130c0a0ed7d131ccd2a5ce8e15adfd5271bae92ece0770a33cb"
   }
 }
