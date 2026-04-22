@@ -1,11 +1,11 @@
 ---
 issue: 74
 title: Apply cuts to top 3 commands, measure via --append, finalize report
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story

@@ -1,11 +1,11 @@
 ---
 issue: 74
 title: Build mantle audit-tokens CLI command + initial ranked report
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
