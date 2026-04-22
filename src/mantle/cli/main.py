@@ -2137,15 +2137,15 @@ def show_hook_example_command(
 @app.command(name="audit-tokens", group=GROUPS["impl"])
 def audit_tokens_command(
     path: Annotated[
-        Path,
+        list[Path] | None,
         Parameter(
             name="--path",
             help=(
-                "Directory containing Markdown prompt files to audit."
+                "Path to audit (repeatable for multi-surface audits)."
                 " Defaults to claude/commands/mantle."
             ),
         ),
-    ] = Path("claude/commands/mantle"),
+    ] = None,
     out: Annotated[
         Path | None,
         Parameter(
