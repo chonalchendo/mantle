@@ -1,6 +1,6 @@
 ---
 title: Audit /mantle:* commands for token-cost conciseness
-status: implementing
+status: verified
 slice:
 - claude-code
 story_count: 2
@@ -15,31 +15,31 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/verified
 acceptance_criteria:
 - id: ac-01
   text: Audit report lists every command's token count and ranks by cost.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-02
   text: Concrete cuts applied to at least the top 3 commands.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-03
   text: Total token savings measured and reported.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-04
   text: No behavioral regression — existing `/mantle:build` runs end-to-end.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-05
   text: '`just check` passes.'
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 ---
@@ -94,11 +94,11 @@ These two techniques are the highest-ROI ways to land ac-02 ("concrete cuts appl
 
 ## Acceptance criteria
 
-- [ ] ac-01: Audit report lists every command's token count and ranks by cost.
-- [ ] ac-02: Concrete cuts applied to at least the top 3 commands.
-- [ ] ac-03: Total token savings measured and reported.
-- [ ] ac-04: No behavioral regression — existing `/mantle:build` runs end-to-end.
-- [ ] ac-05: `just check` passes.
+- [x] ac-01: Audit report lists every command's token count and ranks by cost.
+- [x] ac-02: Concrete cuts applied to at least the top 3 commands.
+- [x] ac-03: Total token savings measured and reported.
+- [x] ac-04: No behavioral regression — existing `/mantle:build` runs end-to-end.
+- [x] ac-05: `just check` passes.
 
 ## Blocked by
 
