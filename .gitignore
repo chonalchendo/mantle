@@ -29,3 +29,8 @@ htmlcov/
 
 # Mantle runtime state (volatile, per-machine)
 .mantle/.session-id
+
+# Secrets
+.env
+.env.*
+!.env.example
