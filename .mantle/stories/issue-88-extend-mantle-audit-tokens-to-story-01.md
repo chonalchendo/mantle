@@ -1,11 +1,11 @@
 ---
 issue: 88
 title: 'Core + CLI: multi-path audit with per-surface report'
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story
