@@ -66,7 +66,6 @@ class TestRunAuditTokens:
         self,
         two_surface_dirs: tuple[Path, Path],
         tmp_path: Path,
-        capsys: pytest.CaptureFixture[str],
     ) -> None:
         """Report with two paths contains both surface sub-sections."""
         cmds, skills = two_surface_dirs
@@ -83,7 +82,6 @@ class TestRunAuditTokens:
         self,
         two_surface_dirs: tuple[Path, Path],
         tmp_path: Path,
-        capsys: pytest.CaptureFixture[str],
     ) -> None:
         """Multi-path report matches snapshot."""
         cmds, skills = two_surface_dirs

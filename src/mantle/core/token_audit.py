@@ -307,17 +307,6 @@ def _parse_before_tokens_per_surface(
         r"^\|\s*\d+\s*\|\s*(\S+)\s*\|\s*([\d,]+)\s*\|", re.MULTILINE
     )
 
-    if not surfaces:
-        # No surfaces requested — try global parse as fallback
-        all_rows: dict[str, int] = {}
-        for match in row_pattern.finditer(text):
-            all_rows[match.group(1)] = int(match.group(2).replace(",", ""))
-        if not all_rows:
-            raise ValueError(
-                f"Could not parse Before token table from {report_path}"
-            )
-        return {}
-
     # Split text into per-surface sections by ### headings
     section_pattern = re.compile(r"^### (.+)$", re.MULTILINE)
     section_starts = [
