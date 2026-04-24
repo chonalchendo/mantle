@@ -1,5 +1,6 @@
 ---
-title: 'Per-stage build telemetry: sub-agent JSONL read path + universal stage-begin primitive'
+title: 'Per-stage build telemetry: sub-agent JSONL read path + universal stage-begin
+  primitive'
 status: planned
 slice:
 - core
@@ -9,7 +10,20 @@ slice:
 story_count: 0
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- Design Review
+- Designing Architecture
+- Python 3.14
+- Python Project Conventions
+- Python package structure
+- Software Design Principles
+- dirty-equals
+- import-linter
+- inline-snapshot
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- python-314
 tags:
 - type/issue
 - status/planned
