@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 91 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
+Learning captured for issue 91 — review past learnings before next planning cycle.
 
 ## Blockers
 
@@ -76,23 +76,35 @@ _None_
 
 ## Next Steps
 
-Optimisation-focused queue (ordered by leverage; reshaped 2026-04-24 from GSD scout):
+Issues are grouped under target releases. Order within a bucket is the implementation order; releases ship when all issues in the bucket reach `verified`.
 
-- **Issue 91 — fix SessionStart hook to write `.mantle/.session-id` (BLOCKER for 89; lays foundation for 85)**
+### v0.22.0 — Telemetry fix (ready to ship)
+
+- Issue 91 — fix SessionStart hook to write `.mantle/.session-id` ✓ verified
+
+### v0.23.0 — Regression-safety net
+
 - Issue 90 — prompt-layer golden-parity harness (enables aggressive token cuts in 79/87/88 with regression safety)
+- Issue 89 — A/B harness for build pipeline (cost-lever evaluation on top of 84; benefits from 90's parity net)
+
+### v0.24.0 — Token-cost reduction (gated on v0.23 safety net)
+
 - Issue 87 — `mantle compress` for input-token compression (direct token-cost reduction)
 - Issue 79 — audit `.mantle/` + `CLAUDE.md` for progressive-disclosure drift (consider splitting at shape time: mechanical `@file` include refactor vs audit-context CLI)
-- Issue 71 — dynamic end-of-command recommendations with fresh-context handoff (absorbed 72; workflow-loop efficiency)
-- Issue 89 — A/B harness for build pipeline (blocked by 91; replaces 75-remainder; cost-lever evaluation on top of 84)
 
-Cross-repo within ~1-month horizon:
+### v0.25.0 — Workflow-loop efficiency
+
+- Issue 71 — dynamic end-of-command recommendations with fresh-context handoff (absorbed 72)
+
+### v0.26.0+ — Cross-repo expansion
+
 - Issue 85 — schedule shape session within ~2 weeks; GSD env-var → TTY session-identity pattern as lead candidate primitive (don't pre-extract)
 
-Off the optimisation track (revisit prioritisation after the optimisation slice lands):
+### Backlog (unscheduled — revisit after optimisation slice lands)
+
 - Issue 70 — end-of-build triage prompt
 - Issue 73 — lightweight bug-fix pipeline
-
-Other non-optimisation issues (66 worktree, 67 Jira, 42 GH report, 86 plug external skill libraries, 68 mantle upgrade, 69 mantle archive) deferred unless they surface as blockers.
+- Issues 66 (worktree), 67 (Jira), 42 (GH report), 86 (external skills), 68 (mantle upgrade), 69 (mantle archive) — deferred unless they surface as blockers
 
 Recently closed:
 - Issue 75 → superseded by 84 + new issue 89 (see archive)

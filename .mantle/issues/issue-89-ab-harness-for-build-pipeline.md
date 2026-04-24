@@ -13,7 +13,41 @@ skills_required: []
 tags:
 - type/issue
 - status/planned
-acceptance_criteria: []
+acceptance_criteria:
+- id: ac-01
+  text: A CLI entrypoint (e.g. `mantle ab-build`) accepts an issue ID and two strategy
+    names and produces a single comparison report.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The report includes per-stage tokens, wall-clock seconds, and dollar cost
+    for both strategies, plus a delta column.
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Report cells contain real numerical content — verifier rejects `<fill>`, `TBD`,
+    `pending`, `<x>`, `<y>` placeholder sentinels (84-retro lesson).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: The harness runs from outside `/mantle:build` (no nested-build invocation).
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: 'Tests cover: argument parsing, report format, sentinel rejection, and at
+    least one preset pair.'
+  passes: false
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: false
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD

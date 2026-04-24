@@ -1,6 +1,6 @@
 ---
 title: Fix SessionStart hook to write .mantle/.session-id from payload
-status: verified
+status: approved
 slice:
 - claude-code
 - tests
@@ -11,8 +11,44 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
-acceptance_criteria: []
+- status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`claude/hooks/session-start.sh` reads JSON from stdin and extracts the `session_id`
+    field.'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: The hook writes the session id to `<project_dir>/.mantle/.session-id` atomically
+    (temp file + rename), preserving the existing no-op behaviour outside Mantle projects.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: After running `mantle install --global` and starting a fresh Claude Code session,
+    `.mantle/.session-id` contains the current session UUID, not a stale one.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: A subsequent `mantle build-start --issue NN` followed by some real story work
+    and `mantle build-finish --issue NN` produces a build file with the current session's
+    UUID, real started/finished timestamps, and one entry per story run.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: A test exercises the hook script end-to-end (feed JSON on stdin, assert the
+    file is written with the right value) using a temp working directory.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: '`just check` passes.'
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -43,12 +79,12 @@ Optional follow-on (not required for this issue): once the file is being maintai
 
 ## Acceptance criteria
 
-- [ ] ac-01: `claude/hooks/session-start.sh` reads JSON from stdin and extracts the `session_id` field.
-- [ ] ac-02: The hook writes the session id to `<project_dir>/.mantle/.session-id` atomically (temp file + rename), preserving the existing no-op behaviour outside Mantle projects.
-- [ ] ac-03: After running `mantle install --global` and starting a fresh Claude Code session, `.mantle/.session-id` contains the current session UUID, not a stale one.
-- [ ] ac-04: A subsequent `mantle build-start --issue NN` followed by some real story work and `mantle build-finish --issue NN` produces a build file with the current session's UUID, real started/finished timestamps, and one entry per story run.
-- [ ] ac-05: A test exercises the hook script end-to-end (feed JSON on stdin, assert the file is written with the right value) using a temp working directory.
-- [ ] ac-06: `just check` passes.
+- [x] ac-01: `claude/hooks/session-start.sh` reads JSON from stdin and extracts the `session_id` field.
+- [x] ac-02: The hook writes the session id to `<project_dir>/.mantle/.session-id` atomically (temp file + rename), preserving the existing no-op behaviour outside Mantle projects.
+- [x] ac-03: After running `mantle install --global` and starting a fresh Claude Code session, `.mantle/.session-id` contains the current session UUID, not a stale one.
+- [x] ac-04: A subsequent `mantle build-start --issue NN` followed by some real story work and `mantle build-finish --issue NN` produces a build file with the current session's UUID, real started/finished timestamps, and one entry per story run.
+- [x] ac-05: A test exercises the hook script end-to-end (feed JSON on stdin, assert the file is written with the right value) using a temp working directory.
+- [x] ac-06: `just check` passes.
 
 ## Blocked by
 
