@@ -7,6 +7,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 HOOK_SCRIPT = (
     Path(__file__).parent.parent.parent
     / "claude"
@@ -145,13 +147,9 @@ class TestSessionStartHook:
     ) -> None:
         python3_path = shutil.which("python3")
         if python3_path is None:
-            import pytest
-
             pytest.skip("python3 not available on system PATH")
 
         (tmp_path / ".mantle").mkdir()
-        # Put a fake bin_dir first on PATH so jq is not found there,
-        # then append system paths so cat/mv/mktemp remain available.
         bin_dir = tmp_path / "bin"
         bin_dir.mkdir()
         (bin_dir / "python3").symlink_to(python3_path)
