@@ -18,7 +18,10 @@ _BASH = shutil.which("bash") or "/bin/bash"
 
 
 def _run_hook(
-    cwd: Path, *, env: dict[str, str] | None = None
+    cwd: Path,
+    *,
+    env: dict[str, str] | None = None,
+    input: str | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run the session-start hook in a given directory."""
     return subprocess.run(
@@ -28,6 +31,7 @@ def _run_hook(
         text=True,
         check=False,
         env=env,
+        input=input,
     )
 
 
@@ -121,3 +125,66 @@ class TestSessionStartHook:
         # Only .mantle/ should exist in tmp_path — no stray env artefact.
         entries = sorted(p.name for p in tmp_path.iterdir())
         assert entries == [".mantle"]
+
+    def test_writes_session_id_from_stdin_payload(self, tmp_path: Path) -> None:
+        (tmp_path / ".mantle").mkdir()
+        payload = (
+            '{"session_id": "abc-123-def",'
+            ' "transcript_path": "/x", "cwd": "/y"}'
+        )
+
+        result = _run_hook(tmp_path, input=payload)
+
+        assert result.returncode == 0
+        session_file = tmp_path / ".mantle" / ".session-id"
+        assert session_file.exists()
+        assert session_file.read_text() == "abc-123-def"
+
+    def test_writes_session_id_with_jq_unavailable(
+        self, tmp_path: Path
+    ) -> None:
+        python3_path = shutil.which("python3")
+        if python3_path is None:
+            import pytest
+
+            pytest.skip("python3 not available on system PATH")
+
+        (tmp_path / ".mantle").mkdir()
+        # Put a fake bin_dir first on PATH so jq is not found there,
+        # then append system paths so cat/mv/mktemp remain available.
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        (bin_dir / "python3").symlink_to(python3_path)
+        system_path = "/usr/bin:/bin:/usr/local/bin"
+        env = {
+            "PATH": f"{bin_dir}:{system_path}",
+            "HOME": os.environ.get("HOME", ""),
+        }
+        payload = '{"session_id": "fallback-uuid"}'
+
+        result = _run_hook(tmp_path, env=env, input=payload)
+
+        assert result.returncode == 0
+        session_file = tmp_path / ".mantle" / ".session-id"
+        assert session_file.exists()
+        assert session_file.read_text() == "fallback-uuid"
+
+    def test_no_session_file_when_payload_empty(self, tmp_path: Path) -> None:
+        (tmp_path / ".mantle").mkdir()
+
+        result = _run_hook(tmp_path, input="")
+
+        assert result.returncode == 0
+        session_file = tmp_path / ".mantle" / ".session-id"
+        assert not session_file.exists()
+
+    def test_no_session_file_when_payload_not_json(
+        self, tmp_path: Path
+    ) -> None:
+        (tmp_path / ".mantle").mkdir()
+
+        result = _run_hook(tmp_path, input="not json at all")
+
+        assert result.returncode == 0
+        session_file = tmp_path / ".mantle" / ".session-id"
+        assert not session_file.exists()
