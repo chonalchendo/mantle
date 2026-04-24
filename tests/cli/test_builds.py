@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
+
+from inline_snapshot import snapshot
 
 from mantle.cli import builds
 
@@ -61,6 +64,15 @@ def _make_project(tmp_path: Path) -> Path:
     (tmp_path / ".mantle" / "builds").mkdir()
     (tmp_path / ".mantle" / "stories").mkdir()
     return tmp_path
+
+
+def _normalize(body: str) -> str:
+    """Normalise ISO-8601 timestamps to <TS> for stable snapshot comparison."""
+    return re.sub(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)?",
+        "<TS>",
+        body,
+    )
 
 
 # ── run_build_start ──────────────────────────────────────────────
@@ -205,19 +217,20 @@ def test_build_finish_with_missing_session_file_warns(
     assert "## Summary" not in stub.read_text(encoding="utf-8")
 
 
-def test_build_finish_correlates_stories_by_mtime_markers(
+def test_run_build_finish_roundtrip_with_subagents(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Roundtrip: parent turns + subagent JSONL + stage mark → full report."""
     project_dir = _make_project(tmp_path)
-    session_id = "sess-mtime"
+    session_id = "test-sid"
     ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
 
-    # Stub
-    stub = project_dir / ".mantle" / "builds" / "build-54-20260412-1000.md"
+    # Write build stub
+    stub = project_dir / ".mantle" / "builds" / "build-99-20260412-1000.md"
     stub.write_text(
         "---\n"
-        "issue: 54\n"
+        "issue: 99\n"
         f"started: {ts.isoformat()}\n"
         f"session_id: {session_id}\n"
         "status: in-progress\n"
@@ -225,66 +238,227 @@ def test_build_finish_correlates_stories_by_mtime_markers(
         encoding="utf-8",
     )
 
-    # Two story files, mtime set near each sidechain cluster start
-    story1 = project_dir / ".mantle" / "stories" / "issue-54-story-01.md"
-    story2 = project_dir / ".mantle" / "stories" / "issue-54-story-02.md"
-    story1.write_text("story 1\n", encoding="utf-8")
-    story2.write_text("story 2\n", encoding="utf-8")
-    import os as _os
+    # Set up parent session JSONL (2 assistant turns)
+    projects_root = tmp_path / "projects"
+    slug = projects_root / "-slug"
+    slug.mkdir(parents=True)
+    session_file = slug / f"{session_id}.jsonl"
+    parent_records = [
+        _assistant_record("p1", None, session_id, ts + timedelta(minutes=5)),
+        _assistant_record("p2", "p1", session_id, ts + timedelta(minutes=10)),
+    ]
+    _write_jsonl(session_file, parent_records)
 
-    mtime1 = (ts + timedelta(seconds=5)).timestamp()
-    mtime2 = (ts + timedelta(seconds=105)).timestamp()
-    _os.utime(story1, (mtime1, mtime1))
-    _os.utime(story2, (mtime2, mtime2))
+    # Set up subagent JSONL + meta.json (story-implementer)
+    subagents_dir = slug / session_id / "subagents"
+    subagents_dir.mkdir(parents=True)
+    agent_jsonl = subagents_dir / "agent-1.jsonl"
+    agent_meta = subagents_dir / "agent-1.meta.json"
+    subagent_records = [
+        _assistant_record(
+            "a1",
+            None,
+            "sub-sess",
+            ts + timedelta(minutes=6),
+            is_sidechain=True,
+        ),
+        _assistant_record(
+            "a2",
+            "a1",
+            "sub-sess",
+            ts + timedelta(minutes=8),
+            is_sidechain=True,
+        ),
+    ]
+    _write_jsonl(agent_jsonl, subagent_records)
+    agent_meta.write_text(
+        json.dumps({"agentType": "story-implementer"}), encoding="utf-8"
+    )
 
-    # Session with two clusters (around marker 1 and marker 2)
+    # Write stage mark for "shape" before the parent turns
+    telemetry_dir = project_dir / ".mantle" / "telemetry"
+    telemetry_dir.mkdir(parents=True)
+    stages_file = telemetry_dir / f"stages-{session_id}.jsonl"
+    stage_record = {"stage": "shape", "at": ts.isoformat()}
+    stages_file.write_text(json.dumps(stage_record) + "\n", encoding="utf-8")
+
+    monkeypatch.setenv("CLAUDE_SESSION_ID", session_id)
+    monkeypatch.setenv("CLAUDE_PROJECTS_DIR", str(projects_root))
+
+    builds.run_build_finish(99, project_dir=project_dir)
+
+    text = stub.read_text(encoding="utf-8")
+    normalized = _normalize(text)
+    assert normalized == snapshot("""\
+---
+issue: 99
+session_id: test-sid
+started: <TS>
+finished: <TS>
+stories:
+  - story_id: null
+    stage: shape
+    model: claude-opus-4-6
+    started: <TS>
+    finished: <TS>
+    duration_s: 0.0
+    turn_count: 1
+    input_tokens: 10
+    output_tokens: 20
+    cache_read_input_tokens: 0
+    cache_creation_input_tokens: 0
+  - story_id: null
+    stage: implement
+    model: claude-opus-4-6
+    started: <TS>
+    finished: <TS>
+    duration_s: 120.0
+    turn_count: 2
+    input_tokens: 20
+    output_tokens: 40
+    cache_read_input_tokens: 0
+    cache_creation_input_tokens: 0
+build_finished: <TS>
+status: complete
+---
+
+## Summary
+
+### shape
+
+| Story | Model | Duration (s) | Turns | In tok | Out tok |
+|-------|-------|--------------|-------|--------|---------|
+| — | claude-opus-4-6 | 0.0 | 1 | 10 | 20 |
+
+### implement
+
+| Story | Model | Duration (s) | Turns | In tok | Out tok |
+|-------|-------|--------------|-------|--------|---------|
+| — | claude-opus-4-6 | 120.0 | 2 | 20 | 40 |
+""")
+
+
+def test_run_build_finish_no_stages_no_subagents(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only parent JSONL + stub; no stages file; no subagents."""
+    project_dir = _make_project(tmp_path)
+    session_id = "test-sid-bare"
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+
+    stub = project_dir / ".mantle" / "builds" / "build-99-20260412-1000.md"
+    stub.write_text(
+        "---\n"
+        "issue: 99\n"
+        f"started: {ts.isoformat()}\n"
+        f"session_id: {session_id}\n"
+        "status: in-progress\n"
+        "---\n",
+        encoding="utf-8",
+    )
+
     projects_root = tmp_path / "projects"
     slug = projects_root / "-slug"
     slug.mkdir(parents=True)
     session_file = slug / f"{session_id}.jsonl"
     records = [
-        _assistant_record("m1", None, session_id, ts, is_sidechain=False),
-        _assistant_record(
-            "s1a",
-            "m1",
-            session_id,
-            ts + timedelta(seconds=10),
-            is_sidechain=True,
-        ),
-        _assistant_record(
-            "s1b",
-            "s1a",
-            session_id,
-            ts + timedelta(seconds=20),
-            is_sidechain=True,
-        ),
-        _assistant_record(
-            "m2",
-            "m1",
-            session_id,
-            ts + timedelta(seconds=100),
-            is_sidechain=False,
-        ),
-        _assistant_record(
-            "s2a",
-            "m2",
-            session_id,
-            ts + timedelta(seconds=110),
-            is_sidechain=True,
-        ),
-        _assistant_record(
-            "s2b",
-            "s2a",
-            session_id,
-            ts + timedelta(seconds=120),
-            is_sidechain=True,
-        ),
+        _assistant_record("p1", None, session_id, ts + timedelta(minutes=1)),
     ]
     _write_jsonl(session_file, records)
+
     monkeypatch.setenv("CLAUDE_PROJECTS_DIR", str(projects_root))
 
-    builds.run_build_finish(54, project_dir=project_dir)
+    builds.run_build_finish(99, project_dir=project_dir)
 
     text = stub.read_text(encoding="utf-8")
-    assert "story_id: 1" in text
-    assert "story_id: 2" in text
+    assert "status: complete" in text
+    assert "## Summary" in text
+    # No story runs because no subagents and no stage windows
+    assert "No story runs detected" in text
+
+
+def test_run_build_finish_empty_parent_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Parent JSONL with zero assistant turns; fallback to datetime.now(UTC)."""
+    project_dir = _make_project(tmp_path)
+    session_id = "test-sid-empty"
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+
+    stub = project_dir / ".mantle" / "builds" / "build-99-20260412-1000.md"
+    stub.write_text(
+        "---\n"
+        "issue: 99\n"
+        f"started: {ts.isoformat()}\n"
+        f"session_id: {session_id}\n"
+        "status: in-progress\n"
+        "---\n",
+        encoding="utf-8",
+    )
+
+    projects_root = tmp_path / "projects"
+    slug = projects_root / "-slug"
+    slug.mkdir(parents=True)
+    # Write a JSONL with only non-assistant records (zero parsed turns)
+    session_file = slug / f"{session_id}.jsonl"
+    session_file.write_text(
+        json.dumps({"type": "user", "content": "hello"}) + "\n", encoding="utf-8"
+    )
+
+    monkeypatch.setenv("CLAUDE_PROJECTS_DIR", str(projects_root))
+
+    # Should not raise; uses datetime.now(UTC) as session_end fallback
+    builds.run_build_finish(99, project_dir=project_dir)
+
+    text = stub.read_text(encoding="utf-8")
+    assert "status: complete" in text
+    assert "## Summary" in text
+    assert "No story runs detected" in text
+
+
+def test_run_build_finish_drops_old_markers_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """stories/ directory files do NOT drive story attribution (Marker gone)."""
+    project_dir = _make_project(tmp_path)
+    session_id = "test-sid-marker"
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+
+    # Story files that the old _derive_mtime_markers would have picked up
+    stories_dir = project_dir / ".mantle" / "stories"
+    (stories_dir / "issue-99-story-01.md").write_text("s1\n", encoding="utf-8")
+    (stories_dir / "issue-99-story-02.md").write_text("s2\n", encoding="utf-8")
+
+    stub = project_dir / ".mantle" / "builds" / "build-99-20260412-1000.md"
+    stub.write_text(
+        "---\n"
+        "issue: 99\n"
+        f"started: {ts.isoformat()}\n"
+        f"session_id: {session_id}\n"
+        "status: in-progress\n"
+        "---\n",
+        encoding="utf-8",
+    )
+
+    projects_root = tmp_path / "projects"
+    slug = projects_root / "-slug"
+    slug.mkdir(parents=True)
+    session_file = slug / f"{session_id}.jsonl"
+    records = [
+        _assistant_record("p1", None, session_id, ts + timedelta(minutes=1)),
+    ]
+    _write_jsonl(session_file, records)
+
+    monkeypatch.setenv("CLAUDE_PROJECTS_DIR", str(projects_root))
+
+    builds.run_build_finish(99, project_dir=project_dir)
+
+    text = stub.read_text(encoding="utf-8")
+    # Old mtime-marker approach would have produced story_id: 1 and story_id: 2
+    # The new approach should not produce story_id entries from story files alone
+    assert "story_id: 1" not in text
+    assert "story_id: 2" not in text
+    assert "status: complete" in text

@@ -2,18 +2,14 @@
 
 from __future__ import annotations
 
-import re
 from datetime import UTC, datetime
 from pathlib import Path
 
 from rich.console import Console
 
-from mantle.core import telemetry
+from mantle.core import stages, telemetry
 
 console = Console()
-
-
-_STORY_FILENAME_RE = re.compile(r"issue-\d+-story-(\d+)")
 
 
 def run_build_start(issue: int, project_dir: Path | None = None) -> None:
@@ -66,10 +62,11 @@ def run_build_finish(issue: int, project_dir: Path | None = None) -> None:
     """Finalize a build report by parsing the Claude Code session JSONL.
 
     Locates the most recent in-progress stub for this issue, reads
-    its ``session_id``, parses the matching session transcript, and
-    overwrites the stub with a full rendered report. If anything
-    required is missing (no stub, unset env, missing session file),
-    prints a warning and returns without raising.
+    its ``session_id``, parses the matching session transcript and
+    per-session stage marks, discovers sub-agent JSONLs, and overwrites
+    the stub with a full rendered report. If anything required is
+    missing (no stub, unset env, missing session file), prints a
+    warning and returns without raising.
 
     Args:
         issue: Issue number being finished.
@@ -102,12 +99,26 @@ def run_build_finish(issue: int, project_dir: Path | None = None) -> None:
         console.print(f"[yellow]Warning:[/yellow] {exc} Leaving stub as-is.")
         return
 
-    markers = _derive_mtime_markers(project_dir, issue)
-    turns = telemetry.read_session(session_file)
-    runs = telemetry.group_stories(turns, markers)
-    report = telemetry.summarise(session_id, turns, runs)
+    marks = stages.read_stages(session_id, project_dir)
+    parent_turns = telemetry.read_session(session_file)
 
-    rendered = telemetry.render_report(report, issue=issue, markers=markers)
+    # Build windows using the last parent-turn timestamp as session_end
+    # (falls back to now(UTC) when the session has zero turns).
+    if parent_turns:
+        session_end = max(t.timestamp for t in parent_turns)
+    else:
+        session_end = datetime.now(UTC)
+    stage_windows = stages.windows_for_session(marks, session_end)
+
+    subagent_paths = telemetry.find_subagent_files(session_id)
+
+    runs = telemetry.group_stories(
+        parent_turns=parent_turns,
+        subagent_paths=subagent_paths,
+        stage_windows=stage_windows,
+    )
+    report = telemetry.summarise(session_id, parent_turns, runs)
+    rendered = telemetry.render_report(report, issue=issue)
     finished = datetime.now(UTC)
     finalized = _finalize_frontmatter(rendered, finished)
     stub_path.write_text(finalized, encoding="utf-8")
@@ -173,43 +184,6 @@ def _read_frontmatter_value(body: str, key: str) -> str | None:
         if name.strip() == key:
             return value.strip()
     return None
-
-
-def _derive_mtime_markers(
-    project_dir: Path,
-    issue: int,
-) -> tuple[telemetry.Marker, ...]:
-    """Derive story markers from ``.mantle/stories/`` file mtimes.
-
-    For each ``issue-{NN}-story-{S}.md`` file, use its mtime as a
-    proxy for when the orchestrator spawned the story's agent. This
-    is a v1 heuristic but good enough because the orchestrator
-    touches each story file via ``update-story-status`` immediately
-    before spawning.
-
-    Args:
-        project_dir: Project directory.
-        issue: Issue number.
-
-    Returns:
-        Tuple of Marker records, one per story file found.
-    """
-    stories_dir = project_dir / ".mantle" / "stories"
-    if not stories_dir.is_dir():
-        return ()
-
-    markers: list[telemetry.Marker] = []
-    for path in sorted(stories_dir.glob(f"issue-{issue:02d}-story-*.md")):
-        match = _STORY_FILENAME_RE.search(path.stem)
-        if match is None:
-            continue
-        try:
-            story_id = int(match.group(1))
-        except ValueError:
-            continue
-        mtime = datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)
-        markers.append(telemetry.Marker(story_id=story_id, timestamp=mtime))
-    return tuple(markers)
 
 
 def _finalize_frontmatter(rendered: str, finished: datetime) -> str:
