@@ -144,8 +144,6 @@ _CLASSIFICATIONS: dict[str, tuple[str, str]] = {
     ),
 }
 
-_DEFAULT_DEFERRED_RATIONALE = "low refactor pressure; promote to INTEGRATED if it joins the token-cut queue."
-
 
 def _commands_dir() -> Path:
     """Return the path to the claude/commands/mantle directory."""

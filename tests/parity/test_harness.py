@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from mantle.core import compiler
 from tests.parity import fixtures, harness
 
 if TYPE_CHECKING:
@@ -86,8 +87,6 @@ def test_parity_result_dataclass_is_frozen() -> None:
 
 
 def test_run_prompt_parity_static_command_matches(tmp_path: Path) -> None:
-    from mantle.core import compiler
-
     tpl_dir = compiler.template_dir()
     raw = (tpl_dir / "build.md").read_text(encoding="utf-8")
     expected = harness.normalize_prompt_output(raw)
@@ -100,8 +99,6 @@ def test_run_prompt_parity_static_command_matches(tmp_path: Path) -> None:
 
 
 def test_run_prompt_parity_static_command_mismatch(tmp_path: Path) -> None:
-    from mantle.core import compiler
-
     tpl_dir = compiler.template_dir()
     raw = (tpl_dir / "build.md").read_text(encoding="utf-8")
     expected = harness.normalize_prompt_output(raw)

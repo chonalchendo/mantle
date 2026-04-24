@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 
 from inline_snapshot import snapshot
 
-from tests.parity.fixtures import build_sandbox_fixture
-from tests.parity.harness import run_prompt_parity
+from tests.parity import fixtures, harness
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,11 +14,11 @@ if TYPE_CHECKING:
 
 def test_implement_prompt_parity(tmp_path: Path) -> None:
     """Snapshot the normalized /mantle:implement prompt for regression detection."""
-    fixture = build_sandbox_fixture(tmp_path)
-    result = run_prompt_parity(
-        command="implement", fixture=fixture, baseline=""
-    )
-    assert result.current_text == snapshot("""\
+    fixture = fixtures.build_sandbox_fixture(tmp_path)
+    result = harness.run_prompt_parity(
+        command="implement",
+        fixture=fixture,
+        baseline=snapshot("""\
 ---
 description: Use when stories are planned and ready to be implemented as code
 argument-hint: [issue-number]
@@ -246,4 +245,6 @@ Recommend one next step:
 > Other options: [brief list]
 
 No "I noticed", no restating the story list, no trailing summary.
-""")
+"""),
+    )
+    assert result.matches, result.diff

@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 
 from inline_snapshot import snapshot
 
-from tests.parity.fixtures import build_sandbox_fixture
-from tests.parity.harness import run_prompt_parity
+from tests.parity import fixtures, harness
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,9 +14,11 @@ if TYPE_CHECKING:
 
 def test_build_prompt_parity(tmp_path: Path) -> None:
     """Snapshot the normalized /mantle:build prompt for regression detection."""
-    fixture = build_sandbox_fixture(tmp_path)
-    result = run_prompt_parity(command="build", fixture=fixture, baseline="")
-    assert result.current_text == snapshot("""\
+    fixture = fixtures.build_sandbox_fixture(tmp_path)
+    result = harness.run_prompt_parity(
+        command="build",
+        fixture=fixture,
+        baseline=snapshot("""\
 ---
 description: Use when you want to take a planned issue from design to verified code in one automated pass
 argument-hint: [issue-number]
@@ -346,4 +347,6 @@ If inbox items were captured, list:
 Pipeline sequence:
 1. Prerequisites → 2. Select issue → 3. Load skills → 4. Shape →
 5. Plan stories → 6. Implement → 7. Simplify → 8. Verify → 9. Summary
-""")
+"""),
+    )
+    assert result.matches, result.diff

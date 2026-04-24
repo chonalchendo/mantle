@@ -84,7 +84,7 @@ def normalize_prompt_output(text: str) -> str:
 def run_prompt_parity(
     command: str,
     fixture: Path,
-    baseline: str,
+    baseline: object,
 ) -> ParityResult:
     """Render ``command`` against ``fixture``, normalize, compare to ``baseline``.
 
@@ -97,10 +97,16 @@ def run_prompt_parity(
     this function normalizes ``current_text`` once before comparing, but does
     **not** double-normalize the baseline.
 
+    ``baseline`` may be an ``inline_snapshot`` proxy (supports ``__eq__`` only)
+    or a plain ``str``. When ``baseline`` is a plain ``str`` and the texts
+    differ, a unified diff is included in :attr:`ParityResult.diff`; otherwise
+    ``diff`` is an empty string.
+
     Args:
         command: Command name (without ``.md`` extension).
         fixture: Project root directory containing ``.mantle/``.
-        baseline: Normalized baseline text to compare against.
+        baseline: Normalized baseline text to compare against, or an
+            ``inline_snapshot`` proxy.
 
     Returns:
         :class:`ParityResult` with a unified diff on mismatch or an empty
@@ -119,19 +125,22 @@ def run_prompt_parity(
     current = normalize_prompt_output(raw)
     matches = current == baseline
 
-    diff_lines = list(
-        difflib.unified_diff(
-            baseline.splitlines(keepends=True),
-            current.splitlines(keepends=True),
-            fromfile=f"{command}.md (baseline)",
-            tofile=f"{command}.md (current)",
+    if not matches and isinstance(baseline, str):
+        diff_lines = list(
+            difflib.unified_diff(
+                baseline.splitlines(keepends=True),
+                current.splitlines(keepends=True),
+                fromfile=f"{command}.md (baseline)",
+                tofile=f"{command}.md (current)",
+            )
         )
-    )
-    diff = "".join(diff_lines)
+        diff = "".join(diff_lines)
+    else:
+        diff = ""
 
     return ParityResult(
         command=command,
-        baseline_text=baseline,
+        baseline_text=str(baseline),
         current_text=current,
         matches=matches,
         diff=diff,

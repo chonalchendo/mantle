@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 
 from inline_snapshot import snapshot
 
-from tests.parity.fixtures import build_sandbox_fixture
-from tests.parity.harness import run_prompt_parity
+from tests.parity import fixtures, harness
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -15,11 +14,11 @@ if TYPE_CHECKING:
 
 def test_plan_stories_prompt_parity(tmp_path: Path) -> None:
     """Snapshot the normalized /mantle:plan-stories prompt for regression detection."""
-    fixture = build_sandbox_fixture(tmp_path)
-    result = run_prompt_parity(
-        command="plan-stories", fixture=fixture, baseline=""
-    )
-    assert result.current_text == snapshot("""\
+    fixture = fixtures.build_sandbox_fixture(tmp_path)
+    result = harness.run_prompt_parity(
+        command="plan-stories",
+        fixture=fixture,
+        baseline=snapshot("""\
 ---
 argument-hint: [issue-number]
 allowed-tools: Read, Bash(mantle *)
@@ -289,4 +288,6 @@ Anti-patterns:
 - No restating story content already presented
 - No trailing summary paragraph after the coverage table
 - No emoji
-""")
+"""),
+    )
+    assert result.matches, result.diff
