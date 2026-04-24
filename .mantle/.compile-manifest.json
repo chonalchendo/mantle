@@ -1,12 +1,12 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "5786af585ba7ddcdd978cc23c97bb1ac0fe037fbdfaba99936ebda233463caa2",
-    "/Users/conal/Development/mantle/.mantle/product-design.md": "6ed6401a86b1b56c3e8c3b4d9d81dc9d698538cfd1602514edb50e84c42eea39",
+    "/Users/conal/Development/mantle/.mantle/state.md": "859141a34d13414c5e1d52cfc28759711c88bf0e8e184427590ab71401314f94",
+    "/Users/conal/Development/mantle/.mantle/product-design.md": "533945d070b9609ccd0c05077c9a6b65b89622f65b100cec2bea819997acb9e5",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-22-2042.md": "a5a261216b334a00d1b4d96f1677b5514504215a99b676697b0b901470b1cfc3",
-    "/Users/conal/Development/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
-    "/Users/conal/Development/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-24-1152.md": "5bbd0f23e28591e290bc68e51dc87cc36449eba46b2f72400a675cd3b0fb4d58",
+    "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
+    "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
     "/Users/conal/test-vault/skills/beautifulsoup4-web-scraping.md": "220fd8f91cba106a7716026d9a6def001862f54d23f9099fc9a9b530a77d7def",
     "/Users/conal/test-vault/skills/claude-sdk-structured-analysis-pipelines.md": "66c6b9da9ecee238c6204b9ca4fb55b0cdbe84cbd30fc2d8c572e4d0a23a7fe2",

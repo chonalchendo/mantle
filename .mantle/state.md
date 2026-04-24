@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Build telemetry confirmed silently broken (15 builds since 2026-04-17 produced empty reports). Bug filed; issue 91 opened to fix the SessionStart hook. Blocks issue 89 (A/B harness) — fix 91 first.
+Issue 91 — 1 stories planned. Run /mantle:plan-stories for more or /mantle:implement to start building.
 
 ## Blockers
 
