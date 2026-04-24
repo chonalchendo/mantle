@@ -1,11 +1,11 @@
 ---
 issue: 89
 title: Core ab_build module — comparison models, compute_cost, build_comparison, render_markdown
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
