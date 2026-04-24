@@ -2,6 +2,11 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.22.0] — 2026-04-24
+
+### Fixed
+- **Build telemetry writes real session UUIDs again** (#91) — the Claude Code `SessionStart` hook (`claude/hooks/session-start.sh`) now reads the hook's JSON stdin payload, extracts `session_id` via `jq` with a `python3` fallback, and writes it to `<project_dir>/.mantle/.session-id` atomically (mktemp + rename on the same filesystem). The whole block is fail-soft — TTY stdin, empty payload, missing `jq`, and non-JSON garbage all degrade to no-op without aborting the hook. Resolves 8 days of silent telemetry rot (`.mantle/builds/` had been recording the same stale UUID, `datetime.min` timestamps, and empty `stories:` lists since 2026-04-17) by finally honouring the documented `CLAUDE_SESSION_ID` → `.mantle/.session-id` resolution chain in `core/telemetry.py:current_session_id()`. Unblocks issue 89 (A/B harness needs real per-story telemetry) and lays groundwork for issue 85 (cross-repo session identity). Regression coverage: four new end-to-end tests in `tests/hooks/test_session_start.py` feed stdin payloads through the actual shell hook — happy path, `jq`-absent fallback, empty stdin, and malformed JSON.
+
 ## [0.21.0] — 2026-04-21
 
 ### Added
@@ -267,6 +272,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.22.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.22.0
 [0.21.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.21.0
 [0.20.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.20.0
 [0.19.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.19.0

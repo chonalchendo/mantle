@@ -198,7 +198,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.21.0** — Model-tier config for the build pipeline (#84) plus structured acceptance criteria (#77). `/mantle:build` now reads per-stage model defaults (`budget` / `balanced` / `quality` presets with per-stage overrides) from `.mantle/cost-policy.md` via `mantle model-tier`, so mechanical stages (implement, simplify, verify, review, retrospective) can route to cheaper models by default. Structured ACs get first-class CLI support: `mantle flip-ac`, `list-acs`, and `migrate-acs`. Verification-strategy precedence is now config-first (#81), `MANTLE_DIR` is exported via a `SessionStart` hook (#82), and `collect-issue-diff-stats` accepts configurable source/test paths (#83). Includes a cyclopts `--pass`/`--fail` binding fix (#80) and a new `.mantle/telemetry/` folder for build-run measurements.
+**v0.22.0** — Build-telemetry fix (#91). The Claude Code `SessionStart` hook now reads the hook's JSON stdin payload and writes the current `session_id` to `.mantle/.session-id` atomically (mktemp + rename), falling back from `jq` to `python3` and staying no-op when the file isn't present. `core/telemetry.py:current_session_id()` resolution chain is finally honoured end-to-end, so every `/mantle:build` run records a unique session UUID, real timestamps, and per-story entries. Unblocks the upcoming A/B harness (#89) and lays groundwork for cross-repo session identity (#85).
 
 ## License
 
