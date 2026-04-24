@@ -1,18 +1,32 @@
 ---
 title: A/B harness for build pipeline (replaces 75-remainder)
-status: planned
+status: implementing
 slice:
 - cli
 - core
 - claude-code
 - tests
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- Design Review
+- Designing Architecture
+- Python 3.14
+- Python Project Conventions
+- Python package structure
+- Software Design Principles
+- cyclopts
+- dirty-equals
+- import-linter
+- inline-snapshot
+- omegaconf
+- pydantic-discriminated-unions
+- pydantic-project-conventions
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/implementing
 acceptance_criteria:
 - id: ac-01
   text: A CLI entrypoint (`mantle ab-build compare <baseline.md> <candidate.md>`)
@@ -23,9 +37,8 @@ acceptance_criteria:
   waiver_reason: null
 - id: ac-02
   text: The report includes per-stage tokens, wall-clock seconds, and dollar cost
-    for both strategies, plus a delta column. Per-stage rows are sourced from
-    `StoryRun.stage` (populated by issue 92); runs with `stage=None` group under
-    `Unattributed`.
+    for both strategies, plus a delta column. Per-stage rows are sourced from `StoryRun.stage`
+    (populated by issue 92); runs with `stage=None` group under `Unattributed`.
   passes: false
   waived: false
   waiver_reason: null

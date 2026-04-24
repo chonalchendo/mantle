@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "01c6a57154889572985ea4b712d85b7da26c064834748e05855625ea8a0fbd14",
+    "/Users/conal/Development/mantle/.mantle/state.md": "be5769f3b5f4f766ca56d7140fa0b5602fc6d740ec3e3e44ae50fe86ed56eae8",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "533945d070b9609ccd0c05077c9a6b65b89622f65b100cec2bea819997acb9e5",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-24-1805.md": "13f2774d9ba512f7d2f8cc1f62c69022b3fb4253d839667879da6e818a56d08b",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-24-2117.md": "94ee4fb67badd881e83fbc48d055b4cccb7eb2773afad567707d98c212e9e1d7",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -31,12 +31,13 @@
     "/Users/conal/test-vault/skills/inline-snapshot.md": "1e99022cd928b63be0e491d42ada93868bfbb2fe9cf479d8b65d34036670f01b",
     "/Users/conal/test-vault/skills/john-templeton-investment-philosophy.md": "c38ebb46c0c0057d192cdabfc8b1480498183d9f9ce4e7da10f67099c3553773",
     "/Users/conal/test-vault/skills/lakehouse-architecture.md": "88e4a18b1a467d95c10959dc5e28699e4b318b799141dcc906c9cf7d7a4281fb",
+    "/Users/conal/test-vault/skills/layerchart.md": "c776ebedd2bed27fe5ae3b72c52eacc9db5671095c98d5c3ce501c9d9335f046",
     "/Users/conal/test-vault/skills/macrotrends-data-source.md": "8337ef583431dacf0b5a5f22050a8c1aa5e2489fcc0a5113940f729917483f05",
     "/Users/conal/test-vault/skills/medallion-architecture--star-schema.md": "0836797ced44073750789d217586117e42cac34f51580fd45b2c7b89fbe02b0a",
     "/Users/conal/test-vault/skills/mohnish-pabrai-investment-philosophy.md": "cabbe7227c37ee0ad62613d6cdf3da4e438dbeeb32341eb607055916d695905f",
     "/Users/conal/test-vault/skills/nick-sleep-investment-philosophy.md": "a1ef233df8ef91c0214d674ea3d387aa6b65b31fcfab628e3ea1b5b62ef7a927",
     "/Users/conal/test-vault/skills/omegaconf.md": "e63158a7ace6ff1223bdbeec75754508c20e1a2586eecb5f9c5897c48692d56d",
-    "/Users/conal/test-vault/skills/openapi-typescript--openapi-fetch.md": "da3188cda727d4f9b18745f80d6a877839f43576fea4e24dba0ccfbe93a2623c",
+    "/Users/conal/test-vault/skills/openapi-typescript--openapi-fetch.md": "d410bbbbf601892a5f9adbb68412a4532537dccfa7d47e366a8185513edbede8",
     "/Users/conal/test-vault/skills/openrouter-llm-gateway.md": "d0a21fbd51057f60f902c4bc3d5a6ee25e6a5c19a9a906f3138bd570a821ced8",
     "/Users/conal/test-vault/skills/playwright-web-scraping.md": "0dec6cd8569f703f1b48eaf7adedae5973df694abff97a0ce5281e4b6d45b5bf",
     "/Users/conal/test-vault/skills/production-project-readiness.md": "533df297e24a1a88916badabe6078b00948ab1b9ca683ce9f8ae5c9dc3e4c85f",
@@ -52,7 +53,7 @@
     "/Users/conal/test-vault/skills/streamlit.md": "b5ce02da86c0a0ca3c17090426461fa1152f5a06124ff482a01e36c4fae717ae",
     "/Users/conal/test-vault/skills/sveltekit-2--svelte-5.md": "de6bea5d42cc2de4f2b72d568aee3261b151597a4eb08d9d0a396d7278743a4c",
     "/Users/conal/test-vault/skills/tailwind-css-v4.md": "681956335d51ab124cfdfc2b1c01c64a4d79addb328ab2217238f67af063f407",
-    "/Users/conal/test-vault/skills/tanstack-svelte-table--virtual.md": "b974a498ded11550d28a4267ec7950875566a27ea3e7b197baf16efc488af5f2",
+    "/Users/conal/test-vault/skills/tanstack-svelte-table--virtual.md": "89db3d048a23517b40a29a4ea7e5c337e22ea9ce0fe70ccde0dcecf7659b4ae8",
     "/Users/conal/test-vault/skills/tom-gayner-investment-philosophy.md": "414609dbad7c4130c0a0ed7d131ccd2a5ce8e15adfd5271bae92ece0770a33cb"
   }
 }
