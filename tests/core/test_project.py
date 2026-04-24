@@ -24,10 +24,12 @@ from mantle.core.project import (
     MANTLE_DIR,
     SUBDIRS,
     TAGS_BODY,
+    Pricing,
     StageModels,
     init_project,
     init_vault,
     load_model_tier,
+    load_prices,
     project_identity,
     read_config,
     resolve_mantle_dir,
@@ -667,3 +669,123 @@ class TestLoadModelTier:
         data = yaml.safe_load(cost_policy[4:end])
 
         assert FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
+
+
+# ── load_prices ──────────────────────────────────────────────────
+
+
+def _create_cost_policy(root: Path, frontmatter: dict) -> None:  # type: ignore[type-arg]
+    """Write a minimal .mantle/cost-policy.md with the given frontmatter."""
+    mantle = root / MANTLE_DIR
+    mantle.mkdir(exist_ok=True)
+    yaml_str = yaml.dump(frontmatter, default_flow_style=False, sort_keys=False)
+    (mantle / COST_POLICY_FILENAME).write_text(
+        f"---\n{yaml_str}---\n\n## Cost Policy\n"
+    )
+
+
+_SAMPLE_PRICES = {
+    "opus": {
+        "input": 15.00,
+        "output": 75.00,
+        "cache_read": 1.50,
+        "cache_write": 18.75,
+    },
+    "sonnet": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,
+        "cache_write": 3.75,
+    },
+    "haiku": {
+        "input": 0.80,
+        "output": 4.00,
+        "cache_read": 0.08,
+        "cache_write": 1.00,
+    },
+}
+
+
+class TestLoadPrices:
+    def test_load_prices_returns_per_model_pricing(
+        self, tmp_path: Path
+    ) -> None:
+        """load_prices returns a Pricing instance for each model key."""
+        _create_cost_policy(tmp_path, {"prices": _SAMPLE_PRICES})
+
+        result = load_prices(tmp_path)
+
+        assert set(result) == {"opus", "sonnet", "haiku"}
+        for name, entry in result.items():
+            assert isinstance(entry, Pricing)
+            assert entry.input == _SAMPLE_PRICES[name]["input"]
+            assert entry.output == _SAMPLE_PRICES[name]["output"]
+            assert entry.cache_read == _SAMPLE_PRICES[name]["cache_read"]
+            assert entry.cache_write == _SAMPLE_PRICES[name]["cache_write"]
+
+    def test_load_prices_raises_when_cost_policy_missing(
+        self, tmp_path: Path
+    ) -> None:
+        """Missing cost-policy.md raises FileNotFoundError."""
+        (tmp_path / MANTLE_DIR).mkdir()
+
+        with pytest.raises(FileNotFoundError):
+            load_prices(tmp_path)
+
+    def test_load_prices_raises_when_prices_block_absent(
+        self, tmp_path: Path
+    ) -> None:
+        """cost-policy.md without a prices key raises KeyError."""
+        _create_cost_policy(tmp_path, {"presets": {}})
+
+        with pytest.raises(KeyError, match="prices"):
+            load_prices(tmp_path)
+
+    def test_load_prices_validates_numeric_fields(self, tmp_path: Path) -> None:
+        """A non-numeric price field raises pydantic.ValidationError."""
+        bad_prices = {
+            "opus": {
+                "input": "not-a-number",
+                "output": 75.00,
+                "cache_read": 1.50,
+                "cache_write": 18.75,
+            }
+        }
+        _create_cost_policy(tmp_path, {"prices": bad_prices})
+
+        with pytest.raises(pydantic.ValidationError):
+            load_prices(tmp_path)
+
+    def test_bundled_vault_template_has_prices_block(self) -> None:
+        """The bundled vault-templates/cost-policy.md has a prices mapping."""
+        from importlib import resources
+
+        pkg_ref = resources.files("mantle").joinpath(
+            "vault-templates", "cost-policy.md"
+        )
+        import pathlib
+
+        pkg_path = pathlib.Path(str(pkg_ref))
+        if pkg_path.is_file():
+            text = pkg_path.read_text(encoding="utf-8")
+        else:
+            dev_root = pathlib.Path(
+                str(resources.files("mantle"))
+            ).parent.parent
+            text = (dev_root / "vault-templates" / "cost-policy.md").read_text(
+                encoding="utf-8"
+            )
+
+        end = text.find("\n---", 3)
+        data = yaml.safe_load(text[4:end])
+
+        assert "prices" in data
+        assert isinstance(data["prices"], dict)
+        assert len(data["prices"]) > 0
+
+    def test_pricing_model_is_frozen(self) -> None:
+        """Pricing instances are immutable."""
+        p = Pricing(input=3.0, output=15.0, cache_read=0.30, cache_write=3.75)
+
+        with pytest.raises(pydantic.ValidationError):
+            p.input = 999.0

@@ -359,6 +359,58 @@ FALLBACK_STAGE_MODELS: StageModels = StageModels(
 )
 
 
+class Pricing(pydantic.BaseModel, frozen=True):
+    """Per-model token pricing in USD per million tokens.
+
+    All four fields are required and must be positive floats.
+    Frozen — callers should treat a ``Pricing`` instance as immutable.
+
+    Attributes:
+        input: Cost per million input tokens.
+        output: Cost per million output tokens.
+        cache_read: Cost per million cache-read tokens.
+        cache_write: Cost per million cache-write tokens.
+    """
+
+    input: float
+    output: float
+    cache_read: float
+    cache_write: float
+
+
+def load_prices(project_root: Path) -> dict[str, Pricing]:
+    """Read per-model token prices from .mantle/cost-policy.md.
+
+    The ``prices:`` block in the frontmatter must contain one entry per
+    model name (e.g. ``opus``, ``sonnet``, ``haiku``), each with four
+    sub-fields: ``input``, ``output``, ``cache_read``, ``cache_write``
+    (USD per million tokens).
+
+    Args:
+        project_root: Directory containing ``.mantle/``.
+
+    Returns:
+        Mapping from model name to a validated, frozen ``Pricing``
+        instance.
+
+    Raises:
+        FileNotFoundError: If ``.mantle/cost-policy.md`` does not
+            exist.
+        KeyError: If the frontmatter has no ``prices`` block.
+        pydantic.ValidationError: If a per-model entry fails schema
+            validation (e.g. a field value is not a number).
+    """
+    cost_policy_path = resolve_mantle_dir(project_root) / COST_POLICY_FILENAME
+    frontmatter, _ = _read_frontmatter_and_body(cost_policy_path)
+    if "prices" not in frontmatter:
+        msg = "cost-policy.md has no 'prices' block"
+        raise KeyError(msg)
+    raw: dict[str, Any] = frontmatter["prices"]
+    return {
+        name: Pricing.model_validate(fields) for name, fields in raw.items()
+    }
+
+
 def load_model_tier(project_root: Path) -> StageModels:
     """Resolve the per-stage model tier for this project.
 
