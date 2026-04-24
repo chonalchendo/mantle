@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Learning captured for issue 90 — review past learnings before next planning cycle.
+Issue 89 shaped (narrowed to post-hoc A/B harness); issue 92 created as prereq. Next: `/mantle:shape-issue 92` — telemetry fix is now concrete enough to shape (diagnosis done; see issue body).
 
 ## Blockers
 
@@ -84,13 +84,15 @@ Issues are grouped under target releases. Order within a bucket is the implement
 
 ### v0.23.0 — Regression-safety net
 
-- Issue 90 — prompt-layer golden-parity harness (enables aggressive token cuts in 79/87/88 with regression safety)
-- Issue 89 — A/B harness for build pipeline (cost-lever evaluation on top of 84; benefits from 90's parity net)
+- Issue 90 — prompt-layer golden-parity harness ✓ approved (archived)
+- Issue 92 — fix build telemetry: read sub-agent JSONLs + add per-stage attribution (prereq for 89; diagnosis complete — sub-agent transcripts live at `<parent_session>/subagents/agent-*.jsonl`, not as sidechain turns in parent)
+- Issue 89 — A/B harness for build pipeline (narrowed via shape on 2026-04-24 to post-hoc comparison only; blocked on 92 for per-stage cost/time)
 
 ### v0.24.0 — Token-cost reduction (gated on v0.23 safety net)
 
 - Issue 87 — `mantle compress` for input-token compression (direct token-cost reduction)
 - Issue 79 — audit `.mantle/` + `CLAUDE.md` for progressive-disclosure drift (consider splitting at shape time: mechanical `@file` include refactor vs audit-context CLI)
+- Candidate issue — migrate `.mantle/config.md` + `.mantle/cost-policy.md` to pure YAML (surfaced during 89 shaping: only two files have zero-or-pedagogical markdown bodies; defer unless format-signal argument feels compelling)
 
 ### v0.25.0 — Workflow-loop efficiency
 
@@ -112,6 +114,8 @@ Recently closed:
 
 ## Recently Completed
 
+- Issue 90 — prompt-layer golden-parity harness (approved 2026-04-24)
+- Issue 91 — fix SessionStart hook to write `.mantle/.session-id` (verified 2026-04-24)
 - Issue 44 — Fix hardcoded .mantle/ path reads in Claude Code prompts (approved 2026-04-09)
 - Issue 45 — Archive scan in next_issue_number
 - Issue 40 — Review feedback loop CLI availability
