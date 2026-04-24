@@ -12,8 +12,6 @@ from typing import TYPE_CHECKING, Any
 import pydantic
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from mantle.core import stages
 
 # ── Data models ──────────────────────────────────────────────────
@@ -117,7 +115,7 @@ class BuildReport(pydantic.BaseModel, frozen=True):
 
 # ── Constants ────────────────────────────────────────────────────
 
-_AGENT_TYPE_TO_STAGE: Mapping[str, str] = {
+_AGENT_TYPE_TO_STAGE: dict[str, str] = {
     "story-implementer": "implement",
     "refactorer": "simplify",
     "general-purpose": "verify",
@@ -189,13 +187,11 @@ def find_subagent_files(
     if not paths:
         return ()
 
-    def _sort_key(path: Path) -> float:
+    def _first_turn_ts(path: Path) -> float:
         turns = read_subagent(path)
-        if turns:
-            return turns[0].timestamp.timestamp()
-        return path.stat().st_mtime
+        return turns[0].timestamp.timestamp() if turns else path.stat().st_mtime
 
-    return tuple(sorted(paths, key=_sort_key))
+    return tuple(sorted(paths, key=_first_turn_ts))
 
 
 def read_session(session_file: Path) -> tuple[Turn, ...]:
@@ -291,8 +287,6 @@ def group_stories(
         Tuple of aggregated `StoryRun` records, one per sub-agent or
         occupied stage window, sorted ascending by `started`.
     """
-    from mantle.core import stages as _stages  # noqa: F401 (runtime import)
-
     runs: list[StoryRun] = []
 
     for path in subagent_paths:

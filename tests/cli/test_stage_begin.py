@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from mantle.cli.main import stage_begin_command
+from mantle.cli import main
 from mantle.core import stages
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ def test_stage_begin_writes_mark(
     sid = "test-sid"
     monkeypatch.setenv("CLAUDE_SESSION_ID", sid)
 
-    stage_begin_command("shape", path=tmp_path)
+    main.stage_begin_command("shape", path=tmp_path)
 
     jsonl = tmp_path / ".mantle" / "telemetry" / f"stages-{sid}.jsonl"
     assert jsonl.exists()
@@ -44,7 +44,7 @@ def test_stage_begin_noop_outside_session(
 ) -> None:
     monkeypatch.delenv("CLAUDE_SESSION_ID", raising=False)
 
-    result = stage_begin_command("shape", path=tmp_path)
+    result = main.stage_begin_command("shape", path=tmp_path)
 
     assert result is None
     assert not (tmp_path / ".mantle" / "telemetry").exists()
@@ -60,7 +60,7 @@ def test_stage_begin_rejects_empty(
     monkeypatch.setenv("CLAUDE_SESSION_ID", "some-sid")
 
     with pytest.raises(ValueError, match="stage must be non-empty"):
-        stage_begin_command("", path=tmp_path)
+        main.stage_begin_command("", path=tmp_path)
 
 
 # ── test_stage_begin_roundtrip ───────────────────────────────────
@@ -73,9 +73,9 @@ def test_stage_begin_roundtrip(
     sid = "roundtrip-sid"
     monkeypatch.setenv("CLAUDE_SESSION_ID", sid)
 
-    stage_begin_command("shape", path=tmp_path)
-    stage_begin_command("plan-stories", path=tmp_path)
-    stage_begin_command("implement", path=tmp_path)
+    main.stage_begin_command("shape", path=tmp_path)
+    main.stage_begin_command("plan-stories", path=tmp_path)
+    main.stage_begin_command("implement", path=tmp_path)
 
     marks = stages.read_stages(sid, tmp_path)
 
