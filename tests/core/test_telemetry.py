@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import warnings
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -175,221 +174,331 @@ def test_read_session_parses_usage_fields(tmp_path: Path) -> None:
     assert turns[0].usage.cache_creation_input_tokens == 567
 
 
+# ── read_meta ────────────────────────────────────────────────────
+
+
+def test_read_meta_parses_agent_type(tmp_path: Path) -> None:
+    jsonl_path = tmp_path / "agent-123.jsonl"
+    meta_path = tmp_path / "agent-123.meta.json"
+    meta_path.write_text(
+        json.dumps({"agentType": "story-implementer", "otherField": "ignored"}),
+        encoding="utf-8",
+    )
+
+    result = telemetry.read_meta(jsonl_path)
+
+    assert result is not None
+    assert result.agent_type == "story-implementer"
+
+
+def test_read_meta_missing_returns_none(tmp_path: Path) -> None:
+    jsonl_path = tmp_path / "agent-123.jsonl"
+    # No sidecar written
+
+    result = telemetry.read_meta(jsonl_path)
+
+    assert result is None
+
+
+def test_read_meta_malformed_returns_none(tmp_path: Path) -> None:
+    jsonl_path = tmp_path / "agent-123.jsonl"
+    meta_path = tmp_path / "agent-123.meta.json"
+    meta_path.write_text("{invalid json", encoding="utf-8")
+
+    result = telemetry.read_meta(jsonl_path)
+
+    assert result is None
+
+
+def test_read_meta_missing_agent_type_returns_none(tmp_path: Path) -> None:
+    jsonl_path = tmp_path / "agent-123.jsonl"
+    meta_path = tmp_path / "agent-123.meta.json"
+    meta_path.write_text("{}", encoding="utf-8")
+
+    result = telemetry.read_meta(jsonl_path)
+
+    assert result is None
+
+
+# ── find_subagent_files ──────────────────────────────────────────
+
+
+def test_find_subagent_files_returns_sorted(tmp_path: Path) -> None:
+    """Files sorted by first-turn timestamp ascending (T0 before T1)."""
+    projects_root = tmp_path / "projects"
+    session_id = "sess-abc"
+    subagents_dir = projects_root / "slug" / session_id / "subagents"
+    subagents_dir.mkdir(parents=True)
+
+    t0 = datetime(2026, 4, 1, 10, 0, 0, tzinfo=UTC)
+    t1 = datetime(2026, 4, 1, 11, 0, 0, tzinfo=UTC)
+
+    # Write agent-b with earlier timestamp T0, agent-a with later T1
+    agent_b = subagents_dir / "agent-bbb.jsonl"
+    agent_a = subagents_dir / "agent-aaa.jsonl"
+    _write_jsonl(agent_b, [_assistant_record("u1", None, session_id, t0)])
+    _write_jsonl(agent_a, [_assistant_record("u2", None, session_id, t1)])
+
+    result = telemetry.find_subagent_files(session_id, projects_root)
+
+    assert result == (agent_b, agent_a)
+
+
+def test_find_subagent_files_empty_when_absent(tmp_path: Path) -> None:
+    """Returns empty tuple when parent dir exists but has no subagents/."""
+    projects_root = tmp_path / "projects"
+    session_id = "sess-xyz"
+    # Create parent session dir but no subagents subdirectory
+    (projects_root / "slug" / session_id).mkdir(parents=True)
+
+    result = telemetry.find_subagent_files(session_id, projects_root)
+
+    assert result == ()
+
+
+# ── read_subagent ────────────────────────────────────────────────
+
+
+def test_read_subagent_parses_sidechain_turns(tmp_path: Path) -> None:
+    """read_subagent returns turns preserving is_sidechain=True."""
+    jsonl_path = tmp_path / "agent-xyz.jsonl"
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    records = [
+        _assistant_record("t1", None, "s", ts, is_sidechain=True),
+        _assistant_record(
+            "t2", "t1", "s", ts + timedelta(seconds=5), is_sidechain=True
+        ),
+        _assistant_record(
+            "t3", "t2", "s", ts + timedelta(seconds=10), is_sidechain=True
+        ),
+    ]
+    _write_jsonl(jsonl_path, records)
+
+    turns = telemetry.read_subagent(jsonl_path)
+
+    assert len(turns) == 3
+    assert all(t.is_sidechain for t in turns)
+
+
 # ── group_stories ────────────────────────────────────────────────
 
 
-def test_group_stories_single_sidechain_cluster() -> None:
+def _make_subagent_pair(
+    directory: Path,
+    agent_id: str,
+    agent_type: str,
+    session_id: str,
+    start_ts: datetime,
+    turn_count: int = 2,
+) -> Path:
+    """Write a sub-agent JSONL + meta.json pair and return the JSONL path."""
+    jsonl_path = directory / f"agent-{agent_id}.jsonl"
+    meta_path = directory / f"agent-{agent_id}.meta.json"
+    records = [
+        _assistant_record(
+            f"{agent_id}-{i}",
+            f"{agent_id}-{i - 1}" if i > 0 else None,
+            session_id,
+            start_ts + timedelta(seconds=i * 10),
+            is_sidechain=True,
+        )
+        for i in range(turn_count)
+    ]
+    _write_jsonl(jsonl_path, records)
+    meta_path.write_text(
+        json.dumps({"agentType": agent_type}), encoding="utf-8"
+    )
+    return jsonl_path
+
+
+def test_group_stories_from_subagent_paths(tmp_path: Path) -> None:
+    """Three sub-agents with known types map to implement/simplify/verify."""
     ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-    main = telemetry.Turn(
-        uuid="m1",
+    p1 = _make_subagent_pair(tmp_path, "aaa", "story-implementer", "s", ts)
+    p2 = _make_subagent_pair(
+        tmp_path, "bbb", "refactorer", "s", ts + timedelta(hours=1)
+    )
+    p3 = _make_subagent_pair(
+        tmp_path, "ccc", "general-purpose", "s", ts + timedelta(hours=2)
+    )
+
+    runs = telemetry.group_stories(subagent_paths=(p1, p2, p3))
+
+    assert len(runs) == 3
+    stages = [r.stage for r in runs]
+    assert stages == ["implement", "simplify", "verify"]
+
+
+def test_group_stories_unknown_agent_type_yields_stage_none(
+    tmp_path: Path,
+) -> None:
+    """Unknown agentType in sidecar → StoryRun with stage=None."""
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    path = _make_subagent_pair(tmp_path, "aaa", "custom-thing", "s", ts)
+
+    runs = telemetry.group_stories(subagent_paths=(path,))
+
+    assert len(runs) == 1
+    assert runs[0].stage is None
+
+
+def test_group_stories_from_stage_windows(tmp_path: Path) -> None:
+    """Parent turns windowed by StageWindow produce correct StoryRuns."""
+    from mantle.core import stages
+
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    t0 = ts
+    t1 = ts + timedelta(seconds=10)
+    t2 = ts + timedelta(seconds=20)
+    t3 = ts + timedelta(seconds=30)
+    t4 = ts + timedelta(seconds=40)
+
+    parent_turns = tuple(
+        telemetry.Turn(
+            uuid=f"u{i}",
+            parent_uuid=None,
+            session_id="s",
+            timestamp=t,
+            model="claude-opus-4-6",
+            is_sidechain=False,
+            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
+        )
+        for i, t in enumerate([t0, t1, t2, t3])
+    )
+
+    windows = (
+        stages.StageWindow(stage="shape", start=t0, end=t2),
+        stages.StageWindow(stage="plan_stories", start=t2, end=t4),
+    )
+
+    runs = telemetry.group_stories(
+        parent_turns=parent_turns, stage_windows=windows
+    )
+
+    assert len(runs) == 2
+    assert runs[0].stage == "shape"
+    assert runs[0].turn_count == 2
+    assert runs[1].stage == "plan_stories"
+    assert runs[1].turn_count == 2
+
+
+def test_group_stories_window_with_no_turns_is_skipped(tmp_path: Path) -> None:
+    """Windows that cover no parent turns do not emit a StoryRun."""
+    from mantle.core import stages
+
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    # Window covers [ts+100, ts+200) — no parent turns in that range
+    windows = (
+        stages.StageWindow(
+            stage="verify",
+            start=ts + timedelta(seconds=100),
+            end=ts + timedelta(seconds=200),
+        ),
+    )
+
+    runs = telemetry.group_stories(parent_turns=(), stage_windows=windows)
+
+    assert runs == ()
+
+
+def test_group_stories_half_open_windows(tmp_path: Path) -> None:
+    """Turn at window.end is excluded; turn at window.start is included."""
+    from mantle.core import stages
+
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    t_start = ts
+    t_end = ts + timedelta(seconds=30)
+    t_at_start = t_start
+    t_at_end = t_end  # should be excluded
+    t_before_end = t_end - timedelta(seconds=1)  # should be included
+
+    parent_turns = (
+        telemetry.Turn(
+            uuid="u_start",
+            parent_uuid=None,
+            session_id="s",
+            timestamp=t_at_start,
+            model="claude-opus-4-6",
+            is_sidechain=False,
+            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
+        ),
+        telemetry.Turn(
+            uuid="u_before_end",
+            parent_uuid=None,
+            session_id="s",
+            timestamp=t_before_end,
+            model="claude-opus-4-6",
+            is_sidechain=False,
+            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
+        ),
+        telemetry.Turn(
+            uuid="u_at_end",
+            parent_uuid=None,
+            session_id="s",
+            timestamp=t_at_end,
+            model="claude-opus-4-6",
+            is_sidechain=False,
+            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
+        ),
+    )
+
+    windows = (stages.StageWindow(stage="implement", start=t_start, end=t_end),)
+
+    runs = telemetry.group_stories(
+        parent_turns=parent_turns, stage_windows=windows
+    )
+
+    assert len(runs) == 1
+    assert runs[0].turn_count == 2  # u_start + u_before_end, not u_at_end
+
+
+def test_group_stories_results_sorted_by_started(tmp_path: Path) -> None:
+    """Mix of sub-agent + window runs sorted ascending by started."""
+    from mantle.core import stages
+
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+
+    # Sub-agent starting at ts+2h
+    late_path = _make_subagent_pair(
+        tmp_path, "late", "story-implementer", "s", ts + timedelta(hours=2)
+    )
+    # Sub-agent starting at ts+1h
+    early_path = _make_subagent_pair(
+        tmp_path, "early", "refactorer", "s", ts + timedelta(hours=1)
+    )
+
+    # Window run starting at ts (earliest)
+    parent_turn = telemetry.Turn(
+        uuid="p1",
         parent_uuid=None,
         session_id="s",
         timestamp=ts,
         model="claude-opus-4-6",
         is_sidechain=False,
-        usage=telemetry.Usage(input_tokens=1, output_tokens=2),
+        usage=telemetry.Usage(input_tokens=1, output_tokens=1),
     )
-    s1 = telemetry.Turn(
-        uuid="s1",
-        parent_uuid="m1",
-        session_id="s",
-        timestamp=ts + timedelta(seconds=10),
-        model="claude-opus-4-6",
-        is_sidechain=True,
-        usage=telemetry.Usage(input_tokens=100, output_tokens=20),
-    )
-    s2 = telemetry.Turn(
-        uuid="s2",
-        parent_uuid="s1",
-        session_id="s",
-        timestamp=ts + timedelta(seconds=20),
-        model="claude-opus-4-6",
-        is_sidechain=True,
-        usage=telemetry.Usage(input_tokens=50, output_tokens=10),
-    )
-    s3 = telemetry.Turn(
-        uuid="s3",
-        parent_uuid="s2",
-        session_id="s",
-        timestamp=ts + timedelta(seconds=30),
-        model="claude-opus-4-6",
-        is_sidechain=True,
-        usage=telemetry.Usage(input_tokens=30, output_tokens=5),
+    windows = (
+        stages.StageWindow(
+            stage="shape", start=ts, end=ts + timedelta(minutes=30)
+        ),
     )
 
-    runs = telemetry.group_stories((main, s1, s2, s3))
-
-    assert len(runs) == 1
-    assert runs[0].turn_count == 3
-    assert runs[0].usage.input_tokens == 180
-    assert runs[0].usage.output_tokens == 35
-
-
-def test_group_stories_two_clusters() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-
-    def turn(
-        uuid: str,
-        parent: str | None,
-        seconds: int,
-        sidechain: bool,
-    ) -> telemetry.Turn:
-        return telemetry.Turn(
-            uuid=uuid,
-            parent_uuid=parent,
-            session_id="s",
-            timestamp=ts + timedelta(seconds=seconds),
-            model="claude-opus-4-6",
-            is_sidechain=sidechain,
-            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
-        )
-
-    turns = (
-        turn("m1", None, 0, False),
-        turn("s1a", "m1", 10, True),
-        turn("s1b", "s1a", 20, True),
-        turn("m2", "m1", 30, False),
-        turn("s2a", "m2", 40, True),
-        turn("s2b", "s2a", 50, True),
+    runs = telemetry.group_stories(
+        parent_turns=(parent_turn,),
+        subagent_paths=(late_path, early_path),
+        stage_windows=windows,
     )
 
-    runs = telemetry.group_stories(turns)
-
-    assert len(runs) == 2
-    assert runs[0].turn_count == 2
-    assert runs[1].turn_count == 2
+    assert len(runs) == 3
+    started_times = [r.started for r in runs]
+    assert started_times == sorted(started_times)
 
 
-def test_group_stories_with_markers_assigns_story_ids() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+def test_group_stories_empty_returns_empty() -> None:
+    """All three args empty → empty tuple."""
+    runs = telemetry.group_stories()
 
-    def turn(
-        uuid: str,
-        parent: str | None,
-        seconds: int,
-        sidechain: bool,
-    ) -> telemetry.Turn:
-        return telemetry.Turn(
-            uuid=uuid,
-            parent_uuid=parent,
-            session_id="s",
-            timestamp=ts + timedelta(seconds=seconds),
-            model="claude-opus-4-6",
-            is_sidechain=sidechain,
-            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
-        )
-
-    turns = (
-        turn("m1", None, 0, False),
-        turn("s1a", "m1", 10, True),
-        turn("s1b", "s1a", 20, True),
-        turn("m2", "m1", 100, False),
-        turn("s2a", "m2", 110, True),
-        turn("s2b", "s2a", 120, True),
-    )
-
-    markers = (
-        telemetry.Marker(story_id=1, timestamp=ts + timedelta(seconds=5)),
-        telemetry.Marker(story_id=2, timestamp=ts + timedelta(seconds=105)),
-    )
-
-    runs = telemetry.group_stories(turns, markers)
-
-    assert len(runs) == 2
-    assert runs[0].story_id == 1
-    assert runs[1].story_id == 2
-
-
-def test_group_stories_marker_beyond_window_logs_warning() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-
-    def turn(
-        uuid: str,
-        parent: str | None,
-        seconds: int,
-        sidechain: bool,
-    ) -> telemetry.Turn:
-        return telemetry.Turn(
-            uuid=uuid,
-            parent_uuid=parent,
-            session_id="s",
-            timestamp=ts + timedelta(seconds=seconds),
-            model="claude-opus-4-6",
-            is_sidechain=sidechain,
-            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
-        )
-
-    turns = (
-        turn("m1", None, 0, False),
-        turn("s1a", "m1", 3600, True),
-        turn("s1b", "s1a", 3610, True),
-    )
-
-    markers = (
-        telemetry.Marker(story_id=1, timestamp=ts + timedelta(seconds=5)),
-    )
-
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        runs = telemetry.group_stories(turns, markers)
-
-    assert runs[0].story_id is None
-    assert any(
-        issubclass(w.category, telemetry.MarkerWindowWarning) for w in caught
-    )
-
-
-def test_group_stories_aggregates_usage() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-    s1 = telemetry.Turn(
-        uuid="s1",
-        parent_uuid="m1",
-        session_id="s",
-        timestamp=ts + timedelta(seconds=1),
-        model="claude-opus-4-6",
-        is_sidechain=True,
-        usage=telemetry.Usage(input_tokens=100, output_tokens=20),
-    )
-    s2 = telemetry.Turn(
-        uuid="s2",
-        parent_uuid="s1",
-        session_id="s",
-        timestamp=ts + timedelta(seconds=2),
-        model="claude-opus-4-6",
-        is_sidechain=True,
-        usage=telemetry.Usage(input_tokens=50, output_tokens=10),
-    )
-
-    runs = telemetry.group_stories((s1, s2))
-
-    assert len(runs) == 1
-    assert runs[0].usage.input_tokens == 150
-    assert runs[0].usage.output_tokens == 30
-
-
-def test_group_stories_model_is_mode() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-
-    def sc(uuid: str, parent: str, seconds: int, model: str) -> telemetry.Turn:
-        return telemetry.Turn(
-            uuid=uuid,
-            parent_uuid=parent,
-            session_id="s",
-            timestamp=ts + timedelta(seconds=seconds),
-            model=model,
-            is_sidechain=True,
-            usage=telemetry.Usage(input_tokens=1, output_tokens=1),
-        )
-
-    turns = (
-        sc("s1", "m1", 1, "opus"),
-        sc("s2", "s1", 2, "opus"),
-        sc("s3", "s2", 3, "sonnet"),
-    )
-
-    runs = telemetry.group_stories(turns)
-
-    assert runs[0].model == "opus"
+    assert runs == ()
 
 
 # ── summarise / empty session ────────────────────────────────────
@@ -428,7 +537,7 @@ def test_empty_session_yields_empty_report(tmp_path: Path) -> None:
     session_file.write_text("", encoding="utf-8")
 
     turns = telemetry.read_session(session_file)
-    runs = telemetry.group_stories(turns)
+    runs = telemetry.group_stories()
     report = telemetry.summarise("sess", turns, runs)
 
     assert turns == ()
@@ -495,65 +604,3 @@ def test_current_session_id_empty_file_falls_through_to_raise(
 
     with pytest.raises(RuntimeError):
         telemetry.current_session_id(tmp_path)
-
-
-# ── render_report ────────────────────────────────────────────────
-
-
-def test_render_report_emits_yaml_frontmatter() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-    story1 = telemetry.StoryRun(
-        story_id=1,
-        model="claude-opus-4-6",
-        started=ts,
-        finished=ts + timedelta(seconds=60),
-        duration_s=60.0,
-        usage=telemetry.Usage(input_tokens=100, output_tokens=50),
-        turn_count=3,
-    )
-    story2 = telemetry.StoryRun(
-        story_id=2,
-        model="claude-sonnet-4-5",
-        started=ts + timedelta(seconds=120),
-        finished=ts + timedelta(seconds=180),
-        duration_s=60.0,
-        usage=telemetry.Usage(input_tokens=200, output_tokens=80),
-        turn_count=5,
-    )
-    report = telemetry.BuildReport(
-        session_id="sess-1",
-        started=ts,
-        finished=ts + timedelta(seconds=180),
-        stories=(story1, story2),
-    )
-    markers = (
-        telemetry.Marker(story_id=1, timestamp=ts),
-        telemetry.Marker(story_id=2, timestamp=ts + timedelta(seconds=120)),
-    )
-
-    text = telemetry.render_report(report, issue=54, markers=markers)
-
-    assert text.startswith("---")
-    assert "issue: 54" in text
-    assert "stories:" in text
-    assert "model" in text
-    assert "duration_s" in text
-    assert "## Summary" in text
-    # A markdown table header row
-    assert "|" in text.split("## Summary", 1)[1]
-
-
-def test_render_report_zero_stories() -> None:
-    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
-    report = telemetry.BuildReport(
-        session_id="sess-empty",
-        started=ts,
-        finished=ts,
-        stories=(),
-    )
-
-    text = telemetry.render_report(report, issue=99, markers=())
-
-    assert text.startswith("---")
-    assert "issue: 99" in text
-    assert "No story runs detected" in text

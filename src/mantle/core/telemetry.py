@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import json
 import os
-import warnings
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pydantic
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from mantle.core import stages
 
 # ── Data models ──────────────────────────────────────────────────
 
@@ -54,16 +58,20 @@ class Turn(pydantic.BaseModel, frozen=True):
     usage: Usage | None
 
 
-class Marker(pydantic.BaseModel, frozen=True):
-    """Orchestrator-supplied signal mapping a story id to a timestamp.
+class SubagentMeta(pydantic.BaseModel, frozen=True):
+    """Parsed `agent-*.meta.json` sidecar.
+
+    Claude Code owns this schema; use `extra='ignore'` so new fields
+    upstream never break parsing.
 
     Attributes:
-        story_id: Story number this marker refers to.
-        timestamp: Wall-clock timestamp of the marker event.
+        agent_type: The type of agent that ran this sub-session
+            (e.g. 'story-implementer', 'refactorer', 'general-purpose').
     """
 
-    story_id: int
-    timestamp: datetime
+    model_config = pydantic.ConfigDict(extra="ignore")
+
+    agent_type: str = pydantic.Field(alias="agentType")
 
 
 class StoryRun(pydantic.BaseModel, frozen=True):
@@ -78,6 +86,7 @@ class StoryRun(pydantic.BaseModel, frozen=True):
         duration_s: Wall-clock duration in seconds.
         usage: Summed token usage across the cluster.
         turn_count: Number of sidechain turns in the cluster.
+        stage: Stage name attributed to this run, or None when unknown.
     """
 
     story_id: int | None
@@ -87,6 +96,7 @@ class StoryRun(pydantic.BaseModel, frozen=True):
     duration_s: float
     usage: Usage
     turn_count: int
+    stage: str | None = None
 
 
 class BuildReport(pydantic.BaseModel, frozen=True):
@@ -105,16 +115,13 @@ class BuildReport(pydantic.BaseModel, frozen=True):
     stories: tuple[StoryRun, ...]
 
 
-# ── Warnings ─────────────────────────────────────────────────────
-
-
-class MarkerWindowWarning(UserWarning):
-    """Issued when no marker is within the correlation window."""
-
-
 # ── Constants ────────────────────────────────────────────────────
 
-MARKER_WINDOW_SECONDS: float = 60.0
+_AGENT_TYPE_TO_STAGE: Mapping[str, str] = {
+    "story-implementer": "implement",
+    "refactorer": "simplify",
+    "general-purpose": "verify",
+}
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -152,6 +159,45 @@ def find_session_file(
     raise FileNotFoundError(msg)
 
 
+def find_subagent_files(
+    parent_session_id: str,
+    projects_root: Path | None = None,
+) -> tuple[Path, ...]:
+    """Locate sub-agent JSONLs for a parent Claude Code session.
+
+    Resolution order matches `find_session_file`: `projects_root`
+    arg → `CLAUDE_PROJECTS_DIR` env → `~/.claude/projects`. Sub-agent
+    transcripts live at
+    `<projects_root>/<slug>/<parent_session_id>/subagents/agent-*.jsonl`.
+
+    Returns tuple sorted by the file's first-turn timestamp so the
+    caller sees chronologically ordered runs. Empty tuple when the
+    `subagents/` directory is absent (common for older sessions
+    predating the split file layout).
+
+    Args:
+        parent_session_id: Claude Code session uuid of the parent session.
+        projects_root: Optional override for the projects directory.
+
+    Returns:
+        Tuple of paths to sub-agent JSONL files, sorted by first-turn
+        timestamp ascending.
+    """
+    root = _resolve_projects_root(projects_root)
+    pattern = f"*/{parent_session_id}/subagents/agent-*.jsonl"
+    paths = list(root.glob(pattern))
+    if not paths:
+        return ()
+
+    def _sort_key(path: Path) -> float:
+        turns = read_subagent(path)
+        if turns:
+            return turns[0].timestamp.timestamp()
+        return path.stat().st_mtime
+
+    return tuple(sorted(paths, key=_sort_key))
+
+
 def read_session(session_file: Path) -> tuple[Turn, ...]:
     """Parse a Claude Code JSONL file into assistant turns.
 
@@ -178,42 +224,98 @@ def read_session(session_file: Path) -> tuple[Turn, ...]:
     return tuple(turns)
 
 
-def group_stories(
-    turns: tuple[Turn, ...],
-    markers: tuple[Marker, ...] = (),
-) -> tuple[StoryRun, ...]:
-    """Cluster sidechain turns into per-story runs.
+def read_subagent(jsonl_path: Path) -> tuple[Turn, ...]:
+    """Parse a sub-agent JSONL into assistant turns.
 
-    A new cluster starts when a sidechain turn's ``parent_uuid`` is
-    not in the current cluster's uuid set (i.e. a fresh Agent
-    spawn). Non-sidechain turns are ignored. When ``markers`` are
-    supplied, each cluster is assigned the story id of the nearest
-    preceding marker within ``MARKER_WINDOW_SECONDS``. Clusters
-    that fall outside the window retain ``story_id=None`` and emit
-    a ``MarkerWindowWarning``.
+    Sub-agent files use the same record shape as parent sessions —
+    one assistant turn per line, with `isSidechain: true` already
+    set. Reuses the parent-session parser.
 
     Args:
-        turns: Parsed session turns in chronological order.
-        markers: Orchestrator-supplied story id timestamps.
+        jsonl_path: Path to the sub-agent ``.jsonl`` transcript file.
 
     Returns:
-        Tuple of aggregated ``StoryRun`` records, one per cluster.
+        Tuple of parsed assistant turns in file order.
     """
-    clusters: list[list[Turn]] = []
-    current_uuids: set[str] = set()
+    return read_session(jsonl_path)
 
-    for turn in turns:
-        if not turn.is_sidechain:
+
+def read_meta(jsonl_path: Path) -> SubagentMeta | None:
+    """Parse the sibling `agent-*.meta.json` sidecar.
+
+    Given `<dir>/agent-<id>.jsonl`, reads `<dir>/agent-<id>.meta.json`.
+    Returns None when the sidecar is absent or malformed — callers
+    degrade gracefully to `stage=None`.
+
+    Args:
+        jsonl_path: Path to the sub-agent ``.jsonl`` transcript file.
+
+    Returns:
+        Parsed SubagentMeta, or None when the sidecar is absent or
+        malformed.
+    """
+    meta_path = jsonl_path.with_name(jsonl_path.stem + ".meta.json")
+    try:
+        data = json.loads(meta_path.read_text(encoding="utf-8"))
+        return SubagentMeta.model_validate(data)
+    except (
+        FileNotFoundError,
+        json.JSONDecodeError,
+        pydantic.ValidationError,
+        OSError,
+    ):
+        return None
+
+
+def group_stories(
+    parent_turns: tuple[Turn, ...] = (),
+    subagent_paths: tuple[Path, ...] = (),
+    stage_windows: tuple[stages.StageWindow, ...] = (),
+) -> tuple[StoryRun, ...]:
+    """Produce per-stage `StoryRun` records from three sources.
+
+    - One run per sub-agent JSONL path, stage attributed via the
+      sidecar's `agentType` through `_AGENT_TYPE_TO_STAGE`. Unknown
+      types yield `stage=None`.
+    - One run per `StageWindow` that overlaps any parent turn; the
+      run aggregates all parent turns with timestamp inside the
+      half-open `[start, end)` interval.
+    - Results sorted ascending by `started`.
+
+    Args:
+        parent_turns: Parsed turns from the parent session JSONL.
+        subagent_paths: Paths to sub-agent JSONL files to parse.
+        stage_windows: Half-open stage windows from `stages.windows_for_session`.
+
+    Returns:
+        Tuple of aggregated `StoryRun` records, one per sub-agent or
+        occupied stage window, sorted ascending by `started`.
+    """
+    from mantle.core import stages as _stages  # noqa: F401 (runtime import)
+
+    runs: list[StoryRun] = []
+
+    for path in subagent_paths:
+        turns = read_subagent(path)
+        if not turns:
             continue
-        if clusters and turn.parent_uuid in current_uuids:
-            clusters[-1].append(turn)
-            current_uuids.add(turn.uuid)
-        else:
-            clusters.append([turn])
-            current_uuids = {turn.uuid}
+        meta = read_meta(path)
+        agent_type = meta.agent_type if meta else None
+        stage = _AGENT_TYPE_TO_STAGE.get(agent_type) if agent_type else None
+        run = _aggregate_cluster(list(turns))
+        runs.append(run.model_copy(update={"stage": stage}))
 
-    runs = [_aggregate_cluster(cluster) for cluster in clusters]
-    return _attach_story_ids(tuple(runs), markers)
+    for window in stage_windows:
+        window_turns = [
+            t for t in parent_turns if window.start <= t.timestamp < window.end
+        ]
+        if not window_turns:
+            continue
+        run = _aggregate_cluster(window_turns)
+        runs.append(run.model_copy(update={"stage": window.stage}))
+
+    runs.sort(key=lambda r: r.started)
+    return tuple(runs)
 
 
 def summarise(
@@ -291,28 +393,22 @@ def current_session_id(project_dir: Path | None = None) -> str:
 def render_report(
     report: BuildReport,
     issue: int,
-    markers: tuple[Marker, ...],
 ) -> str:
     """Render a build report as YAML frontmatter plus summary markdown.
 
     The output is a complete build-file body: a YAML frontmatter
     block with issue, timestamps, session id, and a ``stories`` list
-    followed by a ``## Summary`` section. Empty reports (no story
-    runs detected) still produce valid frontmatter and a placeholder
-    summary line.
+    followed by a ``## Summary`` section with story runs grouped by
+    stage. Empty reports (no story runs detected) still produce valid
+    frontmatter and a placeholder summary line.
 
     Args:
         report: Aggregated build report.
         issue: Issue number this build corresponds to.
-        markers: Orchestrator markers used during correlation (kept
-            for parity with the CLI wiring — not currently emitted
-            into the frontmatter but reserved for future use).
 
     Returns:
         Full build file body as a string ending in a newline.
     """
-    del markers  # reserved for future marker-provenance output
-
     lines: list[str] = ["---"]
     lines.append(f"issue: {issue}")
     lines.append(f"session_id: {report.session_id}")
@@ -321,7 +417,9 @@ def render_report(
     lines.append("stories:")
     for story in report.stories:
         story_id = "null" if story.story_id is None else str(story.story_id)
+        stage_val = "null" if story.stage is None else story.stage
         lines.append(f"  - story_id: {story_id}")
+        lines.append(f"    stage: {stage_val}")
         lines.append(f"    model: {story.model}")
         lines.append(f"    started: {story.started.isoformat()}")
         lines.append(f"    finished: {story.finished.isoformat()}")
@@ -347,16 +445,47 @@ def render_report(
         lines.append("")
         return "\n".join(lines)
 
-    lines.append("| Story | Model | Duration (s) | Turns | In tok | Out tok |")
-    lines.append("|-------|-------|--------------|-------|--------|---------|")
+    # Group by stage: known stages first in order of appearance, then Unattributed
+    stage_order: list[str] = []
+    by_stage: dict[str, list[StoryRun]] = {}
+    unattributed: list[StoryRun] = []
+
     for story in report.stories:
-        story_label = "—" if story.story_id is None else str(story.story_id)
+        if story.stage is None:
+            unattributed.append(story)
+        else:
+            if story.stage not in by_stage:
+                stage_order.append(story.stage)
+                by_stage[story.stage] = []
+            by_stage[story.stage].append(story)
+
+    def _render_table(stories: list[StoryRun]) -> None:
         lines.append(
-            f"| {story_label} | {story.model} | "
-            f"{story.duration_s:.1f} | {story.turn_count} | "
-            f"{story.usage.input_tokens} | {story.usage.output_tokens} |"
+            "| Story | Model | Duration (s) | Turns | In tok | Out tok |"
         )
-    lines.append("")
+        lines.append(
+            "|-------|-------|--------------|-------|--------|---------|"
+        )
+        for story in stories:
+            story_label = "—" if story.story_id is None else str(story.story_id)
+            lines.append(
+                f"| {story_label} | {story.model} | "
+                f"{story.duration_s:.1f} | {story.turn_count} | "
+                f"{story.usage.input_tokens} | {story.usage.output_tokens} |"
+            )
+
+    for stage in stage_order:
+        lines.append(f"### {stage}")
+        lines.append("")
+        _render_table(by_stage[stage])
+        lines.append("")
+
+    if unattributed:
+        lines.append("### Unattributed")
+        lines.append("")
+        _render_table(unattributed)
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -491,58 +620,3 @@ def _aggregate_cluster(cluster: list[Turn]) -> StoryRun:
         usage=usage,
         turn_count=len(cluster),
     )
-
-
-def _attach_story_ids(
-    runs: tuple[StoryRun, ...],
-    markers: tuple[Marker, ...],
-) -> tuple[StoryRun, ...]:
-    """Assign story ids to runs via nearest preceding marker.
-
-    Args:
-        runs: Aggregated story runs in chronological order.
-        markers: Orchestrator markers in any order.
-
-    Returns:
-        Tuple of runs with ``story_id`` populated where a marker
-        lies within ``MARKER_WINDOW_SECONDS`` preceding the cluster
-        start. Runs outside the window remain ``story_id=None`` and
-        emit a ``MarkerWindowWarning``.
-    """
-    if not markers:
-        return runs
-
-    sorted_markers = sorted(markers, key=lambda m: m.timestamp)
-    updated: list[StoryRun] = []
-
-    for run in runs:
-        best: Marker | None = None
-        best_delta: float | None = None
-        for marker in sorted_markers:
-            delta = (run.started - marker.timestamp).total_seconds()
-            if delta < 0:
-                continue
-            if best_delta is None or delta < best_delta:
-                best = marker
-                best_delta = delta
-
-        if (
-            best is not None
-            and best_delta is not None
-            and best_delta <= MARKER_WINDOW_SECONDS
-        ):
-            updated.append(run.model_copy(update={"story_id": best.story_id}))
-        else:
-            warnings.warn(
-                (
-                    "No marker within "
-                    f"{MARKER_WINDOW_SECONDS:.0f}s of cluster "
-                    f"starting at {run.started.isoformat()}; "
-                    "story_id left unset."
-                ),
-                MarkerWindowWarning,
-                stacklevel=2,
-            )
-            updated.append(run)
-
-    return tuple(updated)
