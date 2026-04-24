@@ -1,7 +1,7 @@
 ---
 title: 'Per-stage build telemetry: sub-agent JSONL read path + universal stage-begin
   primitive'
-status: implemented
+status: verified
 slice:
 - core
 - cli
@@ -26,7 +26,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implemented
+- status/verified
 acceptance_criteria: []
 ---
 
