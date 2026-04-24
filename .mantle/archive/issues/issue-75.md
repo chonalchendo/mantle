@@ -1,6 +1,6 @@
 ---
 title: Model tiering config and A/B harness for build pipeline stages
-status: planned
+status: dropped
 slice:
 - cli
 - core
@@ -11,7 +11,7 @@ blocked_by: []
 skills_required: []
 tags:
 - type/issue
-- status/planned
+- status/dropped
 acceptance_criteria:
 - id: ac-01
   text: Per-stage model config in `.mantle/config.md` is read by build.md and respected
@@ -45,6 +45,12 @@ acceptance_criteria:
 ## Parent PRD
 
 product-design.md, system-design.md
+
+## Status: Superseded
+
+Closed on 2026-04-24 per brainstorm `2026-04-22-gsd-scout-backlog-reshape.md` (decision 1). Issue 84 carved 75 down and shipped the dominant lever — per-stage model tier config in `core/project.py`, presets in `cost-policy.md`, escape-hatch overrides, full tests. That covers ACs 01, 02, 04, and 05 of this issue. The remaining live work is AC-03 (the A/B harness), which has been re-opened as **issue 89 — A/B harness for build pipeline (replaces 75-remainder)** with the 84-retrospective lessons baked in (no `/mantle:build` nesting, sentinel-rejection in the verifier).
+
+Original ACs and content preserved below for reference.
 
 ## Why
 

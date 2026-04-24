@@ -112,7 +112,7 @@ Solid lines show the primary flow. Dotted lines show feedback loops and side-cha
 
 | vs Tool | Mantle's Edge |
 |---|---|
-| **GSD** | GSD uses markdown-only commands with no runtime. Mantle has a Python runtime for state management and context compilation, prompt-based orchestration inspired by GSD's Agent pattern, and a persistent knowledge graph across projects. |
+| **GSD** | GSD ships a TypeScript SDK runtime (`sdk/src/`: session-runner, context-engine, cli-transport, event-stream, tool-scoping) and is the closest competitor by surface area. Mantle's edge is **persistent cross-project knowledge** via an Obsidian-native vault — a wikilinked skill graph that compounds across projects, not a per-repo planning store. The second edge is a **cohesive idea-to-review lifecycle** — challenge → research → design → plan → shape → implement → verify → review → retrospective as one connected pipeline, with each stage's artefacts feeding the next. |
 | **Aider** | Aider is a pair programmer for individual coding tasks. Mantle manages the full lifecycle from idea validation through to verified, reviewed code. |
 | **Colin** | Colin compiles context into skills (one-way). Mantle reads AND writes — it's a bidirectional workflow engine with interactive sessions, implementation loops, and vault state management. |
 | **Cursor / IDE tools** | IDE tools operate at the code level. Mantle operates at the product level — ensuring you're building the right thing before you write any code. |
