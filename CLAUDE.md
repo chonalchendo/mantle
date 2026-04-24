@@ -56,6 +56,28 @@ flat function, not a plug-in registry.
 - Scenario fixtures in `tests/conftest.py` follow the naming convention `vault_with_<state>` or `<noun>_after_<event>`; the docstring describes the scenario. One fixture = one named scenario.
 - Don't mix the two tools in a single assertion without intent: `inline_snapshot` captures values, `dirty-equals` captures shape.
 
+### Prompt-parity harness (`tests/parity/`)
+
+A parity test captures the normalized text of a `/mantle:*` command prompt
+and fails if that text changes between runs. The harness enables aggressive
+token-cut refactors without silently shifting agent-visible content.
+
+- **Scope.** Three commands are `INTEGRATED`: `build`, `implement`, `plan-stories`.
+  Every other command has a classification in
+  `tests/parity/test_prompt_coverage_policy.py`. Adding a new command without
+  a classification fails CI.
+- **Capturing a new baseline.** Run
+  `uv run pytest --inline-snapshot=create tests/parity/test_<cmd>_parity.py`.
+  Review the captured literal, confirm it contains no volatile fields
+  (timestamps, session IDs, absolute paths, git SHAs — see
+  `normalize_prompt_output`), and commit.
+- **Accepting a diff.** After a deliberate refactor, run
+  `uv run pytest --inline-snapshot=review tests/parity/` and accept each diff
+  interactively. Never hand-edit a `snapshot()` literal.
+- **Promoting DEFERRED → INTEGRATED.** Copy one of the three `test_<cmd>_parity.py`
+  files, change the `command=` argument, capture the baseline, and flip the
+  classification entry.
+
 ## Commit Messages
 
 Conventional commits: `feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`
