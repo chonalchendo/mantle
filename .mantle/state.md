@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Backlog reshaped on 2026-04-24 from the 2026-04-22 GSD scout — closed 75 + 72, expanded 71 to absorb 72, opened 89 (A/B harness) + 90 (golden-parity harness). Next: shape one of the new optimisation issues.
+Build telemetry confirmed silently broken (15 builds since 2026-04-17 produced empty reports). Bug filed; issue 91 opened to fix the SessionStart hook. Blocks issue 89 (A/B harness) — fix 91 first.
 
 ## Blockers
 
@@ -78,11 +78,12 @@ _None_
 
 Optimisation-focused queue (ordered by leverage; reshaped 2026-04-24 from GSD scout):
 
+- **Issue 91 — fix SessionStart hook to write `.mantle/.session-id` (BLOCKER for 89; lays foundation for 85)**
 - Issue 90 — prompt-layer golden-parity harness (enables aggressive token cuts in 79/87/88 with regression safety)
 - Issue 87 — `mantle compress` for input-token compression (direct token-cost reduction)
 - Issue 79 — audit `.mantle/` + `CLAUDE.md` for progressive-disclosure drift (consider splitting at shape time: mechanical `@file` include refactor vs audit-context CLI)
 - Issue 71 — dynamic end-of-command recommendations with fresh-context handoff (absorbed 72; workflow-loop efficiency)
-- Issue 89 — A/B harness for build pipeline (replaces 75-remainder; cost-lever evaluation on top of 84)
+- Issue 89 — A/B harness for build pipeline (blocked by 91; replaces 75-remainder; cost-lever evaluation on top of 84)
 
 Cross-repo within ~1-month horizon:
 - Issue 85 — schedule shape session within ~2 weeks; GSD env-var → TTY session-identity pattern as lead candidate primitive (don't pre-extract)
