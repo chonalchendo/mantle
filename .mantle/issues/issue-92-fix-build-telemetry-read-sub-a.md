@@ -7,7 +7,7 @@ slice:
 - cli
 - claude-code
 - tests
-story_count: 0
+story_count: 5
 verification: null
 blocked_by: []
 skills_required:
