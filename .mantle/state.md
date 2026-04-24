@@ -68,7 +68,7 @@ AI workflow engine with persistent context, integrated with Claude Code and Obsi
 
 ## Current Focus
 
-Issue 89 shaped (narrowed to post-hoc A/B harness); issue 92 created as prereq. Next: `/mantle:shape-issue 92` — telemetry fix is now concrete enough to shape (diagnosis done; see issue body).
+Issue 92 shaped — run /mantle:plan-stories next.
 
 ## Blockers
 

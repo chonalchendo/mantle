@@ -1,10 +1,10 @@
 {
   "version": 1,
   "files": {
-    "/Users/conal/Development/mantle/.mantle/state.md": "7e3ed9046fe4d829e89336ababc8f351ae5fbe3bcbb2c6c48af4576b10c7f5d1",
+    "/Users/conal/Development/mantle/.mantle/state.md": "dfec5f2ac7485ec3b98f7cd87991c5645eaa590ce57a1c149adbfdcb63b88f91",
     "/Users/conal/Development/mantle/.mantle/product-design.md": "533945d070b9609ccd0c05077c9a6b65b89622f65b100cec2bea819997acb9e5",
     "/Users/conal/Development/mantle/.mantle/system-design.md": "7c4262226e330965825f32a5d4fca10f65c58f677bc8284ac3ff77617d34088e",
-    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-24-1232.md": "92fde83504f44e60bed8c8911a6fa9f789a11ce5a7c107b2160b069c85cac49f",
+    "/Users/conal/Development/mantle/.mantle/sessions/2026-04-24-1702.md": "63bc30cce7b2937440b46fc2f5b5d27e1ee7e650a269b11515b9611dc8c2f420",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/resume.md.j2": "518968e7e5ed84e3ffd573d7fdc0cfe5e87658ff5ce7b6e1761124ad1d48f5b1",
     "/Users/conal/.local/share/uv/tools/mantle-ai/lib/python3.14/site-packages/mantle/claude/commands/mantle/status.md.j2": "614b90d0c0532f1844912977450090c08d799b7cf18cbbfeb96e9c9a97525441",
     "/Users/conal/test-vault/skills/apache-iceberg-table-management.md": "8015682380462981720062a48ed1d0919a86b008339ab5fbe3ef15f1feabaca0",
@@ -52,6 +52,7 @@
     "/Users/conal/test-vault/skills/streamlit.md": "b5ce02da86c0a0ca3c17090426461fa1152f5a06124ff482a01e36c4fae717ae",
     "/Users/conal/test-vault/skills/sveltekit-2--svelte-5.md": "de6bea5d42cc2de4f2b72d568aee3261b151597a4eb08d9d0a396d7278743a4c",
     "/Users/conal/test-vault/skills/tailwind-css-v4.md": "681956335d51ab124cfdfc2b1c01c64a4d79addb328ab2217238f67af063f407",
+    "/Users/conal/test-vault/skills/tanstack-svelte-table--virtual.md": "b974a498ded11550d28a4267ec7950875566a27ea3e7b197baf16efc488af5f2",
     "/Users/conal/test-vault/skills/tom-gayner-investment-philosophy.md": "414609dbad7c4130c0a0ed7d131ccd2a5ce8e15adfd5271bae92ece0770a33cb"
   }
 }
