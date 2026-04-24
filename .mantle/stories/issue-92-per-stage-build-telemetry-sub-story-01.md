@@ -1,11 +1,11 @@
 ---
 issue: 92
 title: Core stages module — StageMark, StageWindow, record_stage, read_stages, windows_for_session
-status: planned
+status: in-progress
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/in-progress
 ---
 
 ## User Story
