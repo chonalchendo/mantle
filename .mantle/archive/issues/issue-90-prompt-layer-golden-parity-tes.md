@@ -1,57 +1,60 @@
 ---
 title: Prompt-layer golden-parity test harness for top commands
-status: planned
+status: approved
 slice:
 - tests
 - claude-code
 - core
-story_count: 0
+story_count: 3
 verification: null
 blocked_by: []
-skills_required: []
+skills_required:
+- dirty-equals
+- inline-snapshot
+- python-314
 tags:
 - type/issue
-- status/planned
+- status/approved
 acceptance_criteria:
 - id: ac-01
   text: A test helper `run_prompt_parity(command, fixture, baseline)` exists and produces
     a structured comparison result.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-02
   text: At least 3 commands (`build`, `implement`, `plan-stories`) have parity tests
     against captured baselines.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-03
   text: A `normalize_prompt_output()` helper strips timestamps, session IDs, absolute
     paths, and git SHAs; documented inline.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-04
   text: A `test_prompt_coverage_policy.py` enumerates every `/mantle:*` command and
     fails if a command is added without an explicit `INTEGRATED` / `UNIT_ONLY` / `DEFERRED`
     classification.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-05
   text: CI runs the parity tests as part of `just check`.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-06
   text: A short doc (in CLAUDE.md or a new `docs/` note) explains how to capture a
     new baseline and how to add a command to the policy.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-07
   text: '`just check` passes.'
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 ---
@@ -80,13 +83,13 @@ Initial coverage: `build`, `implement`, `plan-stories`. All other commands marke
 
 ## Acceptance criteria
 
-- [ ] ac-01: A test helper `run_prompt_parity(command, fixture, baseline)` exists and produces a structured comparison result.
-- [ ] ac-02: At least 3 commands (`build`, `implement`, `plan-stories`) have parity tests against captured baselines.
-- [ ] ac-03: A `normalize_prompt_output()` helper strips timestamps, session IDs, absolute paths, and git SHAs; documented inline.
-- [ ] ac-04: A `test_prompt_coverage_policy.py` enumerates every `/mantle:*` command and fails if a command is added without an explicit `INTEGRATED` / `UNIT_ONLY` / `DEFERRED` classification.
-- [ ] ac-05: CI runs the parity tests as part of `just check`.
-- [ ] ac-06: A short doc (in CLAUDE.md or a new `docs/` note) explains how to capture a new baseline and how to add a command to the policy.
-- [ ] ac-07: `just check` passes.
+- [x] ac-01: A test helper `run_prompt_parity(command, fixture, baseline)` exists and produces a structured comparison result.
+- [x] ac-02: At least 3 commands (`build`, `implement`, `plan-stories`) have parity tests against captured baselines.
+- [x] ac-03: A `normalize_prompt_output()` helper strips timestamps, session IDs, absolute paths, and git SHAs; documented inline.
+- [x] ac-04: A `test_prompt_coverage_policy.py` enumerates every `/mantle:*` command and fails if a command is added without an explicit `INTEGRATED` / `UNIT_ONLY` / `DEFERRED` classification.
+- [x] ac-05: CI runs the parity tests as part of `just check`.
+- [x] ac-06: A short doc (in CLAUDE.md or a new `docs/` note) explains how to capture a new baseline and how to add a command to the policy.
+- [x] ac-07: `just check` passes.
 
 ## Blocked by
 
