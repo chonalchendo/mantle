@@ -1,8 +1,10 @@
 ---
-title: 'Fix build telemetry: read sub-agent JSONLs + add per-stage attribution'
+title: 'Per-stage build telemetry: sub-agent JSONL read path + universal stage-begin primitive'
 status: planned
 slice:
 - core
+- cli
+- claude-code
 - tests
 story_count: 0
 verification: null
@@ -20,60 +22,110 @@ product-design.md, system-design.md
 
 ## Why
 
-Build telemetry is half-broken. Issue 91 fixed `.mantle/.session-id` writing, but build-90's report still says "No story runs detected" — because sub-agent transcripts live in a separate location (`~/.claude/projects/<proj>/<parent_session_id>/subagents/agent-<id>.jsonl`), not as sidechain turns in the parent session's JSONL.
+Build telemetry is half-broken and standalone commands are entirely unattributed.
 
-Diagnosis (done during issue 89's shaping session):
-- Build-90 session JSONL has 188 assistant turns, all with `isSidechain: false`.
-- Agent tool was invoked 5 times: 3× story-implementer + 1× refactorer + 1× general-purpose.
-- Sub-agent JSONLs exist at `~/.claude/projects/-Users-conal-Development-mantle/514d3e78-4614-4206-a4c1-4f26dafe9e10/subagents/agent-*.jsonl` (5 of them, plus `.meta.json` sidecars).
-- `telemetry.find_session_file` and `telemetry.read_session` only read the parent JSONL, so sub-agent usage is invisible.
-- Sub-agent JSONLs have `isSidechain: true` on their turns and carry model/usage data.
+Two diagnoses from issue 89's shaping converge here:
 
-This issue fixes that read path. It also seizes the opportunity to add per-stage attribution — the `.meta.json` sidecars expose `subagent_type` (`story-implementer` → `implement`, `refactorer` → `simplify`, `general-purpose` → `verify` or `shape` depending on position), which makes per-stage cost reporting possible for the first time.
+1. **Sub-agent transcripts live in a separate location.** Build-90's session JSONL has 188 assistant turns, all `isSidechain: false`. Its 5 sub-agent spawns (3× story-implementer, 1× refactorer, 1× general-purpose) live at `~/.claude/projects/<proj>/<parent_session>/subagents/agent-*.jsonl`. `telemetry.find_session_file` + `telemetry.read_session` only read the parent JSONL, so sub-agent usage is invisible and `group_stories` always returns `()`.
+
+2. **Inline stages have no attribution.** Shape and plan_stories run as parent-session turns inside the build orchestrator; there is no mechanism today to attribute those turns to a stage. Outside the build pipeline, standalone `/mantle:shape-issue` / `/mantle:verify` / etc. runs are invisible to any aggregator — `audit-tokens` and issue 89's A/B harness cannot slice cost by stage for them.
+
+The user's constraint surfaced during shaping: stage attribution must work for **every LLM-invoking Mantle command, inside or outside `/mantle:build`**. That collapses "build stages" and "standalone commands" into one concept: a stage is any named Mantle command that does LLM reasoning.
+
+See `.mantle/shaped/issue-92-per-stage-build-telemetry-sub-shaped.md` (Approach D-revised) for the full analysis. This issue is the prerequisite for issue 89 (A/B harness AC-02 requires per-stage cost/time).
 
 ## Blocks
 
-Issue 89 (A/B harness) cannot enter `/mantle:plan-stories` until this lands — its AC-02 requires per-stage cost/time.
+Issue 89 (A/B harness).
 
 ## What to build
 
-Core changes in `src/mantle/core/telemetry.py`:
+Four cohesive additions.
 
-1. New function: `find_subagent_files(parent_session_id, projects_root=None) -> tuple[Path, ...]` — returns all `<parent>/subagents/agent-*.jsonl` paths.
-2. New function: `read_subagent(jsonl_path) -> tuple[Turn, ...]` — same as `read_session` but for sub-agent files. These already have `isSidechain: true`; one file per Agent spawn.
-3. New function: `read_meta(jsonl_path) -> SubagentMeta` — parses the sibling `agent-*.meta.json` for `subagent_type`, spawn model, etc.
-4. Widen `StoryRun` model: add `stage: str | None` field.
-5. Rewrite `group_stories()` — replace parent-uuid clustering (which was operating on the wrong file) with "one StoryRun per subagent file." Attribute `stage` via `subagent_type`:
-   - `story-implementer` → `"implement"`
-   - `refactorer` → `"simplify"`
-   - `general-purpose` → `"verify"` (when invoked by build.md Step 8; may need context disambiguation for other callers — see Open Questions)
-6. Widen `find_session_file` or add a companion function that returns both parent and sub-agent paths.
-7. Extend `render_report` to group `stories:` by stage when `stage` is populated.
+**1. New module `src/mantle/core/stages.py`** — stage-begin primitive.
 
-Optional (can defer to a follow-up if scope balloons):
-- Inline-stage attribution (shape, plan_stories — which run in parent-session turns, not sub-agents). One approach: emit stage markers from the build orchestrator (`mantle stage-begin shape` / `stage-end shape`) that append to a sidecar file; parser slices parent-session turns by time window.
+- `StageMark` pydantic model (frozen): `{stage: str, at: datetime}` — on-disk event shape.
+- `StageWindow` pydantic model (frozen): `{stage: str, start: datetime, end: datetime}` — parser-side half-open interval.
+- `record_stage(stage, project_dir=None) -> None` — resolves session id via `telemetry.current_session_id`; appends one JSONL line to `<project_dir>/.mantle/telemetry/stages-<session_id>.jsonl` (creating the directory if absent). Silent no-op when no session id is resolvable.
+- `read_stages(session_id, project_dir=None) -> tuple[StageMark, ...]` — parses the session's JSONL in chronological order; malformed lines silently skipped; returns `()` when absent.
+- `windows_for_session(marks, session_end) -> tuple[StageWindow, ...]` — pure function; produces half-open windows, each closing at the next mark's `at` or at `session_end` for the last mark.
+
+Depends only on `core.telemetry` (for `current_session_id`) + stdlib.
+
+**2. Extend `src/mantle/core/telemetry.py`** — sub-agent read path.
+
+- `SubagentMeta` pydantic model (frozen, `extra="ignore"` — Claude Code owns schema): `agent_type: str = Field(alias="agentType")`.
+- Widen `StoryRun` with `stage: str | None = None`.
+- `find_subagent_files(parent_session_id, projects_root=None) -> tuple[Path, ...]` — glob `<parent>/subagents/agent-*.jsonl`; sort by first-turn timestamp.
+- `read_subagent(jsonl_path) -> tuple[Turn, ...]` — reuse `_parse_assistant_line`; sub-agent files have the same turn shape with `isSidechain: true`.
+- `read_meta(jsonl_path) -> SubagentMeta | None` — parse sibling `agent-*.meta.json`; None on absence/malformed.
+- Private mapping `_AGENT_TYPE_TO_STAGE = {story-implementer: implement, refactorer: simplify, general-purpose: verify}`. Unknown types → `stage=None`.
+- Rewrite `group_stories(parent_turns, subagent_paths=(), stage_windows=()) -> tuple[StoryRun, ...]` — one `StoryRun` per sub-agent file (stage from meta) plus one per `StageWindow` that overlaps the parent session (aggregating parent turns inside the window). Sorted by `started`.
+- `render_report` groups stories by `stage`, with "Unattributed" bucket for `stage=None`.
+- **Deletions:** `_aggregate_cluster`'s sidechain-cluster branch, `Marker`, `MarkerWindowWarning`, `_attach_story_ids`, plus `cli/builds.py:_derive_mtime_markers`. All served the parent-sidechain clustering unreachable against current Claude Code builds.
+
+**3. New CLI command `mantle stage-begin <name>`** in `src/mantle/cli/main.py` under `GROUPS["impl"]`.
+
+```python
+@app.command(name="stage-begin", group=GROUPS["impl"])
+def stage_begin_command(name: str) -> None:
+    """Mark the start of a named stage in the current session."""
+    stages.record_stage(name)
+```
+
+No flags. Single positional arg. Graceful no-op when no session id is resolvable. Validates only "non-empty" — typos in template edits are caught via parity-harness snapshot review.
+
+**4. Template edits across `claude/commands/mantle/`**
+
+Add `mantle stage-begin <stage-name>` as the first shell call in every LLM-invoking `.md` template. Stage name matches the `cost-policy.md` key (`shape`, `plan_stories`, `implement`, `simplify`, `verify`, `review`, `retrospective`) where applicable, or the command slug otherwise (`build`, `challenge`, `design-product`, `design-system`, `revise-product`, `revise-system`, `brainstorm`, `research`, `scout`, `adopt`, `refactor`, `plan-issues`, `idea`, `patterns`, `distill`, `fix`).
+
+Proposed skip list (implementer refines at story time): `help.md`, `resume.md.j2`, `status.md.j2`, `add-issue.md`, `add-skill.md`, `bug.md`, `inbox.md`, `query.md` — wiring or short non-reasoning commands.
+
+`build.md` additionally emits `mantle stage-begin shape` at the start of Step 4 and `mantle stage-begin plan_stories` at the start of Step 5, since those stages run inline in the parent session.
+
+**5. `build-finish` wiring** in `src/mantle/cli/builds.py`
+
+`run_build_finish`:
+1. Read parent session JSONL (unchanged).
+2. `stages.read_stages(session_id)` → `stages.windows_for_session(marks, report.finished)`.
+3. `telemetry.find_subagent_files(session_id)`.
+4. `telemetry.group_stories(parent_turns, subagent_paths, stage_windows)`.
+5. Render.
 
 ## Acceptance criteria
 
-- [ ] ac-01: `telemetry.group_stories()` returns one `StoryRun` per sub-agent JSONL found under `<parent>/subagents/`.
-- [ ] ac-02: Each `StoryRun.stage` is populated from the matching `.meta.json`'s `subagent_type`, using the mapping `story-implementer→implement`, `refactorer→simplify`, `general-purpose→verify` (build context).
-- [ ] ac-03: A roundtrip test fixture — parent JSONL + synthetic `subagents/` directory — asserts the rendered build report contains a non-empty `stories:` frontmatter list with per-stage attribution.
-- [ ] ac-04: Re-parsing build-90's actual session (via a test fixture copied from `~/.claude/projects/...`) produces a non-empty stories list with 3× implement + 1× simplify + 1× verify.
-- [ ] ac-05: The `BuildReport` model stays backward-compatible with existing build-*.md files (new fields default safely; render changes do not break older parsers).
-- [ ] ac-06: `just check` passes — ruff + ty + pytest, import-linter contracts unchanged.
+- [ ] ac-01: `mantle stage-begin <name>` appends a well-formed JSONL `StageMark` to `.mantle/telemetry/stages-<session_id>.jsonl` when a Claude Code session id is resolvable; no-ops silently otherwise. Creates `.mantle/telemetry/` if absent.
+- [ ] ac-02: `telemetry.group_stories()` returns one `StoryRun` per sub-agent JSONL under `<parent>/subagents/`, with `stage` populated from `agentType` via `story-implementer→implement`, `refactorer→simplify`, `general-purpose→verify`; unknown types yield `stage=None`.
+- [ ] ac-03: Parent-session inline turns are attributed to a stage when a `StageWindow` overlaps their timestamp; turns outside any window get `stage=None` (rendered as "Unattributed").
+- [ ] ac-04: Synthetic roundtrip fixture (parent JSONL + `subagents/` dir + `stages-<session_id>.jsonl`) renders a build report whose `stories:` frontmatter contains stage-grouped rows per `inline_snapshot` capture.
+- [ ] ac-05: Re-parsing build-90's real session directory (copied to a test fixture) produces `implement` ×3 + `simplify` ×1 + `verify` ×1; inline stages show `stage=None` because build-90 predates marker emission.
+- [ ] ac-06: Every LLM-invoking `.md` template in `claude/commands/mantle/` begins with `mantle stage-begin <name>`. Parity harness (`tests/parity/`) snapshots refreshed for all affected integrated commands.
+- [ ] ac-07: `BuildReport` stays backward-compatible — pre-existing `.mantle/builds/build-NN-*.md` files load without error; `stage=None` renders as "Unattributed".
+- [ ] ac-08: `just check` passes — ruff + ty + pytest, import-linter contracts unchanged.
+
+## Does not
+
+- Emit `stage-end`. Single-event marks only; next `stage-begin` implicitly closes the previous window.
+- Retroactively attribute historical builds. Pre-existing build files keep `stage=None` on inline turns.
+- Disambiguate `general-purpose` beyond the build-context `verify` mapping. A future non-verify caller of `general-purpose` would read incorrectly — acceptable while `build.md` is the only caller.
+- Rotate or compact `stages-*.jsonl`. Old sessions' files can be deleted manually if they accumulate.
+- Add price application to `StoryRun` — belongs to `core/ab_build.py` (issue 89 scope).
+- Instrument plumbing CLI calls (`mantle update-story-status`, `mantle save-shaped-issue`, etc.) or the skip-list templates.
 
 ## Blocked by
 
-None. This is the blocker for 89.
+None.
 
 ## User stories addressed
 
 - As a Mantle maintainer evaluating per-stage model choices, I want build reports to contain per-stage cost/time so preset trade-offs are measurable, not vibes.
-- As a developer running `/mantle:build`, I want the resulting build-NN-*.md to actually reflect what the pipeline did, so later retrospectives have real data.
+- As a developer running `/mantle:build`, I want the resulting build-NN-*.md to actually reflect what the pipeline did, so retrospectives have real data.
+- As a developer running a standalone `/mantle:shape-issue` or `/mantle:verify`, I want the session's token usage to be attributable to that stage — not lumped into an un-named bucket.
 
 ## Notes
 
-- Diagnosis done during issue 89's shaping session, 2026-04-24. See `.mantle/shaped/issue-89-ab-harness-for-build-pipeline-shaped.md` for context.
-- The parent-session's own turns still carry real token usage (for the inline shape/plan_stories work) — attributing those is the "optional" extension and may warrant its own follow-up issue.
-- `.meta.json` sidecar schema is an external-to-mantle contract owned by Claude Code. Parse it defensively; fall back to `stage=None` if keys are missing.
-- Session id for the diagnosis fixture: `514d3e78-4614-4206-a4c1-4f26dafe9e10` (build-90, 2026-04-24).
+- Full design: `.mantle/shaped/issue-92-per-stage-build-telemetry-sub-shaped.md` (Approach D-revised).
+- Diagnosis fixture session id: `514d3e78-4614-4206-a4c1-4f26dafe9e10` (build-90, 2026-04-24).
+- `.meta.json` sidecar schema is a Claude Code-owned contract. Parse defensively; fall back to `stage=None` on any schema surprise.
+- Storage location `.mantle/telemetry/stages-<session_id>.jsonl` — per-session file in the existing telemetry folder. Co-locates with `baseline-*.md/.json` artefacts and eliminates cross-worktree write races by construction.
+- Parity harness (issue 90) catches template-edit drift automatically; expect snapshot refresh on every touched template.
