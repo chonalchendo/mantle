@@ -38,6 +38,10 @@ For Step 5, update the task description as stories complete ("Story 1/3 done").
 
 **Step 1 — Check prerequisites**
 
+Record the stage:
+
+    mantle stage-begin implement
+
 Resolve the project's .mantle/ directory:
 
     MANTLE_DIR=$(mantle where)

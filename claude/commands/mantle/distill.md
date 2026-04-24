@@ -24,6 +24,10 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Get the topic
 
+Record the stage:
+
+    mantle stage-begin distill
+
 Use the topic from $ARGUMENTS. If no argument was provided, ask the user what
 topic to distill.
 

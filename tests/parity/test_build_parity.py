@@ -60,6 +60,10 @@ each stage without asking for permission. Surface problems immediately.
 
 ## Step 1 — Prerequisites
 
+Record the stage:
+
+    mantle stage-begin build
+
 Resolve the project's .mantle/ directory:
 
     MANTLE_DIR="${MANTLE_DIR:-$(mantle where)}"
@@ -143,6 +147,10 @@ Display:
 
 ## Step 4 — Shape (inline)
 
+Record the stage:
+
+    mantle stage-begin shape
+
 Runs inline. Check if `$MANTLE_DIR/shaped/issue-{NN}-shaped.md` exists.
 
 **If already shaped**, read it and report:
@@ -169,6 +177,10 @@ Report:
 > **Auto-shaped issue {NN}:** {chosen approach} — {appetite}
 
 ## Step 5 — Plan stories (inline)
+
+Record the stage:
+
+    mantle stage-begin plan_stories
 
 Check if stories exist in `$MANTLE_DIR/stories/issue-{NN}-story-*.md`.
 

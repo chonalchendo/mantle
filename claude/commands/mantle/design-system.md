@@ -25,6 +25,10 @@ complete, use TaskUpdate to set it to `completed`.
 
 ## Step 1 — Check prerequisites
 
+Record the stage:
+
+    mantle stage-begin design-system
+
 First, resolve the project's .mantle/ directory:
 
     MANTLE_DIR=$(mantle where)

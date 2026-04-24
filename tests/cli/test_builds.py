@@ -404,7 +404,8 @@ def test_run_build_finish_empty_parent_session(
     # Write a JSONL with only non-assistant records (zero parsed turns)
     session_file = slug / f"{session_id}.jsonl"
     session_file.write_text(
-        json.dumps({"type": "user", "content": "hello"}) + "\n", encoding="utf-8"
+        json.dumps({"type": "user", "content": "hello"}) + "\n",
+        encoding="utf-8",
     )
 
     monkeypatch.setenv("CLAUDE_PROJECTS_DIR", str(projects_root))

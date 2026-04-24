@@ -50,6 +50,10 @@ Capture `<tmpdir>` from stdout. Derive `<repo-name>` from the last URL segment
 
 ## Step 2 — Compile project context
 
+Record the stage:
+
+    mantle stage-begin scout
+
     MANTLE_DIR=$(mantle where)
 
 Use `$MANTLE_DIR/...` for all subsequent reads.

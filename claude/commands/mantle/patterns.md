@@ -7,6 +7,10 @@ Surface recurring patterns from accumulated `.mantle/learnings/`.
 
 ## Step 1 — Run the analysis
 
+Record the stage:
+
+    mantle stage-begin patterns
+
 Run:
 
     mantle show-patterns

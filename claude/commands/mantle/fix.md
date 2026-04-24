@@ -6,6 +6,10 @@ allowed-tools: Read, Edit, Write, Bash(mantle *), Bash(uv run pytest*), Bash(jus
 Read saved review feedback, fix flagged criteria, and re-verify. This command
 automates the fix-and-verify loop after `/mantle:review` flags issues.
 
+Record the stage:
+
+    mantle stage-begin fix
+
 ## Dynamic Context
 
 - **Current branch**: !`git branch --show-current`

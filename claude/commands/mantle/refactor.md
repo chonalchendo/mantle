@@ -18,6 +18,10 @@ user makes the final call on which approach to take.
 
 ## Step 1 — Determine scope
 
+Record the stage:
+
+    mantle stage-begin refactor
+
 Before starting, use TaskCreate to create a task for each step:
 
 1. "Step 1 — Determine scope"
