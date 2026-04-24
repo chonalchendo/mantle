@@ -1,6 +1,6 @@
 ---
 title: Fix SessionStart hook to write .mantle/.session-id from payload
-status: implementing
+status: verified
 slice:
 - claude-code
 - tests
@@ -11,7 +11,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/verified
 acceptance_criteria: []
 ---
 
