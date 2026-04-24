@@ -1,11 +1,11 @@
 ---
 issue: 92
 title: 'Telemetry: sub-agent read path + stage attribution + group_stories rewrite'
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story

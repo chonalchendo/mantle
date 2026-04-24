@@ -1,11 +1,11 @@
 ---
 issue: 92
 title: 'build-finish wiring: read stages + sub-agent files, drop _derive_mtime_markers'
-status: planned
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/planned
+- status/completed
 ---
 
 ## User Story
