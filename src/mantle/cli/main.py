@@ -44,6 +44,7 @@ from mantle.cli import (
     patterns as patterns_cli,
 )
 from mantle.cli.groups import GROUPS
+from mantle.core import stages
 
 app = App(
     name="mantle",
@@ -1744,6 +1745,26 @@ def build_finish_command(
 ) -> None:
     """Finalize the build report by parsing Claude Code session JSONL."""
     builds.run_build_finish(issue)
+
+
+@app.command(name="stage-begin", group=GROUPS["impl"])
+def stage_begin_command(
+    name: Annotated[
+        str,
+        Parameter(
+            help="Stage name (e.g. 'shape', 'implement', 'verify').",
+        ),
+    ],
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Mark the start of a named stage in the current session."""
+    stages.record_stage(name, project_dir=path)
 
 
 @app.command(name="transition-issue-implementing", group=GROUPS["planning"])
