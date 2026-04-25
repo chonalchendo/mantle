@@ -1,7 +1,7 @@
 ---
 title: 'Per-stage build telemetry: sub-agent JSONL read path + universal stage-begin
   primitive'
-status: verified
+status: approved
 slice:
 - core
 - cli
@@ -26,8 +26,61 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/verified
-acceptance_criteria: []
+- status/approved
+acceptance_criteria:
+- id: ac-01
+  text: '`mantle stage-begin <name>` appends a well-formed JSONL `StageMark` to `.mantle/telemetry/stages-<session_id>.jsonl`
+    when a Claude Code session id is resolvable; no-ops silently otherwise. Creates
+    `.mantle/telemetry/` if absent.'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-02
+  text: '`telemetry.group_stories()` returns one `StoryRun` per sub-agent JSONL under
+    `<parent>/subagents/`, with `stage` populated from `agentType` via `story-implementer→implement`,
+    `refactorer→simplify`, `general-purpose→verify`; unknown types yield `stage=None`.'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-03
+  text: Parent-session inline turns are attributed to a stage when a `StageWindow`
+    overlaps their timestamp; turns outside any window get `stage=None` (rendered
+    as "Unattributed").
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-04
+  text: Synthetic roundtrip fixture (parent JSONL + `subagents/` dir + `stages-<session_id>.jsonl`)
+    renders a build report whose `stories:` frontmatter contains stage-grouped rows
+    per `inline_snapshot` capture.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-05
+  text: Re-parsing build-90's real session directory (copied to a test fixture) produces
+    `implement` ×3 + `simplify` ×1 + `verify` ×1; inline stages show `stage=None`
+    because build-90 predates marker emission.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-06
+  text: Every LLM-invoking `.md` template in `claude/commands/mantle/` begins with
+    `mantle stage-begin <name>`. Parity harness (`tests/parity/`) snapshots refreshed
+    for all affected integrated commands.
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-07
+  text: '`BuildReport` stays backward-compatible — pre-existing `.mantle/builds/build-NN-*.md`
+    files load without error; `stage=None` renders as "Unattributed".'
+  passes: true
+  waived: false
+  waiver_reason: null
+- id: ac-08
+  text: '`just check` passes — ruff + ty + pytest, import-linter contracts unchanged.'
+  passes: true
+  waived: false
+  waiver_reason: null
 ---
 
 ## Parent PRD
@@ -108,14 +161,14 @@ Proposed skip list (implementer refines at story time): `help.md`, `resume.md.j2
 
 ## Acceptance criteria
 
-- [ ] ac-01: `mantle stage-begin <name>` appends a well-formed JSONL `StageMark` to `.mantle/telemetry/stages-<session_id>.jsonl` when a Claude Code session id is resolvable; no-ops silently otherwise. Creates `.mantle/telemetry/` if absent.
-- [ ] ac-02: `telemetry.group_stories()` returns one `StoryRun` per sub-agent JSONL under `<parent>/subagents/`, with `stage` populated from `agentType` via `story-implementer→implement`, `refactorer→simplify`, `general-purpose→verify`; unknown types yield `stage=None`.
-- [ ] ac-03: Parent-session inline turns are attributed to a stage when a `StageWindow` overlaps their timestamp; turns outside any window get `stage=None` (rendered as "Unattributed").
-- [ ] ac-04: Synthetic roundtrip fixture (parent JSONL + `subagents/` dir + `stages-<session_id>.jsonl`) renders a build report whose `stories:` frontmatter contains stage-grouped rows per `inline_snapshot` capture.
-- [ ] ac-05: Re-parsing build-90's real session directory (copied to a test fixture) produces `implement` ×3 + `simplify` ×1 + `verify` ×1; inline stages show `stage=None` because build-90 predates marker emission.
-- [ ] ac-06: Every LLM-invoking `.md` template in `claude/commands/mantle/` begins with `mantle stage-begin <name>`. Parity harness (`tests/parity/`) snapshots refreshed for all affected integrated commands.
-- [ ] ac-07: `BuildReport` stays backward-compatible — pre-existing `.mantle/builds/build-NN-*.md` files load without error; `stage=None` renders as "Unattributed".
-- [ ] ac-08: `just check` passes — ruff + ty + pytest, import-linter contracts unchanged.
+- [x] ac-01: `mantle stage-begin <name>` appends a well-formed JSONL `StageMark` to `.mantle/telemetry/stages-<session_id>.jsonl` when a Claude Code session id is resolvable; no-ops silently otherwise. Creates `.mantle/telemetry/` if absent.
+- [x] ac-02: `telemetry.group_stories()` returns one `StoryRun` per sub-agent JSONL under `<parent>/subagents/`, with `stage` populated from `agentType` via `story-implementer→implement`, `refactorer→simplify`, `general-purpose→verify`; unknown types yield `stage=None`.
+- [x] ac-03: Parent-session inline turns are attributed to a stage when a `StageWindow` overlaps their timestamp; turns outside any window get `stage=None` (rendered as "Unattributed").
+- [x] ac-04: Synthetic roundtrip fixture (parent JSONL + `subagents/` dir + `stages-<session_id>.jsonl`) renders a build report whose `stories:` frontmatter contains stage-grouped rows per `inline_snapshot` capture.
+- [x] ac-05: Re-parsing build-90's real session directory (copied to a test fixture) produces `implement` ×3 + `simplify` ×1 + `verify` ×1; inline stages show `stage=None` because build-90 predates marker emission.
+- [x] ac-06: Every LLM-invoking `.md` template in `claude/commands/mantle/` begins with `mantle stage-begin <name>`. Parity harness (`tests/parity/`) snapshots refreshed for all affected integrated commands.
+- [x] ac-07: `BuildReport` stays backward-compatible — pre-existing `.mantle/builds/build-NN-*.md` files load without error; `stage=None` renders as "Unattributed".
+- [x] ac-08: `just check` passes — ruff + ty + pytest, import-linter contracts unchanged.
 
 ## Does not
 
