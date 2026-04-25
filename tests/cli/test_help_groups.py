@@ -84,6 +84,7 @@ _EXPECTED_COMMAND_PANELS: dict[str, str] = {
     # review
     "save-review-result": "Review & Verification",
     "load-review-result": "Review & Verification",
+    "ab-build-compare": "Review & Verification",
     # capture
     "save-bug": "Capture",
     "save-inbox-item": "Capture",

@@ -6,6 +6,7 @@ from typing import Annotated
 from cyclopts import App, Parameter
 
 from mantle import __version__
+from mantle.cli import ab_build as ab_build_cli
 from mantle.cli import (
     adopt,
     audit_tokens,
@@ -1745,6 +1746,49 @@ def build_finish_command(
 ) -> None:
     """Finalize the build report by parsing Claude Code session JSONL."""
     builds.run_build_finish(issue)
+
+
+@app.command(name="ab-build-compare", group=GROUPS["review"])
+def ab_build_compare_command(
+    baseline: Annotated[
+        Path,
+        Parameter(
+            name="--baseline",
+            help="Path to the baseline build report (in .mantle/builds/).",
+        ),
+    ],
+    candidate: Annotated[
+        Path,
+        Parameter(
+            name="--candidate",
+            help="Path to the candidate build report (in .mantle/builds/).",
+        ),
+    ],
+    output: Annotated[
+        Path | None,
+        Parameter(
+            name="--output",
+            help=(
+                "Optional path to write the rendered report. "
+                "Prints to stdout when unset."
+            ),
+        ),
+    ] = None,
+    path: Annotated[
+        Path | None,
+        Parameter(
+            name="--path",
+            help="Project directory. Defaults to cwd.",
+        ),
+    ] = None,
+) -> None:
+    """Compare two already-written build reports and print an A/B report."""
+    ab_build_cli.run_ab_build_compare(
+        baseline=baseline,
+        candidate=candidate,
+        output=output,
+        project_dir=path,
+    )
 
 
 @app.command(name="stage-begin", group=GROUPS["impl"])
