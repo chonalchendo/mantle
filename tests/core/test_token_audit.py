@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING
 
 import pytest
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
 from inline_snapshot import snapshot
 
 from mantle.core import token_audit
+
+FIXED_DATE = date(2026, 4, 22)
 
 # ── Fixtures ────────────────────────────────────────────────────
 
@@ -198,7 +201,7 @@ class TestFormatReport:
         (skills / "beta.md").write_text("bar", encoding="utf-8")
 
         per_surface = token_audit.audit_paths([cmds, skills])
-        report = token_audit.format_report(per_surface)
+        report = token_audit.format_report(per_surface, today=FIXED_DATE)
 
         assert report == snapshot("""\
 # Mantle token audit — 2026-04-22
@@ -235,7 +238,7 @@ Measured with tiktoken (encoding: cl100k_base, ~97% Claude BPE proxy).
     def test_snapshot_single_surface(self, cmd_dir: Path) -> None:
         """Single-surface dict still renders a readable report."""
         per_surface = token_audit.audit_paths([cmd_dir])
-        report = token_audit.format_report(per_surface)
+        report = token_audit.format_report(per_surface, today=FIXED_DATE)
 
         assert report == snapshot("""\
 # Mantle token audit — 2026-04-22
@@ -358,7 +361,7 @@ class TestAppendAfterSection:
         per_surface_before = {"cmds": before_entries}
         report_path = tmp_path / "audit.md"
         report_path.write_text(
-            token_audit.format_report(per_surface_before),
+            token_audit.format_report(per_surface_before, today=FIXED_DATE),
             encoding="utf-8",
         )
 

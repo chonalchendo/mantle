@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING
 
 import pytest
@@ -11,6 +12,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 from mantle.cli import audit_tokens
+
+FIXED_DATE = date(2026, 4, 22)
 
 # ── Fixtures ────────────────────────────────────────────────────
 
@@ -87,7 +90,9 @@ class TestRunAuditTokens:
         cmds, skills = two_surface_dirs
         out_path = tmp_path / "report.md"
 
-        audit_tokens.run_audit_tokens(path=[cmds, skills], out=out_path)
+        audit_tokens.run_audit_tokens(
+            path=[cmds, skills], out=out_path, today=FIXED_DATE
+        )
 
         report = out_path.read_text(encoding="utf-8")
         assert report == snapshot("""\

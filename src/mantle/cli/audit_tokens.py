@@ -13,6 +13,7 @@ def run_audit_tokens(
     heading: str = "Before",
     encoding: str = "cl100k_base",
     append: bool = False,
+    today: date | None = None,
 ) -> None:
     """Audit token cost of Markdown prompt files and write a ranked report.
 
@@ -49,9 +50,12 @@ def run_audit_tokens(
         print(f"After section appended to {out}")
         return
 
-    report = token_audit.format_report(per_surface, heading, encoding)
+    today = today or date.today()
+    report = token_audit.format_report(
+        per_surface, heading, encoding, today=today
+    )
     report_path = out or (
-        Path(".mantle/audits") / f"{date.today().isoformat()}-token-audit.md"
+        Path(".mantle/audits") / f"{today.isoformat()}-token-audit.md"
     )
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report, encoding="utf-8")

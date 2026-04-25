@@ -97,6 +97,7 @@ def format_report(
     per_surface: dict[str, list[AuditEntry]],
     heading: str = "Before",
     encoding_name: str = DEFAULT_ENCODING,
+    today: date | None = None,
 ) -> str:
     """Return the full audit report Markdown for one or more surfaces.
 
@@ -108,13 +109,14 @@ def format_report(
         per_surface: Dict mapping surface label to list of AuditEntry.
         heading: Section heading (default: "Before").
         encoding_name: tiktoken encoding name used for the measurement note.
+        today: Date for the report header. Defaults to ``date.today()``.
 
     Returns:
         Full report as a Markdown string.
     """
-    today = date.today().isoformat()
+    today_iso = (today or date.today()).isoformat()
     lines: list[str] = [
-        f"# Mantle token audit — {today}",
+        f"# Mantle token audit — {today_iso}",
         "",
         f"Measured with tiktoken (encoding: {encoding_name},"
         " ~97% Claude BPE proxy).",
