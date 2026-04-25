@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from mantle.cli import groups as cli_groups
 from mantle.cli import main as main_module
-from mantle.cli.groups import GROUPS
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -452,7 +452,7 @@ def test_run_ab_build_compare_renders_unattributed_bucket(
 
 def test_ab_build_compare_command_registered_in_review_group() -> None:
     """ab-build-compare command is registered under the review group."""
-    group_values = set(GROUPS.values())
+    group_values = set(cli_groups.GROUPS.values())
     assert "ab-build-compare" in main_module.app
 
     cmd = main_module.app["ab-build-compare"]
@@ -461,7 +461,7 @@ def test_ab_build_compare_command_registered_in_review_group() -> None:
     assert any(g in group_values for g in cmd_groups), (
         f"ab-build-compare group {cmd_groups!r} not in GROUPS"
     )
-    review_group = GROUPS["review"]
+    review_group = cli_groups.GROUPS["review"]
     assert any(g == review_group for g in cmd_groups), (
         f"ab-build-compare not in review group; got {cmd_groups!r}"
     )

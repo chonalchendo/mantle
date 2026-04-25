@@ -2,11 +2,11 @@
 issue: 89
 title: CLI command mantle ab-build-compare — load build files, compose artefacts,
   print report
-status: in-progress
+status: completed
 failure_log: null
 tags:
 - type/story
-- status/in-progress
+- status/completed
 ---
 
 ## User Story

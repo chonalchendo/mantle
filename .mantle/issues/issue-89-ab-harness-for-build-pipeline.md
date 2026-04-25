@@ -1,6 +1,6 @@
 ---
 title: A/B harness for build pipeline (replaces 75-remainder)
-status: implementing
+status: implemented
 slice:
 - cli
 - core
@@ -26,7 +26,7 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implementing
+- status/implemented
 acceptance_criteria:
 - id: ac-01
   text: A CLI entrypoint (`mantle ab-build compare <baseline.md> <candidate.md>`)

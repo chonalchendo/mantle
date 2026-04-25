@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from rich.console import Console
 
+from mantle.cli import groups as cli_groups
 from mantle.cli import main as main_module
-from mantle.cli.groups import GROUPS
 
 
 def _render_help() -> str:
@@ -151,7 +151,7 @@ def test_every_command_assigned_to_expected_panel() -> None:
 
 def test_no_command_ungrouped() -> None:
     """Every registered top-level command has a group from GROUPS."""
-    group_values = set(GROUPS.values())
+    group_values = set(cli_groups.GROUPS.values())
     names = [n for n in main_module.app if not n.startswith("-")]
     assert names, "expected top-level commands to be registered"
 
@@ -176,8 +176,8 @@ def test_groups_registry_keys_and_order() -> None:
         "capture": (7, "Capture"),
         "knowledge": (8, "Knowledge"),
     }
-    assert set(GROUPS.keys()) == set(expected.keys())
+    assert set(cli_groups.GROUPS.keys()) == set(expected.keys())
     for key, (sort_key, name) in expected.items():
-        grp = GROUPS[key]
+        grp = cli_groups.GROUPS[key]
         assert grp.name == name, f"{key}: name mismatch"
         assert grp.sort_key == sort_key, f"{key}: sort_key mismatch"

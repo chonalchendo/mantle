@@ -15,26 +15,7 @@ if TYPE_CHECKING:
 
 import pydantic
 
-from mantle.core import vault
-from mantle.core.project import (
-    CONFIG_BODY,
-    COST_POLICY_FILENAME,
-    FALLBACK_STAGE_MODELS,
-    GITIGNORE_CONTENT,
-    MANTLE_DIR,
-    SUBDIRS,
-    TAGS_BODY,
-    Pricing,
-    StageModels,
-    init_project,
-    init_vault,
-    load_model_tier,
-    load_prices,
-    project_identity,
-    read_config,
-    resolve_mantle_dir,
-    update_config,
-)
+from mantle.core import project, state, vault
 
 MOCK_EMAIL = "test@example.com"
 
@@ -53,33 +34,31 @@ def _mock_git(monkeypatch: pytest.MonkeyPatch) -> None:
 
 class TestInitProject:
     def test_creates_mantle_directory(self, tmp_path: Path) -> None:
-        result = init_project(tmp_path, "test-project")
+        result = project.init_project(tmp_path, "test-project")
 
-        assert result == tmp_path / MANTLE_DIR
+        assert result == tmp_path / project.MANTLE_DIR
         assert result.is_dir()
 
     def test_creates_subdirectories(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        for subdir in SUBDIRS:
-            assert (tmp_path / MANTLE_DIR / subdir).is_dir()
+        for subdir in project.SUBDIRS:
+            assert (tmp_path / project.MANTLE_DIR / subdir).is_dir()
 
     def test_creates_state_md(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        state_path = tmp_path / MANTLE_DIR / "state.md"
+        state_path = tmp_path / project.MANTLE_DIR / "state.md"
         assert state_path.exists()
 
-        from mantle.core.state import ProjectState, Status
-
-        note = vault.read_note(state_path, ProjectState)
+        note = vault.read_note(state_path, state.ProjectState)
         assert note.frontmatter.project == "test-project"
-        assert note.frontmatter.status == Status.IDEA
+        assert note.frontmatter.status == state.Status.IDEA
 
     def test_creates_config_md(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        config_path = tmp_path / MANTLE_DIR / "config.md"
+        config_path = tmp_path / project.MANTLE_DIR / "config.md"
         assert config_path.exists()
         text = config_path.read_text()
 
@@ -88,9 +67,9 @@ class TestInitProject:
         assert "type/config" in text
 
     def test_creates_tags_md(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        tags_path = tmp_path / MANTLE_DIR / "tags.md"
+        tags_path = tmp_path / project.MANTLE_DIR / "tags.md"
         assert tags_path.exists()
         text = tags_path.read_text()
 
@@ -100,9 +79,9 @@ class TestInitProject:
         assert "confidence/" in text
 
     def test_creates_gitignore(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        gitignore_path = tmp_path / MANTLE_DIR / ".gitignore"
+        gitignore_path = tmp_path / project.MANTLE_DIR / ".gitignore"
         assert gitignore_path.exists()
         text = gitignore_path.read_text()
 
@@ -110,34 +89,32 @@ class TestInitProject:
         assert "*.tmp" in text
 
     def test_returns_mantle_path(self, tmp_path: Path) -> None:
-        result = init_project(tmp_path, "test-project")
+        result = project.init_project(tmp_path, "test-project")
 
-        assert result == tmp_path / MANTLE_DIR
+        assert result == tmp_path / project.MANTLE_DIR
 
     def test_raises_if_mantle_exists(self, tmp_path: Path) -> None:
-        (tmp_path / MANTLE_DIR).mkdir()
+        (tmp_path / project.MANTLE_DIR).mkdir()
 
         with pytest.raises(FileExistsError):
-            init_project(tmp_path, "test-project")
+            project.init_project(tmp_path, "test-project")
 
     def test_project_name_in_state(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "my-cool-project")
+        project.init_project(tmp_path, "my-cool-project")
 
-        from mantle.core.state import ProjectState
-
-        state_path = tmp_path / MANTLE_DIR / "state.md"
-        note = vault.read_note(state_path, ProjectState)
+        state_path = tmp_path / project.MANTLE_DIR / "state.md"
+        note = vault.read_note(state_path, state.ProjectState)
         assert note.frontmatter.project == "my-cool-project"
 
     def test_creates_cost_policy_md(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        assert (tmp_path / MANTLE_DIR / "cost-policy.md").exists()
+        assert (tmp_path / project.MANTLE_DIR / "cost-policy.md").exists()
 
     def test_cost_policy_has_preset_frontmatter(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        cost_policy_path = tmp_path / MANTLE_DIR / "cost-policy.md"
+        cost_policy_path = tmp_path / project.MANTLE_DIR / "cost-policy.md"
         text = cost_policy_path.read_text(encoding="utf-8")
 
         assert text.startswith("---\n")
@@ -160,9 +137,9 @@ class TestInitProject:
             assert set(data["presets"][preset_name]) == stage_fields
 
     def test_cost_policy_preserves_template_body(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        text = (tmp_path / MANTLE_DIR / "cost-policy.md").read_text(
+        text = (tmp_path / project.MANTLE_DIR / "cost-policy.md").read_text(
             encoding="utf-8"
         )
 
@@ -170,9 +147,9 @@ class TestInitProject:
         assert "How to use" in text
 
     def test_creates_telemetry_subdir(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        assert (tmp_path / MANTLE_DIR / "telemetry").is_dir()
+        assert (tmp_path / project.MANTLE_DIR / "telemetry").is_dir()
 
 
 # ── Template constants ───────────────────────────────────────────
@@ -180,29 +157,29 @@ class TestInitProject:
 
 class TestTemplateConstants:
     def test_config_body_not_empty(self) -> None:
-        assert len(CONFIG_BODY) > 0
+        assert len(project.CONFIG_BODY) > 0
 
     def test_tags_body_has_all_categories(self) -> None:
-        assert "type/" in TAGS_BODY
-        assert "phase/" in TAGS_BODY
-        assert "status/" in TAGS_BODY
-        assert "confidence/" in TAGS_BODY
+        assert "type/" in project.TAGS_BODY
+        assert "phase/" in project.TAGS_BODY
+        assert "status/" in project.TAGS_BODY
+        assert "confidence/" in project.TAGS_BODY
 
     def test_gitignore_not_empty(self) -> None:
-        assert len(GITIGNORE_CONTENT) > 0
+        assert len(project.GITIGNORE_CONTENT) > 0
 
     def test_subdirs_expected(self) -> None:
-        assert "bugs" in SUBDIRS
-        assert "decisions" in SUBDIRS
-        assert "sessions" in SUBDIRS
-        assert "issues" in SUBDIRS
-        assert "stories" in SUBDIRS
+        assert "bugs" in project.SUBDIRS
+        assert "decisions" in project.SUBDIRS
+        assert "sessions" in project.SUBDIRS
+        assert "issues" in project.SUBDIRS
+        assert "stories" in project.SUBDIRS
 
     def test_telemetry_in_subdirs(self) -> None:
-        assert "telemetry" in SUBDIRS
+        assert "telemetry" in project.SUBDIRS
 
     def test_cost_policy_filename_constant(self) -> None:
-        assert COST_POLICY_FILENAME == "cost-policy.md"
+        assert project.COST_POLICY_FILENAME == "cost-policy.md"
 
 
 # ── Helpers ──────────────────────────────────────────────────────
@@ -210,7 +187,7 @@ class TestTemplateConstants:
 
 def _create_config(root: Path, body: str = "## Config\n", **fm: object) -> None:
     """Create .mantle/config.md with given frontmatter."""
-    mantle = root / MANTLE_DIR
+    mantle = root / project.MANTLE_DIR
     mantle.mkdir(exist_ok=True)
     defaults = {"personal_vault": None, "tags": ["type/config"]}
     defaults.update(fm)
@@ -225,20 +202,20 @@ def _create_config(root: Path, body: str = "## Config\n", **fm: object) -> None:
 class TestReadConfig:
     def test_returns_frontmatter_dict(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        result = read_config(tmp_path)
+        result = project.read_config(tmp_path)
 
         assert isinstance(result, dict)
         assert "tags" in result
 
     def test_null_values_returned_as_none(self, tmp_path: Path) -> None:
         _create_config(tmp_path, personal_vault=None)
-        result = read_config(tmp_path)
+        result = project.read_config(tmp_path)
 
         assert result["personal_vault"] is None
 
     def test_file_not_found(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
-            read_config(tmp_path)
+            project.read_config(tmp_path)
 
 
 # ── update_config ────────────────────────────────────────────────
@@ -247,43 +224,43 @@ class TestReadConfig:
 class TestUpdateConfig:
     def test_updates_single_key(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        update_config(tmp_path, personal_vault="/some/path")
-        result = read_config(tmp_path)
+        project.update_config(tmp_path, personal_vault="/some/path")
+        result = project.read_config(tmp_path)
 
         assert result["personal_vault"] == "/some/path"
 
     def test_adds_new_key(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        update_config(tmp_path, new_key="new_value")
-        result = read_config(tmp_path)
+        project.update_config(tmp_path, new_key="new_value")
+        result = project.read_config(tmp_path)
 
         assert result["new_key"] == "new_value"
 
     def test_preserves_body(self, tmp_path: Path) -> None:
         body = "## Custom Body\n\nKeep this content.\n"
         _create_config(tmp_path, body=body)
-        update_config(tmp_path, personal_vault="/vault")
+        project.update_config(tmp_path, personal_vault="/vault")
 
-        text = (tmp_path / MANTLE_DIR / "config.md").read_text()
+        text = (tmp_path / project.MANTLE_DIR / "config.md").read_text()
         assert "Custom Body" in text
         assert "Keep this content" in text
 
     def test_multiple_keys(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        update_config(
+        project.update_config(
             tmp_path,
             personal_vault="/vault",
             verification_strategy="manual",
         )
-        result = read_config(tmp_path)
+        result = project.read_config(tmp_path)
 
         assert result["personal_vault"] == "/vault"
         assert result["verification_strategy"] == "manual"
 
     def test_preserves_other_keys(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        update_config(tmp_path, personal_vault="/vault")
-        result = read_config(tmp_path)
+        project.update_config(tmp_path, personal_vault="/vault")
+        result = project.read_config(tmp_path)
 
         assert "tags" in result
 
@@ -294,59 +271,61 @@ class TestUpdateConfig:
 class TestInitVault:
     def test_creates_subdirectories(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
-        init_vault(vault, tmp_path)
+        project.init_vault(vault_path, tmp_path)
 
-        assert (vault / "skills").is_dir()
-        assert (vault / "knowledge").is_dir()
-        assert (vault / "inbox").is_dir()
-        assert (vault / "projects").is_dir()
+        assert (vault_path / "skills").is_dir()
+        assert (vault_path / "knowledge").is_dir()
+        assert (vault_path / "inbox").is_dir()
+        assert (vault_path / "projects").is_dir()
 
     def test_auto_sets_config(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
-        init_vault(vault, tmp_path)
+        project.init_vault(vault_path, tmp_path)
 
-        result = read_config(tmp_path)
-        assert result["personal_vault"] == str(vault.resolve())
+        result = project.read_config(tmp_path)
+        assert result["personal_vault"] == str(vault_path.resolve())
 
     def test_preserves_config_body(self, tmp_path: Path) -> None:
         body = "## Config\n\nCustom body.\n"
         _create_config(tmp_path, body=body)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
-        init_vault(vault, tmp_path)
+        project.init_vault(vault_path, tmp_path)
 
-        text = (tmp_path / MANTLE_DIR / "config.md").read_text()
+        text = (tmp_path / project.MANTLE_DIR / "config.md").read_text()
         assert "Custom body." in text
 
     def test_returns_true_on_fresh_vault(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
-        assert init_vault(vault, tmp_path) is True
+        assert project.init_vault(vault_path, tmp_path) is True
 
     def test_returns_false_when_linking_existing_vault(
         self, tmp_path: Path
     ) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
         for d in ("skills", "knowledge", "inbox", "projects"):
-            (vault / d).mkdir(parents=True)
+            (vault_path / d).mkdir(parents=True)
 
-        assert init_vault(vault, tmp_path) is False
+        assert project.init_vault(vault_path, tmp_path) is False
 
     def test_links_existing_vault_writes_config(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
         for d in ("skills", "knowledge", "inbox", "projects"):
-            (vault / d).mkdir(parents=True)
+            (vault_path / d).mkdir(parents=True)
 
-        init_vault(vault, tmp_path)
+        project.init_vault(vault_path, tmp_path)
 
-        assert read_config(tmp_path)["personal_vault"] == str(vault.resolve())
+        assert project.read_config(tmp_path)["personal_vault"] == str(
+            vault_path.resolve()
+        )
 
     def test_multi_project_share(self, tmp_path: Path) -> None:
         proj_a = tmp_path / "proj_a"
@@ -355,31 +334,31 @@ class TestInitVault:
         proj_b.mkdir()
         _create_config(proj_a)
         _create_config(proj_b)
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
-        init_vault(vault, proj_a)
-        init_vault(vault, proj_b)
+        project.init_vault(vault_path, proj_a)
+        project.init_vault(vault_path, proj_b)
 
-        resolved = str(vault.resolve())
-        assert read_config(proj_a)["personal_vault"] == resolved
-        assert read_config(proj_b)["personal_vault"] == resolved
+        resolved = str(vault_path.resolve())
+        assert project.read_config(proj_a)["personal_vault"] == resolved
+        assert project.read_config(proj_b)["personal_vault"] == resolved
 
     def test_partial_init_completes(self, tmp_path: Path) -> None:
         _create_config(tmp_path)
-        vault = tmp_path / "vault"
-        (vault / "skills").mkdir(parents=True)
+        vault_path = tmp_path / "vault"
+        (vault_path / "skills").mkdir(parents=True)
 
-        init_vault(vault, tmp_path)
+        project.init_vault(vault_path, tmp_path)
 
-        assert (vault / "knowledge").is_dir()
-        assert (vault / "inbox").is_dir()
-        assert (vault / "projects").is_dir()
+        assert (vault_path / "knowledge").is_dir()
+        assert (vault_path / "inbox").is_dir()
+        assert (vault_path / "projects").is_dir()
 
     def test_raises_if_mantle_missing(self, tmp_path: Path) -> None:
-        vault = tmp_path / "vault"
+        vault_path = tmp_path / "vault"
 
         with pytest.raises(FileNotFoundError):
-            init_vault(vault, tmp_path)
+            project.init_vault(vault_path, tmp_path)
 
 
 # ── project_identity ────────────────────────────────────────────
@@ -395,7 +374,7 @@ class TestProjectIdentity:
             stdout=remote_url + "\n",
         )
         with mock.patch("subprocess.run", return_value=completed):
-            result = project_identity(tmp_path)
+            result = project.project_identity(tmp_path)
 
         expected_hash = hashlib.sha256(
             remote_url.encode(),
@@ -411,7 +390,7 @@ class TestProjectIdentity:
             stderr="fatal",
         )
         with mock.patch("subprocess.run", return_value=completed):
-            result = project_identity(tmp_path)
+            result = project.project_identity(tmp_path)
 
         resolved = str(tmp_path.resolve())
         expected_hash = hashlib.sha256(
@@ -433,8 +412,8 @@ class TestProjectIdentity:
             stdout=remote_url + "\n",
         )
         with mock.patch("subprocess.run", return_value=completed):
-            first = project_identity(tmp_path)
-            second = project_identity(tmp_path)
+            first = project.project_identity(tmp_path)
+            second = project.project_identity(tmp_path)
 
         assert first == second
 
@@ -445,9 +424,9 @@ class TestProjectIdentity:
 class TestResolveMantleDir:
     def test_default_local(self, tmp_path: Path) -> None:
         """No config returns project-local .mantle/."""
-        result = resolve_mantle_dir(tmp_path)
+        result = project.resolve_mantle_dir(tmp_path)
 
-        assert result == tmp_path / MANTLE_DIR
+        assert result == tmp_path / project.MANTLE_DIR
 
     def test_global_dir_exists_returns_global(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -466,7 +445,7 @@ class TestResolveMantleDir:
         global_dir = fake_home / ".mantle" / "projects" / identity
         global_dir.mkdir(parents=True)
 
-        result = resolve_mantle_dir(tmp_path)
+        result = project.resolve_mantle_dir(tmp_path)
         assert result == global_dir
 
     def test_worktree_scenario_shares_global_dir(
@@ -492,8 +471,8 @@ class TestResolveMantleDir:
         primary.mkdir()
         worktree.mkdir()
 
-        assert resolve_mantle_dir(primary) == global_dir
-        assert resolve_mantle_dir(worktree) == global_dir
+        assert project.resolve_mantle_dir(primary) == global_dir
+        assert project.resolve_mantle_dir(worktree) == global_dir
 
 
 # ── Worktree handling (local storage) ───────────────────────────
@@ -526,9 +505,9 @@ class TestResolveMantleDirLocalWorktree:
         primary.mkdir()
         _init_bare_repo(primary)
 
-        result = resolve_mantle_dir(primary)
+        result = project.resolve_mantle_dir(primary)
 
-        assert result.resolve() == (primary / MANTLE_DIR).resolve()
+        assert result.resolve() == (primary / project.MANTLE_DIR).resolve()
 
     def test_linked_worktree_resolves_to_primary_mantle(
         self, tmp_path: Path
@@ -554,19 +533,19 @@ class TestResolveMantleDirLocalWorktree:
             capture_output=True,
         )
 
-        result = resolve_mantle_dir(linked)
+        result = project.resolve_mantle_dir(linked)
 
-        assert result.resolve() == (primary / MANTLE_DIR).resolve()
-        assert result.resolve() != (linked / MANTLE_DIR).resolve()
+        assert result.resolve() == (primary / project.MANTLE_DIR).resolve()
+        assert result.resolve() != (linked / project.MANTLE_DIR).resolve()
 
     def test_non_git_dir_uses_project_local(self, tmp_path: Path) -> None:
         """Non-git directories still fall back to project-local .mantle/."""
         outsider = tmp_path / "standalone"
         outsider.mkdir()
 
-        result = resolve_mantle_dir(outsider)
+        result = project.resolve_mantle_dir(outsider)
 
-        assert result == outsider / MANTLE_DIR
+        assert result == outsider / project.MANTLE_DIR
 
 
 # ── load_model_tier ──────────────────────────────────────────────
@@ -576,24 +555,24 @@ class TestLoadModelTier:
     def test_returns_balanced_fallback_when_no_config(
         self, tmp_path: Path
     ) -> None:
-        result = load_model_tier(tmp_path)
+        result = project.load_model_tier(tmp_path)
 
-        assert result == FALLBACK_STAGE_MODELS
+        assert result == project.FALLBACK_STAGE_MODELS
 
     def test_returns_balanced_fallback_when_no_cost_policy(
         self, tmp_path: Path
     ) -> None:
-        init_project(tmp_path, "test-project")
-        (tmp_path / MANTLE_DIR / COST_POLICY_FILENAME).unlink()
+        project.init_project(tmp_path, "test-project")
+        (tmp_path / project.MANTLE_DIR / project.COST_POLICY_FILENAME).unlink()
 
-        result = load_model_tier(tmp_path)
+        result = project.load_model_tier(tmp_path)
 
-        assert result == FALLBACK_STAGE_MODELS
+        assert result == project.FALLBACK_STAGE_MODELS
 
     def test_resolves_preset_from_cost_policy(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
+        project.init_project(tmp_path, "test-project")
 
-        result = load_model_tier(tmp_path)
+        result = project.load_model_tier(tmp_path)
 
         assert result.shape == "opus"
         assert result.plan_stories == "sonnet"
@@ -604,29 +583,29 @@ class TestLoadModelTier:
         assert result.retrospective == "haiku"
 
     def test_resolves_named_preset(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
-        update_config(tmp_path, models={"preset": "budget"})
+        project.init_project(tmp_path, "test-project")
+        project.update_config(tmp_path, models={"preset": "budget"})
 
-        result = load_model_tier(tmp_path)
+        result = project.load_model_tier(tmp_path)
 
         assert result.shape == "sonnet"
         assert result.implement == "haiku"
 
     def test_overrides_beat_preset(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
-        update_config(
+        project.init_project(tmp_path, "test-project")
+        project.update_config(
             tmp_path,
             models={"preset": "budget", "overrides": {"implement": "opus"}},
         )
 
-        result = load_model_tier(tmp_path)
+        result = project.load_model_tier(tmp_path)
 
         assert result.implement == "opus"
         assert result.simplify == "haiku"
 
     def test_unknown_override_key_raises(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
-        update_config(
+        project.init_project(tmp_path, "test-project")
+        project.update_config(
             tmp_path,
             models={
                 "preset": "balanced",
@@ -635,17 +614,17 @@ class TestLoadModelTier:
         )
 
         with pytest.raises(pydantic.ValidationError, match="typoed_stage"):
-            load_model_tier(tmp_path)
+            project.load_model_tier(tmp_path)
 
     def test_unknown_preset_raises_key_error(self, tmp_path: Path) -> None:
-        init_project(tmp_path, "test-project")
-        update_config(tmp_path, models={"preset": "rocket_fuel"})
+        project.init_project(tmp_path, "test-project")
+        project.update_config(tmp_path, models={"preset": "rocket_fuel"})
 
         with pytest.raises(KeyError, match="rocket_fuel"):
-            load_model_tier(tmp_path)
+            project.load_model_tier(tmp_path)
 
     def test_stage_models_is_frozen(self) -> None:
-        obj = StageModels(
+        obj = project.StageModels(
             shape="opus",
             plan_stories="sonnet",
             implement="sonnet",
@@ -661,14 +640,14 @@ class TestLoadModelTier:
     def test_fallback_preset_matches_cost_policy_balanced(
         self, tmp_path: Path
     ) -> None:
-        init_project(tmp_path, "test-project")
-        cost_policy = (tmp_path / MANTLE_DIR / COST_POLICY_FILENAME).read_text(
-            encoding="utf-8"
-        )
+        project.init_project(tmp_path, "test-project")
+        cost_policy = (
+            tmp_path / project.MANTLE_DIR / project.COST_POLICY_FILENAME
+        ).read_text(encoding="utf-8")
         end = cost_policy.find("\n---", 3)
         data = yaml.safe_load(cost_policy[4:end])
 
-        assert FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
+        assert project.FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
 
 
 # ── load_prices ──────────────────────────────────────────────────
@@ -676,10 +655,10 @@ class TestLoadModelTier:
 
 def _create_cost_policy(root: Path, frontmatter: dict) -> None:  # type: ignore[type-arg]
     """Write a minimal .mantle/cost-policy.md with the given frontmatter."""
-    mantle = root / MANTLE_DIR
+    mantle = root / project.MANTLE_DIR
     mantle.mkdir(exist_ok=True)
     yaml_str = yaml.dump(frontmatter, default_flow_style=False, sort_keys=False)
-    (mantle / COST_POLICY_FILENAME).write_text(
+    (mantle / project.COST_POLICY_FILENAME).write_text(
         f"---\n{yaml_str}---\n\n## Cost Policy\n"
     )
 
@@ -713,11 +692,11 @@ class TestLoadPrices:
         """load_prices returns a Pricing instance for each model key."""
         _create_cost_policy(tmp_path, {"prices": _SAMPLE_PRICES})
 
-        result = load_prices(tmp_path)
+        result = project.load_prices(tmp_path)
 
         assert set(result) == {"opus", "sonnet", "haiku"}
         for name, entry in result.items():
-            assert isinstance(entry, Pricing)
+            assert isinstance(entry, project.Pricing)
             assert entry.input == _SAMPLE_PRICES[name]["input"]
             assert entry.output == _SAMPLE_PRICES[name]["output"]
             assert entry.cache_read == _SAMPLE_PRICES[name]["cache_read"]
@@ -727,10 +706,10 @@ class TestLoadPrices:
         self, tmp_path: Path
     ) -> None:
         """Missing cost-policy.md raises FileNotFoundError."""
-        (tmp_path / MANTLE_DIR).mkdir()
+        (tmp_path / project.MANTLE_DIR).mkdir()
 
         with pytest.raises(FileNotFoundError):
-            load_prices(tmp_path)
+            project.load_prices(tmp_path)
 
     def test_load_prices_raises_when_prices_block_absent(
         self, tmp_path: Path
@@ -739,7 +718,7 @@ class TestLoadPrices:
         _create_cost_policy(tmp_path, {"presets": {}})
 
         with pytest.raises(KeyError, match="prices"):
-            load_prices(tmp_path)
+            project.load_prices(tmp_path)
 
     def test_load_prices_validates_numeric_fields(self, tmp_path: Path) -> None:
         """A non-numeric price field raises pydantic.ValidationError."""
@@ -754,16 +733,16 @@ class TestLoadPrices:
         _create_cost_policy(tmp_path, {"prices": bad_prices})
 
         with pytest.raises(pydantic.ValidationError):
-            load_prices(tmp_path)
+            project.load_prices(tmp_path)
 
     def test_bundled_vault_template_has_prices_block(self) -> None:
         """The bundled vault-templates/cost-policy.md has a prices mapping."""
+        import pathlib
         from importlib import resources
 
         pkg_ref = resources.files("mantle").joinpath(
             "vault-templates", "cost-policy.md"
         )
-        import pathlib
 
         pkg_path = pathlib.Path(str(pkg_ref))
         if pkg_path.is_file():
@@ -785,7 +764,9 @@ class TestLoadPrices:
 
     def test_pricing_model_is_frozen(self) -> None:
         """Pricing instances are immutable."""
-        p = Pricing(input=3.0, output=15.0, cache_read=0.30, cache_write=3.75)
+        p = project.Pricing(
+            input=3.0, output=15.0, cache_read=0.30, cache_write=3.75
+        )
 
         with pytest.raises(pydantic.ValidationError):
             p.input = 999.0

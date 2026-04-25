@@ -296,7 +296,7 @@ def read_config(project_root: Path) -> dict[str, Any]:
         FileNotFoundError: If .mantle/ or config.md does not exist.
     """
     config_path = resolve_mantle_dir(project_root) / "config.md"
-    frontmatter, _ = _read_frontmatter_and_body(config_path)
+    frontmatter, _ = read_frontmatter_and_body(config_path)
     return frontmatter
 
 
@@ -314,7 +314,7 @@ def update_config(project_root: Path, **kwargs: Any) -> None:
         FileNotFoundError: If .mantle/ or config.md does not exist.
     """
     config_path = resolve_mantle_dir(project_root) / "config.md"
-    frontmatter, body = _read_frontmatter_and_body(config_path)
+    frontmatter, body = read_frontmatter_and_body(config_path)
     frontmatter.update(kwargs)
     _write_frontmatter_and_body(config_path, frontmatter, body)
 
@@ -401,7 +401,7 @@ def load_prices(project_root: Path) -> dict[str, Pricing]:
             validation (e.g. a field value is not a number).
     """
     cost_policy_path = resolve_mantle_dir(project_root) / COST_POLICY_FILENAME
-    frontmatter, _ = _read_frontmatter_and_body(cost_policy_path)
+    frontmatter, _ = read_frontmatter_and_body(cost_policy_path)
     if "prices" not in frontmatter:
         msg = "cost-policy.md has no 'prices' block"
         raise KeyError(msg)
@@ -579,13 +579,13 @@ def _load_presets(project_root: Path) -> dict[str, dict[str, str]]:
     """
     cost_policy_path = resolve_mantle_dir(project_root) / COST_POLICY_FILENAME
     try:
-        frontmatter, _ = _read_frontmatter_and_body(cost_policy_path)
+        frontmatter, _ = read_frontmatter_and_body(cost_policy_path)
     except FileNotFoundError:
         return {"balanced": FALLBACK_STAGE_MODELS.model_dump()}
     return frontmatter["presets"]
 
 
-def _read_frontmatter_and_body(path: Path) -> tuple[dict[str, Any], str]:
+def read_frontmatter_and_body(path: Path) -> tuple[dict[str, Any], str]:
     """Split a markdown file into frontmatter dict and body string.
 
     Args:

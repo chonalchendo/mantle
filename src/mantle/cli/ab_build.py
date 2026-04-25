@@ -104,7 +104,7 @@ def _load_build_artefacts(
         Populated :class:`ab_build.BuildArtefacts`, or ``None`` when a
         hard error prevents reconstruction.
     """
-    frontmatter, _ = project._read_frontmatter_and_body(build_file)
+    frontmatter, _ = project.read_frontmatter_and_body(build_file)
 
     session_id: str | None = frontmatter.get("session_id")
     if not session_id:

@@ -1,5 +1,6 @@
 """Mantle CLI entry point."""
 
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -1103,8 +1104,6 @@ def update_skills_command(
     """Auto-detect and update skills_required from issue content."""
     if path is None:
         path = Path.cwd()
-
-    import sys
 
     from mantle.core import baseline, skills
 
