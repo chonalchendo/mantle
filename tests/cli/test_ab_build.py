@@ -59,7 +59,9 @@ def _write_jsonl(path: Path, records: list[dict]) -> None:
             handle.write("\n")
 
 
-def _write_cost_policy(project_dir: Path, model: str = "claude-opus-4-5") -> None:
+def _write_cost_policy(
+    project_dir: Path, model: str = "claude-opus-4-5"
+) -> None:
     """Write a minimal .mantle/cost-policy.md with a prices block."""
     mantle_dir = project_dir / ".mantle"
     mantle_dir.mkdir(parents=True, exist_ok=True)
@@ -114,7 +116,10 @@ def _setup_session_jsonl(
         agent_jsonl = subagent_dir / "agent-001.jsonl"
         sub_records = [
             _assistant_record(
-                "s1", None, session_id, base_ts + timedelta(seconds=5),
+                "s1",
+                None,
+                session_id,
+                base_ts + timedelta(seconds=5),
                 is_sidechain=True,
             ),
         ]
@@ -147,9 +152,7 @@ def test_run_ab_build_compare_prints_report_to_stdout(
     sid_b = "session-candidate-001"
 
     _setup_session_jsonl(projects_dir, sid_a, base_ts)
-    _setup_session_jsonl(
-        projects_dir, sid_b, base_ts + timedelta(minutes=30)
-    )
+    _setup_session_jsonl(projects_dir, sid_b, base_ts + timedelta(minutes=30))
 
     builds_dir = tmp_path / ".mantle" / "builds"
     baseline_file = builds_dir / "build-baseline.md"
@@ -200,9 +203,7 @@ def test_run_ab_build_compare_writes_to_output_path(
     sid_b = "session-candidate-002"
 
     _setup_session_jsonl(projects_dir, sid_a, base_ts)
-    _setup_session_jsonl(
-        projects_dir, sid_b, base_ts + timedelta(minutes=30)
-    )
+    _setup_session_jsonl(projects_dir, sid_b, base_ts + timedelta(minutes=30))
 
     builds_dir = tmp_path / ".mantle" / "builds"
     baseline_file = builds_dir / "build-baseline.md"
@@ -306,9 +307,7 @@ def test_run_ab_build_compare_errors_on_missing_prices_block(
     sid_b = "session-candidate-003"
 
     _setup_session_jsonl(projects_dir, sid_a, base_ts)
-    _setup_session_jsonl(
-        projects_dir, sid_b, base_ts + timedelta(minutes=30)
-    )
+    _setup_session_jsonl(projects_dir, sid_b, base_ts + timedelta(minutes=30))
 
     builds_dir = tmp_path / ".mantle" / "builds"
     baseline_file = builds_dir / "build-baseline.md"
@@ -361,11 +360,16 @@ def test_run_ab_build_compare_renders_attributed_stages(
 
     # Both builds have a story-implementer sub-agent -> stage=implement
     _setup_session_jsonl(
-        projects_dir, sid_a, base_ts, with_subagent=True,
+        projects_dir,
+        sid_a,
+        base_ts,
+        with_subagent=True,
         subagent_meta_agent_type="story-implementer",
     )
     _setup_session_jsonl(
-        projects_dir, sid_b, base_ts + timedelta(minutes=30),
+        projects_dir,
+        sid_b,
+        base_ts + timedelta(minutes=30),
         with_subagent=True,
         subagent_meta_agent_type="story-implementer",
     )
@@ -414,11 +418,16 @@ def test_run_ab_build_compare_renders_unattributed_bucket(
 
     # Sub-agent with no meta.json -> stage=None -> Unattributed
     _setup_session_jsonl(
-        projects_dir, sid_a, base_ts, with_subagent=True,
+        projects_dir,
+        sid_a,
+        base_ts,
+        with_subagent=True,
         subagent_has_meta=False,
     )
     _setup_session_jsonl(
-        projects_dir, sid_b, base_ts + timedelta(minutes=30),
+        projects_dir,
+        sid_b,
+        base_ts + timedelta(minutes=30),
         with_subagent=True,
         subagent_has_meta=False,
     )

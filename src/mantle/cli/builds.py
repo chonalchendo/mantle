@@ -142,7 +142,7 @@ def _augment_with_costs(
     """
     try:
         prices = project.load_prices(project_dir)
-    except (FileNotFoundError, KeyError, ValueError):
+    except FileNotFoundError, KeyError, ValueError:
         return report
 
     augmented: list[telemetry.StoryRun] = []

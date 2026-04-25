@@ -511,9 +511,7 @@ def render_report(
             )
             if has_costs:
                 cost_cell = (
-                    "—"
-                    if story.cost_usd is None
-                    else f"{story.cost_usd:.4f}"
+                    "—" if story.cost_usd is None else f"{story.cost_usd:.4f}"
                 )
                 row += f" {cost_cell} |"
             lines.append(row)

@@ -647,7 +647,10 @@ class TestLoadModelTier:
         end = cost_policy.find("\n---", 3)
         data = yaml.safe_load(cost_policy[4:end])
 
-        assert project.FALLBACK_STAGE_MODELS.model_dump() == data["presets"]["balanced"]
+        assert (
+            project.FALLBACK_STAGE_MODELS.model_dump()
+            == data["presets"]["balanced"]
+        )
 
 
 # ── load_prices ──────────────────────────────────────────────────
@@ -802,8 +805,7 @@ class TestResolvePricing:
         prices = {"opus": self._opus(), "sonnet": self._sonnet()}
 
         assert (
-            project.resolve_pricing("claude-opus-4-7", prices)
-            is prices["opus"]
+            project.resolve_pricing("claude-opus-4-7", prices) is prices["opus"]
         )
         assert (
             project.resolve_pricing("claude-sonnet-4-6", prices)
