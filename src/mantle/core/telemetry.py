@@ -85,6 +85,9 @@ class StoryRun(pydantic.BaseModel, frozen=True):
         usage: Summed token usage across the cluster.
         turn_count: Number of sidechain turns in the cluster.
         stage: Stage name attributed to this run, or None when unknown.
+        cost_usd: Dollar cost in USD computed at build-finish time from
+            the prices in ``cost-policy.md``. ``None`` when prices were
+            unavailable or the model could not be resolved.
     """
 
     story_id: int | None
@@ -95,6 +98,7 @@ class StoryRun(pydantic.BaseModel, frozen=True):
     usage: Usage
     turn_count: int
     stage: str | None = None
+    cost_usd: float | None = None
 
 
 class BuildReport(pydantic.BaseModel, frozen=True):
@@ -429,6 +433,8 @@ def render_report(
             f"    cache_creation_input_tokens: "
             f"{story.usage.cache_creation_input_tokens}"
         )
+        if story.cost_usd is not None:
+            lines.append(f"    cost_usd: {story.cost_usd:.4f}")
     lines.append("---")
     lines.append("")
     lines.append("## Summary")
@@ -453,20 +459,40 @@ def render_report(
                 by_stage[story.stage] = []
             by_stage[story.stage].append(story)
 
+    has_costs = any(s.cost_usd is not None for s in report.stories)
+
     def _render_table(stories: list[StoryRun]) -> None:
-        lines.append(
-            "| Story | Model | Duration (s) | Turns | In tok | Out tok |"
-        )
-        lines.append(
-            "|-------|-------|--------------|-------|--------|---------|"
-        )
+        if has_costs:
+            lines.append(
+                "| Story | Model | Duration (s) | Turns | In tok | Out tok |"
+                " Cost ($) |"
+            )
+            lines.append(
+                "|-------|-------|--------------|-------|--------|---------|"
+                "----------|"
+            )
+        else:
+            lines.append(
+                "| Story | Model | Duration (s) | Turns | In tok | Out tok |"
+            )
+            lines.append(
+                "|-------|-------|--------------|-------|--------|---------|"
+            )
         for story in stories:
             story_label = "—" if story.story_id is None else str(story.story_id)
-            lines.append(
+            row = (
                 f"| {story_label} | {story.model} | "
                 f"{story.duration_s:.1f} | {story.turn_count} | "
                 f"{story.usage.input_tokens} | {story.usage.output_tokens} |"
             )
+            if has_costs:
+                cost_cell = (
+                    "—"
+                    if story.cost_usd is None
+                    else f"{story.cost_usd:.4f}"
+                )
+                row += f" {cost_cell} |"
+            lines.append(row)
 
     for stage in stage_order:
         lines.append(f"### {stage}")

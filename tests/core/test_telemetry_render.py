@@ -182,3 +182,37 @@ def test_render_report_all_unattributed() -> None:
     lines = text.splitlines()
     h3_lines = [line for line in lines if line.startswith("### ")]
     assert h3_lines == ["### Unattributed"]
+
+
+def test_render_report_emits_cost_when_populated() -> None:
+    """When cost_usd is set, frontmatter emits cost_usd and table has Cost column."""
+    base = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    story = telemetry.StoryRun(
+        story_id=None,
+        model="claude-opus-4-7",
+        started=base,
+        finished=base + timedelta(seconds=60),
+        duration_s=60.0,
+        usage=telemetry.Usage(input_tokens=100, output_tokens=50),
+        turn_count=3,
+        stage="implement",
+        cost_usd=1.2345,
+    )
+    report = _make_report((story,))
+
+    text = telemetry.render_report(report, issue=42)
+
+    assert "    cost_usd: 1.2345" in text
+    assert "| Cost ($) |" in text
+    assert "| 1.2345 |" in text
+
+
+def test_render_report_omits_cost_when_all_none() -> None:
+    """When no story has cost_usd set, frontmatter and table stay cost-free."""
+    stories = (_make_story_run("implement", started_offset_s=0),)
+    report = _make_report(stories)
+
+    text = telemetry.render_report(report, issue=42)
+
+    assert "cost_usd" not in text
+    assert "Cost ($)" not in text

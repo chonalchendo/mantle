@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 from inline_snapshot import snapshot
 
 from mantle.cli import builds
+from mantle.core import telemetry
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -463,3 +464,88 @@ def test_run_build_finish_drops_old_markers_contract(
     assert "story_id: 1" not in text
     assert "story_id: 2" not in text
     assert "status: complete" in text
+
+
+# ── _augment_with_costs ──────────────────────────────────────────
+
+
+def _build_report_with_one_run(
+    model: str,
+    input_tokens: int = 1_000_000,
+) -> telemetry.BuildReport:
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    run = telemetry.StoryRun(
+        story_id=None,
+        model=model,
+        started=ts,
+        finished=ts + timedelta(seconds=60),
+        duration_s=60.0,
+        usage=telemetry.Usage(input_tokens=input_tokens, output_tokens=0),
+        turn_count=1,
+        stage="implement",
+    )
+    return telemetry.BuildReport(
+        session_id="sess-test",
+        started=ts,
+        finished=ts + timedelta(seconds=60),
+        stories=(run,),
+    )
+
+
+def _write_cost_policy(project_dir: Path) -> None:
+    body = (
+        "---\n"
+        "prices:\n"
+        "  opus:\n"
+        "    input: 15.0\n"
+        "    output: 75.0\n"
+        "    cache_read: 1.5\n"
+        "    cache_write: 18.75\n"
+        "  sonnet:\n"
+        "    input: 3.0\n"
+        "    output: 15.0\n"
+        "    cache_read: 0.3\n"
+        "    cache_write: 3.75\n"
+        "---\n"
+    )
+    (project_dir / ".mantle" / "cost-policy.md").write_text(
+        body, encoding="utf-8"
+    )
+
+
+def test_augment_with_costs_populates_cost_for_full_anthropic_id(
+    tmp_path: Path,
+) -> None:
+    """Full Anthropic model ids resolve via tier substring → cost populated."""
+    project_dir = _make_project(tmp_path)
+    _write_cost_policy(project_dir)
+    report = _build_report_with_one_run("claude-opus-4-7")
+
+    augmented = builds._augment_with_costs(report, project_dir)
+
+    assert augmented.stories[0].cost_usd == 15.0  # 1M input * $15/M
+
+
+def test_augment_with_costs_returns_report_unchanged_when_policy_missing(
+    tmp_path: Path,
+) -> None:
+    """Missing cost-policy.md → no exception, cost_usd stays None."""
+    project_dir = _make_project(tmp_path)  # no cost-policy.md
+    report = _build_report_with_one_run("claude-opus-4-7")
+
+    augmented = builds._augment_with_costs(report, project_dir)
+
+    assert augmented.stories[0].cost_usd is None
+
+
+def test_augment_with_costs_leaves_unresolvable_models_alone(
+    tmp_path: Path,
+) -> None:
+    """Models with no tier substring stay cost_usd=None but don't error."""
+    project_dir = _make_project(tmp_path)
+    _write_cost_policy(project_dir)
+    report = _build_report_with_one_run("gpt-4o")
+
+    augmented = builds._augment_with_costs(report, project_dir)
+
+    assert augmented.stories[0].cost_usd is None

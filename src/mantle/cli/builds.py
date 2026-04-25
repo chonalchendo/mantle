@@ -7,7 +7,7 @@ from pathlib import Path
 
 from rich.console import Console
 
-from mantle.core import stages, telemetry
+from mantle.core import project, stages, telemetry
 
 console = Console()
 
@@ -118,6 +118,7 @@ def run_build_finish(issue: int, project_dir: Path | None = None) -> None:
         stage_windows=stage_windows,
     )
     report = telemetry.summarise(session_id, parent_turns, runs)
+    report = _augment_with_costs(report, project_dir)
     rendered = telemetry.render_report(report, issue=issue)
     finished = datetime.now(UTC)
     finalized = _finalize_frontmatter(rendered, finished)
@@ -127,6 +128,39 @@ def run_build_finish(issue: int, project_dir: Path | None = None) -> None:
 
 
 # ── Internal helpers ─────────────────────────────────────────────
+
+
+def _augment_with_costs(
+    report: telemetry.BuildReport,
+    project_dir: Path,
+) -> telemetry.BuildReport:
+    """Return a copy of ``report`` with ``cost_usd`` populated per story.
+
+    Reads prices from ``.mantle/cost-policy.md``. If the file or its
+    ``prices`` block is missing/invalid, returns the report unchanged
+    so the build is never blocked by config issues.
+    """
+    try:
+        prices = project.load_prices(project_dir)
+    except (FileNotFoundError, KeyError, ValueError):
+        return report
+
+    augmented: list[telemetry.StoryRun] = []
+    for run in report.stories:
+        pricing = project.resolve_pricing(run.model, prices)
+        if pricing is None:
+            augmented.append(run)
+            continue
+        u = run.usage
+        cost = (
+            u.input_tokens * pricing.input
+            + u.output_tokens * pricing.output
+            + u.cache_read_input_tokens * pricing.cache_read
+            + u.cache_creation_input_tokens * pricing.cache_write
+        ) / 1_000_000
+        augmented.append(run.model_copy(update={"cost_usd": cost}))
+
+    return report.model_copy(update={"stories": tuple(augmented)})
 
 
 def _find_latest_in_progress_stub(
