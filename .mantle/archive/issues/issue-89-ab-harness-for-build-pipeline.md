@@ -1,6 +1,6 @@
 ---
 title: A/B harness for build pipeline (replaces 75-remainder)
-status: implemented
+status: approved
 slice:
 - cli
 - core
@@ -26,44 +26,44 @@ skills_required:
 - python-314
 tags:
 - type/issue
-- status/implemented
+- status/approved
 acceptance_criteria:
 - id: ac-01
   text: A CLI entrypoint (`mantle ab-build compare <baseline.md> <candidate.md>`)
     accepts two already-written build report files and produces a single comparison
     report.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-02
   text: The report includes per-stage tokens, wall-clock seconds, and dollar cost
     for both strategies, plus a delta column. Per-stage rows are sourced from `StoryRun.stage`
     (populated by issue 92); runs with `stage=None` group under `Unattributed`.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-03
   text: Report cells contain real numerical content — verifier rejects `<fill>`, `TBD`,
     `pending`, `<x>`, `<y>` placeholder sentinels (84-retro lesson).
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-04
   text: The harness runs from outside `/mantle:build` (no nested-build invocation).
     Implementation constraint — takes already-written build files as input so the
     path to nest is closed by construction.
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-05
   text: 'Tests cover: argument parsing, report format (including stage-grouped rows
     and an Unattributed bucket), sentinel rejection, and at least one preset pair.'
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 - id: ac-06
   text: '`just check` passes.'
-  passes: false
+  passes: true
   waived: false
   waiver_reason: null
 ---
@@ -97,12 +97,12 @@ See `.mantle/shaped/issue-89-ab-harness-for-build-pipeline-shaped.md` for the fu
 
 ## Acceptance criteria
 
-- [ ] ac-01: A CLI entrypoint (`mantle ab-build compare <baseline.md> <candidate.md>`) accepts two already-written build report files and produces a single comparison report.
-- [ ] ac-02: The report includes per-stage tokens, wall-clock seconds, and dollar cost for both strategies, plus a delta column. Per-stage rows are sourced from `StoryRun.stage` (populated by issue 92); runs with `stage=None` group under `Unattributed`.
-- [ ] ac-03: Report cells contain real numerical content — verifier rejects `<fill>`, `TBD`, `pending`, `<x>`, `<y>` placeholder sentinels (84-retro lesson).
-- [ ] ac-04: The harness runs from outside `/mantle:build` (no nested-build invocation). Implementation constraint — takes already-written build files as input so the path to nest is closed by construction.
-- [ ] ac-05: Tests cover: argument parsing, report format (including stage-grouped rows and an Unattributed bucket), sentinel rejection, and at least one preset pair.
-- [ ] ac-06: `just check` passes.
+- [x] ac-01: A CLI entrypoint (`mantle ab-build compare <baseline.md> <candidate.md>`) accepts two already-written build report files and produces a single comparison report.
+- [x] ac-02: The report includes per-stage tokens, wall-clock seconds, and dollar cost for both strategies, plus a delta column. Per-stage rows are sourced from `StoryRun.stage` (populated by issue 92); runs with `stage=None` group under `Unattributed`.
+- [x] ac-03: Report cells contain real numerical content — verifier rejects `<fill>`, `TBD`, `pending`, `<x>`, `<y>` placeholder sentinels (84-retro lesson).
+- [x] ac-04: The harness runs from outside `/mantle:build` (no nested-build invocation). Implementation constraint — takes already-written build files as input so the path to nest is closed by construction.
+- [x] ac-05: Tests cover: argument parsing, report format (including stage-grouped rows and an Unattributed bucket), sentinel rejection, and at least one preset pair.
+- [x] ac-06: `just check` passes.
 
 ## Blocked by
 
