@@ -12,3 +12,4 @@
 - [cyclopts app() sys.exit(0) on success](feedback_cyclopts_app_sysexit.md) — main_module.app() raises SystemExit(0) after any None-returning command; wrap with pytest.raises(SystemExit) and assert code==0
 - [Prompt sweep substring guard](feedback_prompt_sweep_exact_strings.md) — tests/prompts/test_prompt_sweep.py asserts literal "MANTLE_DIR=$(mantle where)"; new prelude variants must be added to accepted tuple
 - [Parity harness snapshot() incompatibility](feedback_parity_harness_snapshot.md) — pass baseline="" to run_prompt_parity, then assert result.current_text == snapshot() separately; don't pass snapshot() as baseline
+- [TC001 noqa for pydantic cross-module fields](feedback_tc001_pydantic_noqa.md) — pydantic models with other-core-module field types need `# noqa: TC001`; moving under TYPE_CHECKING breaks pydantic runtime resolution
