@@ -198,7 +198,7 @@ Mantle is a Python CLI (`mantle`) that also installs slash commands into Claude 
 
 ## Status
 
-**v0.22.0** — Build-telemetry fix (#91). The Claude Code `SessionStart` hook now reads the hook's JSON stdin payload and writes the current `session_id` to `.mantle/.session-id` atomically (mktemp + rename), falling back from `jq` to `python3` and staying no-op when the file isn't present. `core/telemetry.py:current_session_id()` resolution chain is finally honoured end-to-end, so every `/mantle:build` run records a unique session UUID, real timestamps, and per-story entries. Unblocks the upcoming A/B harness (#89) and lays groundwork for cross-repo session identity (#85).
+**v0.23.0** — Regression-safety net for upcoming token-cost work. Three landed pieces: (a) a prompt-layer golden-parity test harness (#90) with normalized snapshots for `/mantle:build`, `/mantle:implement`, and `/mantle:plan-stories` plus a coverage-policy test that fails CI if a new `/mantle:*` command lands without a parity classification; (b) per-stage build telemetry (#92) — a universal `mantle stage-begin` primitive plus a sub-agent JSONL read path under `<parent_session>/subagents/`, so every build report attributes tokens, wall-clock, and dollar cost per stage rather than collapsing the whole build into one bucket; (c) a post-hoc A/B harness (#89) — `mantle ab-build-compare <baseline.md> <candidate.md>` renders a stage-grouped delta report (tokens, seconds, cost) from any two recorded build reports, with prices resolved from `.mantle/cost-policy.md`. Together these unlock confident token-cut refactors in v0.24.0 by making prompt drift, per-stage cost, and cross-build comparisons all observable.
 
 ## License
 

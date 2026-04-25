@@ -2,6 +2,16 @@
 
 All notable changes to Mantle are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow [SemVer](https://semver.org/).
 
+## [0.23.0] — 2026-04-25
+
+### Added
+- **Prompt-layer golden-parity test harness** (#90) — new `tests/parity/` package captures normalized snapshots of the rendered `/mantle:*` command prompts so token-cut refactors fail loudly instead of silently shifting agent-visible content. `tests/parity/harness.py` exposes `run_prompt_parity(command, fixture, baseline)`; `normalize_prompt_output()` strips timestamps, session IDs, absolute paths, and git SHAs before comparison. Three commands are wired up at launch (`build`, `implement`, `plan-stories`) via per-command `test_<cmd>_parity.py` files; `test_prompt_coverage_policy.py` enumerates every `/mantle:*` command in the repo and fails CI if a new one lands without an `INTEGRATED` / `DEFERRED` classification. CLAUDE.md grows a "Prompt-parity harness" subsection covering scope, baseline capture (`uv run pytest --inline-snapshot=create`), accepting deliberate diffs (`--inline-snapshot=review`), and promoting `DEFERRED` → `INTEGRATED`.
+- **Per-stage build telemetry** (#92) — a universal `mantle stage-begin <name>` CLI primitive appends a well-formed JSONL `StageMark` to `.mantle/telemetry/stages-<session_id>.jsonl`, giving every LLM-invoking `claude/commands/mantle/*.md` template a single line of opening instrumentation. `core/stages.py` defines the `StageMark` record and append helper; `core/telemetry.py` gains a sub-agent JSONL read path that walks `<parent_session>/subagents/agent-*.jsonl` and emits one `StoryRun` per sub-agent transcript, plus a `StageWindow` algorithm that attributes parent-session inline turns to the enclosing stage. `BuildReport` stays backward-compatible — existing `.mantle/builds/build-NN-*.md` files keep parsing — and per-stage rows now carry tokens, wall-clock seconds, and `cost_usd` resolved from `.mantle/cost-policy.md` prices. Roundtrip tests cover synthetic parent + `subagents/` + stages JSONL fixtures and a copy of build-90's real session directory; story-id is parsed from sub-agent description markers so per-story attribution survives partial logs.
+- **Post-hoc A/B harness for build pipeline** (#89) — `mantle ab-build-compare <baseline.md> <candidate.md>` renders a stage-grouped delta report comparing two recorded build reports along tokens, wall-clock seconds, and dollar cost. `core/ab_build.py` defines `ComparisonRow`, `Comparison`, `BuildArtefacts`, `QualityStats`, `CostBreakdown` value objects plus pure `compute_cost`, `collect_quality`, `build_comparison`, `render_markdown` functions; the verifier rejects placeholder cells (`<fill>`, `TBD`). Pricing flows in via a new `Pricing` Pydantic model + `project.load_prices()` reading the `prices` block from `.mantle/cost-policy.md`, with full Anthropic model IDs resolved to tier-keyed prices so per-stage `cost_usd` is filled when the cost policy is present and gracefully degraded when it is not. The harness runs from outside `/mantle:build` (no nested-build invocation).
+
+### Fixed
+- **`token-audit` report snapshots are deterministic.** `core/token_audit.format_report` and `cli/audit_tokens.run_audit_tokens` accept a `today: date | None = None` kwarg defaulting to `date.today()`; tests pass a fixed date so the four inline snapshots that embed the report header date no longer drift with the calendar.
+
 ## [0.22.0] — 2026-04-24
 
 ### Fixed
@@ -272,6 +282,7 @@ Initial public release.
 - `/mantle:help` command file.
 - README with project overview and quick start.
 
+[0.23.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.23.0
 [0.22.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.22.0
 [0.21.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.21.0
 [0.20.0]: https://github.com/chonalchendo/mantle/releases/tag/v0.20.0
