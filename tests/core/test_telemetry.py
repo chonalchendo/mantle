@@ -290,6 +290,7 @@ def _make_subagent_pair(
     session_id: str,
     start_ts: datetime,
     turn_count: int = 2,
+    description: str | None = None,
 ) -> Path:
     """Write a sub-agent JSONL + meta.json pair and return the JSONL path."""
     jsonl_path = directory / f"agent-{agent_id}.jsonl"
@@ -305,9 +306,10 @@ def _make_subagent_pair(
         for i in range(turn_count)
     ]
     _write_jsonl(jsonl_path, records)
-    meta_path.write_text(
-        json.dumps({"agentType": agent_type}), encoding="utf-8"
-    )
+    meta: dict[str, str] = {"agentType": agent_type}
+    if description is not None:
+        meta["description"] = description
+    meta_path.write_text(json.dumps(meta), encoding="utf-8")
     return jsonl_path
 
 
@@ -340,6 +342,61 @@ def test_group_stories_unknown_agent_type_yields_stage_none(
 
     assert len(runs) == 1
     assert runs[0].stage is None
+
+
+def test_group_stories_parses_story_id_from_description(
+    tmp_path: Path,
+) -> None:
+    """``description: "Implement story 2"`` populates StoryRun.story_id."""
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    p1 = _make_subagent_pair(
+        tmp_path,
+        "aaa",
+        "story-implementer",
+        "s",
+        ts,
+        description="Implement story 2",
+    )
+    p2 = _make_subagent_pair(
+        tmp_path,
+        "bbb",
+        "story-implementer",
+        "s",
+        ts + timedelta(hours=1),
+        description="Implement issue 74 story 11",
+    )
+
+    runs = telemetry.group_stories(subagent_paths=(p1, p2))
+
+    story_ids = sorted(r.story_id for r in runs if r.story_id is not None)
+    assert story_ids == [2, 11]
+
+
+def test_group_stories_no_story_id_when_description_lacks_marker(
+    tmp_path: Path,
+) -> None:
+    """Descriptions without ``story <N>`` keep story_id = None."""
+    ts = datetime(2026, 4, 12, 10, 0, 0, tzinfo=UTC)
+    p1 = _make_subagent_pair(
+        tmp_path,
+        "aaa",
+        "refactorer",
+        "s",
+        ts,
+        description="Simplify issue 84 code",
+    )
+    p2 = _make_subagent_pair(
+        tmp_path,
+        "bbb",
+        "general-purpose",
+        "s",
+        ts + timedelta(hours=1),
+        # no description supplied at all
+    )
+
+    runs = telemetry.group_stories(subagent_paths=(p1, p2))
+
+    assert all(r.story_id is None for r in runs)
 
 
 def test_group_stories_from_stage_windows(tmp_path: Path) -> None:

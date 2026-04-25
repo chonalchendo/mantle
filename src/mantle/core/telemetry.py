@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -65,11 +66,15 @@ class SubagentMeta(pydantic.BaseModel, frozen=True):
     Attributes:
         agent_type: The type of agent that ran this sub-session
             (e.g. 'story-implementer', 'refactorer', 'general-purpose').
+        description: Free-text description supplied at Agent-tool spawn
+            time. Build telemetry parses ``story <N>`` out of this to
+            attribute runs to a story.
     """
 
     model_config = pydantic.ConfigDict(extra="ignore")
 
     agent_type: str = pydantic.Field(alias="agentType")
+    description: str | None = None
 
 
 class StoryRun(pydantic.BaseModel, frozen=True):
@@ -124,6 +129,22 @@ _AGENT_TYPE_TO_STAGE: dict[str, str] = {
     "refactorer": "simplify",
     "general-purpose": "verify",
 }
+
+_STORY_ID_RE = re.compile(r"\bstory\s+(\d+)\b", re.IGNORECASE)
+
+
+def _parse_story_id(description: str | None) -> int | None:
+    """Extract a story number from an Agent-tool description.
+
+    Matches the first ``story <N>`` substring (case-insensitive).
+    Real meta sidecars use descriptions like ``"Implement story 2"``
+    or ``"Implement issue 74 story 1"`` — the regex picks up the
+    story number while ignoring the issue number.
+    """
+    if not description:
+        return None
+    match = _STORY_ID_RE.search(description)
+    return int(match.group(1)) if match else None
 
 
 # ── Public API ───────────────────────────────────────────────────
@@ -300,8 +321,11 @@ def group_stories(
         meta = read_meta(path)
         agent_type = meta.agent_type if meta else None
         stage = _AGENT_TYPE_TO_STAGE.get(agent_type) if agent_type else None
+        story_id = _parse_story_id(meta.description if meta else None)
         run = _aggregate_cluster(list(turns))
-        runs.append(run.model_copy(update={"stage": stage}))
+        runs.append(
+            run.model_copy(update={"stage": stage, "story_id": story_id})
+        )
 
     for window in stage_windows:
         window_turns = [
