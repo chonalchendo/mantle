@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pydantic
 
-from mantle.core import issues, project, stories, telemetry  # noqa: TC001
+from mantle.core import issues, project, stories, telemetry
 
 # ── Stage ordering ────────────────────────────────────────────────
 
@@ -172,7 +172,7 @@ def compute_cost(
         bucket[3] += u.cache_creation_input_tokens
         bucket[5] += run.duration_s
 
-        pricing = prices.get(run.model)
+        pricing = project.resolve_pricing(run.model, prices)
         if pricing is None:
             unpriced.add(run.model)
         else:

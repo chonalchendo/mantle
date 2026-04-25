@@ -770,3 +770,49 @@ class TestLoadPrices:
 
         with pytest.raises(pydantic.ValidationError):
             p.input = 999.0
+
+
+# ── resolve_pricing ──────────────────────────────────────────────
+
+
+class TestResolvePricing:
+    """resolve_pricing matches literal model id, then tier substring."""
+
+    def _opus(self) -> project.Pricing:
+        return project.Pricing(
+            input=15.0, output=75.0, cache_read=1.5, cache_write=18.75
+        )
+
+    def _sonnet(self) -> project.Pricing:
+        return project.Pricing(
+            input=3.0, output=15.0, cache_read=0.3, cache_write=3.75
+        )
+
+    def test_literal_match_takes_precedence_over_tier_substring(self) -> None:
+        """An exact model-id key wins over a tier-substring fallback."""
+        custom = project.Pricing(
+            input=99.0, output=99.0, cache_read=99.0, cache_write=99.0
+        )
+        prices = {"opus": self._opus(), "claude-opus-4-7": custom}
+
+        assert project.resolve_pricing("claude-opus-4-7", prices) is custom
+
+    def test_tier_substring_match_for_full_anthropic_id(self) -> None:
+        """Full Anthropic model ids resolve to their tier price entry."""
+        prices = {"opus": self._opus(), "sonnet": self._sonnet()}
+
+        assert (
+            project.resolve_pricing("claude-opus-4-7", prices)
+            is prices["opus"]
+        )
+        assert (
+            project.resolve_pricing("claude-sonnet-4-6", prices)
+            is prices["sonnet"]
+        )
+
+    def test_returns_none_when_no_match(self) -> None:
+        """Unknown models with no tier substring return None."""
+        prices = {"opus": self._opus()}
+
+        assert project.resolve_pricing("gpt-4o", prices) is None
+        assert project.resolve_pricing("", prices) is None

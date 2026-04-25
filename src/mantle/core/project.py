@@ -378,6 +378,37 @@ class Pricing(pydantic.BaseModel, frozen=True):
     cache_write: float
 
 
+_PRICING_TIER_KEYS: tuple[str, ...] = ("opus", "sonnet", "haiku")
+
+
+def resolve_pricing(
+    model: str,
+    prices: dict[str, Pricing],
+) -> Pricing | None:
+    """Look up pricing for a model id, falling back to tier substring match.
+
+    Telemetry stores full Anthropic model ids (``claude-opus-4-7``) but
+    cost-policy.md keys prices by short tier name (``opus``, ``sonnet``,
+    ``haiku``). Match the literal id first, then fall back to the first
+    tier whose name appears as a substring of the model id.
+
+    Args:
+        model: Model id from telemetry (e.g. ``claude-opus-4-7`` or a
+            short tier name).
+        prices: Per-model pricing table (USD per million tokens).
+
+    Returns:
+        The matching :class:`Pricing` entry, or ``None`` when no
+        literal-id or tier-substring match exists.
+    """
+    if model in prices:
+        return prices[model]
+    for tier in _PRICING_TIER_KEYS:
+        if tier in model and tier in prices:
+            return prices[tier]
+    return None
+
+
 def load_prices(project_root: Path) -> dict[str, Pricing]:
     """Read per-model token prices from .mantle/cost-policy.md.
 

@@ -183,6 +183,43 @@ def test_compute_cost_reports_unpriced_models() -> None:
     assert result.grand_total[4] == 0.0  # zero cost contribution
 
 
+def test_compute_cost_resolves_full_model_ids_via_tier_substring() -> None:
+    """Full Anthropic model ids (``claude-opus-4-7``) match tier-keyed prices.
+
+    Build telemetry stores full ids; ``cost-policy.md`` keys prices by
+    tier (``opus``/``sonnet``/``haiku``). The resolver bridges the two
+    so the cost column never silently falls to $0 on real builds.
+    """
+    runs = (
+        _story_run(
+            stage="implement",
+            model="claude-opus-4-7",
+            inp=1_000_000,
+            out=0,
+        ),
+        _story_run(
+            stage="verify",
+            model="claude-sonnet-4-6",
+            inp=1_000_000,
+            out=0,
+        ),
+    )
+    report = _build_report(runs)
+    prices = {
+        "opus": project.Pricing(
+            input=15.0, output=75.0, cache_read=1.5, cache_write=18.75
+        ),
+        "sonnet": project.Pricing(
+            input=3.0, output=15.0, cache_read=0.3, cache_write=3.75
+        ),
+    }
+
+    result = ab_build.compute_cost(report, prices)
+
+    assert result.grand_total[4] == 18.0  # 15 (opus) + 3 (sonnet)
+    assert result.unpriced_models == ()
+
+
 def test_compute_cost_wall_clock_per_stage() -> None:
     """Wall clock time is summed per stage."""
     runs = (
